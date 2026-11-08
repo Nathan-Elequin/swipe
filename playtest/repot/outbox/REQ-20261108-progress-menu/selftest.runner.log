@@ -1,0 +1,40 @@
+Using Godot: /tmp/godot-ci/Godot_v4.7.2-stable_linux.x86_64
+4.7.2.stable.official.ed1daf0bf
+Repo tip: c877a17f444f8ce04fa14530f638927a64f2f0c7
+Isolated XDG_DATA_HOME=/tmp/progress-menu.OZ98xP/xdg-data
+----- progress_menu_selftest.gd (exit 0) -----
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS ASSERT META.menu_script_loads — progress_menu.gd loads
+PASS ASSERT ATTR.catalog_loaded — catalog items loaded for attribution (n=77)
+PASS ASSERT ATTR.net_is_b1 — catalog net resolves to b1 via BucketRules+pool_for_bucket (pool=b1 raw=1.0)
+PASS ASSERT ATTR.b1_roster_gt_six — real b1 roster is full catalog slice (not 6-item fixture) (n=15)
+PASS ASSERT SCRAP.push_cross_no_stamp — after push-like bank, b1 at quota but map_pieces empty (b1=5 pieces=[])
+PASS ASSERT SCRAP.leave_deferred_once — Leave after push cross stamps Crystal Cavern once (stamp={ "id": "b2", "name": "Crystal Cavern", "index": 1, "endless": false, "first": true, "filled": "b1" } pieces=["b2"])
+PASS ASSERT SCRAP.idempotent_no_replay — second stamp not first; piece count stays 1 (stamp2={ "id": "b2", "name": "Crystal Cavern", "index": 1, "endless": false, "first": false, "filled": "b1" } pieces=["b2"])
+PASS ASSERT SCRAP.no_remark_after_clear — owned piece re-stamp after clear_pencil does not re-mark fresh (fresh=[] stamp3={ "id": "b2", "name": "Crystal Cavern", "index": 1, "endless": false, "first": false, "filled": "b1" })
+WARNING: postrun.collection.overall / overallCollection missing — no invented aggregate
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _rebuild_overview (res://scripts/ui/progress_menu.gd:468)
+         [1] present (res://scripts/ui/progress_menu.gd:302)
+         [2] _present_async (res://scripts/dev/progress_menu_selftest.gd:328)
+         [3] _kick_present (res://scripts/dev/progress_menu_selftest.gd:324)
+         [4] _run (res://scripts/dev/progress_menu_selftest.gd:135)
+PASS ASSERT UI.open — menu visible
+PASS ASSERT UI.early_start_acks — early Start New Run acks all new ids once (raw count) (acked=["net", "sai"])
+PASS ASSERT UI.result_start — present returns start action (result={ "action": "start", "biome_index": 0 })
+PASS ASSERT UI.tutorial_copy — completed tutorial uses tutorial summary (got=Tutorial complete. Tutorial items don't count toward collection progress.)
+PASS ASSERT UI.tutorial_skipped_copy — tutorial_skipped uses Spin key — not success_none (got=Tutorial skipped.)
+PASS ASSERT UI.loss_has_area_count — collection area count lab populated (lab=Verdant Hollow collection: 1/15)
+PASS ASSERT UI.tab_cancels_auto — after tab, phase idle and gen advanced (phase=3)
+PASS STATIC STATIC.finalize_handoff — main finalizes menu result before delve; push pause gated
+PASS STATIC STATIC.deferred_stamp — Leave stamps past-quota cabinets idempotently; Push banks without stamp
+PASS STATIC STATIC.tutorial_declined_not_complete_copy — declined tutorial does not open kind=tutorial
+PASS STATIC STATIC.attribution_helper — menu uses BucketRules + pool_for_bucket
+NOTE NOTE.flag_collected_copy — Missing Spin overallCollection/postrun.collection.overall aggregate key — flagged, not invented.
+---
+rows=20 fail=0
+PROGRESS_MENU_CEREMONY_OK
+----- end -----
+PROGRESS_MENU local run OK (isolated user-data)

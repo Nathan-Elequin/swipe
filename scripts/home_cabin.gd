@@ -843,7 +843,10 @@ func show_menu(room: String = "main") -> void:
 	_apply_gate()
 	## Reload / free cabin entry: resume unfinished reveal without re-banking.
 	## Skip while Push-block owns the hall handoff (that path mounts after its dialog).
-	if not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
+	## Skip when the post-run progress menu already handled this return (no S7 auto replay).
+	if has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return")):
+		set_meta("progress_menu_handled_return", false)
+	elif not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
 		call_deferred("_resume_pending_bank_if_idle")
 
 
@@ -851,6 +854,8 @@ func _resume_pending_bank_if_idle() -> void:
 	if _bank_busy or _arriving or _beat == "keyring" or not visible:
 		return
 	if _bank_from_push_block:
+		return
+	if has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return")):
 		return
 	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
 		return
@@ -1859,7 +1864,10 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			_apply_gate()
 			return
 		## Campaign win with new uniques: auto-focus hall + existing S7 ceremony.
-		if not bank_pending.is_empty():
+		## Skip when post-run progress menu already handled this return.
+		if not bank_pending.is_empty() and not (
+			has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return"))
+		):
 			await _stage_homecoming_bank()
 			if _arrive_aborted(gen):
 				return

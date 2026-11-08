@@ -1,0 +1,939 @@
+BANKING_SOURCE_SHA=03821635e7bd42284d24e3b1c83338e8d67b9708
+BANKING_PATH=/agent/repos/swipe
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[godot-mcp] Plugin initialized
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[godot-mcp] Server listening on 127.0.0.1:6550 [Localhost]
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/almighty_worm_wheel_base.png and res://assets/dungeon/anim/wheel/almighty_worm_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/almighty_worm_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/almighty_worm_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/almighty_worm_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/almighty_worm_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/amalgam_wheel_base.png and res://assets/dungeon/anim/wheel/amalgam_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/amalgam_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/amalgam_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/amalgam_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/amalgam_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/anvil_wheel_base.png and res://assets/dungeon/anim/wheel/anvil_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/anvil_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/anvil_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/anvil_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/anvil_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bandit_wheel_base.png and res://assets/dungeon/anim/wheel/bandit_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bandit_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/bandit_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bandit_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/bandit_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/basilisk_wheel_base.png and res://assets/dungeon/anim/wheel/basilisk_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/basilisk_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/basilisk_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/basilisk_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/basilisk_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bear_trap_wheel_base.png and res://assets/dungeon/anim/wheel/bear_trap_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/beggar_wheel_base.png and res://assets/dungeon/anim/wheel/beggar_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/beggar_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/beggar_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/beggar_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/beggar_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/berserker_wheel_base.png and res://assets/dungeon/anim/wheel/berserker_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/berserker_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/berserker_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/berserker_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/berserker_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bodyguard_wheel_base.png and res://assets/dungeon/anim/wheel/bodyguard_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bodyguard_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/bodyguard_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bodyguard_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/bodyguard_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bushido_wheel_base.png and res://assets/dungeon/anim/wheel/bushido_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bushido_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/bushido_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/bushido_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/bushido_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cleric_wheel_base.png and res://assets/dungeon/anim/wheel/cleric_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cleric_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/cleric_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cleric_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/cleric_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/clockwork_knight_wheel_base.png and res://assets/dungeon/anim/wheel/clockwork_knight_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/clockwork_knight_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/clockwork_knight_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/clockwork_knight_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/clockwork_knight_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/commander_wheel_base.png and res://assets/dungeon/anim/wheel/commander_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/commander_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/commander_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/commander_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/commander_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cowardly_king_wheel_base.png and res://assets/dungeon/anim/wheel/cowardly_king_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cowardly_king_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/cowardly_king_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cowardly_king_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/cowardly_king_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cultist_wheel_base.png and res://assets/dungeon/anim/wheel/cultist_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cultist_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/cultist_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/cultist_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/cultist_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/damsel_in_distress_wheel_base.png and res://assets/dungeon/anim/wheel/damsel_in_distress_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/damsel_in_distress_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/damsel_in_distress_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/damsel_in_distress_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/damsel_in_distress_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/death_bell_wheel_base.png and res://assets/dungeon/anim/wheel/death_bell_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/death_bell_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/death_bell_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/death_bell_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/death_bell_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dire_wolf_wheel_base.png and res://assets/dungeon/anim/wheel/dire_wolf_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dire_wolf_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/dire_wolf_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dire_wolf_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/dire_wolf_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dragon_wheel_base.png and res://assets/dungeon/anim/wheel/dragon_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dragon_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/dragon_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/dragon_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/dragon_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/druid_wheel_base.png and res://assets/dungeon/anim/wheel/druid_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/druid_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/druid_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/druid_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/druid_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/eel_wheel_base.png and res://assets/dungeon/anim/wheel/eel_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/eel_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/eel_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/eel_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/eel_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/fairy_wheel_base.png and res://assets/dungeon/anim/wheel/fairy_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/fairy_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/fairy_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/fairy_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/fairy_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gargoyle_wheel_base.png and res://assets/dungeon/anim/wheel/gargoyle_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gargoyle_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/gargoyle_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gargoyle_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/gargoyle_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gelatinous_cube_wheel_base.png and res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gelatinous_cube_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/gelatinous_cube_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/goblin_wheel_base.png and res://assets/dungeon/anim/wheel/goblin_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/goblin_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/goblin_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/goblin_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/goblin_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/golem_wheel_base.png and res://assets/dungeon/anim/wheel/golem_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/golem_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/golem_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/golem_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/golem_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/harpy_wheel_base.png and res://assets/dungeon/anim/wheel/harpy_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/harpy_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/harpy_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/harpy_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/harpy_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hired_hand_wheel_base.png and res://assets/dungeon/anim/wheel/hired_hand_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hired_hand_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/hired_hand_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hired_hand_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/hired_hand_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hollow_wheel_base.png and res://assets/dungeon/anim/wheel/hollow_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hollow_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/hollow_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hollow_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/hollow_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hornet_swarm_wheel_base.png and res://assets/dungeon/anim/wheel/hornet_swarm_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hornet_swarm_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/hornet_swarm_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hornet_swarm_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/hornet_swarm_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hydra_wheel_base.png and res://assets/dungeon/anim/wheel/hydra_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hydra_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/hydra_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/hydra_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/hydra_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/juggernaut_wheel_base.png and res://assets/dungeon/anim/wheel/juggernaut_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/juggernaut_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/juggernaut_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/juggernaut_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/juggernaut_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/kobold_trapper_wheel_base.png and res://assets/dungeon/anim/wheel/kobold_trapper_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/kobold_trapper_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/kobold_trapper_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/kobold_trapper_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/kobold_trapper_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/leech_league_wheel_base.png and res://assets/dungeon/anim/wheel/leech_league_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/leech_league_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/leech_league_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/leech_league_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/leech_league_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/lich_wheel_base.png and res://assets/dungeon/anim/wheel/lich_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/lich_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/lich_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/lich_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/lich_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/magicat_wheel_base.png and res://assets/dungeon/anim/wheel/magicat_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/magicat_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/magicat_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/magicat_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/magicat_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/martyr_wheel_base.png and res://assets/dungeon/anim/wheel/martyr_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/martyr_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/martyr_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/martyr_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/martyr_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/merchant_wheel_base.png and res://assets/dungeon/anim/wheel/merchant_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/merchant_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/merchant_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/merchant_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/merchant_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mimic_wheel_base.png and res://assets/dungeon/anim/wheel/mimic_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mimic_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/mimic_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mimic_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/mimic_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mouse_wheel_base.png and res://assets/dungeon/anim/wheel/mouse_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mouse_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/mouse_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/mouse_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/mouse_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/needleback_wheel_base.png and res://assets/dungeon/anim/wheel/needleback_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/needleback_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/needleback_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/needleback_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/needleback_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/ogre_wheel_base.png and res://assets/dungeon/anim/wheel/ogre_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/ogre_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/ogre_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/ogre_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/ogre_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/oligarch_wheel_base.png and res://assets/dungeon/anim/wheel/oligarch_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/oligarch_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/oligarch_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/oligarch_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/oligarch_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_egg_wheel_base.png and res://assets/dungeon/anim/wheel/phoenix_egg_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_egg_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/phoenix_egg_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_egg_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/phoenix_egg_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_wheel_base.png and res://assets/dungeon/anim/wheel/phoenix_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/phoenix_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/phoenix_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/phoenix_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/plague_doctor_wheel_base.png and res://assets/dungeon/anim/wheel/plague_doctor_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/plague_doctor_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/plague_doctor_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/plague_doctor_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/plague_doctor_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/poison_frog_wheel_base.png and res://assets/dungeon/anim/wheel/poison_frog_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/poison_frog_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/poison_frog_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/poison_frog_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/poison_frog_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/prism_wheel_base.png and res://assets/dungeon/anim/wheel/prism_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/prism_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/prism_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/prism_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/prism_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/rust_bucket_wheel_base.png and res://assets/dungeon/anim/wheel/rust_bucket_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/rust_bucket_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/rust_bucket_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/rust_bucket_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/rust_bucket_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/sandbag_wheel_base.png and res://assets/dungeon/anim/wheel/sandbag_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/sandbag_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/sandbag_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/sandbag_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/sandbag_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/scorpion_wheel_base.png and res://assets/dungeon/anim/wheel/scorpion_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/scorpion_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/scorpion_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/scorpion_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/scorpion_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shambling_mound_wheel_base.png and res://assets/dungeon/anim/wheel/shambling_mound_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shambling_mound_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/shambling_mound_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shambling_mound_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/shambling_mound_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shark_wheel_base.png and res://assets/dungeon/anim/wheel/shark_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shark_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/shark_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/shark_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/shark_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/skeleton_wheel_base.png and res://assets/dungeon/anim/wheel/skeleton_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/skeleton_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/skeleton_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/skeleton_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/skeleton_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/slime_boss_wheel_base.png and res://assets/dungeon/anim/wheel/slime_boss_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/slime_boss_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/slime_boss_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/slime_boss_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/slime_boss_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/spider_queen_wheel_base.png and res://assets/dungeon/anim/wheel/spider_queen_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/spider_queen_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/spider_queen_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/spider_queen_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/spider_queen_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/triclops_wheel_base.png and res://assets/dungeon/anim/wheel/triclops_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/triclops_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/triclops_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/triclops_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/triclops_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/vampire_wheel_base.png and res://assets/dungeon/anim/wheel/vampire_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/vampire_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/vampire_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/vampire_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/vampire_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wick_wheel_base.png and res://assets/dungeon/anim/wheel/wick_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wick_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/wick_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wick_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/wick_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wizard_wheel_base.png and res://assets/dungeon/anim/wheel/wizard_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wizard_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/wizard_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wizard_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/wizard_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wraith_wheel_base.png and res://assets/dungeon/anim/wheel/wraith_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wraith_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/wraith_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/wraith_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/wraith_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/zombie_wheel_base.png and res://assets/dungeon/anim/wheel/zombie_wheel_base.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/zombie_wheel_breathe_f0.png and res://assets/dungeon/anim/wheel/zombie_wheel_breathe_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/archive/pass-wheel-pre-facing/zombie_wheel_breathe_f1.png and res://assets/dungeon/anim/wheel/zombie_wheel_breathe_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/almighty_worm_facing_idle_f0.png and res://assets/dungeon/anim/facing/almighty_worm_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/almighty_worm_facing_idle_f1.png and res://assets/dungeon/anim/facing/almighty_worm_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/almighty_worm_facing_idle_f2.png and res://assets/dungeon/anim/facing/almighty_worm_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/almighty_worm_facing_idle_f3.png and res://assets/dungeon/anim/facing/almighty_worm_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/amalgam_facing_idle_f0.png and res://assets/dungeon/anim/facing/amalgam_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/amalgam_facing_idle_f1.png and res://assets/dungeon/anim/facing/amalgam_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/amalgam_facing_idle_f2.png and res://assets/dungeon/anim/facing/amalgam_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/amalgam_facing_idle_f3.png and res://assets/dungeon/anim/facing/amalgam_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bandit_facing_idle_f0.png and res://assets/dungeon/anim/facing/bandit_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bandit_facing_idle_f1.png and res://assets/dungeon/anim/facing/bandit_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bandit_facing_idle_f2.png and res://assets/dungeon/anim/facing/bandit_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bandit_facing_idle_f3.png and res://assets/dungeon/anim/facing/bandit_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/basilisk_facing_idle_f0.png and res://assets/dungeon/anim/facing/basilisk_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/basilisk_facing_idle_f1.png and res://assets/dungeon/anim/facing/basilisk_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/basilisk_facing_idle_f2.png and res://assets/dungeon/anim/facing/basilisk_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/basilisk_facing_idle_f3.png and res://assets/dungeon/anim/facing/basilisk_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/beggar_facing_idle_f0.png and res://assets/dungeon/anim/facing/beggar_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/beggar_facing_idle_f1.png and res://assets/dungeon/anim/facing/beggar_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/beggar_facing_idle_f2.png and res://assets/dungeon/anim/facing/beggar_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/beggar_facing_idle_f3.png and res://assets/dungeon/anim/facing/beggar_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/berserker_facing_idle_f0.png and res://assets/dungeon/anim/facing/berserker_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/berserker_facing_idle_f1.png and res://assets/dungeon/anim/facing/berserker_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/berserker_facing_idle_f2.png and res://assets/dungeon/anim/facing/berserker_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/berserker_facing_idle_f3.png and res://assets/dungeon/anim/facing/berserker_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bodyguard_facing_idle_f0.png and res://assets/dungeon/anim/facing/bodyguard_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bodyguard_facing_idle_f1.png and res://assets/dungeon/anim/facing/bodyguard_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bodyguard_facing_idle_f2.png and res://assets/dungeon/anim/facing/bodyguard_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bodyguard_facing_idle_f3.png and res://assets/dungeon/anim/facing/bodyguard_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bushido_facing_idle_f0.png and res://assets/dungeon/anim/facing/bushido_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bushido_facing_idle_f1.png and res://assets/dungeon/anim/facing/bushido_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bushido_facing_idle_f2.png and res://assets/dungeon/anim/facing/bushido_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/bushido_facing_idle_f3.png and res://assets/dungeon/anim/facing/bushido_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cleric_facing_idle_f0.png and res://assets/dungeon/anim/facing/cleric_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cleric_facing_idle_f1.png and res://assets/dungeon/anim/facing/cleric_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cleric_facing_idle_f2.png and res://assets/dungeon/anim/facing/cleric_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cleric_facing_idle_f3.png and res://assets/dungeon/anim/facing/cleric_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/clockwork_knight_facing_idle_f0.png and res://assets/dungeon/anim/facing/clockwork_knight_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/clockwork_knight_facing_idle_f1.png and res://assets/dungeon/anim/facing/clockwork_knight_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/clockwork_knight_facing_idle_f2.png and res://assets/dungeon/anim/facing/clockwork_knight_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/clockwork_knight_facing_idle_f3.png and res://assets/dungeon/anim/facing/clockwork_knight_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/commander_facing_idle_f0.png and res://assets/dungeon/anim/facing/commander_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/commander_facing_idle_f1.png and res://assets/dungeon/anim/facing/commander_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/commander_facing_idle_f2.png and res://assets/dungeon/anim/facing/commander_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/commander_facing_idle_f3.png and res://assets/dungeon/anim/facing/commander_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cowardly_king_facing_idle_f0.png and res://assets/dungeon/anim/facing/cowardly_king_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cowardly_king_facing_idle_f1.png and res://assets/dungeon/anim/facing/cowardly_king_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cowardly_king_facing_idle_f2.png and res://assets/dungeon/anim/facing/cowardly_king_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cowardly_king_facing_idle_f3.png and res://assets/dungeon/anim/facing/cowardly_king_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cultist_facing_idle_f0.png and res://assets/dungeon/anim/facing/cultist_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cultist_facing_idle_f1.png and res://assets/dungeon/anim/facing/cultist_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cultist_facing_idle_f2.png and res://assets/dungeon/anim/facing/cultist_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/cultist_facing_idle_f3.png and res://assets/dungeon/anim/facing/cultist_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/damsel_in_distress_facing_idle_f0.png and res://assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/damsel_in_distress_facing_idle_f1.png and res://assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/damsel_in_distress_facing_idle_f2.png and res://assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/damsel_in_distress_facing_idle_f3.png and res://assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/death_bell_facing_idle_f0.png and res://assets/dungeon/anim/facing/death_bell_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/death_bell_facing_idle_f1.png and res://assets/dungeon/anim/facing/death_bell_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/death_bell_facing_idle_f2.png and res://assets/dungeon/anim/facing/death_bell_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/death_bell_facing_idle_f3.png and res://assets/dungeon/anim/facing/death_bell_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dire_wolf_facing_idle_f0.png and res://assets/dungeon/anim/facing/dire_wolf_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dire_wolf_facing_idle_f1.png and res://assets/dungeon/anim/facing/dire_wolf_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dire_wolf_facing_idle_f2.png and res://assets/dungeon/anim/facing/dire_wolf_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dire_wolf_facing_idle_f3.png and res://assets/dungeon/anim/facing/dire_wolf_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dragon_facing_idle_f0.png and res://assets/dungeon/anim/facing/dragon_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dragon_facing_idle_f1.png and res://assets/dungeon/anim/facing/dragon_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dragon_facing_idle_f2.png and res://assets/dungeon/anim/facing/dragon_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/dragon_facing_idle_f3.png and res://assets/dungeon/anim/facing/dragon_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/druid_facing_idle_f0.png and res://assets/dungeon/anim/facing/druid_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/druid_facing_idle_f1.png and res://assets/dungeon/anim/facing/druid_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/druid_facing_idle_f2.png and res://assets/dungeon/anim/facing/druid_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/druid_facing_idle_f3.png and res://assets/dungeon/anim/facing/druid_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/eel_facing_idle_f0.png and res://assets/dungeon/anim/facing/eel_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/eel_facing_idle_f1.png and res://assets/dungeon/anim/facing/eel_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/eel_facing_idle_f2.png and res://assets/dungeon/anim/facing/eel_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/eel_facing_idle_f3.png and res://assets/dungeon/anim/facing/eel_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/fairy_facing_idle_f0.png and res://assets/dungeon/anim/facing/fairy_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/fairy_facing_idle_f1.png and res://assets/dungeon/anim/facing/fairy_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/fairy_facing_idle_f2.png and res://assets/dungeon/anim/facing/fairy_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/fairy_facing_idle_f3.png and res://assets/dungeon/anim/facing/fairy_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gargoyle_facing_idle_f0.png and res://assets/dungeon/anim/facing/gargoyle_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gargoyle_facing_idle_f1.png and res://assets/dungeon/anim/facing/gargoyle_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gargoyle_facing_idle_f2.png and res://assets/dungeon/anim/facing/gargoyle_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gargoyle_facing_idle_f3.png and res://assets/dungeon/anim/facing/gargoyle_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gelatinous_cube_facing_idle_f0.png and res://assets/dungeon/anim/facing/gelatinous_cube_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gelatinous_cube_facing_idle_f1.png and res://assets/dungeon/anim/facing/gelatinous_cube_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gelatinous_cube_facing_idle_f2.png and res://assets/dungeon/anim/facing/gelatinous_cube_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/gelatinous_cube_facing_idle_f3.png and res://assets/dungeon/anim/facing/gelatinous_cube_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/goblin_facing_idle_f0.png and res://assets/dungeon/anim/facing/goblin_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/goblin_facing_idle_f1.png and res://assets/dungeon/anim/facing/goblin_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/goblin_facing_idle_f2.png and res://assets/dungeon/anim/facing/goblin_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/goblin_facing_idle_f3.png and res://assets/dungeon/anim/facing/goblin_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/golem_facing_idle_f0.png and res://assets/dungeon/anim/facing/golem_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/golem_facing_idle_f1.png and res://assets/dungeon/anim/facing/golem_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/golem_facing_idle_f2.png and res://assets/dungeon/anim/facing/golem_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/golem_facing_idle_f3.png and res://assets/dungeon/anim/facing/golem_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/harpy_facing_idle_f0.png and res://assets/dungeon/anim/facing/harpy_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/harpy_facing_idle_f1.png and res://assets/dungeon/anim/facing/harpy_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/harpy_facing_idle_f2.png and res://assets/dungeon/anim/facing/harpy_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/harpy_facing_idle_f3.png and res://assets/dungeon/anim/facing/harpy_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hired_hand_facing_idle_f0.png and res://assets/dungeon/anim/facing/hired_hand_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hired_hand_facing_idle_f1.png and res://assets/dungeon/anim/facing/hired_hand_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hired_hand_facing_idle_f2.png and res://assets/dungeon/anim/facing/hired_hand_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hired_hand_facing_idle_f3.png and res://assets/dungeon/anim/facing/hired_hand_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hollow_facing_idle_f0.png and res://assets/dungeon/anim/facing/hollow_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hollow_facing_idle_f1.png and res://assets/dungeon/anim/facing/hollow_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hollow_facing_idle_f2.png and res://assets/dungeon/anim/facing/hollow_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hollow_facing_idle_f3.png and res://assets/dungeon/anim/facing/hollow_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hornet_swarm_facing_idle_f0.png and res://assets/dungeon/anim/facing/hornet_swarm_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hornet_swarm_facing_idle_f1.png and res://assets/dungeon/anim/facing/hornet_swarm_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hornet_swarm_facing_idle_f2.png and res://assets/dungeon/anim/facing/hornet_swarm_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hornet_swarm_facing_idle_f3.png and res://assets/dungeon/anim/facing/hornet_swarm_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hydra_facing_idle_f0.png and res://assets/dungeon/anim/facing/hydra_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hydra_facing_idle_f1.png and res://assets/dungeon/anim/facing/hydra_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hydra_facing_idle_f2.png and res://assets/dungeon/anim/facing/hydra_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/hydra_facing_idle_f3.png and res://assets/dungeon/anim/facing/hydra_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/juggernaut_facing_idle_f0.png and res://assets/dungeon/anim/facing/juggernaut_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/juggernaut_facing_idle_f1.png and res://assets/dungeon/anim/facing/juggernaut_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/juggernaut_facing_idle_f2.png and res://assets/dungeon/anim/facing/juggernaut_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/juggernaut_facing_idle_f3.png and res://assets/dungeon/anim/facing/juggernaut_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/kobold_trapper_facing_idle_f0.png and res://assets/dungeon/anim/facing/kobold_trapper_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/kobold_trapper_facing_idle_f1.png and res://assets/dungeon/anim/facing/kobold_trapper_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/kobold_trapper_facing_idle_f2.png and res://assets/dungeon/anim/facing/kobold_trapper_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/kobold_trapper_facing_idle_f3.png and res://assets/dungeon/anim/facing/kobold_trapper_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/leech_league_facing_idle_f0.png and res://assets/dungeon/anim/facing/leech_league_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/leech_league_facing_idle_f1.png and res://assets/dungeon/anim/facing/leech_league_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/leech_league_facing_idle_f2.png and res://assets/dungeon/anim/facing/leech_league_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/leech_league_facing_idle_f3.png and res://assets/dungeon/anim/facing/leech_league_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/lich_facing_idle_f0.png and res://assets/dungeon/anim/facing/lich_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/lich_facing_idle_f1.png and res://assets/dungeon/anim/facing/lich_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/lich_facing_idle_f2.png and res://assets/dungeon/anim/facing/lich_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/lich_facing_idle_f3.png and res://assets/dungeon/anim/facing/lich_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/magicat_facing_idle_f0.png and res://assets/dungeon/anim/facing/magicat_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/magicat_facing_idle_f1.png and res://assets/dungeon/anim/facing/magicat_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/magicat_facing_idle_f2.png and res://assets/dungeon/anim/facing/magicat_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/magicat_facing_idle_f3.png and res://assets/dungeon/anim/facing/magicat_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/martyr_facing_idle_f0.png and res://assets/dungeon/anim/facing/martyr_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/martyr_facing_idle_f1.png and res://assets/dungeon/anim/facing/martyr_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/martyr_facing_idle_f2.png and res://assets/dungeon/anim/facing/martyr_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/martyr_facing_idle_f3.png and res://assets/dungeon/anim/facing/martyr_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/merchant_facing_idle_f0.png and res://assets/dungeon/anim/facing/merchant_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/merchant_facing_idle_f1.png and res://assets/dungeon/anim/facing/merchant_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/merchant_facing_idle_f2.png and res://assets/dungeon/anim/facing/merchant_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/merchant_facing_idle_f3.png and res://assets/dungeon/anim/facing/merchant_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mimic_facing_idle_f0.png and res://assets/dungeon/anim/facing/mimic_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mimic_facing_idle_f1.png and res://assets/dungeon/anim/facing/mimic_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mimic_facing_idle_f2.png and res://assets/dungeon/anim/facing/mimic_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mimic_facing_idle_f3.png and res://assets/dungeon/anim/facing/mimic_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mouse_facing_idle_f0.png and res://assets/dungeon/anim/facing/mouse_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mouse_facing_idle_f1.png and res://assets/dungeon/anim/facing/mouse_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mouse_facing_idle_f2.png and res://assets/dungeon/anim/facing/mouse_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/mouse_facing_idle_f3.png and res://assets/dungeon/anim/facing/mouse_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/needleback_facing_idle_f0.png and res://assets/dungeon/anim/facing/needleback_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/needleback_facing_idle_f1.png and res://assets/dungeon/anim/facing/needleback_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/needleback_facing_idle_f2.png and res://assets/dungeon/anim/facing/needleback_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/needleback_facing_idle_f3.png and res://assets/dungeon/anim/facing/needleback_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/ogre_facing_idle_f0.png and res://assets/dungeon/anim/facing/ogre_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/ogre_facing_idle_f1.png and res://assets/dungeon/anim/facing/ogre_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/ogre_facing_idle_f2.png and res://assets/dungeon/anim/facing/ogre_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/ogre_facing_idle_f3.png and res://assets/dungeon/anim/facing/ogre_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_egg_facing_idle_f0.png and res://assets/dungeon/anim/facing/phoenix_egg_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_egg_facing_idle_f1.png and res://assets/dungeon/anim/facing/phoenix_egg_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_egg_facing_idle_f2.png and res://assets/dungeon/anim/facing/phoenix_egg_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_egg_facing_idle_f3.png and res://assets/dungeon/anim/facing/phoenix_egg_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_facing_idle_f0.png and res://assets/dungeon/anim/facing/phoenix_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_facing_idle_f1.png and res://assets/dungeon/anim/facing/phoenix_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_facing_idle_f2.png and res://assets/dungeon/anim/facing/phoenix_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/phoenix_facing_idle_f3.png and res://assets/dungeon/anim/facing/phoenix_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/plague_doctor_facing_idle_f0.png and res://assets/dungeon/anim/facing/plague_doctor_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/plague_doctor_facing_idle_f1.png and res://assets/dungeon/anim/facing/plague_doctor_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/plague_doctor_facing_idle_f2.png and res://assets/dungeon/anim/facing/plague_doctor_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/plague_doctor_facing_idle_f3.png and res://assets/dungeon/anim/facing/plague_doctor_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/poison_frog_facing_idle_f0.png and res://assets/dungeon/anim/facing/poison_frog_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/poison_frog_facing_idle_f1.png and res://assets/dungeon/anim/facing/poison_frog_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/poison_frog_facing_idle_f2.png and res://assets/dungeon/anim/facing/poison_frog_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/poison_frog_facing_idle_f3.png and res://assets/dungeon/anim/facing/poison_frog_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/prism_facing_idle_f0.png and res://assets/dungeon/anim/facing/prism_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/prism_facing_idle_f1.png and res://assets/dungeon/anim/facing/prism_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/prism_facing_idle_f2.png and res://assets/dungeon/anim/facing/prism_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/prism_facing_idle_f3.png and res://assets/dungeon/anim/facing/prism_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/rust_bucket_facing_idle_f0.png and res://assets/dungeon/anim/facing/rust_bucket_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/rust_bucket_facing_idle_f1.png and res://assets/dungeon/anim/facing/rust_bucket_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/rust_bucket_facing_idle_f2.png and res://assets/dungeon/anim/facing/rust_bucket_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/rust_bucket_facing_idle_f3.png and res://assets/dungeon/anim/facing/rust_bucket_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shambling_mound_facing_idle_f0.png and res://assets/dungeon/anim/facing/shambling_mound_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shambling_mound_facing_idle_f1.png and res://assets/dungeon/anim/facing/shambling_mound_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shambling_mound_facing_idle_f2.png and res://assets/dungeon/anim/facing/shambling_mound_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shambling_mound_facing_idle_f3.png and res://assets/dungeon/anim/facing/shambling_mound_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shark_facing_idle_f0.png and res://assets/dungeon/anim/facing/shark_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shark_facing_idle_f1.png and res://assets/dungeon/anim/facing/shark_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shark_facing_idle_f2.png and res://assets/dungeon/anim/facing/shark_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/shark_facing_idle_f3.png and res://assets/dungeon/anim/facing/shark_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/skeleton_facing_idle_f0.png and res://assets/dungeon/anim/facing/skeleton_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/skeleton_facing_idle_f1.png and res://assets/dungeon/anim/facing/skeleton_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/skeleton_facing_idle_f2.png and res://assets/dungeon/anim/facing/skeleton_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/skeleton_facing_idle_f3.png and res://assets/dungeon/anim/facing/skeleton_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/slime_boss_facing_idle_f0.png and res://assets/dungeon/anim/facing/slime_boss_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/slime_boss_facing_idle_f1.png and res://assets/dungeon/anim/facing/slime_boss_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/slime_boss_facing_idle_f2.png and res://assets/dungeon/anim/facing/slime_boss_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/slime_boss_facing_idle_f3.png and res://assets/dungeon/anim/facing/slime_boss_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/spider_queen_facing_idle_f0.png and res://assets/dungeon/anim/facing/spider_queen_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/spider_queen_facing_idle_f1.png and res://assets/dungeon/anim/facing/spider_queen_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/spider_queen_facing_idle_f2.png and res://assets/dungeon/anim/facing/spider_queen_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/spider_queen_facing_idle_f3.png and res://assets/dungeon/anim/facing/spider_queen_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/triclops_facing_idle_f0.png and res://assets/dungeon/anim/facing/triclops_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/triclops_facing_idle_f1.png and res://assets/dungeon/anim/facing/triclops_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/triclops_facing_idle_f2.png and res://assets/dungeon/anim/facing/triclops_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/triclops_facing_idle_f3.png and res://assets/dungeon/anim/facing/triclops_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/vampire_facing_idle_f0.png and res://assets/dungeon/anim/facing/vampire_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/vampire_facing_idle_f1.png and res://assets/dungeon/anim/facing/vampire_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/vampire_facing_idle_f2.png and res://assets/dungeon/anim/facing/vampire_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/vampire_facing_idle_f3.png and res://assets/dungeon/anim/facing/vampire_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wick_facing_idle_f0.png and res://assets/dungeon/anim/facing/wick_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wick_facing_idle_f1.png and res://assets/dungeon/anim/facing/wick_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wick_facing_idle_f2.png and res://assets/dungeon/anim/facing/wick_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wick_facing_idle_f3.png and res://assets/dungeon/anim/facing/wick_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wizard_facing_idle_f0.png and res://assets/dungeon/anim/facing/wizard_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wizard_facing_idle_f1.png and res://assets/dungeon/anim/facing/wizard_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wizard_facing_idle_f2.png and res://assets/dungeon/anim/facing/wizard_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wizard_facing_idle_f3.png and res://assets/dungeon/anim/facing/wizard_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wraith_facing_idle_f0.png and res://assets/dungeon/anim/facing/wraith_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wraith_facing_idle_f1.png and res://assets/dungeon/anim/facing/wraith_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wraith_facing_idle_f2.png and res://assets/dungeon/anim/facing/wraith_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/wraith_facing_idle_f3.png and res://assets/dungeon/anim/facing/wraith_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/zombie_facing_idle_f0.png and res://assets/dungeon/anim/facing/zombie_facing_idle_f0.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/zombie_facing_idle_f1.png and res://assets/dungeon/anim/facing/zombie_facing_idle_f1.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/zombie_facing_idle_f2.png and res://assets/dungeon/anim/facing/zombie_facing_idle_f2.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://design/visual/qa-wheel-pass2/_facing_before/zombie_facing_idle_f3.png and res://assets/dungeon/anim/facing/zombie_facing_idle_f3.png.
+     at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (9 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | arrow_glyphs.png[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | CATALOG-01-collection-b1.png[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | CATALOG-02-next-goal.png[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | CATALOG-03-overview.png[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | CATALOG-04-death.png[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | CATALOG-05-tutorial.png[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | CATALOG-AFTER-new-settled.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | CATALOG-BEFORE-new-hidden.png[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | CATALOG-MID-new-fading.png[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+[godot-mcp] Plugin disabled
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: ASSERT ATTR.catalog_b1_openers :: net/sai/shield/spinning_top/throwing_knife/flying_saucer → b1 :: actual=pools={ "net": "b1", "sai": "b1", "shield": "b1", "spinning_top": "b1", "throwing_knife": "b1", "flying_saucer": "b2" }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:46)
+ERROR: ASSERT ATTR.breastplate_is_b2 :: breastplate catalog pool → b2 (item origin, not delve location) :: actual=pool=b1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:52)
+ERROR: ASSERT B3.six_held_A_plus_F :: bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6) :: actual=added_n=6 b1=5 dest1=true can_start1=false complete_all=false
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:116)
+ERROR: ASSERT U2.zero_to_six_first_return :: first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED :: actual=b1=5 dest1=true can_start1=false
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:236)
+ERROR: ASSERT U3.later_bank_no_repeated_unlock_stamp :: repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1 :: actual=dup=[] new=["flying_saucer"] b1=5 dest1=true can_start1=false stamp2_first=false pieces=1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:263)
+ERROR: ASSERT L1.breastplate_credits_b2_not_location :: breastplate with catalog pool credits b2; b1 retained :: actual=b1=6 b2=0 attr=b1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:338)
+ERROR: ASSERT L1.per_origin_counters :: per-origin cabinet_count: b1=2, b2=1 independently :: actual=b1=3 b2=0
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _eval_row (res://scripts/dev/banking_contract_selftest.gd:541)
+       [1] _assert (res://scripts/dev/banking_contract_selftest.gd:501)
+       [2] _init (res://scripts/dev/banking_contract_selftest.gd:353)
+--- BANKING_CONTRACT_CASES ---
+PASS	ASSERT	META.multiset_rejects_dup_mismatch	expected=_same_id_multiset([net,sai],[net,net]) is false (length+membership alone is insufficient)	actual=helper_ok
+PASS	ASSERT	META.multiset_accepts_permutation	expected=_same_id_multiset accepts same counts regardless of order	actual=helper_ok
+FAIL	ASSERT	ATTR.catalog_b1_openers	expected=net/sai/shield/spinning_top/throwing_knife/flying_saucer → b1	actual=pools={ "net": "b1", "sai": "b1", "shield": "b1", "spinning_top": "b1", "throwing_knife": "b1", "flying_saucer": "b2" }
+FAIL	ASSERT	ATTR.breastplate_is_b2	expected=breastplate catalog pool → b2 (item origin, not delve location)	actual=pool=b1
+PASS	ASSERT	ATTR.smoke_bomb_catalog_b1	expected=smoke_bomb catalog pool → b1 (current; mill-skip ≠ bank skip)	actual=pool=b1
+PASS	ASSERT	ATTR.bracers_catalog_b1	expected=bracers catalog pool → b1 (current; pair-extra ≠ bank skip)	actual=pool=b1
+PASS	ASSERT	ATTR.quota_five	expected=cabinet_quota == 5	actual=quota=5
+PASS	ASSERT	B0.empty_hand	expected=bank [] → added 0, b1=0, dungeon2 locked	actual=added=[] b1=0 can_start1=false
+PASS	ASSERT	B1.one_held	expected=bank [net] → +1 b1, dungeon2 locked	actual=added=["net"] b1=1
+PASS	ASSERT	B2.two_held	expected=bank [net,sai] → +2 b1, dungeon2 locked (distinct fixtures)	actual=added=["net", "sai"] b1=2
+FAIL	ASSERT	B3.six_held_A_plus_F	expected=bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6)	actual=added_n=6 b1=5 dest1=true can_start1=false complete_all=false
+PASS	ASSERT	B3.bank_alone_no_stamp	expected=bank alone grants no map piece (ceremony separate)	actual=pieces=0
+PASS	ASSERT	B4.shell_explicit_filtered_list	expected=bank([net]) credits only net; ids absent from the list get 0 (shell input filter, not consume/drop path)	actual=banked=net
+UNCOVERED	UNCOVERED	B4.live_consume_drop_carry_in	expected=In-run consume / drop / starter carry-in → hotbar → bank is not exercised; B4 only feeds an explicit filtered id list into CampaignShell.bank	actual=uncovered
+PASS	ASSERT	B5.duplicate_same_haul_then_repeat	expected=[net,net] → +1; bank net again → +0; b1 stays 1	actual=first=["net"] second=[] b1=1
+PASS	ASSERT	B6.smoke_and_bracers_bank_b1	expected=smoke_bomb+bracers with catalog pools → both credit b1 (current behavior)	actual=added=["smoke_bomb", "bracers"] b1=2
+NOTE	NOTE	B6.mill_skip_vs_bank	expected=Mill-skip (BucketRules) is orthogonal to CampaignShell.bank; eligibility here is caller pools_by_id. Covered by B6 credit ASSERT above — not a separate evaluated proof that production never filters.	actual=note
+PASS	ASSERT	U1.four_baseline_locked	expected=four baseline → b1=4, dungeon2 locked	actual=b1=4 unlock1=false
+PASS	ASSERT	U1.four_to_five_unlocks	expected=4→5 via throwing_knife unlocks Crystal Cavern destination; fresh-start stays D1; Pool1 complete still false	actual=b1=5 dest1=true can_start1=false complete=false
+PASS	ASSERT	U2.zero_to_five_first_return	expected=first successful return with A (5) unlocks dungeon2 destination; start stays D1 (INTENDED)	actual=b1=5 dest1=true can_start1=false
+FAIL	ASSERT	U2.zero_to_six_first_return	expected=first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED	actual=b1=5 dest1=true can_start1=false
+PASS	ASSERT	U3.stamp_first_after_threshold	expected=stamp after 5 → first Crystal Cavern piece	actual=stamp={ "id": "b2", "name": "Crystal Cavern", "index": 1, "endless": false, "first": true, "filled": "b1" } pieces=1
+FAIL	ASSERT	U3.later_bank_no_repeated_unlock_stamp	expected=repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1	actual=dup=[] new=["flying_saucer"] b1=5 dest1=true can_start1=false stamp2_first=false pieces=1
+PASS	ASSERT	P1.roundtrip_parse	expected=JSON.stringify → parse_string yields Dictionary (in-memory fixture)	actual=typeof=27
+PASS	ASSERT	P1.load_keeps_ledger_and_count	expected=after _copy_state+normalize: b1=5, net present, map piece count 1	actual=b1=5 pieces=1 keys=["net", "sai", "shield", "spinning_top", "throwing_knife"]
+PASS	ASSERT	P1.rebank_and_restamp_idempotent	expected=re-bank A → +0; re-stamp → not first; piece count stays 1	actual=added=[] first=false pieces=1 b1=5
+NOTE	NOTE	P1.suite_avoids_live_save_io	expected=Suite design uses fresh_state / JSON.stringify / _copy_state only. That is not a runtime proof production never writes user://campaign_save.json.	actual=note
+FAIL	ASSERT	L1.breastplate_credits_b2_not_location	expected=breastplate with catalog pool credits b2; b1 retained	actual=b1=6 b2=0 attr=b1
+FAIL	ASSERT	L1.per_origin_counters	expected=per-origin cabinet_count: b1=2, b2=1 independently	actual=b1=3 b2=0
+PASS	STATIC	T.src_tutorial_finish_no_bank_call	expected=STATIC: _road_finish_to_cabin body has no CampaignShell.bank / _campaign_bank_from_hand / swipe_ids; opens progress menu (tutorial zero credit)	actual=has_progress_menu=true has_bank=false
+PASS	STATIC	T.src_yes_skip_finish_call_strings	expected=STATIC: main.gd source contains _road_finish_to_cabin(true) and (...false) strings — not Yes/Skip/midSkip three-route execution	actual=true_call=true false_call=true
+PASS	STATIC	N.src_death_loss_no_bank	expected=STATIC: _go_home_loss body references _campaign_abort; _campaign_abort body has no .bank( call	actual=loss_calls_abort=true abort_has_bank=false
+UNCOVERED	UNCOVERED	BOUNDARY.mocked_empty_hand_not_caller_proof	expected=bank([]) / empty-list helper pass is not proof tutorial or death callers never bank; STATIC rows only reflect current source shape	actual=uncovered
+UNCOVERED	UNCOVERED	BOUNDARY.ui_cabin_hotbar_save	expected=Cabin clicks, live hotbar, Trophy Room UI, exported-web save, and real _campaign_bank_from_hand under hotbar are not covered (ARC1/3/4/6 + human matrix)	actual=uncovered
+--- BANKING_CONTRACT_CASES_END ---
+TOTALS	assert_pass=19	assert_fail=7	static_pass=3	static_fail=0	note=2	uncovered=3
+BANKING_CONTRACT_FAIL
