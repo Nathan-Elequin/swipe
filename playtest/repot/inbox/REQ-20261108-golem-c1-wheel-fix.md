@@ -3,7 +3,7 @@ id: REQ-20261108-golem-c1-wheel-fix
 status: open
 priority: high
 pr: pending
-tip_sha: 423c7eda
+tip_sha: b4d0eb8c
 branch: playtest/latest
 created: 2026-11-08T08:55:00Z
 created_by: cloud-agent
@@ -13,7 +13,7 @@ entry: F5 playtest hub → Middle Progress / Continue → land a Golem seat (tut
 
 # Golem C1 wheel loader + 48n seat fix
 
-Follow-up to #459. Wheel loader preferred armored `golem_wheel_idle_f0..f3`; C1 base/breathe were 24n and never reached. Live seats are now 48n facing copies (Weak/Tough → 96 on screen). Facing/slash were already C1.
+Follow-up to #459 (C1 clay boulder). Wheel loader preferred armored `golem_wheel_idle_f0..f3`; C1 base/breathe were 24n and never reached. Live seats are now 48n facing copies (Weak/Tough → 96 on screen). Facing/slash were already C1.
 
 ## What to verify
 
