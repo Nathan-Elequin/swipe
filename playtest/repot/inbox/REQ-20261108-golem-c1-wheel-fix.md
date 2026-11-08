@@ -2,7 +2,7 @@
 id: REQ-20261108-golem-c1-wheel-fix
 status: open
 priority: high
-pr: pending
+pr: 461
 tip_sha: b4d0eb8c
 branch: playtest/latest
 created: 2026-11-08T08:55:00Z
