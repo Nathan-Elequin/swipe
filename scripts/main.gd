@@ -1574,11 +1574,23 @@ func _build_ui() -> void:
 	hotbar_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hotbar_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	left.add_child(hotbar_wrap)
+	## Quiet strip sits in its own row above the hotbar so New! badges cannot cover it.
+	var hot_col := VBoxContainer.new()
+	hot_col.name = "HotbarColumn"
+	hot_col.alignment = BoxContainer.ALIGNMENT_CENTER
+	hot_col.add_theme_constant_override("separation", 4)
+	hot_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hotbar_wrap.clip_contents = false
+	hotbar_wrap.add_child(hot_col)
+	collection_quiet = COLLECTION_QUIET_STRIP.new()
+	collection_quiet.name = "CollectionQuietStrip"
+	collection_quiet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	collection_quiet.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hot_col.add_child(collection_quiet)
 	var hot_align := HBoxContainer.new()
 	hot_align.alignment = BoxContainer.ALIGNMENT_CENTER
 	hot_align.add_theme_constant_override("separation", 0)
-	hotbar_wrap.clip_contents = false
-	hotbar_wrap.add_child(hot_align)
+	hot_col.add_child(hot_align)
 	hotbar_overflow = Control.new()
 	hotbar_overflow.name = "HotbarOverflow"
 	## Not a child of the hotbar MarginContainer. That container forces every
@@ -1626,13 +1638,7 @@ func _build_ui() -> void:
 	btn_wrap.add_child(hub_cue)
 	if hub_cue.has_signal("finished"):
 		hub_cue.finished.connect(_sync_hub_cue)
-	collection_quiet = COLLECTION_QUIET_STRIP.new()
-	collection_quiet.name = "CollectionQuietStrip"
-	collection_quiet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	## Keep above hotbar New! badges so the quiet banked/held line stays readable.
-	collection_quiet.z_as_relative = false
-	collection_quiet.z_index = 20
-	btn_wrap.add_child(collection_quiet)
+	## collection_quiet is parented under hotbar_wrap/HotbarColumn (above the cards).
 
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(0, 0)

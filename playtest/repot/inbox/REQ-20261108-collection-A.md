@@ -2,7 +2,7 @@
 id: REQ-20261108-collection-A
 status: done
 priority: high
-tip_sha: 59e8ca511259155995eef52b98b21850fbae027e
+tip_sha: 0c94a2c06409369590d8b1f7a79eef8f28be2fa9
 branch: playtest/latest
 created: 2026-11-08T04:30:00-06:00
 created_by: collection-a-cloud
