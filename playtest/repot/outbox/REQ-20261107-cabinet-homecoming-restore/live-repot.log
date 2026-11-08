@@ -1,0 +1,78 @@
+ITEMS 77
+POOLS ["b1", "b2", "b5", "b3", "b4"]
+USING b1=["bracers", "flying_saucer", "healing_potion", "net", "poison_flask", "sai"] other=b2:["bloody_gauntlets", "breastplate", "crossbow", "double_axe", "fangs"]
+BEGIN H1
+HEARD run: See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection.
+SHOT H1-new-mark.png 1680x1040 err=0
+PASS H1 | line=true badge=true lesson=true
+BEGIN H2
+HEARD rope: These are the new finds you can bring home. Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
+H2 visible=These are the new finds you can bring home. Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
+SHOT H2-extract-haul.png 1680x1040 err=0
+PASS H2 | line=true lesson=true campaign=true
+BEGIN H5b
+HEARD cabin: Let's give these a home.
+SHOT H5b-non-verdant-haul.png 1680x1040 err=0
+PASS H5b | pool=b2 pending=[] banked=true verdant_line=false
+BEGIN H3
+HEARD cabin: Let's give these a home.
+SHOT H3-give-home.png 1680x1040 err=0
+SHOT H3-after-mount.png 1680x1040 err=0
+H3 wav err=0 path=C:/Users/Natha/Documents/boss-rush-wt/cabinet-homecoming-restore/playtest/repot/outbox/REQ-20261107-cabinet-homecoming-restore/H3-sfx.wav
+H3 cues whoosh=true pop=true chime=true peak_db=-16.9154453277588 frames=6
+H3 cue_delta=cabin.fire_start, cabin.pan, cabin.rock, cabin.room_sign, cabin.sack, cabin.item_burst, cabin.click, cabin.item_whoosh, cabin.item_pop, cabin.shelf_chime
+PASS H3 | give=true pending=[]
+PASS H4 | whoosh=true pop=true chime=true buses=true peak=-16.9154453277588
+BEGIN H6
+PASS H6 | news=[] pending=[] busy=false
+BEGIN H11-dialog
+HEARD cabin: Let's give these a home.
+SHOT H11-dialog.png 1680x1040 err=0
+H11 dialog after Escape busy=true text_open=true
+H11 dialog pending_at=["flying_saucer"] pending_later=["flying_saucer"] fx=0 late=false
+PASS H11-dialog | reached=true fx=0 late=false busy=false pan=true pending=[]
+BEGIN H11-flight
+HEARD cabin: Let's give these a home.
+SHOT H11-flight.png 1680x1040 err=0
+H11 flight after Escape busy=true fx=1
+H11 flight pending_at=["healing_potion"] pending_later=["healing_potion"] fx=0 late=false
+PASS H11-flight | reached=true fx=0 late=false busy=false pan=true pending=[]
+BEGIN H11-count
+HEARD cabin: Let's give these a home.
+SHOT H11-count.png 1680x1040 err=0
+H11 count label=+1  1/5
+H11 count pending_at=[] pending_later=[] fx=0 late=false
+PASS H11-count | reached=true fx=0 late=false busy=false pan=true pending=[]
+BEGIN H11-cabinet
+H11 cabinet room=hall on_hall=true lamp=true
+SHOT H11-cabinet-open.png 1680x1040 err=0
+HEARD cabin: Hold on. What's that stuck to the haul?
+HEARD cabin: That's Grandpa's! Next belly of the mountain — onto the map with you.
+HEARD cabin: There. Official now. Ashen Crypt is stamped — open the map and peel it when you're ready.
+PASS H11-cabinet | lamp=true fx=0 pieces=0->0 pending=[]
+BEGIN H5
+HEARD cabin: Let's give these a home.
+HEARD cabin: Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.
+SHOT H5-five-find-unlock.png 1680x1040 err=0
+HEARD cabin: Hold on. What's that stuck to the haul?
+HEARD cabin: That's Grandpa's! Next belly of the mountain — onto the map with you.
+HEARD cabin: There. Official now. Crystal Cavern is stamped — open the map and peel it when you're ready.
+PASS H5 | before=4 after=5 line=true pieces=1
+BEGIN H7
+SHOT H7-loss.png 1680x1040 err=0
+PASS H7 | settled=true pending=[] busy=false
+BEGIN H8
+HEARD cabin: Back in one piece. Next time, let's bring something home for these shelves.
+SHOT H8-tutorial-return.png 1680x1040 err=0
+PASS H8 | line=true banked 0->0 pending=[]
+BEGIN H9
+HEARD cabin: Let's give these a home.
+SHOT H9-reload-resume.png 1680x1040 err=0
+PASS H9 | disk=["sai"] memory=[] replay=false
+BEGIN H10
+HEARD cabin: Five from the Verdant Hollow. Then we talk about going deeper.
+SHOT H10-push-block.png 1680x1040 err=0
+PASS H10 | give=false thresh=false pieces=0 pending=[]
+BEGIN H12
+SHOT H12-no-repeat.png 1680x1040 err=0
+PASS H12 | new=false give=false five=false heard=[]
