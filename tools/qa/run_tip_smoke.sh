@@ -59,6 +59,16 @@ if [[ "$SHROUD" -ne 0 ]]; then
   exit "$SHROUD"
 fi
 
+# Lucky Nickel random coin restore (not choose picker) — chance slash icons + both RNG sides.
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/lucky_nickel_random_selftest.gd
+NICKEL=$?
+set -e
+if [[ "$NICKEL" -ne 0 ]]; then
+  echo "LUCKY_NICKEL_RANDOM_SMOKE failed (exit $NICKEL)" >&2
+  exit "$NICKEL"
+fi
+
 # House rooms unlock after first successful full dungeon return (cabin doors only).
 chmod +x "$ROOT/tools/qa/run_house_unlock_first_return.sh"
 set +e

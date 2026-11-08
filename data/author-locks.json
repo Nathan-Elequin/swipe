@@ -117,7 +117,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-01",
+			"locked_at": "2026-11-08",
 			"name": "Ball & Chain"
 		},
 		"item:bandana": {
@@ -321,7 +321,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-08",
 			"name": "Chakram"
 		},
 		"item:counting_beads": {
@@ -415,7 +415,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-06",
 			"name": "The Boot"
 		},
 		"item:dagger": {
@@ -504,8 +504,8 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
-			"name": "Half-Buckler"
+			"locked_at": "2026-11-08",
+			"name": "Buckler"
 		},
 		"item:echo_bell": {
 			"fields": [
@@ -525,7 +525,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-10-17",
 			"name": "Echo Bell"
 		},
 		"item:fangs": {
@@ -617,7 +617,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-08",
 			"name": "Grief Jar"
 		},
 		"item:grimoire": {
@@ -662,8 +662,8 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-11-06",
-			"name": "Healing Potion"
+			"locked_at": "2026-11-08",
+			"name": "Revival Potion"
 		},
 		"item:helmet": {
 			"fields": [
@@ -740,7 +740,7 @@
 				"priority",
 				"card_color"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-10-11",
 			"name": "Chain"
 		},
 		"item:kiss_of_death": {
@@ -765,7 +765,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-08",
 			"name": "Kiss of Death"
 		},
 		"item:knucklers": {
@@ -893,7 +893,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Love Potion"
 		},
 		"item:lucky_nickel": {
@@ -917,7 +917,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-08",
 			"name": "{lucky} Nickel"
 		},
 		"item:marble": {
@@ -1208,7 +1208,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-10-18",
 			"name": "Polymorph"
 		},
 		"item:quiet_bell": {
@@ -1328,7 +1328,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Shardplate"
 		},
 		"item:shield": {
@@ -1517,7 +1517,7 @@
 				"card_color",
 				"pool"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-10-28",
 			"name": "Spiked Shield"
 		},
 		"item:stone_wall": {
@@ -1541,7 +1541,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Stone Wall"
 		},
 		"item:swift_sneaks": {
@@ -1591,7 +1591,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Tesla Coil"
 		},
 		"item:throwing_knife": {
@@ -1661,7 +1661,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Venom Veins"
 		},
 		"item:victory_flask": {
@@ -1960,7 +1960,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08T09:09:42Z",
 			"name": "Collector"
 		},
 		"monster:commander": {
@@ -2274,7 +2274,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-07",
+			"locked_at": "2026-11-08",
 			"name": "Glass Asp"
 		},
 		"monster:goblin": {
@@ -2461,7 +2461,7 @@
 				"log_hint",
 				"review"
 			],
-			"locked_at": "2026-11-02",
+			"locked_at": "2026-11-08",
 			"name": "Hydra"
 		},
 		"monster:imp": {
@@ -2486,7 +2486,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-06",
 			"name": "Imp"
 		},
 		"monster:juggernaut": {
@@ -2655,7 +2655,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-08",
 			"name": "Merchant"
 		},
 		"monster:mimic": {
@@ -2699,7 +2699,7 @@
 				"reminder",
 				"card_color"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-08",
 			"name": "Mouse"
 		},
 		"monster:needleback": {
@@ -2779,7 +2779,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Phantom"
 		},
 		"monster:phoenix": {
@@ -5731,5 +5731,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-08"
+	"updated": "2026-11-08T08:34:47Z"
 }

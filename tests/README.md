@@ -55,4 +55,5 @@ Same script path under Git Bash, or:
 - `tools/qa/check_tutorial_beats.gd` — older beat wait inventory
 - `scripts/dev/campaign_shell_selftest.gd` — campaign shell
 - `scripts/dev/banking_contract_selftest.gd` — ARC2 banking contract (held / duplicate / carry-in / threshold / persist / attribution). Run: `./tools/qa/run_banking_contract.sh`. Report: `tools/qa/ARC2_banking_contract_report.md`
+- `scripts/dev/collection_journey_selftest.gd` — Journey A seen/carried/banked projection (offer→seen, provisional distinct, 4+1 gate, milestones). Run: `./tools/qa/run_collection_journey.sh`
 - `tools/dev/godot-check.ps1` — import + parse only (not tip rails)

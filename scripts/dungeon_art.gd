@@ -559,7 +559,8 @@ var _portrait_cache: Dictionary = {}
 
 
 ## Facing art with a flat backdrop removed and every frame cropped to the same box.
-## Fight callout only. The wheel seat uses the 24px full-body base.
+## Fight callout only. Wheel seats use difficulty-sized full-body frames
+## (48 native Weak/Tough, 64 native Deadly) from monster_wheel_frames.
 func monster_portrait_frames(card_id: String) -> Array:
 	var id: String = str(card_id).strip_edges()
 	if id == "":

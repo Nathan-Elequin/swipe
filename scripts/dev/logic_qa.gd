@@ -512,6 +512,11 @@ func _do_click(click: Dictionary) -> void:
 		if click.has("atk"):
 			opt["atk"] = int(click.get("atk", 0))
 			opt["keep"] = bool(click.get("keep", false))
+		if click.has("blk"):
+			opt["blk"] = int(click.get("blk", 0))
+			opt["keep"] = bool(click.get("keep", true))
+		if click.has("hp"):
+			opt["hp"] = int(click.get("hp", 0))
 		if click.has("atk_drop"):
 			opt["atk_drop"] = int(click.get("atk_drop", 0))
 		await main._choose_option(opt)

@@ -92,6 +92,21 @@ func burst_slice(index: int, n: int) -> void:
 	await _play_burst(from, to, n, false)
 
 
+func mark_slice(index: int, n: int) -> void:
+	## Louder Poison *apply* (Kiss of Death): burst + "+N" rises off the badge.
+	## Not the tick path (which flies "−N" into HP).
+	if n <= 0 or _main == null:
+		return
+	var wheel = _main.get("wheel_view")
+	if wheel == null:
+		return
+	var slices: Variant = wheel.get("slices")
+	if typeof(slices) != TYPE_ARRAY or index < 0 or index >= (slices as Array).size():
+		return
+	var from: Vector2 = _slice_badge_global(wheel, index)
+	await _play_mark_gain(from, n)
+
+
 func burst_hub(n: int) -> void:
 	if n <= 0 or _main == null:
 		return
@@ -134,6 +149,38 @@ func _play_burst(from: Vector2, to: Vector2, n: int, heart_drips: bool) -> void:
 	_num.modulate.a = 1.0
 	if heart_drips:
 		await _run_heart_drips(to, n)
+
+
+func _play_mark_gain(from: Vector2, n: int) -> void:
+	global_position = Vector2.ZERO
+	_burst.global_position = from
+	_burst.scale = Vector2(2.4, 2.4)
+	_burst.visible = true
+	var swell := create_tween()
+	swell.tween_property(_burst, "scale", Vector2(3.6, 3.6), 0.14)
+	await swell.finished
+	if _burst.sprite_frames != null and _burst.sprite_frames.get_frame_count("burst") > 0:
+		_burst.play("burst")
+		await get_tree().create_timer(0.26).timeout
+	else:
+		await get_tree().create_timer(0.26).timeout
+	_burst.visible = false
+	_num.text = "+%s" % n
+	_num.add_theme_color_override("font_color", Color("7ecf6a"))
+	_num.add_theme_font_size_override("font_size", 34)
+	_num.visible = true
+	_num.global_position = from - _num.size * 0.5
+	_num.modulate.a = 1.0
+	var fly := create_tween()
+	fly.set_trans(Tween.TRANS_QUAD)
+	fly.set_ease(Tween.EASE_OUT)
+	fly.tween_property(_num, "global_position", from - _num.size * 0.5 + Vector2(0, -42), 0.36)
+	fly.parallel().tween_property(_num, "modulate:a", 0.0, 0.36)
+	await fly.finished
+	_num.visible = false
+	_num.modulate.a = 1.0
+	_num.add_theme_color_override("font_color", Color("e07a7a"))
+	_num.add_theme_font_size_override("font_size", 28)
 
 
 func _run_heart_drips(at: Vector2, n: int) -> void:

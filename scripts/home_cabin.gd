@@ -42,9 +42,9 @@ const RUG_SECRET_ID := "poison_flask"
 const RUG_COPY := {
 	"nib.rug.1": "Grandpa stuffed a Poison Flask under the rug. He said the mice had it coming.",
 	"nib.rug.2": "There's only one thing that can be done with this.",
-	"nib.rug.3": "And that one thing is to drop it directly in the dungeon so you can use it on your next dungeon delve.",
-	"nib.rug.again": "Already threw it. You'll see it in the mill next time you leave.",
-	"cabin.rug.unlock": "Poison Flask is unlocked. It can show up in every dungeon from here on.",
+	"nib.rug.3": "And that one thing is to drop it right back where it belongs — the dungeon mill already knows about these.",
+	"nib.rug.again": "Already checked. Nothing else under there.",
+	"cabin.rug.unlock": "You found Grandpa's stash under the rug.",
 }
 
 var seen: Dictionary = {}

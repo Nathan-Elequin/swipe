@@ -2411,8 +2411,8 @@
 			]
 		},
 		{
-			"id": "double_buckler-unplayable",
-			"title": "Half-Buckler stays Unplayable",
+			"id": "double_buckler-grey-no-attacker",
+			"title": "Buckler grey with no prior attacker",
 			"family": "item",
 			"items": [
 				"double_buckler"
@@ -2423,7 +2423,7 @@
 			"face": "golem",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "Half-Buckler is Unplayable. Do not click it. It stays in hand.",
+			"expected_text": "Buckler is grey until an enemy has Attacked you. It stays in hand.",
 			"expected": {
 				"in_hand": {
 					"double_buckler": true
@@ -2433,8 +2433,8 @@
 				{
 					"id": "double_buckler",
 					"kind": "item",
-					"name": "Half-Buckler",
-					"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+					"name": "Buckler",
+					"ability": "Gain Block equal to the Attack of the last enemy that attacked you.",
 					"sprite": "assets/dungeon/items/double_buckler.png"
 				},
 				{
@@ -3069,7 +3069,7 @@
 		},
 		{
 			"id": "ball_and_chain-atk",
-			"title": "Ball & Chain Attack fires",
+			"title": "Ball & Chain draws a card",
 			"family": "item",
 			"items": [
 				"ball_and_chain"
@@ -3082,11 +3082,10 @@
 			"clicks": [
 				{
 					"op": "use",
-					"item": "ball_and_chain",
-					"auto": true
+					"item": "ball_and_chain"
 				}
 			],
-			"expected_text": "Click Ball & Chain. An Attack, Defeat, or Flee happens on the plates.",
+			"expected_text": "Click Ball & Chain. It is used up and you Draw a Card (gain an Item).",
 			"expected": {
 				"outcome": "fired"
 			},
@@ -3095,7 +3094,7 @@
 					"id": "ball_and_chain",
 					"kind": "item",
 					"name": "Ball & Chain",
-					"ability": "2 Atk. The next time you or an Enemy would Flee, cancel it and this gains +2 Atk.",
+					"ability": "Draw a Card",
 					"sprite": "assets/dungeon/items/ball_and_chain.png"
 				},
 				{

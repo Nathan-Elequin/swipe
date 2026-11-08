@@ -118,7 +118,7 @@ const LINES := {
 		"Don't get attached. I will.",
 	],
 	"healing_potion": [
-		"My Healing Potion? Planning to live with MY juice?",
+		"My Revival Potion? Planning to live with MY juice?",
 		"Second chance stolen. I'm taking it back.",
 		"Red flask. Red ending. Consistent.",
 		"Don't drink it yet. I want it full.",

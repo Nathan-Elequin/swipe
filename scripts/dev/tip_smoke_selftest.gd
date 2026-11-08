@@ -216,10 +216,378 @@ func _init() -> void:
 	failed = _check(failed, "kiss_flags_dev_clear", not _catalog_item_flag("kiss_of_death", "dev")) or failed
 	failed = _check(failed, "venom_flags_dev_clear", not _catalog_item_flag("venom_veins", "dev")) or failed
 	failed = _check(failed, "kiss_ops_wired", _source_contains("res://scripts/main.gd", "\"kiss_of_death\":")) or failed
-	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death")) or failed
+	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death_mark")) or failed
 	failed = _check(failed, "venom_hp_loss_hook", _source_has_func("res://scripts/main.gd", "_venom_veins_on_hp_lost")) or failed
+	failed = _check(
+		failed,
+		"venom_flask_only_no_player_poison",
+		_source_func_calls("res://scripts/main.gd", "_venom_veins_on_hp_lost", "_gain_marked_poison_flask")
+		and not _source_func_calls("res://scripts/main.gd", "_venom_veins_on_hp_lost", "_gain_player_poison")
+	) or failed
 	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
 	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
+
+	## 15) Lucky Nickel is a random coin (not a knife-style choose picker).
+	failed = _check(failed, "runtime_has_lucky_nickel", _runtime_has_item("lucky_nickel")) or failed
+	failed = _check(failed, "lucky_nickel_ops_coin", _catalog_item_ops_kind("lucky_nickel", "blk_coin_keep")) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_item_ops_coin",
+		_source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "blk_coin_keep"')
+		or _source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"blk_coin_keep\"")
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_no_choose_kind",
+		not _source_contains("res://scripts/main.gd", '"lucky_nickel": {"kind": "choose"')
+		and not _source_contains("res://scripts/main.gd", "\"lucky_nickel\": {\"kind\": \"choose\"")
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_no_choose_prompt",
+		not _source_contains("res://scripts/main.gd", "combat.nickel_choose_prompt")
+	) or failed
+	failed = _check(
+		failed,
+		"lucky_nickel_face_slash_chance_icons",
+		_source_contains("res://scripts/main.gd", '"lucky_nickel":')
+		and _source_contains("res://scripts/main.gd", '", "", "", "", "slash")')
+		and _source_contains("res://scripts/main.gd", '_fg("shield", "2")')
+		and _source_contains("res://scripts/main.gd", '_fg("shield", "6")')
+		and _source_contains("res://scripts/main.gd", '_fg("heart", "−2")')
+	) or failed
+
+	## 16) Ball & Chain is Draw a Card; draw items share the draw face glyph.
+	failed = _check(failed, "runtime_has_ball_and_chain", _runtime_has_item("ball_and_chain")) or failed
+	failed = _check(failed, "ball_and_chain_ops_draw", _catalog_item_ops_kind("ball_and_chain", "draw")) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_item_ops_draw",
+		_source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "draw"')
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_no_chain_flee_fallback",
+		not _source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "chain_flee"')
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_ability_draw_a_card",
+		_catalog_item_ability_contains("ball_and_chain", "Draw a Card")
+	) or failed
+	failed = _check(
+		failed,
+		"shared_draw_face_alias",
+		_source_contains("res://scripts/item_face.gd", '"draw", "draw_card", "bag"')
+		or _source_contains("res://scripts/item_face.gd", "\"draw\", \"draw_card\", \"bag\"")
+	) or failed
+	failed = _check(
+		failed,
+		"draw_items_use_draw_face_glyph",
+		_source_contains("res://scripts/main.gd", '", "", "", "", "draw")')
+		and _source_contains("res://scripts/main.gd", '"smoke_bomb":')
+		and _source_contains("res://scripts/main.gd", '"ale_flagon":')
+		and _source_contains("res://scripts/main.gd", '"grappling_hook":')
+		and _source_contains("res://scripts/main.gd", '"catapult":')
+		and _source_contains("res://scripts/main.gd", '"sling":')
+	) or failed
+
+	## 17) Collector Bags other on Defeat for −3 HP; discard tax gone.
+	failed = _check(failed, "runtime_has_collector", _runtime_has_monster("collector")) or failed
+	failed = _check(
+		failed,
+		"collector_ability_bag_lose_3",
+		_catalog_monster_ability_contains("collector", "lose 3 HP")
+		and _catalog_monster_ability_contains("collector", "Bag")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_ability_no_discard_tax",
+		not _catalog_monster_ability_contains("collector", "Discard")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_bag_self_cost_hook",
+		_source_has_func("res://scripts/main.gd", "_collector_bag_self_cost")
+		and _source_func_calls("res://scripts/main.gd", "_collector_bag_defeated", "_collector_bag_self_cost")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_no_discard_tax_func",
+		not _source_has_func("res://scripts/main.gd", "_collector_discard_tax")
+	) or failed
+	failed = _check(
+		failed,
+		"collector_toss_no_discard_tax",
+		not _source_func_calls("res://scripts/main.gd", "_toss_item", "_collector_discard_tax")
+	) or failed
+
+	## 18) Spinning Top — Defeat equal-HP counter from 0; no ATK / Discard-at-7.
+	failed = _check(failed, "runtime_has_spinning_top", _runtime_has_item("spinning_top")) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ops_defeat_spins",
+		_catalog_item_ops_kind("spinning_top", "defeat_spins")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_item_ops_defeat_spins",
+		_source_contains("res://scripts/main.gd", '"spinning_top": {"kind": "defeat_spins"}')
+		or _source_contains("res://scripts/main.gd", "\"spinning_top\": {\"kind\": \"defeat_spins\"}")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ability_defeat_equal",
+		_catalog_item_ability_contains("spinning_top", "Defeat")
+		and _catalog_item_ability_contains("spinning_top", "Starts at 0")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_ability_no_discard_cap",
+		not _catalog_item_ability_contains("spinning_top", "Discard")
+		and not _catalog_item_ability_contains("spinning_top", "ATK")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_step_no_discard_max",
+		_source_has_func("res://scripts/main.gd", "_step_spinning_tops")
+		and _source_has_func("res://scripts/main.gd", "_spinning_top_n")
+		and not _source_has_func("res://scripts/main.gd", "_discard_maxed_spinning_tops")
+		and not _source_has_func("res://scripts/main.gd", "_spinning_top_atk")
+	) or failed
+	failed = _check(
+		failed,
+		"spinning_top_recycle_preserves_snap",
+		_source_func_calls("res://scripts/main.gd", "_recycle_insert_copy", "duplicate(true)")
+	) or failed
+
+	## 19) Glass Asp — Bitter Blood Spin-me HP-set; poison-kill uses hp_pre_hit; no Attack Poison.
+	failed = _check(failed, "runtime_has_glass_asp", _runtime_has_monster("glass_asp")) or failed
+	failed = _check(
+		failed,
+		"glass_asp_stats_9_2",
+		_catalog_monster_hp_atk("glass_asp", 9, 2)
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_ability_spin_me_set_hp",
+		_catalog_monster_ability_contains("glass_asp", "On Spin")
+		and _catalog_monster_ability_contains("glass_asp", "Spin me")
+		and _catalog_monster_ability_contains("glass_asp", "set your HP")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_ability_no_attack_poison",
+		not _catalog_monster_ability_contains("glass_asp", "When I Attack")
+		and not _catalog_monster_ability_contains("glass_asp", "you gain Poison equal")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_set_hp_hooks",
+		_source_has_func("res://scripts/main.gd", "_apply_glass_asp_set_hp")
+		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_spin_me_set")
+		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_on_spin")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "lifelink_hp")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "hp_pre_hit")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_poison_kill_uses_pre_hit",
+		_source_func_calls("res://scripts/main.gd", "_tick_facing_monster_poison", "_apply_glass_asp_set_hp")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_no_attack_poison_transfer",
+		not _source_has_func("res://scripts/main.gd", "_glass_asp_on_attack")
+		and not _source_has_func("res://scripts/main.gd", "_glass_asp_dose")
+		and not _source_func_calls("res://scripts/main.gd", "_owner_attack", "_glass_asp_on_attack")
+	) or failed
+
+	## 20) Shardplate — +1 Block per enemy Attack-damage event; no Spin −2; cash on play.
+	failed = _check(failed, "runtime_has_shardplate", _runtime_has_item("shardplate")) or failed
+	failed = _check(
+		failed,
+		"shardplate_ops_kind",
+		_catalog_item_ops_kind("shardplate", "shardplate")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_ability_enemy_attack",
+		_catalog_item_ability_contains("shardplate", "enemy takes Attack Damage")
+		and _catalog_item_ability_contains("shardplate", "+1 Block")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_ability_no_spin_loss",
+		not _catalog_item_ability_contains("shardplate", "On Spin")
+		and not _catalog_item_ability_contains("shardplate", "Loses 2 Block")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_deal_atk_hook",
+		_source_has_func("res://scripts/main.gd", "_shardplate_on_enemy_atk_damage")
+		and _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_shardplate_on_enemy_atk_damage")
+		and not _source_func_calls("res://scripts/main.gd", "_chip_hp", "_shardplate_on_enemy_atk_damage")
+		and not _source_func_calls("res://scripts/main.gd", "_note_hp_lost", "_shardplate_on_enemy_atk_damage")
+	) or failed
+	failed = _check(
+		failed,
+		"shardplate_cash_on_play",
+		_source_contains("res://scripts/main.gd", '"shardplate":')
+		and _source_contains("res://scripts/main.gd", "shard_blk")
+		and _source_contains("res://scripts/main.gd", 'it["shard_blk"]')
+	) or failed
+
+	## 21) LovePotion — select any 2; lower HP then ATK until equal; HP via _chip_hp (not Attack/Shardplate).
+	failed = _check(failed, "runtime_has_love_potion", _runtime_has_item("love_potion")) or failed
+	failed = _check(
+		failed,
+		"love_potion_ops_kind",
+		_catalog_item_ops_kind("love_potion", "love_potion")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_ability_select_two",
+		_catalog_item_ability_contains("love_potion", "Select any 2")
+		and _catalog_item_ability_contains("love_potion", "Lower their HP")
+		and _catalog_item_ability_contains("love_potion", "Attack")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_equalize_helpers",
+		_source_has_func("res://scripts/main.gd", "_apply_love_potion_mark")
+		and _source_has_func("res://scripts/main.gd", "_love_potion_equalize")
+		and _source_has_func("res://scripts/main.gd", "_love_sync_pair_stat")
+		and _source_has_func("res://scripts/main.gd", "_love_drain_one")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_hp_via_chip_not_attack",
+		_source_func_calls("res://scripts/main.gd", "_love_drain_one", "_chip_hp")
+		and not _source_func_calls("res://scripts/main.gd", "_love_drain_one", "_deal_atk_at")
+		and not _source_func_calls("res://scripts/main.gd", "_love_potion_equalize", "_shardplate_on_enemy_atk_damage")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_mark_wired",
+		_source_contains("res://scripts/main.gd", 'kind == "love_potion"')
+		and _source_contains("res://scripts/main.gd", '"love_potion"')
+	) or failed
+
+	## 22) KissOfDeath — Neighbor mark only; 4 Poison + Wraith Lifelink; louder apply FX.
+	failed = _check(failed, "runtime_has_kiss_of_death_m", _runtime_has_item("kiss_of_death")) or failed
+	failed = _check(
+		failed,
+		"kiss_ops_kind_m",
+		_catalog_item_ops_kind("kiss_of_death", "kiss_of_death")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_ability_neighbor_poison",
+		_catalog_item_ability_contains("kiss_of_death", "Mark a Neighbor with 4 Poison")
+		and _catalog_item_ability_contains("kiss_of_death", "Lifelink")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_mark_neighbor_wired",
+		_source_has_func("res://scripts/main.gd", "_apply_kiss_of_death_mark")
+		and _source_contains("res://scripts/main.gd", 'kind == "kiss_of_death"')
+		and _source_contains("res://scripts/main.gd", '_can_mark(index, "kiss_of_death")')
+		and not _source_contains("res://scripts/main.gd", "living[rng.randi() % living.size()]")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_paint_wraith_lifelink",
+		_source_has_func("res://scripts/main.gd", "_paint_kiss_lifelink")
+		and _source_func_calls("res://scripts/main.gd", "_apply_kiss_of_death_mark", "_paint_kiss_lifelink")
+		and _source_contains("res://scripts/main.gd", "When I am Defeated, set your HP to my most recent HP.")
+	) or failed
+	failed = _check(
+		failed,
+		"kiss_louder_apply_fx",
+		_source_func_calls("res://scripts/main.gd", "_apply_kiss_of_death_mark", "mark_slice")
+		and _source_contains("res://scripts/poison_pop.gd", "func mark_slice")
+		and _source_contains("res://scripts/boss_wheel.gd", "loud: bool = false")
+	) or failed
+
+	## 23) TeslaCoil — Across full-block Defeat; silent TakeX; consume on success only; no charge/spin.
+	failed = _check(failed, "runtime_has_tesla_coil", _runtime_has_item("tesla_coil")) or failed
+	failed = _check(
+		failed,
+		"tesla_ops_kind",
+		_catalog_item_ops_kind("tesla_coil", "tesla_coil")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_ability_across_block",
+		_catalog_item_ability_contains("tesla_coil", "Across")
+		and _catalog_item_ability_contains("tesla_coil", "fully Blocking")
+		and not _catalog_item_ability_contains("tesla_coil", "Charge")
+		and not _catalog_item_ability_contains("tesla_coil", "Flee")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_across_helpers",
+		_source_has_func("res://scripts/main.gd", "_use_tesla_coil")
+		and _source_has_func("res://scripts/main.gd", "_tesla_can_play")
+		and _source_has_func("res://scripts/main.gd", "_tesla_across_takex")
+		and _source_has_func("res://scripts/main.gd", "_incoming_total_at")
+		and _source_has_func("res://scripts/main.gd", "_damsel_incoming_at")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_no_charge_spin_fire",
+		not _source_has_func("res://scripts/main.gd", "_tesla_on_spin")
+		and not _source_has_func("res://scripts/main.gd", "_tesla_to_fire")
+		and not _source_has_func("res://scripts/main.gd", "_tesla_charge")
+		and _source_func_calls("res://scripts/main.gd", "_use_tesla_coil", "_hydra_defeat_as_item")
+		and _source_func_calls("res://scripts/main.gd", "_use_tesla_coil", "_lich_keep_defeat_item")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_grey_unless_full_block",
+		_source_contains("res://scripts/main.gd", '"tesla_coil":')
+		and _source_contains("res://scripts/main.gd", "out[\"can_use\"] = _tesla_can_play()")
+		and _source_func_calls("res://scripts/main.gd", "_tesla_can_play", "_tesla_across_takex")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_flags_dev_clear",
+		not _catalog_item_flag("tesla_coil", "dev")
+	) or failed
+
+	## 24) Hydra HungryHeads — Neighbor 1–3 Defeat once; +multiattack count; no HP gain; loud FX helpers.
+	failed = _check(failed, "runtime_has_hydra", _runtime_has_monster("hydra")) or failed
+	failed = _check(
+		failed,
+		"hydra_stats_7_3",
+		_catalog_monster_hp_atk("hydra", 7, 3)
+	) or failed
+	failed = _check(
+		failed,
+		"hydra_ability_neighbor_no_hp_gain",
+		_catalog_monster_ability_contains("hydra", "Neighbor")
+		and _catalog_monster_ability_contains("hydra", "additional attack")
+		and not _catalog_monster_ability_contains("hydra", "Gain their HP")
+		and not _catalog_monster_ability_contains("hydra", "any other Monster")
+	) or failed
+	failed = _check(
+		failed,
+		"hydra_hungry_heads_helpers",
+		_source_has_func("res://scripts/main.gd", "_flush_hydra_devour")
+		and _source_has_func("res://scripts/main.gd", "_hydra_neighbor_victim_order")
+		and _source_has_func("res://scripts/main.gd", "_hydra_multiattack_pop")
+		and _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_hydra_multiattack_pop")
+		and _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_petrify_beam")
+		and _source_contains("res://scripts/main.gd", "hungry_heads_done")
+		and _source_contains("res://scripts/main.gd", "hydra_heads")
+		and not _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_fly_stat_courier")
+	) or failed
+	failed = _check(
+		failed,
+		"hydra_flags_dev_clear",
+		not _catalog_monster_flag("hydra", "dev")
+	) or failed
 
 	if guide != null and is_instance_valid(guide):
 		guide.free()
@@ -454,6 +822,87 @@ func _catalog_item_flag(id: String, flag: String) -> bool:
 		if typeof(flags) != TYPE_DICTIONARY:
 			return false
 		return bool((flags as Dictionary).get(flag, false))
+	return false
+
+
+func _catalog_monster_flag(id: String, flag: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var mons: Variant = cat.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	for raw in mons as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		var flags: Variant = card.get("flags", {})
+		if typeof(flags) != TYPE_DICTIONARY:
+			return false
+		return bool((flags as Dictionary).get(flag, false))
+	return false
+
+
+func _catalog_item_ops_kind(id: String, kind: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var items: Variant = cat.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		var ops: Variant = card.get("ops", {})
+		if typeof(ops) != TYPE_DICTIONARY:
+			return false
+		return str((ops as Dictionary).get("kind", "")) == kind
+	return false
+
+
+func _catalog_item_ability_contains(id: String, needle: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var items: Variant = cat.get("items", [])
+	if typeof(items) != TYPE_ARRAY:
+		return false
+	for raw in items as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return str(card.get("ability", "")).find(needle) >= 0
+	return false
+
+
+func _catalog_monster_ability_contains(id: String, needle: String) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var mons: Variant = cat.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	for raw in mons as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return str(card.get("ability", "")).find(needle) >= 0
+	return false
+
+
+func _catalog_monster_hp_atk(id: String, hp: int, atk: int) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var mons: Variant = cat.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	for raw in mons as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return int(card.get("hp_base", -1)) == hp and int(card.get("atk_base", -1)) == atk
 	return false
 
 
