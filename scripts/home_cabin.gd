@@ -918,13 +918,15 @@ func begin_push_block_bank() -> void:
 ## Pixel progress-menu → Cabin: no exterior walk-in, but still credit a successful
 ## dungeon return so house rooms unlock (win + lifetime clears ≥1). Tutorial/loss do not.
 ## Mirrors open_hall_after_push_block credit order: credit → optional key ring → show_menu.
+## Journey A: optional cabin — focus hall/cabinet when unlocked; no S7 bank replay.
 func open_cabin_after_progress_menu(
 	p_items: Dictionary,
 	p_tex: Dictionary,
 	p_buckets: int,
 	kind: String = "win",
 	new_ids: Array = [],
-	held_ids: Array = []
+	held_ids: Array = [],
+	focus_pool: String = ""
 ) -> void:
 	items_by_id = p_items
 	tex_by_item = p_tex
@@ -944,7 +946,16 @@ func open_cabin_after_progress_menu(
 	_save()
 	if want_key:
 		await play_key_ring()
-	await show_menu("main")
+	## Prefer trophy hall when open so Visit Cabin can land on the relevant case.
+	var room := "main"
+	var pool := str(focus_pool)
+	if pool != "" and is_room_unlocked("hall"):
+		room = "hall"
+	elif is_room_unlocked("hall") and kind == "win":
+		room = "hall"
+	await show_menu(room)
+	if pool != "" and room == "hall":
+		focus_biome_case(pool)
 
 
 ## Push-block interrupt: dissolve already played; land in the hall at that biome's case.

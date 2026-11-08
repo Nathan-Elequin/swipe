@@ -1253,7 +1253,13 @@ func _choose_start(biome_index: int) -> void:
 
 
 func _on_cabin() -> void:
-	_result = {"action": "cabin", "biome_index": 0}
+	## Optional cabin — pass played pool so hall can focus that cabinet (A11).
+	_result = {
+		"action": "cabin",
+		"biome_index": 0,
+		"focus_pool": _played_pool,
+		"kind": _kind,
+	}
 	dismiss()
 
 
