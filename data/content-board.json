@@ -2812,7 +2812,7 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "Block 10. Retain leftover block from this combat.",
+			"ability": "Block 9. Retain leftover block from this combat.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2820,13 +2820,13 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "(BLK 10) leftover stays for the next fight",
-			"flow": "Click during a fight. Gain 10 Block. Used up. Leftover Block after this fight stays for the next fight only, then clears.",
+			"explainer": "(BLK 9) leftover stays for the next fight",
+			"flow": "Click during a fight. Gain 9 Block. Used up. Leftover Block after this fight stays for the next fight only, then clears.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "stone_wall",
 			"kind": "item",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2847,21 +2847,21 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Block 10, leftover remains for the next fight",
+			"log_hint": "Block 9, leftover remains for the next fight",
 			"mode_pool": "all",
 			"name": "Stone Wall",
 			"notes": "Needs art.",
 			"ops": {
 				"kind": "blk",
-				"n": 10.0
+				"n": 9.0
 			},
 			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "nerf this down to 9 block.",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 3.0
 		},
 		{
@@ -6734,10 +6734,10 @@
 				"hide": false
 			},
 			"flow": "On Spin, before the fight: if the player current HP is greater than this unit current HP, this unit loses 2 HP and Flee. Quiet Bell skips Scurry. Paper Fight: what happens if the -2 drops them to 0.",
-			"hp_base": 4.0,
+			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "mouse",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6769,7 +6769,13 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0
+			"tier": 1.0,
+			"hp": {
+				"base": 6.0
+			},
+			"atk": {
+				"base": 2.0
+			}
 		},
 		{
 			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
@@ -7332,10 +7338,10 @@
 				"hide": false
 			},
 			"flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
-			"hp_base": 5.0,
+			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "phantom",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7369,11 +7375,17 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3.0,
+			"hp": {
+				"base": 6.0
+			},
+			"atk": {
+				"base": 5.0
+			}
 		},
 		{
 			"ability": "When you Defeat any other enemy, I Bag it for you. When you Discard an item without Using it, I lose 2 HP.",
-			"atk_base": 6.0,
+			"atk_base": 7.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "New Specimen",
@@ -7387,10 +7399,10 @@
 				"hide": false
 			},
 			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. Discard without Use (Decay, Spider Queen eggs, over-capacity, etc.) → Collector −2 HP each. Using an item is not a harming Discard. Quiet Bell turns this off.",
-			"hp_base": 12.0,
+			"hp_base": 15.0,
 			"hp_formula": "",
 			"id": "collector",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7424,7 +7436,13 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3.0,
+			"hp": {
+				"base": 15.0
+			},
+			"atk": {
+				"base": 7.0
+			}
 		}
 	],
 	"updated": "2026-11-07"
