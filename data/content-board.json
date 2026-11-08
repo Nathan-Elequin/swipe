@@ -5895,7 +5895,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "If any other Monster has its HP reduced to 3 or less and survives, I Defeat them, Gain their HP, and gain an additional attack.",
+			"ability": "If a Neighbor's HP is reduced to 3 or less and they survive, I Defeat them and gain an additional attack.",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -5903,12 +5903,12 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "When another monster's HP drops to 3 or less and they survive, I Defeat them, Gain their HP, and gain an extra attack.",
-			"flow": "While I live unsilenced on the wheel: after the current action finishes, look at every other monster whose HP went down during that action and who is still alive at 3 HP or less. Do not fire on a killing blow. Slash Portrait, then Defeat them like a Defeat item. Off-facing first (clockwise), facing last. Gain their remaining HP (added to mine) and one extra Take swing like Hornet Swarm (hydra_heads). Extra swings stack. Commander Flee / Triclops bail / Phoenix / Lich chip 1: I still Gain HP and a swing. Quiet Bell: I do not listen; swings I already Gained stay. I do not eat myself. Printed Attack is 3.",
-			"hp_base": 5.0,
+			"explainer": "When a Neighbor drops to 3 HP or less and survives, Defeat them once and gain an extra Take swing. No HP gain.",
+			"flow": "While I live unsilenced on the wheel: after the current action finishes, look at my Neighbors (left, then right) whose HP went down during that action and who are still alive at 3 HP or less. Do not fire on a killing blow. Once per combat: Slash Portrait, beam line to the victim, Defeat them like a Defeat item, then pop +1 multiattack count (hydra_heads — Take swing count, not Attack power). No HP gain. Commander Flee / Triclops bail / Phoenix / Lich chip 1: I still gain the swing. Quiet Bell: I do not listen; swings I already Gained stay. I do not eat myself. Printed Attack is 3. Printed HP is 7.",
+			"hp_base": 7.0,
 			"hp_formula": "",
 			"id": "hydra",
-			"locked_at": "2026-11-02",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5930,19 +5930,23 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Defeat at 3 HP, Gain their HP, extra attack",
+			"log_hint": "Neighbor ≤3: Defeat once, +1 swing",
 			"mode_pool": "all",
 			"name": "Hydra",
-			"notes": "Pool 5, tier 2. Hungry Heads 2026-11-03. Survive at 1–3 after the action. All meals. Gain remaining HP + extra swing.",
+			"notes": "Pool 5, power band 2. Hungry Heads FINAL Nov8. Neighbor only. Survive 1–3. Once. No HP gain. +1 multiattack count. Loud slash/line/devour/pop. Art existing.",
 			"ops": {},
 			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "When another monster's HP drops to 3 or less and they survive, Defeat them, Gain their HP, and gain an extra attack.",
+			"reminder": "Neighbor at 3 HP or less who survives: Defeat once and gain an extra attack.",
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 2.0,
+			"flags": {
+				"art": true,
+				"dev": false
+			}
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",
