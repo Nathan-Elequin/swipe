@@ -240,6 +240,14 @@ func _run() -> void:
 		menu_src.find("starter_item_mix") >= 0 and menu_src.find("hand_note omitted") >= 0,
 		""
 	) or _failed
+	_failed = _static(
+		"STATIC.quiet_map_stamp",
+		"leave banks with stamp_crosses; push-block banks without (map piece preserved without auto S7)",
+		main_src.find("_campaign_bank_from_hand(true)") >= 0
+		and main_src.find("_campaign_bank_from_hand(false)") >= 0
+		and main_src.find("stamp_map_piece") >= 0,
+		""
+	) or _failed
 
 	_rows.append({
 		"kind": "NOTE",

@@ -37,12 +37,12 @@ GODOT=… ./tools/qa/run_progress_menu.sh   # isolated XDG; expect PROGRESS_MENU
 | P3 | Death / loss | death summary; no new credit | shot |
 | P4 | Tutorial Yes-complete | tutorial summary; empty credit | shot |
 | P5 | Non-b1 haul while b1 under quota | no Verdant five-finds teaching invent; area tab truthful | shot |
-| P6 | Cross b1 4→5 | requirement met / next destination; can_start rules honored | shot |
+| P6 | Cross b1 4→5 | requirement met / next destination; can_start rules honored; quiet `stamp_map_piece` without auto S7 FX | shot |
 | P7 | Skip Recap mid-stagger | presentation jumps; pending acked; ledgers unchanged | note |
 | P8 | Visit Cabin then leave | cabin optional; no ceremony replay | note |
 | P9 | Start New Run | only `can_start` destinations; D2 same-run ≠ fresh start | note |
 | P10 | Reload with leftover pending | menu/cabin resume without double-bank | save inspect |
-| P11 | Push-block return | menu appears; no unlock/map celebration invent | note |
+| P11 | Push-block return | menu appears; no unlock/map celebration invent; no map-piece stamp | note |
 | P12 | Existing save | historical collected; no arrival replay | note |
 
 ## Unavailable / do not claim

@@ -137,6 +137,13 @@ def main() -> int:
         '_open_home_cabin(true, "win"' not in main_gd
         or main_gd.count('_open_progress_menu("win"') >= 2,
     )
+    ok(
+        "main.quiet_stamp_on_leave",
+        '_campaign_bank_from_hand(true)' in main_gd
+        and "stamp_map_piece" in main_gd
+        and '_campaign_bank_from_hand(false)' in main_gd,
+        "leave stamps crosses; push-block does not",
+    )
 
     ok("cabin.progress_menu_meta_gate", "progress_menu_handled_return" in cabin)
     ok("cabin.resume_respects_meta", "_resume_pending_bank_if_idle" in cabin and "progress_menu_handled_return" in cabin)

@@ -2889,7 +2889,8 @@ func _adventure_leave() -> void:
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
 	await _biome_dissolve_out()
 	if _campaign_on:
-		await _campaign_bank_from_hand()
+		## Quiet map-piece ledger stamp on 5/5 cross — S7 ceremony no longer auto-runs.
+		await _campaign_bank_from_hand(true)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
@@ -2931,7 +2932,8 @@ func _push_interrupt_home() -> void:
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
 	await _biome_dissolve_out()
 	if _campaign_on:
-		await _campaign_bank_from_hand()
+		## Push-block: bank credit yes, map-piece stamp never (same as suppressed S7).
+		await _campaign_bank_from_hand(false)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
@@ -3457,7 +3459,10 @@ func _campaign_abort() -> void:
 	_campaign.write()
 
 
-func _campaign_bank_from_hand() -> void:
+## Bank haul into CampaignShell. When stamp_crosses, quietly persist map pieces for
+## cabinets that crossed quota this return (progress menu replaced auto S7 ceremony).
+## Push-block / death must pass stamp_crosses=false — never invent a map scrap there.
+func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 	if _campaign == null:
 		return
 	var ids: Array = []
@@ -3470,7 +3475,20 @@ func _campaign_bank_from_hand() -> void:
 			continue
 		ids.append(id)
 		pools[id] = _campaign_pool_of_item(id)
+	var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
+	var before_counts: Dictionary = {}
+	for raw_b in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
+		var bid := str((raw_b as Dictionary).get("id", ""))
+		if bid != "":
+			before_counts[bid] = CAMPAIGN_SHELL.cabinet_count(_campaign.state, bid)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
+	if stamp_crosses:
+		for pool_id in before_counts.keys():
+			var before_n: int = int(before_counts[pool_id])
+			var after_n: int = CAMPAIGN_SHELL.cabinet_count(_campaign.state, str(pool_id))
+			## Same gate as BiomeCabinets.crossed_gate / S7 map-piece handoff.
+			if before_n < quota and after_n >= quota:
+				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, str(pool_id))
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
