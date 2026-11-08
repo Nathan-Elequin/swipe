@@ -102,7 +102,7 @@
 		"monster:lich": 1793651964.0,
 		"monster:magicat": 1792507200.0,
 		"monster:martyr": 1793840000.0,
-		"monster:merchant": 1792272500.0,
+		"monster:merchant": 1794126501.7475617,
 		"monster:mouse": 1794125579.3456936,
 		"monster:needleback": 1792502400.0,
 		"monster:ogre": 1792207050.0,
@@ -133,5 +133,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.3456936,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-08T01:04:13"
+	"updated": "2026-11-08T08:28:21"
 }

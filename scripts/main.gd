@@ -233,7 +233,7 @@ const MONSTER_SPECIAL := {
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
 	"cowardly_king": {"id": "vindictive", "text": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee."},
-	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will upgrade it."},
+	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will swap it for one from a higher rarity"},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
 	"martyr": {"id": "noble_death", "text": "When I lose HP, I die. When I am Defeated. My Neighbors gain HP equal to my remaining HP."},
@@ -18594,7 +18594,7 @@ func _merchant_ask() -> void:
 		_log("on_spin", "merchant no upgrade")
 		return
 	pending_feed = {"uids": ids, "kind": "upgrade"}
-	_cube_line = "Pick an item. I will upgrade it."
+	_cube_line = "Pick an item. I will swap it for one from a higher rarity."
 	_log("on_spin", "merchant offers an upgrade")
 	_sfx_ability("merchant")
 	if sfx:
@@ -25907,7 +25907,7 @@ func _cue_text() -> String:
 				if _cube_line != "":
 					return _cube_line
 				if str(pending_feed.get("kind", "")) == "upgrade":
-					return "Pick an item. I will upgrade it."
+					return "Pick an item. I will swap it for one from a higher rarity."
 				return "Feed the cube one of those items."
 			if not pending_chaos.is_empty():
 				var need_n: int = int(pending_chaos.get("need", 1))
