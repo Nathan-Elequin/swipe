@@ -1,69 +1,50 @@
-# REQ-20261108 progress menu — acceptance receipt
+---
+id: REQ-20261108-progress-menu
+status: done
+fulfilled_by: local-cursor
+fulfilled_at: 2026-11-07T22:45:00-06:00
+machine: Cherry
+tip_sha: 00cc01ca
+godot: editor play via godot-mcp, viewport 1680x1040
+---
 
-**Do not merge** until receipts below match the PR tip and CI on that tip is reviewed.
+# Result
 
-## Source body vs wrapper
+Isolated fixture in `user://` for the session. Nathan's `audio.json`, `bucket_progress.json`, `campaign_save.json`, `home_cabin.json`, and `playtest_meta.json` were copied aside first and restored after Stop. SHA-256 of each file matches the pre-run backup. Cabin writes during the run went to `%TEMP%\progress-menu-cabin-qa.json`, which was deleted. Source check: `py -3 tools/qa/check_progress_menu.py` printed `PROGRESS_MENU_OK` (93 passed, 0 failed) before the play session.
 
-| Role | SHA | Notes |
-|------|-----|--------|
-| **VALIDATION_HEAD / feature body tested** | `03821635e7bd42284d24e3b1c83338e8d67b9708` | Aggregate total + settle + public main-routes harness |
-| Wrapper / PR tip | branch tip after receipt stamps (see `git rev-parse` / PR head) | Receipt-only commits after `03821635` — not gameplay |
+Every PNG below is 1680×1040 (`err=0`).
 
-Stamped in logs/shots: `PROGRESS_SOURCE_SHA` / `SHOT_SOURCE_BODY_SHA` / `PROGRESS_MENU_MAIN_ROUTES_SHA` / `BANKING_SOURCE_SHA` = `03821635…`.
+| id | verdict | note |
+|----|---------|------|
+| P1 | PASS | Public Leave with two new Verdant types. Flags were adventure, phase rest, not busy. Flow `overview:0 → collection:1 → collection:2 → next:2`. Summary `New item types added: 2.` Arrow Head state `New!`, area count `4/15`. `whoosh.wav` was playing on the next frame. Shots `P1-overview.png`, `P1-collection-stagger.png`, `P1-next-goal.png`. The empty grid slot in the stagger shot is the second new cell still at alpha 0; the flow reaches `collection:2` before Next Goal. An earlier boot attempt did not open the menu; this pass did. |
+| P2 | PASS | Duplicates only. Menu opened, `new_ids` size 0, summary `Made it home. No new item types added.` `P2-duplicates.png`. |
+| P3 | PASS | Public loss. Summary `Run ended in Verdant Hollow. No collection progress from this return.` Auto flow `overview:0 → collection:0 → next:0`. `P3-loss.png`. |
+| GIVEUP | PASS | Public give-up uses the same loss summary. `P3b-give-up.png`. |
+| P4 | PASS | Tutorial Yes-complete. Summary `Tutorial complete. Tutorial items don't count toward collection progress.` `P4-tutorial-complete.png`. |
+| P4B | PASS | Tutorial skip. Summary `Tutorial skipped.` It is not the no-progress success line. `P4b-tutorial-skipped.png`. |
+| P5 | PASS | Win whose played area is Crystal Cavern while Verdant is still the next quota. On the collection step the filter is `b2`, the count is `Crystal Cavern collection: 1/14`, and the tab reads `Crystal Cavern` with no Locked suffix. No "Five different finds" line. `P5-played-area.png`. An earlier shot (`P5-non-b1.png`) clicked Collection before the auto step and still showed Verdant; that setup was too early. |
+| P6 | PASS | After Push had banked Verdant to 5 with `map_pieces` still empty, `_campaign_bank_from_hand(true)` stamped `b2` once (`pencil_fresh` was `["b2"]`). A second call did not mark the pencil again. Next Goal text includes `Ashen Crypt`, `Bring home 5 different item types from Crystal Cavern`, and the same-run route. `P6-requirement-met.png`. |
+| P7 | PASS | Skip while 1 of 4 new ids was revealed. Each id acked once (`net`, `poison_flask`, `sai`, `shield`). Bank size stayed 10. Tab landed on Next Goal. `P7-skip-mid.png`. Two earlier skips fired after every cell had already landed, so they did not prove the mid-stagger case. |
+| NEXT | PASS | Manual Next from Overview landed the new cell on Collection (`revealed` 1), then the second Next opened Next Goal. `P7b-manual-next.png`. |
+| INPUT | PASS | `ui_accept` on Next opened Collection (tab 1). Cells are `FOCUS_ALL` (15). Focus neighbor is set and a focused cell's `ui_accept` filled the detail line `Right Bracer — Collected`. |
+| MOUSE | PASS | Press and release at Visit Cabin `(1546, 980)` returned action `cabin`. The first attempt sent only the press, so it did not count. `INPUT-mouse-cabin.png`. |
+| MISSING | PASS | Victory Flask has a name, state `Not yet collected`, and no texture. `MISSING-icon-name.png`. |
+| TOTAL_LOCKED | PASS | `postrun.collection.total` is present. Overview reads `Item types collected: 0/67` plus Locked lines and bring-home requirements for Ashen Crypt, Cinder Forge, and Shadow Abyss. `OVERVIEW-total-locked.png`. |
+| P8 | PASS | Visit Cabin returned action `cabin`, cabin became visible, the menu closed, `bank_pending` stayed empty. Closing the cabin left the menu closed. `P8-cabin.png`. |
+| P9 | PASS | With only Verdant filled, buttons were `Start New Run` only. `can_start(0)` true, `can_start(1)` false, `can_start(2)` false. Route text: `Reach Ashen Crypt by starting in Verdant Hollow and continuing during the same run.` `P9-eligible-starts.png`. |
+| P9B | PASS | Banking five Crystal Cavern types made `can_start(1)` true. |
+| P10 | PASS | While the menu was open, campaign `write()` and cabin `_save()` went to the fixture and the temp cabin file. A phantom bank id did not survive `load_all()`. Sizes stayed 5 before reload, after reload, after resume with `progress_menu_handled_return`, and after a second `bank()` of the same id. Pending reloaded as one `arrow_head`. `P10-mid-menu-reload.png`. |
+| P11 | PASS | Public Push opened the menu, summary `New item types added: 3.`, `map_pieces` stayed 0, and the five-finds celebration line was absent. `P11-push.png`. |
+| P12 | PASS | Three already-banked Verdant ids were shown with no `New!` during the presentation. `P12-historical.png`. |
+| NEST_B1 | PASS | After Start New Run, nest offset was `0`, phase `ready`, not busy, not paused, starter count 6. The deal queue was already empty because the arm had placed the wheel. `NEST-start-b1.png` shows the settled Verdant wheel and six hotbar items. |
+| NEST_SHORTCUT | PASS | Fresh start at Crystal Cavern (`can_start(1)`). Nest `0`, phase `ready`, biome `b2`, hotbar 6, starter tiers `[1,1,2,2,1,3]`. `NEST-start-shortcut.png`. |
+| AUDIO | PASS | `whoosh` is loaded and `whoosh.wav` played on Leave. The progress menu owns no `AudioStreamPlayer`. Music kept playing through the menu and both settled starts. Start itself played `confirm_big.wav`. |
+| SOURCE | PASS | `PROGRESS_MENU_OK`, 93 passed, 0 failed. |
 
-## Shot labels
+## Blockers
 
-| Prefix | Meaning |
-|--------|---------|
-| `FIXTURE-*` | Synthetic/example roster only — **not** catalog acceptance |
-| `CATALOG-*` | Full catalog + `dungeon_art` Nearest icons — Pixel first-pass candidate |
-| `CATALOG-BEFORE / MID / AFTER` | New-cell land settle evidence (hidden → fading → settled bright) |
+None. The game was stopped before the save restore.
 
-### CATALOG paths (captured at `03821635`)
+## Shots
 
-- `shots/CATALOG-BEFORE-new-hidden.png` — modulate_a=0 before land
-- `shots/CATALOG-MID-new-fading.png` — New! mid-land
-- `shots/CATALOG-AFTER-new-settled.png` — modulate_a=1.0, state=New!, icons=73
-- `shots/CATALOG-01-collection-b1.png`
-- `shots/CATALOG-02-next-goal.png`
-- `shots/CATALOG-03-overview.png` (includes `postrun.collection.total`)
-- `shots/CATALOG-04-death.png`
-- `shots/CATALOG-05-tutorial.png`
-
-## Logs (raw) @ `03821635`
-
-- `source-check.log` — `PROGRESS_MENU_OK` (93 passed; 30 postrun keys + total)
-- `ceremony.log` — `PROGRESS_MENU_CEREMONY_OK`
-- `main-routes.log` — `PROGRESS_MENU_MAIN_ROUTES_OK` rows=22 fail=0
-- `shots.log` — `SHOTS_OK` source_sha=`03821635…` icons=73
-- `banking-base-3a4be900.log` — clean `--import` then banking on `origin/playtest/latest` worktree
-- `banking-head.log` — same command on feature tip `03821635`
-
-## Banking same-base (valid)
-
-Prior “base 7pass/19fail” was **INVALID** (ReviewStage parse / missing `BucketRules.of_card` / no attribution). Re-run with import:
-
-| Tree | assert_pass | assert_fail | Note |
-|------|-------------|-------------|------|
-| base `playtest/latest` worktree | 19 | 7 | outdated pool fixtures (`flying_saucer`→b2, `breastplate`→b1) |
-| head `03821635` | 19 | 7 | **same 7 fail IDs** — no gameplay change to match suite |
-
-Fail IDs (both): `ATTR.catalog_b1_openers`, `ATTR.breastplate_is_b2`, `B3.six_held_A_plus_F`, `U2.zero_to_six_first_return`, `U3.later_bank_no_repeated_unlock_stamp`, `L1.breastplate_credits_b2_not_location`, `L1.per_origin_counters`.
-
-## Main routes coverage @ `03821635`
-
-Invoked public: `_adventure_leave`, `_push_interrupt_home`, `_go_home_loss`, `_give_up`, `_road_finish_to_cabin(false|true)`, `_campaign_bank_from_hand(true|false)`.
-
-- Keyboard: cell `gui_input` + `InputEventAction` (not `_inspect` alone).
-- Soft `HARNESS_RESET` only between cases — never counted as route proof; timeout leaves waiting state visible.
-- **UNCOVERED** (explicit): `mid_menu_disk_reload_full_ui`; `full_delve_nest_settle`.
-
-## Tip smoke CI
-
-- Exact PR tip `b36fd96bba7e375ed109c1ca2ab8a07cc8a62323` — Tip smoke **success** — [run 42438603495](https://github.com/Nathan-Elequin/swipe/actions/runs/42438603495)
-- Do not treat earlier tip (`06993aca` / prior jobs) as this gate.
-
-## Flags / hold
-
-- Aggregate copy `postrun.collection.total` integrated (Overview).
-- **Hold merge** until human reviews receipts + this tip CI.
+All PNGs under `shots/`. Names are in the table above. Viewport on every saved image is 1680×1040.

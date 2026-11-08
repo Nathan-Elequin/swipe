@@ -1,6 +1,6 @@
 ---
 id: REQ-20261108-progress-menu
-status: open
+status: done
 priority: high
 branch: cursor/progress-menu-return-9880
 base: playtest/latest

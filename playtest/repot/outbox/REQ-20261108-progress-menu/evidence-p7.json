@@ -1,0 +1,19 @@
+{
+	"evidence": {
+		"acks": [
+			"net",
+			"poison_flask",
+			"sai",
+			"shield"
+		],
+		"banked_after": 10,
+		"banked_before": 10,
+		"ids": 4,
+		"once": true,
+		"revealed_at_skip": 1,
+		"tab": 2
+	},
+	"id": "P7",
+	"note": "Skip while at least one new id is still unrevealed",
+	"verdict": "PASS"
+}

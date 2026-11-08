@@ -1,0 +1,479 @@
+{
+	"rows": [
+		{
+			"evidence": {
+				"b1": 15,
+				"b2": 14,
+				"viewport": "1680x1040"
+			},
+			"id": "BOOT",
+			"note": "rosters",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"audio_after": {
+					"menu_audio_nodes": 0,
+					"peaks": {
+						"Ambience": -200.0,
+						"Master": -29.5205001831055,
+						"Music": -21.9510478973389,
+						"SFX": -200.0,
+						"Stings": -200.0,
+						"UI": -200.0
+					},
+					"playing": [
+						"music",
+						"_music_b"
+					],
+					"whoosh_loaded": true
+				}
+			},
+			"id": "P1",
+			"note": "Leave did not open the menu",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after P1",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"news": 0,
+				"opened": true,
+				"summary": "Made it home. No new item types added."
+			},
+			"id": "P2",
+			"note": "duplicates-only summary",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after P2",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"flow": [
+					"overview:0",
+					"collection:0",
+					"next:0"
+				],
+				"opened": true,
+				"summary": "Run ended in Verdant Hollow. No collection progress from this return."
+			},
+			"id": "P3",
+			"note": "death/loss return",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after loss",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"opened": true,
+				"summary": "Run ended in Verdant Hollow. No collection progress from this return."
+			},
+			"id": "GIVEUP",
+			"note": "give-up uses loss summary",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after give-up",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "before tutorial",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"opened": true,
+				"summary": "Tutorial complete. Tutorial items don't count toward collection progress."
+			},
+			"id": "P4",
+			"note": "tutorial completed",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after tutorial complete",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"opened": true,
+				"summary": "Tutorial skipped."
+			},
+			"id": "P4B",
+			"note": "tutorial skipped",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after tutorial skip",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"count": "Verdant Hollow collection: 2/15",
+				"invented": false
+			},
+			"id": "P5",
+			"note": "non-b1 haul does not invent Verdant five-finds teaching",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {
+				"b1": 5,
+				"before": 0,
+				"celebrate": false,
+				"pieces": 0,
+				"summary": "New item types added: 3."
+			},
+			"id": "P11",
+			"note": "Push-block opens menu without map stamp or five-finds celebration",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after push",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"b1": 5,
+				"fresh_after_second": [],
+				"fresh_first": [
+					"b2"
+				],
+				"has_b2": true,
+				"pieces": 1,
+				"target": "Next goal: Ashen Crypt Progress: 0/5 different item types Bring home 5 different item types from Crystal Cavern to unlock Ashen Crypt. Reach Ashen Crypt by starting in Verdant Hollow and continuing during the same run. Each new run starts with 6 random items from unlocked pools.  Unlock Ashen Crypt to start new runs in Crystal Cavern."
+			},
+			"id": "P6",
+			"note": "deferred Leave stamps once; next goal shows unlocked",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after P6",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"acked": 2,
+				"acks": [
+					"net",
+					"poison_flask"
+				],
+				"banked": 5,
+				"phase": 3,
+				"revealed_mid": 2,
+				"tab": 2
+			},
+			"id": "P7",
+			"note": "Skip Recap mid-stagger acks pending without changing the bank ledger",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {
+				"revealed": 1,
+				"tab_after_first": 1,
+				"tab_final": 2
+			},
+			"id": "NEXT",
+			"note": "manual Next walks Overview to Collection to Next Goal and lands the new item",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"cells": 15,
+				"detail": "Right Bracer — Collected",
+				"focus_ok": true,
+				"mouse_ok": false,
+				"neighbor_ok": true,
+				"tab": 1
+			},
+			"id": "INPUT",
+			"note": "keyboard Next/focus and mouse Visit Cabin",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {
+				"has_tex": false,
+				"name": "Victory Flask",
+				"state": "Not yet collected"
+			},
+			"id": "MISSING",
+			"note": "missing item still shows a name and Not yet collected",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"locked": true,
+				"overall": ""
+			},
+			"id": "TOTAL_LOCKED",
+			"note": "overview total plus locked area requirement",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {
+				"action": {
+					"action": "cabin",
+					"biome_index": 0
+				},
+				"cabin_on": true,
+				"ceremony_pending": false,
+				"menu_on": false,
+				"opened": true
+			},
+			"id": "P8",
+			"note": "Visit Cabin is optional and does not replay a ceremony",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after cabin",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"ids": [
+					"arrow_head",
+					"bracers",
+					"breastplate"
+				],
+				"saw_new": false
+			},
+			"id": "P12",
+			"note": "historical collected items do not replay New!",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"cabin_path": "C:/Users/Natha/AppData/Local/Temp/progress-menu-cabin-qa.json",
+				"campaign_path": "user://campaign_save.json",
+				"pending": [
+					"arrow_head"
+				],
+				"phantom": false,
+				"size_after": 5,
+				"size_before": 5,
+				"size_resume": 5,
+				"size_second": 5
+			},
+			"id": "P10",
+			"note": "mid-menu save/reload keeps one bank and one pending",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"buttons": [
+					"Start New Run"
+				],
+				"can_start_0": true,
+				"can_start_1": false,
+				"can_start_2": false,
+				"route": "Reach Ashen Crypt by starting in Verdant Hollow and continuing during the same run."
+			},
+			"id": "P9",
+			"note": "start buttons follow can_start; same-run route is text",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"audio": {
+					"menu_audio_nodes": 0,
+					"peaks": {
+						"Ambience": -200.0,
+						"Master": -25.3175029754639,
+						"Music": -17.3587036132813,
+						"SFX": -200.0,
+						"Stings": -200.0,
+						"UI": -200.0
+					},
+					"playing": [
+						"music",
+						"_music_a"
+					],
+					"whoosh_loaded": true
+				},
+				"nest": {
+					"biome": "b1",
+					"busy": false,
+					"nest": 0.0,
+					"paused": false,
+					"phase": "ready",
+					"queue": 0,
+					"settled": false,
+					"splash": false,
+					"starter": 6
+				}
+			},
+			"id": "NEST_B1",
+			"note": "fresh start nest and arm settled",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {},
+			"id": "HARNESS",
+			"note": "after nest b1",
+			"verdict": "NOTE"
+		},
+		{
+			"evidence": {
+				"can_start_1": false
+			},
+			"id": "NEST_SHORTCUT",
+			"note": "can_start(1) is false on this fixture, so no second legal fresh start",
+			"verdict": "SKIPPED"
+		}
+	],
+	"shots": [
+		{
+			"err": 0,
+			"file": "P2-duplicates.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P3-loss.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P3b-give-up.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P4-tutorial-complete.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P4b-tutorial-skipped.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P5-non-b1.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P11-push.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P6-requirement-met.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P7-skip.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P7b-manual-next.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "INPUT-keyboard-mouse.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "MISSING-icon-name.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "OVERVIEW-total-locked.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P8-cabin.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P12-historical.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P10-mid-menu-reload.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "P9-eligible-starts.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		},
+		{
+			"err": 0,
+			"file": "NEST-start-b1.png",
+			"h": 1040,
+			"ok": true,
+			"w": 1680
+		}
+	],
+	"user_data": "C:/Users/Natha/AppData/Roaming/Godot/app_userdata/Spinheritance",
+	"viewport": "1680x1040"
+}

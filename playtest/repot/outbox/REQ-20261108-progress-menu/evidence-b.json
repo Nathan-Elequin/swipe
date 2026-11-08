@@ -1,0 +1,168 @@
+{
+	"rows": [
+		{
+			"evidence": {
+				"audio": {
+					"playing": [
+						"whoosh.wav",
+						"music"
+					],
+					"whoosh_loaded": true
+				},
+				"count": "Verdant Hollow collection: 4/15",
+				"flags": {
+					"adventure": true,
+					"busy": false,
+					"paused": false,
+					"phase": "rest"
+				},
+				"flow": [
+					"overview:0",
+					"collection:1",
+					"collection:2",
+					"next:2"
+				],
+				"opened": true,
+				"shots": [
+					{
+						"file": "P1-overview.png",
+						"h": 1040,
+						"ok": true,
+						"w": 1680
+					},
+					{
+						"file": "P1-collection-stagger.png",
+						"h": 1040,
+						"ok": true,
+						"w": 1680
+					},
+					{
+						"file": "P1-next-goal.png",
+						"h": 1040,
+						"ok": true,
+						"w": 1680
+					}
+				],
+				"state": "New!",
+				"summary": "New item types added: 2."
+			},
+			"id": "P1",
+			"note": "Leave with two new uniques, Overview then area then Next Goal",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"count": "Crystal Cavern collection: 1/14",
+				"filter": "b2",
+				"five": false,
+				"tabs": "Verdant Hollow | Crystal Cavern | Ashen Crypt (Locked) | Cinder Forge (Locked) | Shadow Abyss (Locked) | "
+			},
+			"id": "P5",
+			"note": "played b2 area is shown and Verdant five-finds teaching is not invented",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"acked": 3,
+				"acks": [
+					"net",
+					"poison_flask",
+					"sai"
+				],
+				"banked_after": 5,
+				"banked_before": 5,
+				"revealed_at_skip": 3,
+				"tab": 2
+			},
+			"id": "P7",
+			"note": "Skip during stagger acks each new id once and does not change the bank",
+			"verdict": "FAIL"
+		},
+		{
+			"evidence": {
+				"action": "cabin",
+				"pos": "(1546.0, 980.0)",
+				"result": {
+					"action": "cabin",
+					"biome_index": 0
+				}
+			},
+			"id": "MOUSE",
+			"note": "mouse press and release on Visit Cabin",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"body": "Item types collected: 0/67\nVerdant Hollow collection: 0/15\nCrystal Cavern collection: 0/14\nAshen Crypt — Locked\nBring home 5 different item types from Crystal Cavern to unlock Ashen Crypt.\nCinder Forge — Locked\nBring home 5 different item types from Ashen Crypt to unlock Cinder Forge.\nShadow Abyss — Locked\nBring home 5 different item types from Cinder Forge to unlock Shadow Abyss.\n",
+				"has_key": true,
+				"overall": "Item types collected: 0/67"
+			},
+			"id": "TOTAL_LOCKED",
+			"note": "overall total and locked requirement lines",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"b2": 5,
+				"can_start_1": true,
+				"ids": [
+					"bag_of_marbles",
+					"bloody_gauntlets",
+					"catapult",
+					"double_axe",
+					"flying_saucer"
+				]
+			},
+			"id": "P9B",
+			"note": "five Crystal Cavern types make a Crystal fresh start legal",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"nest": {
+					"biome": "b2",
+					"busy": false,
+					"hotbar": 6,
+					"nest": 0.0,
+					"paused": false,
+					"phase": "ready",
+					"queue": 0,
+					"settled": true,
+					"splash": false,
+					"starter": [
+						1,
+						1,
+						2,
+						2,
+						1,
+						3
+					]
+				}
+			},
+			"id": "NEST_SHORTCUT",
+			"note": "Crystal fresh start reaches a settled ready wheel with a full hand",
+			"verdict": "PASS"
+		},
+		{
+			"evidence": {
+				"before": {
+					"playing": [
+						"music"
+					],
+					"whoosh_loaded": true
+				},
+				"during_start": {
+					"playing": [
+						"confirm_big.wav",
+						"music"
+					],
+					"whoosh_loaded": true
+				},
+				"whoosh_at_start_sample": false
+			},
+			"id": "AUDIO",
+			"note": "whoosh is loaded; menu has no own player; music stayed up. Leave whoosh is sampled on P1.",
+			"verdict": "PASS"
+		}
+	]
+}
