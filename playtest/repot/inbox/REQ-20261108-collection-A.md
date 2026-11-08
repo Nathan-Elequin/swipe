@@ -30,6 +30,7 @@ Shared `CollectionJourney` projection + progress-menu **seen-not-banked** cells 
 | 02 | progress Overview | Same return with ≥1 new banked | Summary + New! path truthful | 02-return-receipt-overview.png |
 | 03 | progress Collection | Locked later area tab | Locked badge; no spoiler item names if already the rule | 03-area-locked.png |
 | 04 | dungeon ready | Campaign run with 1+ unbanked held | Quiet strip shows banked X/5 + held new count; New! only on unbanked | 04-inrun-quiet-strip.png |
+| 05 | progress Overview | Return that crosses 4→5 banked | Milestone gate line visible; Skip still durable | 05-milestone-gate.png |
 
 ## Pass criteria
 

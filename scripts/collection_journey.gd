@@ -126,11 +126,13 @@ static func gate_projection(
 
 ## Ordered durable milestones from a bank commit (facts only — presentation is UI).
 ## before/after are campaign state snapshots; never invent room unlocks here (cabin owns those).
+## Order: gate unlock(s) → cabinet_full (if roster_totals provided) → collection_complete.
 static func milestones_from_bank(
 	rules: Dictionary,
 	before: Dictionary,
 	after: Dictionary,
-	touched_pools: Array = []
+	touched_pools: Array = [],
+	roster_totals: Dictionary = {}
 ) -> Array:
 	var out: Array = []
 	var quota: int = CAMPAIGN_SHELL.quota_of(rules)
@@ -155,8 +157,12 @@ static func milestones_from_bank(
 				"next_id": str(nxt.get("id", "")),
 				"next_name": str(nxt.get("name", "")),
 			})
-		## Full biome cabinet = every eligible roster id banked — caller may pass roster sizes.
-		## Here: only signal when count jumps and equals a provided roster_total in touched meta.
+		if roster_totals.has(pid):
+			var full: Dictionary = cabinet_complete_milestone(
+				pid, b0, b1, int(roster_totals.get(pid, 0))
+			)
+			if not full.is_empty():
+				out.append(full)
 	var won0 := bool(before.get("won", false))
 	var won1 := bool(after.get("won", false))
 	if not won0 and won1:

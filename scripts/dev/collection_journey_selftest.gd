@@ -107,17 +107,22 @@ func _init() -> void:
 		JOURNEY.catalogue_cell_kind("breastplate", {"breastplate": true}, {}, []) == "seen"
 	) or failed
 
-	## milestones: gate 4→5
-	var ms: Array = JOURNEY.milestones_from_bank(rules, before, state, ["b1"])
+	## milestones: gate 4→5 (+ optional cabinet_full when roster_totals say so)
+	var ms: Array = JOURNEY.milestones_from_bank(rules, before, state, ["b1"], {"b1": 5})
 	var has_gate := false
+	var has_full := false
 	for raw in ms:
-		if str((raw as Dictionary).get("kind", "")) == "gate":
+		var kind := str((raw as Dictionary).get("kind", ""))
+		if kind == "gate":
 			has_gate = true
 			failed = _check(
 				failed, "gate_next_crystal",
 				str((raw as Dictionary).get("next_id", "")) == "b2"
 			) or failed
+		elif kind == "cabinet_full":
+			has_full = true
 	failed = _check(failed, "milestone_gate_present", has_gate) or failed
+	failed = _check(failed, "milestone_cabinet_full_at_roster", has_full) or failed
 
 	## banked repeat still banked_carried when held again
 	held = ["throwing_knife"]
