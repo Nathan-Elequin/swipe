@@ -2,45 +2,45 @@
 id: REQ-20261108-collection-A
 status: done
 fulfilled_by: local-cursor
-fulfilled_at: 2026-11-08T08:05:00-06:00
+fulfilled_at: 2026-11-08T08:17:00-06:00
 machine: Cherry
-tip_sha: 0adc58ddc3d3cb39ed0d76cad73c9bb97901b070
+tip_sha: 526b71754ed7d864bd843b83357da6560d06260d
 godot: windowed isolated process (not MCP 6550), Godot 4.7.2-stable, viewport 1680x1040
-branch_fixes: cursor/collection-a-notrun-journeys-e524
-pixel_corrections: merged via #485 @ 0adc58dd
+branch_fixes: cursor/collection-a-partial-close-e524
+pixel_corrections: merged via #485 @ 0adc58dd; #486 @ 526b7175
 ---
 
 # Result
 
-#485 merged into `playtest/latest` (`0adc58dd`). WIP-safe Cherry sync preserved local dirty files. This pass pushes the former NOTRUN journeys with **unit ≠ journey** honesty.
+#486 tip-smoke SUCCESS and merged into `playtest/latest` (`526b7175`). WIP-safe Cherry sync preserved dirty `data/*.json` (no stash/reset/force). This partial-close pass upgrades Climb/Push journeys with **unit ≠ journey** honesty.
 
 ## Capability probe
 
 | Route | Result |
 |-------|--------|
-| Tip | `0adc58dd` Merge #485 (= `origin/playtest/latest`) |
-| Seat 6550 | Occupied PID 41644 — **not used** |
-| Isolation | `APPDATA=…\collection-a-sandbox` only |
-| Tip-smoke | SUCCESS on #485 head `71bf67d1` before merge |
-| NOTRUN harness | `scripts/dev/collection_a_notrun_cases.gd` → `NOTRUN_PASS_DONE` |
+| Tip | `526b7175` Merge #486 (= `origin/playtest/latest` at sync) |
+| Seat 6550 | Untouched — windowed second process only |
+| Isolation | `APPDATA=…\collection-a-sandbox` only; no preference mutation |
+| Tip-smoke | SUCCESS on #486 before merge; local `tip_smoke_selftest.gd` re-run on this branch |
+| PARTIAL-close harness | `scripts/dev/collection_a_notrun_cases.gd` → `NOTRUN_PASS_DONE` |
 
 ## Exact tip / ancestry
 
 | Fact | SHA |
 |------|-----|
-| Current tip | `0adc58dd` Merge PR #485 |
-| Pixel-correction commits | `8b0c320b`, `71bf67d1` |
-| Prior tip | `0c94a2c0` |
+| Current tip base | `526b7175` Merge PR #486 |
+| Prior tip | `0adc58dd` Merge PR #485 |
+| Pixel-correction | `8b0c320b`, `71bf67d1` |
 
 `59e8ca51` remains an ancestor of this tip (not reversed).
 
 ## 24 Journey A acceptance cases
 
-**Honest counts after NOTRUN push: PASS 16 · PARTIAL 7 · NOTRUN 1 · FAIL 0.**
+**Honest counts after partial-close: PASS 18 · PARTIAL 6 · NOTRUN 0 · FAIL 0.**
 
 | case | unit | journey | verdict | proof |
 |------|------|---------|---------|-------|
-| 01 Tutorial handoff | surface | NOTRUN | **NOTRUN** | `_road_finish_to_cabin` opens tutorial summary — not full player tutorial (`N01`) |
+| 01 Tutorial handoff | surface | PARTIAL | **PARTIAL** | `_road_finish_to_cabin` kind=tutorial summary OK — full tutorial playthrough still out of sandbox reach (`N01`) |
 | 02 Verdant nest start | — | PASS | **PASS** | Start→`_finalize_progress_menu_result`→ready settle (`N02`) |
 | 03 Offer/reveal → seen | PASS | — | **PASS** | unit |
 | 04 Acquire one missing | PASS | PASS | **PASS** | unit + quiet/New! combat |
@@ -50,8 +50,8 @@ pixel_corrections: merged via #485 @ 0adc58dd
 | 08 Spend last missing | PASS | — | **PASS** | unit |
 | 09 Quiet + Esc Back | — | PASS | **PASS** | quiet combat + Esc before/after |
 | 10 Carried fifth ≠ banked | PASS | — | **PASS** | unit |
-| 11 Checkpoint Head/Push | — | PARTIAL | **PARTIAL** | rope `open_exit`+campaign chips; ladder+gate live; climb/push not click-completed (`N03`) |
-| 12 Push biome entry | — | PARTIAL | **PARTIAL** | Crystal splash present; not full Push-from-rope sequence (`N04`) |
+| 11 Checkpoint Head/Push | — | PASS | **PASS** | active run + 5/5 → `can_push=true`; Climb/`_adventure_leave` opens Head home menu (`N03`/`N03b`) |
+| 12 Push biome entry | — | PASS | **PASS** | `_rope_deeper` with `can_push` → Crystal splash; pool_now=b2 (`N04`/`N04a`) |
 | 13 Loss / seen retained | PASS | PASS | **PASS** | unit + shot 08 |
 | 14 Multi-item bank | PASS | PASS | **PASS** | |
 | 15 Zero-new success | — | PASS | **PASS** | |
@@ -63,11 +63,11 @@ pixel_corrections: merged via #485 @ 0adc58dd
 | 21 Full cabinet ceremony | PASS | PARTIAL | **PARTIAL** | cabinet_full UI shown; not live 14/14 ceremony (`N06`) |
 | 22 Final ≠ inheritance | — | PARTIAL | **PARTIAL** | Shadow Abyss win without inheritance text (`N07`) |
 | 23 Full collection handoff | — | PARTIAL | **PARTIAL** | Spin `collection_complete` placeholder; authored story OOS (`N08`) |
-| 24 Completed reload freedom | PASS | PARTIAL | **PARTIAL** | won=true Start settles; re-bank empty; full freedom suite incomplete (`N10`) |
+| 24 Completed reload freedom | PASS | PARTIAL | **PARTIAL** | won=true Start settles + cabin opens; re-bank empty; full freedom suite incomplete (`N10`) |
 
-Former NOTRUN remaining as pure NOTRUN: **01 only**.
+Former pure NOTRUN cleared to PARTIAL (**01**). Climb (**11**) and Push (**12**) upgraded to journey PASS via `CAMPAIGN_SHELL.begin_run` + live rope paths.
 
-## Spin copy gaps (unchanged — not production-final)
+## Spin copy gaps (listed, not invented — not production-final)
 
 1. `postrun.collection.item_seen`
 2. `run.collection.quiet_summary`
@@ -79,14 +79,14 @@ Former NOTRUN remaining as pure NOTRUN: **01 only**.
 
 ## Screenshots (1680×1040)
 
-Prior Pixel-correction shots retained. New/updated NOTRUN journey shots:
-
 | file | case |
 |------|------|
-| `N01-tutorial-handoff.png` | 01 |
+| `N01-tutorial-handoff.png` | 01 PARTIAL |
 | `N02-nest-verdant-start.png` | 02 PASS |
-| `N03-checkpoint-extract.png` | 11 PARTIAL |
-| `N04-biome-entry-splash.png` | 12 PARTIAL |
+| `N03-checkpoint-extract.png` | 11 PASS rope |
+| `N03b-head-home-progress.png` | 11 PASS Head home |
+| `N04a-push-rope-before.png` | 12 PASS Push rope |
+| `N04-biome-entry-splash.png` | 12 PASS Crystal splash |
 | `N05-late-pool-scrape.png` | 20 PARTIAL |
 | `N06-full-cabinet-ui.png` | 21 PARTIAL |
 | `N07-final-dungeon-victory.png` | 22 PARTIAL |
@@ -94,16 +94,16 @@ Prior Pixel-correction shots retained. New/updated NOTRUN journey shots:
 | `N09-next-ordinary-verdant.png` | 18 PASS |
 | `N10-completed-reload-freedom.png` | 24 PARTIAL |
 
-Log: `notrun-journeys-stdout.log`.
+Log: `partial-close-stdout.log`.
 
 ## Remaining limits
 
-- Case **01** still NOTRUN without a full tutorial playthrough.
-- Cases **11/12/20–24** are PARTIAL — surface/fixture journeys, not complete player sequences.
+- Case **01** stays PARTIAL — tutorial handoff surface only; full in-dungeon tutorial playthrough not automated here.
+- Cases **20–24** stay PARTIAL — fixture/unit+surface journeys; ordinary late scrape / live 14/14 ceremony / final-clear / authored inheritance / full freedom suite remain out of sandbox reach.
 - Case **17** remains unit-only for simultaneous milestones.
 - reduced-motion / scaling absent.
 - Spin placeholders not final; preference rewrite unapproved / untouched.
 
 ## Shots / store
 
-Outbox `shots/` + store `media/collection-a-runtime/2026-11-08-notrun-journeys/`.
+Outbox `shots/` + store `media/collection-a-runtime/2026-11-08-partial-close/`.
