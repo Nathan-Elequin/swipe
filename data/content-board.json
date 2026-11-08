@@ -3483,7 +3483,7 @@
 			}
 		},
 		{
-			"ability": "Select any 2 living monsters with equal HP. Find the lowest number among their Attack and HP; set all four values (both HP and both ATK) to that number.",
+			"ability": "Select any 2 enemies. Lower their HP until equal, then lower their Attack until equal.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3491,13 +3491,13 @@
 			"card_color": "utility",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Equal-HP pair: set all four numbers to the lowest",
-			"flow": "Click during a fight. Select two living monsters that currently have equal HP. Among those two monsters' HP and Attack (four numbers), find the lowest. Set both HP and both Attack to that number. Example: 4/8 and 4/1 → both become 1/1. Used up.",
+			"explainer": "Pick 2: lower HP then ATK until equal",
+			"flow": "Click during a fight. Select any two living monsters. Lower the higher HP until both match (each chip is HP loss, not Attack — triggers HP-loss reactions, not Shardplate). Then lower the higher Attack until both match. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "love_potion",
 			"kind": "item",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -3519,10 +3519,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Equal HP: equalize to min of four",
+			"log_hint": "Select 2; lower HP then ATK to equal",
 			"mode_pool": "all",
 			"name": "Love Potion",
-			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 5. flags.dev until select-two + equalize is wired.",
+			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 5. Balance Nov8 Slice L: inverse Clockwork Synchronize; HP via _chip_hp; consume.",
 			"ops": {
 				"kind": "love_potion"
 			},

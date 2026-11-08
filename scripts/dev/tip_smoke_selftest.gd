@@ -438,6 +438,42 @@ func _init() -> void:
 		and _source_contains("res://scripts/main.gd", 'it["shard_blk"]')
 	) or failed
 
+	## 21) LovePotion — select any 2; lower HP then ATK until equal; HP via _chip_hp (not Attack/Shardplate).
+	failed = _check(failed, "runtime_has_love_potion", _runtime_has_item("love_potion")) or failed
+	failed = _check(
+		failed,
+		"love_potion_ops_kind",
+		_catalog_item_ops_kind("love_potion", "love_potion")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_ability_select_two",
+		_catalog_item_ability_contains("love_potion", "Select any 2")
+		and _catalog_item_ability_contains("love_potion", "Lower their HP")
+		and _catalog_item_ability_contains("love_potion", "Attack")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_equalize_helpers",
+		_source_has_func("res://scripts/main.gd", "_apply_love_potion_mark")
+		and _source_has_func("res://scripts/main.gd", "_love_potion_equalize")
+		and _source_has_func("res://scripts/main.gd", "_love_sync_pair_stat")
+		and _source_has_func("res://scripts/main.gd", "_love_drain_one")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_hp_via_chip_not_attack",
+		_source_func_calls("res://scripts/main.gd", "_love_drain_one", "_chip_hp")
+		and not _source_func_calls("res://scripts/main.gd", "_love_drain_one", "_deal_atk_at")
+		and not _source_func_calls("res://scripts/main.gd", "_love_potion_equalize", "_shardplate_on_enemy_atk_damage")
+	) or failed
+	failed = _check(
+		failed,
+		"love_potion_mark_wired",
+		_source_contains("res://scripts/main.gd", 'kind == "love_potion"')
+		and _source_contains("res://scripts/main.gd", '"love_potion"')
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
