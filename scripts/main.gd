@@ -3554,6 +3554,28 @@ func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Arr
 	var milestones: Array = COLLECTION_JOURNEY.milestones_from_bank(
 		_campaign.rules, before, _campaign.state, touched, roster_totals
 	)
+	## Final-dungeon clear is Leave from the last tip biome — distinct from
+	## cabinets_complete won/endless and from full-collection inheritance.
+	## Capture played pool before end_run clears the active run.
+	if stamp_crosses:
+		var played_pool := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, before)
+		if played_pool == "":
+			played_pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+		var final_ms: Dictionary = CAMPAIGN_SHELL.recognize_final_dungeon_clear(
+			_campaign.rules, _campaign.state, played_pool
+		)
+		if not final_ms.is_empty():
+			var ordered: Array = []
+			var deferred_complete: Array = []
+			for raw_m2 in milestones:
+				if typeof(raw_m2) == TYPE_DICTIONARY and str((raw_m2 as Dictionary).get("kind", "")) == "collection_complete":
+					deferred_complete.append(raw_m2)
+				else:
+					ordered.append(raw_m2)
+			ordered.append(final_ms)
+			for raw_cc in deferred_complete:
+				ordered.append(raw_cc)
+			milestones = ordered
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
