@@ -58,7 +58,12 @@ Invoked public: `_adventure_leave`, `_push_interrupt_home`, `_go_home_loss`, `_g
 - Soft `HARNESS_RESET` only between cases — never counted as route proof; timeout leaves waiting state visible.
 - **UNCOVERED** (explicit): `mid_menu_disk_reload_full_ui`; `full_delve_nest_settle`.
 
+## Tip smoke CI
+
+- Exact PR tip `b36fd96bba7e375ed109c1ca2ab8a07cc8a62323` — Tip smoke **success** — [run 42438603495](https://github.com/Nathan-Elequin/swipe/actions/runs/42438603495)
+- Do not treat earlier tip (`06993aca` / prior jobs) as this gate.
+
 ## Flags / hold
 
 - Aggregate copy `postrun.collection.total` integrated (Overview).
-- Hold merge until exact-head CI job on tip reviewed — no prior-tip green inference.
+- **Hold merge** until human reviews receipts + this tip CI.
