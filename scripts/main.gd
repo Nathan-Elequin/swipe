@@ -21886,11 +21886,11 @@ func _try_potion() -> bool:
 
 
 func _buckler_last_attacker_view(fighting: bool) -> Dictionary:
-	## Block face for Buckler: stamped ATK from last actual enemy Attack this combat.
-	if not fighting:
+	## Block face for Buckler: stamped ATK from the last actual enemy Attack this combat.
+	## Attack 0 still counts (Wick). Spin and Move do not set enemy_attacked.
+	if not fighting or not enemy_attacked:
 		return {"n": 0, "can_use": false}
-	var n: int = maxi(0, last_attacker_atk)
-	return {"n": n, "can_use": n > 0}
+	return {"n": maxi(0, last_attacker_atk), "can_use": true}
 
 
 func _preview_swing(m: Dictionary, left_blk: int, _allow_buckler: bool) -> Dictionary:
