@@ -366,9 +366,13 @@ func _init() -> void:
 		and road_body.find("CampaignShell.bank") < 0
 		and road_body.find("_campaign_bank_from_hand") < 0
 		and road_body.find("swipe_ids") < 0
-		and road_body.find('_open_progress_menu("tutorial"') >= 0,
+		and (
+			road_body.find('_open_progress_menu("tutorial"') >= 0
+			or road_body.find("_open_progress_menu(tut_kind") >= 0
+		),
 		"has_progress_menu=%s has_bank=%s" % [
-			road_body.find('_open_progress_menu("tutorial"') >= 0,
+			road_body.find('_open_progress_menu("tutorial"') >= 0
+			or road_body.find("_open_progress_menu(tut_kind") >= 0,
 			road_body.find("_campaign_bank_from_hand") >= 0,
 		]
 	) or failed

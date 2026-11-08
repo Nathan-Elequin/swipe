@@ -115,14 +115,20 @@ def main() -> int:
     ok("menu.await_closed", "await closed" in menu)
     ok("menu.skip_acks", "_ack_all_new" in menu and "_on_skip" in menu)
     ok("menu.stagger", "STAGGER_S" in menu)
+    ok("menu.attribution", "pool_for_bucket" in menu and "BucketRules.of_card" in menu)
+    ok("menu.result_handoff", '"action": "start"' in menu or '"action":"start"' in menu.replace(" ", ""))
+    ok("menu.no_redundant_new_run_footer", "_btn_new_run" not in menu)
+    ok("menu.keyboard_focus", "FOCUS_ALL" in menu and "grab_focus" in menu)
 
     ok("main.progress_menu_const", "PROGRESS_MENU" in main_gd)
     ok("main.open_helper", "func _open_progress_menu" in main_gd)
-    for kind in ("win", "loss", "tutorial"):
-        ok(
-            f"main.routes_{kind}",
-            f'_open_progress_menu("{kind}"' in main_gd,
-        )
+    ok("main.routes_win", '_open_progress_menu("win"' in main_gd)
+    ok("main.routes_loss", '_open_progress_menu("loss"' in main_gd)
+    ok(
+        "main.routes_tutorial",
+        'tut_kind := "win" if declined else "tutorial"' in main_gd
+        and "_open_progress_menu(tut_kind" in main_gd,
+    )
     ok(
         "main.push_block_flag",
         re.search(r'_open_progress_menu\("win".*true', main_gd, re.S) is not None
@@ -130,7 +136,7 @@ def main() -> int:
     )
     ok(
         "main.tutorial_zero_credit",
-        '_open_progress_menu("tutorial", [], [], false)' in main_gd,
+        "_open_progress_menu(tut_kind, [], [], false)" in main_gd,
     )
     ok(
         "main.no_auto_s7_on_leave",
@@ -141,8 +147,18 @@ def main() -> int:
         "main.quiet_stamp_on_leave",
         '_campaign_bank_from_hand(true)' in main_gd
         and "stamp_map_piece" in main_gd
-        and '_campaign_bank_from_hand(false)' in main_gd,
-        "leave stamps crosses; push-block does not",
+        and '_campaign_bank_from_hand(false)' in main_gd
+        and "cabinet_count(_campaign.state, pool_id) >= quota" in main_gd,
+        "leave stamps past-quota (deferred); push-block does not",
+    )
+    ok(
+        "main.finalize_handoff",
+        "func _finalize_progress_menu_result" in main_gd
+        and "start_run_wanted.connect" not in main_gd,
+    )
+    ok(
+        "main.tutorial_declined_kind",
+        'tut_kind := "win" if declined else "tutorial"' in main_gd,
     )
 
     ok("cabin.progress_menu_meta_gate", "progress_menu_handled_return" in cabin)

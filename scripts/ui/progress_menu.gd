@@ -1,9 +1,8 @@
 extends CanvasLayer
 ## Post-run progress / collection menu. Primary between-run surface (cabin optional).
 ## Copy: postrun.* via PLAYER_COPY. No Nib dialogue tree. Mouse + keyboard.
+## present() returns {action, biome_index} after dismiss — callers finalize BEFORE launching a run.
 
-signal cabin_wanted
-signal start_run_wanted(biome_index: int)
 signal closed
 
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
@@ -12,7 +11,9 @@ const BIOME := preload("res://scripts/biome_cabinets.gd")
 
 const DESIGN := Vector2(1680.0, 1040.0)
 const STAGGER_S := 0.07
-const STEP_HOLD_S := 0.55
+const STEP_HOLD_S := 0.45
+## FLAG: no Spin key for already-collected non-new state in detail strip.
+const FLAG_MISSING_COLLECTED_COPY := "postrun.collection.item_collected (missing — blank state for collected non-new)"
 
 enum Tab { OVERVIEW, COLLECTION, NEXT_TARGET }
 enum Phase { INTRO, AREA, TARGET, IDLE }
@@ -24,6 +25,8 @@ var _tab_bar: HBoxContainer
 var _tab_btns: Array = []
 var _body: Control
 var _overview_box: VBoxContainer
+var _collection_box: VBoxContainer
+var _area_count_lab: Label
 var _grid_scroll: ScrollContainer
 var _grid: GridContainer
 var _area_tabs: HBoxContainer
@@ -33,12 +36,11 @@ var _target_progress: Label
 var _target_req: Label
 var _route_lab: Label
 var _hand_note: Label
+var _target_actions: HBoxContainer
 var _footer: HBoxContainer
 var _btn_skip: Button
 var _btn_next: Button
 var _btn_cabin: Button
-var _btn_new_run: Button
-var _dest_row: HBoxContainer
 var _detail: Label
 var _built: bool = false
 
@@ -60,7 +62,11 @@ var _pres_gen: int = 0
 var _skip_pres: bool = false
 var _ack_cb: Callable = Callable()
 var _cell_by_id: Dictionary = {}
-var _focus_order: Array = []
+var _revealed_new: Dictionary = {}
+var _acked: Dictionary = {}
+var _result: Dictionary = {}
+var _active_tweens: Array = []
+var _focus_cells: Array = []
 
 
 func _ready() -> void:
@@ -89,24 +95,24 @@ func _build() -> void:
 	_root.add_child(bg)
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.offset_left = 48
-	panel.offset_top = 28
-	panel.offset_right = -48
-	panel.offset_bottom = -28
+	panel.offset_left = 40
+	panel.offset_top = 24
+	panel.offset_right = -40
+	panel.offset_bottom = -24
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("1c1814")
 	sb.border_color = Color("3a3228")
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 28
-	sb.content_margin_right = 28
-	sb.content_margin_top = 20
-	sb.content_margin_bottom = 20
+	sb.content_margin_left = 24
+	sb.content_margin_right = 24
+	sb.content_margin_top = 16
+	sb.content_margin_bottom = 16
 	panel.add_theme_stylebox_override("panel", sb)
 	_root.add_child(panel)
 	var col := VBoxContainer.new()
 	col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	col.add_theme_constant_override("separation", 12)
+	col.add_theme_constant_override("separation", 10)
 	panel.add_child(col)
 
 	var head := HBoxContainer.new()
@@ -126,7 +132,7 @@ func _build() -> void:
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_summary.add_theme_font_size_override("font_size", 22)
 	_summary.add_theme_color_override("font_color", Color("e8c36a"))
-	_summary.custom_minimum_size = Vector2(0, 40)
+	_summary.custom_minimum_size = Vector2(0, 36)
 	col.add_child(_summary)
 
 	_tab_bar = HBoxContainer.new()
@@ -145,7 +151,7 @@ func _build() -> void:
 
 	_body = Control.new()
 	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_body.custom_minimum_size = Vector2(0, 520)
+	_body.custom_minimum_size = Vector2(0, 620)
 	col.add_child(_body)
 
 	_overview_box = VBoxContainer.new()
@@ -153,28 +159,32 @@ func _build() -> void:
 	_overview_box.add_theme_constant_override("separation", 8)
 	_body.add_child(_overview_box)
 
+	_collection_box = VBoxContainer.new()
+	_collection_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_collection_box.add_theme_constant_override("separation", 8)
+	_body.add_child(_collection_box)
 	_area_tabs = HBoxContainer.new()
 	_area_tabs.add_theme_constant_override("separation", 6)
-	_area_tabs.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_area_tabs.offset_bottom = 40
-	_body.add_child(_area_tabs)
-
+	_collection_box.add_child(_area_tabs)
+	_area_count_lab = Label.new()
+	_area_count_lab.add_theme_font_size_override("font_size", 20)
+	_area_count_lab.add_theme_color_override("font_color", Color("e8c36a"))
+	_collection_box.add_child(_area_count_lab)
 	_grid_scroll = ScrollContainer.new()
-	_grid_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_grid_scroll.offset_top = 48
-	_grid_scroll.offset_bottom = -8
-	_body.add_child(_grid_scroll)
+	_grid_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_grid_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_collection_box.add_child(_grid_scroll)
 	_grid = GridContainer.new()
-	_grid.columns = 5
-	_grid.add_theme_constant_override("h_separation", 12)
-	_grid.add_theme_constant_override("v_separation", 12)
+	_grid.columns = 4
+	_grid.add_theme_constant_override("h_separation", 10)
+	_grid.add_theme_constant_override("v_separation", 10)
 	_grid_scroll.add_child(_grid)
 
 	_target_box = VBoxContainer.new()
 	_target_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_target_box.add_theme_constant_override("separation", 10)
+	_target_box.add_theme_constant_override("separation", 12)
 	_body.add_child(_target_box)
-	_target_prompt = _body_label(28)
+	_target_prompt = _body_label(30)
 	_target_box.add_child(_target_prompt)
 	_target_progress = _body_label(22)
 	_target_box.add_child(_target_progress)
@@ -188,6 +198,9 @@ func _build() -> void:
 	_hand_note = _body_label(16)
 	_hand_note.add_theme_color_override("font_color", Color("8a8070"))
 	_target_box.add_child(_hand_note)
+	_target_actions = HBoxContainer.new()
+	_target_actions.add_theme_constant_override("separation", 12)
+	_target_box.add_child(_target_actions)
 
 	_detail = _body_label(18)
 	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -200,16 +213,12 @@ func _build() -> void:
 	_btn_next = _mk_btn("postrun.next", "Next")
 	_btn_next.pressed.connect(_on_next_step)
 	_footer.add_child(_btn_next)
-	_dest_row = HBoxContainer.new()
-	_dest_row.add_theme_constant_override("separation", 8)
-	_dest_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_footer.add_child(_dest_row)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_footer.add_child(spacer)
 	_btn_cabin = _mk_btn("postrun.cabin", "Visit Cabin")
 	_btn_cabin.pressed.connect(_on_cabin)
 	_footer.add_child(_btn_cabin)
-	_btn_new_run = _mk_btn("postrun.new_run", "New Run")
-	_btn_new_run.pressed.connect(_on_new_run_default)
-	_footer.add_child(_btn_new_run)
 
 	_built = true
 	_show_panel(Tab.OVERVIEW)
@@ -230,13 +239,32 @@ func _body_label(size: int) -> Label:
 	return l
 
 
-## Present return results. ack_cb(id) optional — called when a new item lands / on skip.
-func present(payload: Dictionary, ack_cb: Callable = Callable()) -> void:
+## Authoritative biome pool for a catalog card (numeric pool / bucket → b1..b5).
+func _card_biome_pool(card: Dictionary) -> String:
+	if card.is_empty():
+		return ""
+	## Accept already-resolved biome ids used by synthetic fixtures.
+	var raw_pool: Variant = card.get("pool", null)
+	if typeof(raw_pool) == TYPE_STRING:
+		var s := str(raw_pool)
+		if s.begins_with("b"):
+			return s
+	if _rules.is_empty():
+		## Fixture without rules: string "b1" or numeric 1→b1 fallback for tests only.
+		if typeof(raw_pool) == TYPE_STRING and str(raw_pool).begins_with("b"):
+			return str(raw_pool)
+		var n: int = BucketRules.of_card(card)
+		return ("b%d" % n) if n >= 1 else ""
+	return CAMPAIGN_SHELL.pool_for_bucket(_rules, BucketRules.of_card(card))
+
+
+## Present return results. Returns {action: "cabin"|"start"|"dismiss", biome_index: int}.
+func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	_build()
 	_ack_cb = ack_cb
 	_items_by_id = payload.get("items_by_id", {})
 	_tex_by_item = payload.get("tex_by_item", {})
-	_swiped = payload.get("swiped", {})
+	_swiped = payload.get("swiped", {}).duplicate()
 	_new_ids = payload.get("new_ids", []).duplicate()
 	_kind = str(payload.get("kind", "win"))
 	_played_pool = str(payload.get("played_pool", "b1"))
@@ -246,31 +274,54 @@ func present(payload: Dictionary, ack_cb: Callable = Callable()) -> void:
 	_push_block = bool(payload.get("push_block", false))
 	_tutorial = bool(payload.get("tutorial", false)) or _kind == "tutorial"
 	_skip_pres = false
+	_revealed_new.clear()
+	_acked.clear()
+	_result = {"action": "dismiss", "biome_index": 0}
+	_kill_arrival_tweens()
 	_pres_gen += 1
 	var gen: int = _pres_gen
 	_apply_summary()
 	_rebuild_overview()
 	_rebuild_area_tabs()
-	_rebuild_destinations()
 	_rebuild_target()
 	_show_panel(Tab.OVERVIEW)
 	visible = true
 	_btn_skip.disabled = false
 	_btn_next.disabled = false
 	_phase = Phase.INTRO
+	## Default keyboard focus on Skip Recap.
+	_btn_skip.grab_focus()
 	await _run_presentation(gen)
-	## Stay open until Visit Cabin / Start New Run (or explicit dismiss).
-	## Skip Recap / Next only advance presentation — never auto-launch or close.
 	if visible:
 		await closed
+	## Guarantee every presentation id is acked once on every exit path.
+	_ack_all_new()
+	return _result.duplicate()
 
 
 func dismiss() -> void:
-	_pres_gen += 1
+	_cancel_presentation()
+	_ack_all_new()
 	var was_open := visible
 	visible = false
 	if was_open:
 		closed.emit()
+
+
+func _cancel_presentation() -> void:
+	_skip_pres = true
+	_pres_gen += 1
+	_kill_arrival_tweens()
+	_phase = Phase.IDLE
+	_btn_next.disabled = true
+	_btn_skip.disabled = true
+
+
+func _kill_arrival_tweens() -> void:
+	for tw in _active_tweens:
+		if tw != null and is_instance_valid(tw):
+			tw.kill()
+	_active_tweens.clear()
 
 
 func _apply_summary() -> void:
@@ -308,19 +359,26 @@ func _pool_roster(pool: String) -> Array:
 		var card: Dictionary = _items_by_id[id]
 		if typeof(card) != TYPE_DICTIONARY:
 			continue
-		if str(card.get("pool", "")) != pool:
+		## Tokens / aside never enter collection cabinets.
+		if BucketRules.is_token(card):
 			continue
-		## Gear-looking ids without usable ownership implication: still list for collection.
+		if _card_biome_pool(card) != pool:
+			continue
 		out.append(str(id))
 	out.sort()
 	return out
 
 
-func _collected_in_pool(pool: String) -> int:
+func _visible_collected_in_pool(pool: String) -> int:
+	## Stagger-aware: new ids count only after revealed this presentation.
 	var n := 0
 	for id in _pool_roster(pool):
-		if bool(_swiped.get(id, false)):
-			n += 1
+		var sid := str(id)
+		if not bool(_swiped.get(sid, false)):
+			continue
+		if _new_ids.has(sid) and not bool(_revealed_new.get(sid, false)):
+			continue
+		n += 1
 	return n
 
 
@@ -328,6 +386,7 @@ func _rebuild_overview() -> void:
 	for c in _overview_box.get_children():
 		c.queue_free()
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
+	var q: int = CAMPAIGN_SHELL.quota_of(_rules) if not _rules.is_empty() else 5
 	for raw in biomes:
 		var b: Dictionary = raw if typeof(raw) == TYPE_DICTIONARY else {}
 		var pid := str(b.get("id", ""))
@@ -335,7 +394,7 @@ func _rebuild_overview() -> void:
 			continue
 		var name := str(b.get("name", pid))
 		var roster: Array = _pool_roster(pid)
-		var count: int = _collected_in_pool(pid)
+		var count: int = _visible_collected_in_pool(pid)
 		var total: int = roster.size()
 		var unlocked: bool = true
 		if not _rules.is_empty():
@@ -350,11 +409,40 @@ func _rebuild_overview() -> void:
 			)
 			line.add_theme_color_override("font_color", Color("f0e6d8"))
 		else:
+			## Locked: badge + requirement (quota is unlock threshold, distinct from roster total).
+			var req := ""
+			var bi := 0
+			for i in biomes.size():
+				if str((biomes[i] as Dictionary).get("id", "")) == pid:
+					bi = i
+					break
+			var prev: Dictionary = biomes[bi - 1] if bi > 0 else {}
+			var prev_name := str(prev.get("name", ""))
+			if str(prev.get("id", "")) == "b1":
+				req = PLAYER_COPY.text(
+					"postrun.requirement.verdant",
+					"Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together."
+				)
+			elif prev_name != "":
+				req = PLAYER_COPY.fill(
+					"postrun.requirement.bring_home",
+					{"required": str(q), "area": prev_name, "destination": name},
+					"Bring home {required} different item types from {area} to unlock {destination}."
+				)
 			line.text = "%s — %s" % [
 				name,
 				PLAYER_COPY.text("postrun.collection.area_locked", "Locked"),
 			]
 			line.add_theme_color_override("font_color", Color("7a7060"))
+			_overview_box.add_child(line)
+			if req != "":
+				var req_l := Label.new()
+				req_l.text = req
+				req_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				req_l.add_theme_font_size_override("font_size", 16)
+				req_l.add_theme_color_override("font_color", Color("8a8070"))
+				_overview_box.add_child(req_l)
+			continue
 		_overview_box.add_child(line)
 
 
@@ -367,97 +455,173 @@ func _rebuild_area_tabs() -> void:
 	for raw in biomes:
 		var b: Dictionary = raw
 		var pid := str(b.get("id", ""))
+		var unlocked := true
+		if not _rules.is_empty():
+			unlocked = CAMPAIGN_SHELL.pool_unlocked(_rules, _state, pid)
 		var btn := Button.new()
-		btn.text = str(b.get("name", pid))
+		var label := str(b.get("name", pid))
+		if not unlocked:
+			label = "%s (%s)" % [
+				label,
+				PLAYER_COPY.text("postrun.collection.area_locked", "Locked"),
+			]
+		btn.text = label
 		btn.toggle_mode = true
 		btn.button_pressed = pid == _area_filter
+		btn.focus_mode = Control.FOCUS_ALL
 		btn.pressed.connect(_on_area_tab.bind(pid))
 		_area_tabs.add_child(btn)
 	_rebuild_grid()
 
 
 func _on_area_tab(pool: String) -> void:
+	_conclude_auto_for_manual()
 	_area_filter = pool
 	_rebuild_area_tabs()
+	_reveal_all_new_in_view()
+
+
+func _update_area_count_lab() -> void:
+	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
+	var name := _area_filter
+	for raw in biomes:
+		if str((raw as Dictionary).get("id", "")) == _area_filter:
+			name = str((raw as Dictionary).get("name", _area_filter))
+			break
+	var count: int = _visible_collected_in_pool(_area_filter)
+	var total: int = _pool_roster(_area_filter).size()
+	_area_count_lab.text = PLAYER_COPY.fill(
+		"postrun.collection.area_count",
+		{"area": name, "count": str(count), "total": str(total)},
+		"{area} collection: {count}/{total}"
+	)
 
 
 func _rebuild_grid() -> void:
+	_kill_arrival_tweens()
 	for c in _grid.get_children():
 		c.queue_free()
 	_cell_by_id.clear()
+	_focus_cells.clear()
+	_update_area_count_lab()
 	var roster: Array = _pool_roster(_area_filter)
 	for id in roster:
 		var cell := _make_item_cell(str(id))
 		_grid.add_child(cell)
 		_cell_by_id[str(id)] = cell
+		_focus_cells.append(cell)
+	_wire_cell_focus_neighbors()
+
+
+func _wire_cell_focus_neighbors() -> void:
+	var cols: int = maxi(1, _grid.columns)
+	for i in _focus_cells.size():
+		var cell: Control = _focus_cells[i]
+		var left: Control = _focus_cells[i - 1] if i > 0 else null
+		var right: Control = _focus_cells[i + 1] if i + 1 < _focus_cells.size() else null
+		var up: Control = _focus_cells[i - cols] if i - cols >= 0 else null
+		var down: Control = _focus_cells[i + cols] if i + cols < _focus_cells.size() else null
+		cell.focus_neighbor_left = left.get_path() if left else NodePath()
+		cell.focus_neighbor_right = right.get_path() if right else NodePath()
+		cell.focus_neighbor_top = up.get_path() if up else NodePath()
+		cell.focus_neighbor_bottom = down.get_path() if down else NodePath()
 
 
 func _make_item_cell(id: String) -> Control:
 	var card: Dictionary = _items_by_id.get(id, {})
 	var collected: bool = bool(_swiped.get(id, false))
 	var is_new: bool = _new_ids.has(id)
+	var revealed: bool = (not is_new) or bool(_revealed_new.get(id, false)) or _phase == Phase.IDLE
 	var box := PanelContainer.new()
-	box.custom_minimum_size = Vector2(280, 96)
+	box.custom_minimum_size = Vector2(360, 88)
+	box.focus_mode = Control.FOCUS_ALL
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("241e18") if collected else Color("161310")
-	sb.border_color = Color("e8c36a") if is_new else (Color("5a4e40") if collected else Color("2e2820"))
-	sb.set_border_width_all(2 if is_new or not collected else 1)
+	sb.bg_color = Color("241e18") if collected and revealed else Color("161310")
+	## Non-color states: New! / missing text + border weight/pattern (dashed via thicker border).
+	if is_new and revealed:
+		sb.border_color = Color("e8c36a")
+		sb.set_border_width_all(3)
+	elif not collected:
+		sb.border_color = Color("4a4034")
+		sb.set_border_width_all(2)
+		sb.border_color = Color("4a4034")
+	else:
+		sb.border_color = Color("5a4e40")
+		sb.set_border_width_all(1)
 	sb.set_corner_radius_all(4)
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
 	box.add_theme_stylebox_override("panel", sb)
+	var focus_sb := sb.duplicate()
+	focus_sb.border_color = Color("f0e6d8")
+	focus_sb.set_border_width_all(3)
+	box.add_theme_stylebox_override("focus", focus_sb)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(row)
 	var icon := TextureRect.new()
 	icon.custom_minimum_size = Vector2(64, 64)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tex: Texture2D = _tex_by_item.get(id, null)
 	if tex != null:
 		icon.texture = tex
 	else:
-		## Missing art: empty box — never imply usable gear ownership.
-		icon.modulate = Color(0.3, 0.3, 0.3, 1)
-	if not collected:
+		icon.modulate = Color(0.35, 0.35, 0.35, 1)
+	if not collected or (is_new and not revealed):
 		icon.modulate = Color(0.55, 0.55, 0.55, 1)
 	row.add_child(icon)
 	var text_col := VBoxContainer.new()
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(text_col)
 	var name_l := Label.new()
 	name_l.text = str(card.get("name", id))
 	name_l.add_theme_font_size_override("font_size", 18)
-	name_l.add_theme_color_override("font_color", Color("f0e6d8") if collected else Color("9a9080"))
+	name_l.add_theme_color_override("font_color", Color("f0e6d8") if collected and revealed else Color("9a9080"))
 	name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_col.add_child(name_l)
 	var state_l := Label.new()
-	if is_new:
+	if is_new and revealed:
 		state_l.text = PLAYER_COPY.text("postrun.collection.item_new", "New!")
 		state_l.add_theme_color_override("font_color", Color("e8c36a"))
 	elif not collected:
 		state_l.text = PLAYER_COPY.text("postrun.collection.item_missing", "Not yet collected")
 		state_l.add_theme_color_override("font_color", Color("7a7060"))
 	else:
+		## Collected non-new: no Spin key — leave blank (FLAG_MISSING_COLLECTED_COPY).
 		state_l.text = ""
 	state_l.add_theme_font_size_override("font_size", 14)
+	state_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_col.add_child(state_l)
-	box.mouse_filter = Control.MOUSE_FILTER_STOP
+	var inspect := func() -> void:
+		var state_txt := state_l.text
+		if state_txt == "" and collected:
+			## FLAG: no postrun.collection.item_collected — show name only.
+			_detail.text = name_l.text
+			push_warning(FLAG_MISSING_COLLECTED_COPY)
+		else:
+			_detail.text = "%s — %s" % [name_l.text, state_txt]
 	box.gui_input.connect(func(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			_detail.text = "%s — %s" % [name_l.text, state_l.text if state_l.text != "" else ("collected" if collected else "")]
+			inspect.call()
+			box.grab_focus()
+		elif ev.is_action_pressed("ui_accept"):
+			inspect.call()
+			get_viewport().set_input_as_handled()
 	)
-	## New arrivals start hidden for stagger.
-	if is_new and _phase != Phase.IDLE:
+	if is_new and not revealed and _phase != Phase.IDLE:
 		box.modulate.a = 0.0
 	return box
 
 
 func _next_goal() -> Dictionary:
-	## First locked biome by index, else empty.
 	if _rules.is_empty():
 		return {}
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules)
@@ -468,14 +632,12 @@ func _next_goal() -> Dictionary:
 		var dest: Dictionary = biomes[i]
 		var prev: Dictionary = biomes[i - 1] if i > 0 else {}
 		var area_id := str(prev.get("id", "b1"))
-		var area_name := str(prev.get("name", area_id))
-		var count: int = CAMPAIGN_SHELL.cabinet_count(_state, area_id)
 		return {
 			"dest_id": str(dest.get("id", "")),
 			"dest_name": str(dest.get("name", "")),
 			"area_id": area_id,
-			"area_name": area_name,
-			"count": count,
+			"area_name": str(prev.get("name", area_id)),
+			"count": CAMPAIGN_SHELL.cabinet_count(_state, area_id),
 			"required": q,
 			"index": i,
 		}
@@ -487,14 +649,8 @@ func _rebuild_target() -> void:
 	_target_progress.text = ""
 	_target_req.text = ""
 	_route_lab.text = ""
-	## Highest unlocked destination (index>0) may show requirement.met — never invent all-goals-complete.
-	var unlocked_dest := _highest_unlocked_destination()
-	if not unlocked_dest.is_empty() and not _push_block:
-		_target_req.text = PLAYER_COPY.fill(
-			"postrun.requirement.met",
-			{"destination": str(unlocked_dest.get("name", ""))},
-			"{destination} unlocked"
-		)
+	for c in _target_actions.get_children():
+		c.queue_free()
 	var goal: Dictionary = _next_goal()
 	if not goal.is_empty():
 		_target_prompt.text = PLAYER_COPY.fill(
@@ -502,6 +658,7 @@ func _rebuild_target() -> void:
 			{"destination": str(goal.get("dest_name", ""))},
 			"Next goal: {destination}"
 		)
+		## Quota progress (unlock threshold) — distinct from roster {count}/{total}.
 		_target_progress.text = PLAYER_COPY.fill(
 			"postrun.next_target.progress",
 			{"count": str(goal.get("count", 0)), "required": str(goal.get("required", 5))},
@@ -509,15 +666,13 @@ func _rebuild_target() -> void:
 		)
 		var dest_name := str(goal.get("dest_name", ""))
 		var area_name := str(goal.get("area_name", ""))
-		## Generic bring_home only where the real rule is collection quota; Verdant uses dedicated string.
-		var req_line := ""
 		if str(goal.get("area_id", "")) == "b1":
-			req_line = PLAYER_COPY.text(
+			_target_req.text = PLAYER_COPY.text(
 				"postrun.requirement.verdant",
 				"Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together."
 			)
 		else:
-			req_line = PLAYER_COPY.fill(
+			_target_req.text = PLAYER_COPY.fill(
 				"postrun.requirement.bring_home",
 				{
 					"required": str(goal.get("required", 5)),
@@ -526,10 +681,6 @@ func _rebuild_target() -> void:
 				},
 				"Bring home {required} different item types from {area} to unlock {destination}."
 			)
-		## Prefer active requirement over prior unlock banner when a next goal exists.
-		_target_req.text = req_line
-		## Route: destination not can_start as fresh — explain same-run path.
-		## D2 reached same-run is NOT a fresh-start shortcut — route text only, never a continue button.
 		var dest_i: int = int(goal.get("index", 1))
 		if not CAMPAIGN_SHELL.can_start(_rules, _state, dest_i):
 			var start_i: int = 0
@@ -546,7 +697,14 @@ func _rebuild_target() -> void:
 				},
 				"Reach {destination} by starting in {start_area} and continuing during the same run."
 			)
-	## hand_note only when source starter_item_mix sums to 6 (verified [3,2,1]); omit/flag otherwise.
+	elif not _push_block:
+		var unlocked_dest := _highest_unlocked_destination()
+		if not unlocked_dest.is_empty():
+			_target_req.text = PLAYER_COPY.fill(
+				"postrun.requirement.met",
+				{"destination": str(unlocked_dest.get("name", ""))},
+				"{destination} unlocked"
+			)
 	var hand_ok := false
 	if not _rules.is_empty():
 		var mix: Variant = _rules.get("starter_item_mix", [3, 2, 1])
@@ -562,11 +720,12 @@ func _rebuild_target() -> void:
 		)
 		_hand_note.visible = true
 	else:
-		## Mismatch vs Spin copy — omit rather than invent alternate wording.
 		_hand_note.text = ""
 		_hand_note.visible = false
 		if not _rules.is_empty():
 			push_warning("postrun.hand_note omitted: starter_item_mix does not sum to 6")
+	## One clear primary start action group (no redundant footer New Run).
+	_fill_start_actions(_target_actions)
 
 
 func _highest_unlocked_destination() -> Dictionary:
@@ -582,18 +741,23 @@ func _highest_unlocked_destination() -> Dictionary:
 	return last
 
 
-func _rebuild_destinations() -> void:
-	for c in _dest_row.get_children():
+func _fill_start_actions(row: HBoxContainer) -> void:
+	for c in row.get_children():
 		c.queue_free()
 	if _rules.is_empty():
+		var btn0 := Button.new()
+		btn0.text = PLAYER_COPY.text("postrun.button.start_default", "Start New Run")
+		btn0.custom_minimum_size = Vector2(220, 44)
+		btn0.focus_mode = Control.FOCUS_ALL
+		btn0.pressed.connect(func() -> void: _choose_start(0))
+		row.add_child(btn0)
 		return
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules)
 	var showed_req := false
 	var showed_unlocked_note := false
+	var any_start := false
 	for i in biomes.size():
 		if not CAMPAIGN_SHELL.can_start(_rules, _state, i):
-			## Locked start: show shortcut requirement as label, not start button.
-			## D2 same-run reach ≠ fresh-start — never emit a start button here.
 			if (not showed_req) and i > 0 and not CAMPAIGN_SHELL.shortcut_open(_rules, _state, i):
 				var need_i: int = i + 1
 				if need_i < biomes.size():
@@ -608,11 +772,10 @@ func _rebuild_destinations() -> void:
 						},
 						"Unlock {required_area} to start new runs in {start_area}."
 					)
-					_dest_row.add_child(lab)
+					row.add_child(lab)
 					showed_req = true
 			continue
 		var b: Dictionary = biomes[i]
-		## Fresh shortcut (i>0 + can_start): announce new starting point once.
 		if i > 0 and not showed_unlocked_note:
 			var note := Label.new()
 			note.add_theme_font_size_override("font_size", 14)
@@ -622,7 +785,7 @@ func _rebuild_destinations() -> void:
 				{"start_area": str(b.get("name", ""))},
 				"New starting point: {start_area}"
 			)
-			_dest_row.add_child(note)
+			row.add_child(note)
 			showed_unlocked_note = true
 		var btn := Button.new()
 		if i == 0:
@@ -633,20 +796,25 @@ func _rebuild_destinations() -> void:
 				{"start_area": str(b.get("name", ""))},
 				"Start New Run in {start_area}"
 			)
-		btn.custom_minimum_size = Vector2(180, 40)
+		btn.custom_minimum_size = Vector2(220, 44)
+		btn.focus_mode = Control.FOCUS_ALL
 		var idx: int = i
-		btn.pressed.connect(func() -> void:
-			start_run_wanted.emit(idx)
-			dismiss()
-		)
-		_dest_row.add_child(btn)
+		btn.pressed.connect(func() -> void: _choose_start(idx))
+		row.add_child(btn)
+		any_start = true
+	if not any_start:
+		var fallback := Button.new()
+		fallback.text = PLAYER_COPY.text("postrun.button.start_default", "Start New Run")
+		fallback.custom_minimum_size = Vector2(220, 44)
+		fallback.focus_mode = Control.FOCUS_ALL
+		fallback.pressed.connect(func() -> void: _choose_start(0))
+		row.add_child(fallback)
 
 
 func _show_panel(tab: int) -> void:
 	_tab = tab
 	_overview_box.visible = tab == Tab.OVERVIEW
-	_area_tabs.visible = tab == Tab.COLLECTION
-	_grid_scroll.visible = tab == Tab.COLLECTION
+	_collection_box.visible = tab == Tab.COLLECTION
 	_target_box.visible = tab == Tab.NEXT_TARGET
 	for i in _tab_btns.size():
 		var b: Button = _tab_btns[i]
@@ -654,21 +822,47 @@ func _show_panel(tab: int) -> void:
 		b.modulate = Color(1, 1, 1, 1) if i == tab else Color(0.75, 0.75, 0.75, 1)
 
 
+func _conclude_auto_for_manual() -> void:
+	## Manual tab/Next/area cancels auto timers; reveal news already on this view; do not free mid-tween.
+	if _phase == Phase.IDLE:
+		return
+	_cancel_presentation()
+	_reveal_all_new_in_view()
+
+
 func _on_tab(tab: int) -> void:
-	_phase = Phase.IDLE
+	_conclude_auto_for_manual()
 	_show_panel(tab)
 	if tab == Tab.COLLECTION:
 		_rebuild_grid()
-		## Reveal any still-hidden new cells when browsing.
-		for id in _new_ids:
-			var cell: Control = _cell_by_id.get(str(id), null)
-			if cell != null:
-				cell.modulate.a = 1.0
+		_reveal_all_new_in_view()
+		if not _focus_cells.is_empty():
+			(_focus_cells[0] as Control).grab_focus()
+	elif tab == Tab.NEXT_TARGET:
+		_rebuild_target()
+		if _target_actions.get_child_count() > 0:
+			var first = _target_actions.get_child(0)
+			if first is Control and (first as Control).focus_mode != Control.FOCUS_NONE:
+				(first as Control).grab_focus()
+
+
+func _reveal_all_new_in_view() -> void:
+	for id in _new_ids:
+		_revealed_new[str(id)] = true
+		var cell: Control = _cell_by_id.get(str(id), null)
+		if cell != null:
+			cell.modulate.a = 1.0
+	_update_area_count_lab()
+	_rebuild_overview()
 
 
 func _ack_id(id: String) -> void:
+	var sid := str(id)
+	if bool(_acked.get(sid, false)):
+		return
+	_acked[sid] = true
 	if _ack_cb.is_valid():
-		_ack_cb.call(id)
+		_ack_cb.call(sid)
 
 
 func _ack_all_new() -> void:
@@ -676,89 +870,127 @@ func _ack_all_new() -> void:
 		_ack_id(str(id))
 
 
+func _land_new(id: String) -> void:
+	var sid := str(id)
+	_revealed_new[sid] = true
+	var cell: Control = _cell_by_id.get(sid, null)
+	if cell != null:
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_property(cell, "modulate:a", 1.0, 0.12)
+		_active_tweens.append(tw)
+	_ack_id(sid)
+	_update_area_count_lab()
+	_rebuild_overview()
+
+
 func _on_skip() -> void:
-	_skip_pres = true
-	_pres_gen += 1
+	_cancel_presentation()
+	## Fast-forward: reveal all news across pools, then pause on Next Goal.
+	for id in _new_ids:
+		_revealed_new[str(id)] = true
 	_ack_all_new()
-	## Reveal cells.
-	_phase = Phase.IDLE
-	_show_panel(Tab.NEXT_TARGET if not _next_goal().is_empty() else Tab.OVERVIEW)
-	if _tab == Tab.COLLECTION or true:
-		_area_filter = _played_pool if _played_pool != "" else _area_filter
-		_rebuild_area_tabs()
-		for id in _new_ids:
-			var cell: Control = _cell_by_id.get(str(id), null)
-			if cell != null:
-				cell.modulate.a = 1.0
-	_btn_skip.disabled = true
-	_btn_next.disabled = true
+	_show_panel(Tab.NEXT_TARGET if not _next_goal().is_empty() else Tab.COLLECTION)
+	_area_filter = _played_pool if _played_pool != "" else _area_filter
+	_rebuild_area_tabs()
+	_rebuild_target()
+	_reveal_all_new_in_view()
 
 
 func _on_next_step() -> void:
-	match _phase:
-		Phase.INTRO:
-			_phase = Phase.AREA
-			_show_panel(Tab.COLLECTION)
-			_area_filter = _played_pool
-			_rebuild_area_tabs()
-		Phase.AREA:
-			_phase = Phase.TARGET
-			_show_panel(Tab.NEXT_TARGET)
-		_:
-			_phase = Phase.IDLE
-			_btn_next.disabled = true
-			_btn_skip.disabled = true
-
-
-func _run_presentation(gen: int) -> void:
-	if _tutorial or _kind == "loss" or _new_ids.is_empty() or _push_block:
-		## Brief truthful result — no arrival celebration.
-		_phase = Phase.INTRO
-		_show_panel(Tab.OVERVIEW)
-		if not _skip_pres and gen == _pres_gen:
-			await _wait_pres(STEP_HOLD_S, gen)
-		if gen != _pres_gen:
-			return
-		_phase = Phase.TARGET
+	## Manual Next concludes current auto step and advances; cancels later timers.
+	var from_tab: int = _tab
+	_cancel_presentation()
+	_skip_pres = false
+	if from_tab == Tab.OVERVIEW:
+		_phase = Phase.AREA
+		_show_panel(Tab.COLLECTION)
+		_area_filter = _played_pool
+		_rebuild_area_tabs()
+		_btn_next.disabled = false
+		_btn_skip.disabled = false
+	elif from_tab == Tab.COLLECTION:
+		_phase = Phase.IDLE
 		_show_panel(Tab.NEXT_TARGET)
+		_rebuild_target()
+		_btn_next.disabled = true
+		_btn_skip.disabled = true
+	else:
 		_phase = Phase.IDLE
 		_btn_next.disabled = true
 		_btn_skip.disabled = true
-		_ack_all_new()
-		return
-	## Overview
+
+
+func _new_ids_for_pool(pool: String) -> Array:
+	var out: Array = []
+	for id in _new_ids:
+		var card: Dictionary = _items_by_id.get(str(id), {})
+		if _card_biome_pool(card) == pool:
+			out.append(str(id))
+	return out
+
+
+func _pools_with_new() -> Array:
+	var seen: Dictionary = {}
+	var out: Array = []
+	## Played area first.
+	if _played_pool != "":
+		seen[_played_pool] = true
+		out.append(_played_pool)
+	for id in _new_ids:
+		var p := _card_biome_pool(_items_by_id.get(str(id), {}))
+		if p == "" or seen.has(p):
+			continue
+		seen[p] = true
+		out.append(p)
+	return out
+
+
+func _run_presentation(gen: int) -> void:
+	## Every return: Overview → played/collection → Next Goal. Brief holds; stagger only real news.
 	_phase = Phase.INTRO
 	_show_panel(Tab.OVERVIEW)
 	if not _skip_pres and gen == _pres_gen:
 		await _wait_pres(STEP_HOLD_S, gen)
 	if _skip_pres or gen != _pres_gen:
 		return
-	## Area just played + stagger
 	_phase = Phase.AREA
 	_show_panel(Tab.COLLECTION)
-	_area_filter = _played_pool
+	_area_filter = _played_pool if _played_pool != "" else _area_filter
 	_rebuild_area_tabs()
-	for id in _new_ids:
+	## Land news pool-by-pool so multi-pool arrivals are visible before ack.
+	for pool in _pools_with_new():
 		if _skip_pres or gen != _pres_gen:
-			break
-		var cell: Control = _cell_by_id.get(str(id), null)
-		if cell != null:
-			var tw := create_tween()
-			tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-			tw.tween_property(cell, "modulate:a", 1.0, 0.12)
-		_ack_id(str(id))
-		await _wait_pres(STAGGER_S, gen)
+			return
+		if str(pool) != _area_filter:
+			_area_filter = str(pool)
+			_rebuild_area_tabs()
+		var news: Array = _new_ids_for_pool(str(pool))
+		if news.is_empty():
+			## Still show played area briefly even with zero news.
+			if str(pool) == _played_pool:
+				await _wait_pres(STEP_HOLD_S * 0.5, gen)
+			continue
+		for id in news:
+			if _skip_pres or gen != _pres_gen:
+				return
+			_land_new(str(id))
+			await _wait_pres(STAGGER_S, gen)
+		await _wait_pres(STEP_HOLD_S * 0.4, gen)
 	if _skip_pres or gen != _pres_gen:
 		return
-	await _wait_pres(STEP_HOLD_S * 0.6, gen)
-	if _skip_pres or gen != _pres_gen:
-		return
-	## Next target — pause for selection
+	## Ensure every new id was revealed+acked (including empty-news paths).
+	_ack_all_new()
 	_phase = Phase.TARGET
 	_show_panel(Tab.NEXT_TARGET)
+	_rebuild_target()
 	_phase = Phase.IDLE
 	_btn_next.disabled = true
 	_btn_skip.disabled = true
+	if _target_actions.get_child_count() > 0:
+		var first = _target_actions.get_child(0)
+		if first is Button:
+			(first as Button).grab_focus()
 
 
 func _wait_pres(sec: float, gen: int) -> void:
@@ -771,24 +1003,13 @@ func _wait_pres(sec: float, gen: int) -> void:
 		left -= step
 
 
-func _on_cabin() -> void:
-	_ack_all_new()
-	cabin_wanted.emit()
+func _choose_start(biome_index: int) -> void:
+	_result = {"action": "start", "biome_index": biome_index}
 	dismiss()
 
 
-func _on_new_run_default() -> void:
-	## Prefer first can_start (always b1 when rules present).
-	if _rules.is_empty():
-		start_run_wanted.emit(0)
-		dismiss()
-		return
-	for i in CAMPAIGN_SHELL.biomes_of(_rules).size():
-		if CAMPAIGN_SHELL.can_start(_rules, _state, i):
-			start_run_wanted.emit(i)
-			dismiss()
-			return
-	start_run_wanted.emit(0)
+func _on_cabin() -> void:
+	_result = {"action": "cabin", "biome_index": 0}
 	dismiss()
 
 
@@ -796,7 +1017,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		## Escape: do not force cabin; leave menu open unless Skip already finished.
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_accept") and not _btn_next.disabled:

@@ -1999,8 +1999,6 @@ func _build_overlay() -> void:
 	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
 	progress_menu = PROGRESS_MENU.new()
 	add_child(progress_menu)
-	progress_menu.cabin_wanted.connect(_on_progress_menu_cabin)
-	progress_menu.start_run_wanted.connect(_on_progress_menu_start_run)
 
 
 func _build_copy_stamp() -> void:
@@ -2889,14 +2887,14 @@ func _adventure_leave() -> void:
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
 	await _biome_dissolve_out()
 	if _campaign_on:
-		## Quiet map-piece ledger stamp on 5/5 cross — S7 ceremony no longer auto-runs.
+		## Leave awards deferred map scrap (idempotent) — Push may have crossed without stamp.
 		await _campaign_bank_from_hand(true)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	## Dedicated progress menu replaces automatic S7 cabin homecoming.
-	await _open_progress_menu("win", news, ids, false)
-	await _biome_dissolve_reveal()
+	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false)
+	await _finalize_progress_menu_result(leave_result)
 	_adventure_busy = false
 
 
@@ -2932,7 +2930,7 @@ func _push_interrupt_home() -> void:
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
 	await _biome_dissolve_out()
 	if _campaign_on:
-		## Push-block: bank credit yes, map-piece stamp never (same as suppressed S7).
+		## Push-block: bank credit yes, map-piece stamp never (deferred to later Leave).
 		await _campaign_bank_from_hand(false)
 	_cabin_from_leave = true
 	_reset_run()
@@ -2940,9 +2938,8 @@ func _push_interrupt_home() -> void:
 	if pool != "":
 		_sync_dungeon_biome(pool)
 	## Progress menu always; Push-block suppresses unlock/map celebration (payload flag).
-	await _open_progress_menu("win", news, ids, true, pool, biome_name)
-	await _biome_dissolve_reveal()
-	get_tree().paused = true
+	var push_result: Dictionary = await _open_progress_menu("win", news, ids, true, pool, biome_name)
+	await _finalize_progress_menu_result(push_result, true)
 	_adventure_busy = false
 
 
@@ -2979,7 +2976,8 @@ func _classic_swipe_home() -> void:
 		news = home_cabin.swipe_ids(ids)
 	_reset_run()
 	phase = "title"
-	await _open_progress_menu("win", news, ids, false)
+	var classic_result: Dictionary = await _open_progress_menu("win", news, ids, false)
+	await _finalize_progress_menu_result(classic_result)
 
 
 func _hide_cabin_for_run() -> void:
@@ -3459,9 +3457,11 @@ func _campaign_abort() -> void:
 	_campaign.write()
 
 
-## Bank haul into CampaignShell. When stamp_crosses, quietly persist map pieces for
-## cabinets that crossed quota this return (progress menu replaced auto S7 ceremony).
-## Push-block / death must pass stamp_crosses=false — never invent a map scrap there.
+## Bank haul into CampaignShell.
+## stamp_crosses=true (successful Leave): idempotently stamp every past-quota cabinet.
+## That preserves deferred award when Push-block earlier crossed without stamping.
+## stamp_crosses=false (Push-block): bank credit only — never stamp here.
+## stamp_map_piece is idempotent per next id — old saves / re-Leave do not double-award.
 func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 	if _campaign == null:
 		return
@@ -3476,19 +3476,15 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 		ids.append(id)
 		pools[id] = _campaign_pool_of_item(id)
 	var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
-	var before_counts: Dictionary = {}
-	for raw_b in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
-		var bid := str((raw_b as Dictionary).get("id", ""))
-		if bid != "":
-			before_counts[bid] = CAMPAIGN_SHELL.cabinet_count(_campaign.state, bid)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
 	if stamp_crosses:
-		for pool_id in before_counts.keys():
-			var before_n: int = int(before_counts[pool_id])
-			var after_n: int = CAMPAIGN_SHELL.cabinet_count(_campaign.state, str(pool_id))
-			## Same gate as BiomeCabinets.crossed_gate / S7 map-piece handoff.
-			if before_n < quota and after_n >= quota:
-				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, str(pool_id))
+		for raw_b in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
+			var pool_id := str((raw_b as Dictionary).get("id", ""))
+			if pool_id == "":
+				continue
+			## Deferred award: stamp whenever cabinet is at/over quota (not only this-return cross).
+			if CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota:
+				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, pool_id)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
@@ -3558,8 +3554,8 @@ func _go_home_loss() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	await _open_progress_menu("loss", [], [], false)
-	await _biome_dissolve_reveal()
+	var loss_result: Dictionary = await _open_progress_menu("loss", [], [], false)
+	await _finalize_progress_menu_result(loss_result)
 
 
 func _kick_defeat_spotlight(skip_pose: bool = false) -> void:
@@ -3610,8 +3606,8 @@ func _give_up() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	await _open_progress_menu("loss", [], [], false)
-	await _biome_dissolve_reveal()
+	var give_result: Dictionary = await _open_progress_menu("loss", [], [], false)
+	await _finalize_progress_menu_result(give_result)
 
 
 func _rope_deeper() -> void:
@@ -3701,7 +3697,9 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 	_hide_fight_hover()
 
 
-## Post-run dedicated progress menu. Ack bank_pending via cabin helper when IDs land / skip.
+## Post-run dedicated progress menu. Returns {action, biome_index}.
+## Callers MUST finalize via _finalize_progress_menu_result so old return coroutines
+## never dissolve/pause into a newly started run.
 func _open_progress_menu(
 	kind: String,
 	new_ids: Array,
@@ -3709,10 +3707,10 @@ func _open_progress_menu(
 	push_block: bool = false,
 	played_pool: String = "",
 	played_name: String = ""
-) -> void:
+) -> Dictionary:
 	if progress_menu == null:
 		_open_home_cabin(false, kind, new_ids, held_ids)
-		return
+		return {"action": "cabin", "biome_index": 0}
 	_hide_fight_hover()
 	_sync_biome_ambient("", true)
 	if overlay:
@@ -3733,7 +3731,6 @@ func _open_progress_menu(
 	if home_cabin != null:
 		swiped = home_cabin.swiped.duplicate()
 	elif _campaign != null:
-		## Prefer campaign banked pools mirrored into a presence map.
 		var banked: Dictionary = _campaign.state.get("banked", {})
 		for id in banked.keys():
 			swiped[str(id)] = true
@@ -3759,28 +3756,30 @@ func _open_progress_menu(
 	var ack := func(id: String) -> void:
 		if home_cabin != null and home_cabin.has_method("_ack_bank_presented"):
 			home_cabin.call("_ack_bank_presented", id, -1)
-	await progress_menu.present(payload, ack)
-	## Suppress automatic S7 resume if any pending remains after dismiss without ack.
+	var result: Dictionary = await progress_menu.present(payload, ack)
 	if home_cabin != null:
 		home_cabin.set_meta("progress_menu_handled_return", true)
+	return result
 
 
-func _on_progress_menu_cabin() -> void:
-	## Optional cabin — no walk-in ceremony replay.
-	if home_cabin != null:
-		home_cabin.set_meta("progress_menu_handled_return", true)
-	_open_home_cabin(false, "win", [], [])
-
-
-func _on_progress_menu_start_run(biome_index: int) -> void:
-	if _campaign == null:
+## Transactional handoff after menu dismiss — never pause/dissolve a new run.
+func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = false) -> void:
+	var action := str(result.get("action", "dismiss"))
+	if action == "start":
+		if _campaign == null:
+			return
+		var idx: int = maxi(0, int(result.get("biome_index", 0)))
+		if not CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, idx):
+			idx = 0
+		_splash_busy = true
+		await _begin_campaign_delve(idx, idx > 0, false, null, false)
+		_splash_busy = false
 		return
-	var idx: int = maxi(0, biome_index)
-	if not CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, idx):
-		idx = 0
-	_splash_busy = true
-	await _begin_campaign_delve(idx, idx > 0, false, null, false)
-	_splash_busy = false
+	await _biome_dissolve_reveal()
+	if action == "cabin":
+		_open_home_cabin(false, "win", [], [])
+	elif pause_if_idle:
+		get_tree().paused = true
 
 
 ## Spin lesson 1: first campaign ready beat with a real hotbar New! badge.
@@ -29114,7 +29113,13 @@ func _road_finish_to_cabin(declined: bool) -> void:
 		await home_cabin.play_arrive_splash()
 	## Progress menu is the between-run surface; cabin optional from there.
 	## Tutorial items do not credit collection (empty new_ids).
-	await _open_progress_menu("tutorial", [], [], false)
+	## Tutorial-complete copy ONLY when Yes-complete (declined=false). Skip uses win/none —
+	## FLAG: no dedicated Spin postrun.summary for tutorial-skip/decline.
+	if declined:
+		push_warning("FLAG missing copy: postrun.summary for tutorial Skip/decline — using success_none")
+	var tut_kind := "win" if declined else "tutorial"
+	var tut_result: Dictionary = await _open_progress_menu(tut_kind, [], [], false)
+	await _finalize_progress_menu_result(tut_result)
 	_refresh()
 	_sync_playtest_chrome()
 
