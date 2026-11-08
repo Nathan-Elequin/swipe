@@ -665,6 +665,28 @@ func note_dungeon_clear() -> void:
 	_save()
 
 
+## House rooms: first successful full dungeon return (survive + return home), even with
+## 0 new unique items. Tutorial-only arrive and death are NOT successful dungeon returns.
+## Cabinet / D2 / shortcut thresholds stay in campaign shell — this gate is cabin doors only.
+func counts_as_successful_dungeon_return(kind: String = "") -> bool:
+	var k: String = kind if kind != "" else str(_homecoming_kind)
+	return k == "win" and int(lifetime_dungeons_cleared) >= 1
+
+
+## Credit arrive/push-block homecoming counters. Returns true when key-ring tour is due.
+## Does not fake a haul for tutorial walk-in (kind win, lifetime clears still 0).
+func _credit_homecoming_counters() -> bool:
+	counters.homecomings = int(counters.get("homecomings", 0)) + 1
+	if _homecoming_kind == "loss":
+		counters.losses = int(counters.get("losses", 0)) + 1
+		return false
+	if counts_as_successful_dungeon_return():
+		counters.hauls = int(counters.get("hauls", 0)) + 1
+		_sync_progress_doors()
+		return int(counters.hauls) >= 1 and not key_ring_seen
+	return false
+
+
 func is_swiped(id: String) -> bool:
 	return bool(swiped.get(str(id), false))
 
@@ -906,6 +928,12 @@ func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Ar
 	_door_busy = false
 	_room_busy = false
 	_menu_on = true
+	## Cleared dungeon + return (Push blocked under 5/5) still counts as a haul for
+	## house rooms, even though this path skips the exterior arrive walk-in.
+	var want_key: bool = _credit_homecoming_counters()
+	_save()
+	if want_key:
+		await play_key_ring()
 	var room := "hall" if is_room_unlocked("hall") else "main"
 	await show_menu(room)
 	focus_biome_case(pool_id)
@@ -1809,24 +1837,18 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		var pending_r: String = _arrive_pending_room
 		_arrive_pending_name = ""
 		_arrive_pending_room = ""
-		counters.homecomings = int(counters.get("homecomings", 0)) + 1
-		if _homecoming_kind == "loss":
-			counters.losses = int(counters.get("losses", 0)) + 1
-		else:
-			counters.hauls = int(counters.get("hauls", 0)) + 1
-		_sync_progress_doors()
+		## Interrupted arrive: credit counters + door recovery; key-ring may wait until a quieter beat.
+		_credit_homecoming_counters()
 		_save()
 		_beat = "idle"
 		_play_station()
 		_apply_gate()
 		_on_hotspot(pending_n, pending_r)
 		return
-	counters.homecomings = int(counters.get("homecomings", 0)) + 1
+	var want_key_ring: bool = _credit_homecoming_counters()
 	if _homecoming_kind == "loss":
-		counters.losses = int(counters.get("losses", 0)) + 1
+		pass
 	else:
-		counters.hauls = int(counters.get("hauls", 0)) + 1
-		_sync_progress_doors()
 		_beat = "idle"
 		if _first_speech_ready():
 			await _say_first_speech()
@@ -1852,7 +1874,8 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 				_save()
 				await play_ending()
 				return
-		if int(counters.hauls) >= 1 and not key_ring_seen:
+		## First successful full dungeon return (0+ new uniques) starts the key-ring tour.
+		if want_key_ring:
 			_save()
 			await play_key_ring()
 			## Key ring finalizer stages pending bank when present.
