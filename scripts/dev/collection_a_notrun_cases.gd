@@ -680,39 +680,66 @@ func _case_22_final_clear_event() -> void:
 	await _soft_reset("after final victory")
 
 
-## --- A23 Full collection neutral boundary (neg 66/67 + pos 67/67) ---
+func _parse_overall_total(blob: String) -> Vector2i:
+	## "Item types collected: 65/67" → (65, 67). (-1,-1) if missing.
+	var marker := "Item types collected:"
+	var at := blob.find(marker)
+	if at < 0:
+		return Vector2i(-1, -1)
+	var rest := blob.substr(at + marker.length(), 32).strip_edges()
+	var slash := rest.find("/")
+	if slash < 0:
+		return Vector2i(-1, -1)
+	var a := rest.substr(0, slash).strip_edges()
+	var b := rest.substr(slash + 1, 8).strip_edges()
+	## Trim trailing non-digits on b.
+	var b_clean := ""
+	for i in b.length():
+		var ch := b.substr(i, 1)
+		if ch < "0" or ch > "9":
+			break
+		b_clean += ch
+	return Vector2i(int(a), int(b_clean))
+
+
+## --- A23 Full collection neutral boundary ---
+## Hard rule: Full collection line ONLY when overview totals are complete (N/N).
 func _case_23_full_collection_boundary() -> void:
 	await _soft_reset("before inheritance")
 	var roster := _roster_totals()
 	var total := 0
 	for k in roster.keys():
 		total += int(roster[k])
-	## --- Negative 66/67 ---
+	print("ROSTER_TOTALS ", roster, " sum=", total)
+
+	## --- Negative: leave last Cinder (b4) missing ---
 	var missing := ""
 	var after_neg: Dictionary = CAMPAIGN_SHELL.fresh_state()
 	for pool in ["b1", "b2", "b3", "b4", "b5"]:
 		var ids: Array = _pool_ids(pool)
 		for i in ids.size():
 			var id := str(ids[i])
-			## Drop last id of b4 (Cinder) when possible.
 			if pool == "b4" and i == ids.size() - 1:
 				missing = id
 				continue
 			after_neg["banked"][id] = pool
-	if missing == "" and _pool_ids("b5").size() > 0:
-		missing = str(_pool_ids("b5")[_pool_ids("b5").size() - 1])
-		after_neg["banked"].erase(missing)
+	if missing == "":
+		_row("23", "NOTRUN", "fixture", "could not pick missing id for negative")
+		await _shot("N08a-incomplete-66.png")
+		return
 	CAMPAIGN_SHELL.normalize(after_neg)
+	## Quota-won alone must not imply full-collection.
 	after_neg["won"] = true
 	after_neg["endless_unlocked"] = true
 	var before_neg: Dictionary = CAMPAIGN_SHELL.fresh_state()
 	var ms_neg: Array = JOURNEY.milestones_from_bank(main._campaign.rules, before_neg, after_neg, [], roster)
-	var neg_complete := false
+	## Even if a bad fixture tried to inject complete, UI must suppress it while short.
+	var ms_neg_injected: Array = ms_neg.duplicate()
+	ms_neg_injected.append({"kind": "collection_complete"})
+	var neg_ms_native := false
 	for raw in ms_neg:
 		if str((raw as Dictionary).get("kind", "")) == "collection_complete":
-			neg_complete = true
-	var neg_count: int = after_neg["banked"].size()
-	## Present negative — must NOT show Full collection milestone.
+			neg_ms_native = true
 	main._campaign.state = after_neg
 	main._campaign.write()
 	if main.home_cabin != null:
@@ -721,55 +748,95 @@ func _case_23_full_collection_boundary() -> void:
 		for sid in after_neg["banked"].keys():
 			main.home_cabin.swiped[str(sid)] = true
 			main.home_cabin.seen[str(sid)] = true
-	await _present_settled(_payload_win([], ms_neg, "b4"))
+	## No new_ids stagger — settled incomplete state.
+	await _present_settled(_payload_win([], ms_neg_injected, "b4"))
 	var menu = main.progress_menu
 	menu.call("_show_panel", 0)
 	menu.call("_rebuild_overview")
 	await process_frame
 	var blob_neg := _collect_labels(menu.get("_overview_box"))
+	var tot_neg: Vector2i = _parse_overall_total(blob_neg)
 	var neg_ui_complete := blob_neg.find("Full collection") >= 0
+	print("N08a UI totals=", tot_neg, " full_line=", neg_ui_complete, " native_ms=", neg_ms_native)
 	await _shot("N08a-incomplete-66.png")
 	menu.dismiss()
 	await process_frame
 
-	## --- Positive last bank → 67/67 ---
+	## --- Positive: bank the last missing → full roster ---
 	var before_pos: Dictionary = after_neg.duplicate(true)
-	before_pos["won"] = bool(before_pos.get("won", false))
 	var after_pos: Dictionary = before_pos.duplicate(true)
-	var pools_pos := {missing: main._campaign_pool_of_item(missing)}
-	CAMPAIGN_SHELL.bank(main._campaign.rules, after_pos, [missing], pools_pos)
-	var ms_pos: Array = JOURNEY.milestones_from_bank(main._campaign.rules, before_pos, after_pos, [str(pools_pos[missing])], roster)
-	var pos_complete := false
+	var pool_miss: String = str(main._campaign_pool_of_item(missing))
+	if pool_miss == "":
+		pool_miss = "b4"
+	CAMPAIGN_SHELL.bank(main._campaign.rules, after_pos, [missing], {missing: pool_miss})
+	var ms_pos: Array = JOURNEY.milestones_from_bank(
+		main._campaign.rules, before_pos, after_pos, [pool_miss], roster
+	)
+	var pos_ms := false
 	for raw2 in ms_pos:
 		if str((raw2 as Dictionary).get("kind", "")) == "collection_complete":
-			pos_complete = true
+			pos_ms = true
 	main._campaign.state = after_pos
 	main._campaign.write()
 	if main.home_cabin != null:
-		main.home_cabin.swiped[missing] = true
-		main.home_cabin.seen[missing] = true
-	await _present_settled(_payload_win([missing], ms_pos, "b5"))
+		main.home_cabin.swiped.clear()
+		main.home_cabin.seen.clear()
+		for sid in after_pos["banked"].keys():
+			main.home_cabin.swiped[str(sid)] = true
+			main.home_cabin.seen[str(sid)] = true
+	## Critical: do NOT put the last id in new_ids unrevealed — that undercounts overview
+	## and previously painted Full collection at 65/67. Settled complete state only.
+	await _present_settled(_payload_win([], ms_pos, "b5"))
 	menu = main.progress_menu
 	menu.call("_show_panel", 0)
 	menu.call("_rebuild_overview")
 	await process_frame
 	var blob_pos := _collect_labels(menu.get("_overview_box"))
-	var count_pos: int = after_pos["banked"].size()
-	var pos_ui := blob_pos.find("Full collection") >= 0 or blob_pos.find("inheritance") >= 0
+	var tot_pos: Vector2i = _parse_overall_total(blob_pos)
+	var pos_ui := blob_pos.find("Full collection") >= 0
+	print("N08 UI totals=", tot_pos, " full_line=", pos_ui, " ms=", pos_ms, " banked=", after_pos["banked"].size())
+	## Hard stop: never keep an N08 that shows Full collection while totals are short.
+	var pos_totals_ok: bool = tot_pos.x > 0 and tot_pos.x == tot_pos.y and tot_pos.y == total
+	if pos_ui and not pos_totals_ok:
+		print("N08_REJECT premature Full collection at ", tot_pos)
+		await _shot("N08-REJECT-premature.png")
+		_row(
+			"23",
+			"FAIL",
+			"integration",
+			"N08 premature Full collection at UI %s/%s (roster sum=%s) — evidence rejected" % [tot_pos.x, tot_pos.y, total]
+		)
+		await _soft_reset("after inheritance")
+		return
 	await _shot("N08-inheritance-handoff.png")
-	## Idempotent replay
 	var ms_rep: Array = JOURNEY.milestones_from_bank(main._campaign.rules, after_pos, after_pos, [], roster)
 	var replay := false
 	for raw3 in ms_rep:
 		if str((raw3 as Dictionary).get("kind", "")) == "collection_complete":
 			replay = true
 
-	if not neg_complete and not neg_ui_complete and pos_complete and pos_ui and count_pos == total and not replay:
-		_row("23", "PASS", "integration", "neg %s/%s no complete; pos %s/%s durable collection_complete; no replay; Spin placeholder only" % [neg_count, total, count_pos, total])
-	elif not neg_complete and pos_complete and not replay:
-		_row("23", "PARTIAL", "integration", "milestone honesty OK (neg=%s pos=%s); UI neg_show=%s pos_show=%s count=%s/%s" % [neg_complete, pos_complete, neg_ui_complete, pos_ui, count_pos, total])
+	var neg_ok: bool = (not neg_ms_native) and (not neg_ui_complete) and tot_neg.x >= 0 and tot_neg.x < tot_neg.y
+	var pos_ok: bool = pos_ms and pos_ui and pos_totals_ok and not replay
+	if neg_ok and pos_ok:
+		_row(
+			"23",
+			"PASS",
+			"integration",
+			"neg UI %s/%s no Full collection (injected suppressed); pos UI %s/%s Full collection once; no replay" % [
+				tot_neg.x, tot_neg.y, tot_pos.x, tot_pos.y
+			]
+		)
+	elif neg_ok and pos_ms and pos_totals_ok and not pos_ui:
+		_row("23", "PARTIAL", "integration", "totals complete %s/%s but Full collection line missing (Spin placeholder wiring?)" % [tot_pos.x, tot_pos.y])
 	else:
-		_row("23", "FAIL", "integration", "boundary broken neg_ms=%s neg_ui=%s pos_ms=%s pos_ui=%s count=%s/%s replay=%s" % [neg_complete, neg_ui_complete, pos_complete, pos_ui, count_pos, total, replay])
+		_row(
+			"23",
+			"FAIL",
+			"integration",
+			"boundary fail neg_ui=%s/%s full=%s native=%s | pos_ui=%s/%s full=%s ms=%s replay=%s" % [
+				tot_neg.x, tot_neg.y, neg_ui_complete, neg_ms_native, tot_pos.x, tot_pos.y, pos_ui, pos_ms, replay
+			]
+		)
 	await _soft_reset("after inheritance")
 
 
