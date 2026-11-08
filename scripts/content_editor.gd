@@ -81,7 +81,7 @@ const DEFAULT_EXPLAINER := {
 	"chakram": "(BLK 3 if no Block Items)  (ATK 3 if no Attack Items)",
 	"signpost": "(BLK 7) then a Neighbor Attacks you",
 	"sling": "Next Attack this fight can target Any",
-	"ball_and_chain": "Draw a Card.",
+	"ball_and_chain": "Pick a Neighbor. Flee. The Spin lands on them. Draw a Card.",
 	"recycler": "(Every 5th Discard copies that Item into your Hand.)",
 	"spinning_top": "Defeat equal HP. +1 / Spin from 0",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
