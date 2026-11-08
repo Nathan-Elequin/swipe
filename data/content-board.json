@@ -2445,7 +2445,7 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "If enemy Attack is Even, this Blocks for half of it.",
+			"ability": "Gain Block equal to the Attack of the last enemy that attacked you.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -2453,13 +2453,13 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Block half of an even Attack.",
-			"flow": "Never click this. Listens like Healing Potion. The next enemy Attack whose ATK number is even (2, 4, 6…) and would deal more than 0 after Block/pierce: mid-swing, cut that ATK in half (floor), then apply Block. Discard. 0 ATK and fully blocked even ATK do not fire. Spider Egg is not an enemy. Hornet/Damsel/Kobold/Shambling Mound: waits for the first even swing in that burst, then later swings are full. Two copies: first even spends one. Petrify still listens. Potion can still save if the halved hit kills you.",
+			"explainer": "Block = last attacker Attack",
+			"flow": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you this combat (including commanded Attacks like Fangs, Damsel neighbors, and Petty King). Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Healing Potion revived you. Grey until an enemy has Attacked you.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "double_buckler",
 			"kind": "item",
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2480,12 +2480,12 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Halve the next even enemy Attack",
+			"log_hint": "Block equal to last attacker Attack",
 			"mode_pool": "all",
-			"name": "Half-Buckler",
-			"notes": "Bucket 2. Two round bucklers. Unplayable. Not Egg, not Poison.",
+			"name": "Buckler",
+			"notes": "Bucket 2. Two round bucklers. Not Egg, not Poison.",
 			"ops": {
-				"kind": "blk_half_atk"
+				"kind": "blk_last_atk"
 			},
 			"pool": 3.0,
 			"priority": 3.0,
@@ -2926,12 +2926,12 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "(BLK 3 if no playable Block Items)  (Attack 3 if no playable Attack Items)",
-			"flow": "Click during a fight. Used up. Realtime check of the rest of the hotbar: if no other item Grants Block, Gain 3 Block. If no other item deals Attack, deal 3 Attack. One click can do one or both. Other Chakrams do not count. Petrified items and Bushido dummy (or similar silencing) do not count. Marble counts as both, including at 0. Half-Buckler does not count (it does not Grant Block). An item that would Block or Attack for 0 still counts. Grey / unplayable only when both a Block item and an Attack item are sitting unmuted in the hotbar.",
+			"flow": "Click during a fight. Used up. Realtime check of the rest of the hotbar: if no other item Grants Block, Gain 3 Block. If no other item deals Attack, deal 3 Attack. One click can do one or both. Other Chakrams do not count. Petrified items and Bushido dummy (or similar silencing) do not count. Marble counts as both, including at 0. Buckler counts when it is playable. An item that would Block or Attack for 0 still counts. Grey / unplayable only when both a Block item and an Attack item are sitting unmuted in the hotbar.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "chakram",
 			"kind": "item",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",

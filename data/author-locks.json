@@ -321,7 +321,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-08",
 			"name": "Chakram"
 		},
 		"item:counting_beads": {
@@ -504,8 +504,8 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
-			"name": "Half-Buckler"
+			"locked_at": "2026-11-08",
+			"name": "Buckler"
 		},
 		"item:echo_bell": {
 			"fields": [
