@@ -311,6 +311,8 @@ func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	if session == _session_id:
 		_ack_all_new()
 	var out: Dictionary = _result.duplicate()
+	## Finalize needs the run kind (win/loss/tutorial) — cabin haul credit keys off it.
+	out["kind"] = _kind
 	if session == _session_id:
 		_present_busy = false
 	return out

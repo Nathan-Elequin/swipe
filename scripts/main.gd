@@ -3710,7 +3710,7 @@ func _open_progress_menu(
 ) -> Dictionary:
 	if progress_menu == null:
 		_open_home_cabin(false, kind, new_ids, held_ids)
-		return {"action": "cabin", "biome_index": 0}
+		return {"action": "cabin", "biome_index": 0, "kind": kind}
 	_hide_fight_hover()
 	_sync_biome_ambient("", true)
 	if overlay:
@@ -3779,7 +3779,25 @@ func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = fa
 		return
 	await _biome_dissolve_reveal()
 	if action == "cabin":
-		_open_home_cabin(false, "win", [], [])
+		## Preserve run kind (win/loss/tutorial) — haul credit must not invent win on death.
+		var kind := str(result.get("kind", "win"))
+		## Live Pixel path: progress-menu → cabin never walk-in-arrives, so credit haul here.
+		if home_cabin != null and home_cabin.has_method("open_cabin_after_progress_menu"):
+			_hide_fight_hover()
+			_sync_biome_ambient("", true)
+			if _campaign != null:
+				_sync_dungeon_biome()
+			await home_cabin.open_cabin_after_progress_menu(
+				items_by_id, tex_by_item, _buckets_revealed, kind, [], []
+			)
+			if overlay:
+				overlay.visible = false
+			if rope_exit:
+				rope_exit.hide_exit()
+			get_tree().paused = true
+			_hide_fight_hover()
+		else:
+			_open_home_cabin(false, kind, [], [])
 	elif pause_if_idle:
 		get_tree().paused = true
 
