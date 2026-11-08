@@ -3732,12 +3732,15 @@ func _open_progress_menu(
 	if pname == "" and pool != "":
 		pname = pool
 	var swiped: Dictionary = {}
+	var seen_map: Dictionary = {}
 	if home_cabin != null:
 		swiped = home_cabin.swiped.duplicate()
+		seen_map = home_cabin.seen.duplicate()
 	elif _campaign != null:
 		var banked: Dictionary = _campaign.state.get("banked", {})
 		for id in banked.keys():
 			swiped[str(id)] = true
+			seen_map[str(id)] = true
 	var rules: Dictionary = {}
 	var state: Dictionary = {}
 	if _campaign != null:
@@ -3752,6 +3755,8 @@ func _open_progress_menu(
 		"items_by_id": items_by_id,
 		"tex_by_item": tex_by_item,
 		"swiped": swiped,
+		## Permanent offer/reveal recognition — Journey A catalogue (seen ≠ banked).
+		"seen": seen_map,
 		"rules": rules,
 		"state": state,
 		"push_block": push_block,

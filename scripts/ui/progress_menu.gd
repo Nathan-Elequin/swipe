@@ -8,6 +8,7 @@ signal closed
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const BIOME := preload("res://scripts/biome_cabinets.gd")
+const JOURNEY := preload("res://scripts/collection_journey.gd")
 
 const DESIGN := Vector2(1680.0, 1040.0)
 const STAGGER_S := 0.07
@@ -45,6 +46,8 @@ var _built: bool = false
 var _items_by_id: Dictionary = {}
 var _tex_by_item: Dictionary = {}
 var _swiped: Dictionary = {}
+## Permanent recognition (offer/reveal). Distinct from banked/swiped.
+var _seen: Dictionary = {}
 var _new_ids: Array = []
 var _kind: String = "win"
 var _played_pool: String = "b1"
@@ -280,6 +283,10 @@ func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	_items_by_id = payload.get("items_by_id", {})
 	_tex_by_item = payload.get("tex_by_item", {})
 	_swiped = payload.get("swiped", {}).duplicate()
+	_seen = payload.get("seen", {}).duplicate()
+	## Banked implies seen for catalogue — fill gaps without mutating cabin save.
+	for sid in _swiped.keys():
+		_seen[str(sid)] = true
 	_new_ids = payload.get("new_ids", []).duplicate()
 	_kind = str(payload.get("kind", "win"))
 	_played_pool = str(payload.get("played_pool", "b1"))
@@ -665,12 +672,15 @@ func _inspect_cell(id: String) -> void:
 	_detail.text = "%s — %s" % [nm, st] if st != "" else nm
 
 
-## Unified collected/new/missing visual state. Call on build, land, skip, and manual reveal.
+## Unified new/collected/seen/missing visual state. Call on build, land, skip, and manual reveal.
+## "seen" = recognized (offer/reveal) but not banked — Journey A catalogue contract.
 func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 	if box == null or not is_instance_valid(box):
 		return
-	var collected: bool = bool(_swiped.get(id, false))
-	var is_new: bool = _new_ids.has(id)
+	var kind: String = JOURNEY.catalogue_cell_kind(id, _seen, _swiped, _new_ids)
+	var collected: bool = kind == "collected" or kind == "new"
+	var is_new: bool = kind == "new"
+	var is_seen_only: bool = kind == "seen"
 	var revealed: bool = (not is_new) or bool(_revealed_new.get(id, false))
 	var icon: TextureRect = box.find_child("Icon", true, false) as TextureRect
 	var name_l: Label = box.find_child("Name", true, false) as Label
@@ -689,6 +699,11 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		sb.bg_color = Color("241e18")
 		sb.border_color = Color("5a4e40")
 		sb.set_border_width_all(1)
+	elif is_seen_only:
+		## Known identity, not banked — hatch + text (not color alone).
+		sb.bg_color = Color("1a1712")
+		sb.border_color = Color("8a7a58")
+		sb.set_border_width_all(2)
 	elif not collected:
 		sb.bg_color = Color("161310")
 		sb.border_color = Color("4a4034")
@@ -712,6 +727,9 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 	if icon != null:
 		if is_new and revealed:
 			icon.modulate = Color(1, 1, 1, 1)
+		elif is_seen_only:
+			## Readable icon + hatch via border; slightly dim, not missing-gray.
+			icon.modulate = Color(0.78, 0.74, 0.62, 1)
 		elif not collected or (is_new and not revealed):
 			icon.modulate = Color(0.55, 0.55, 0.55, 1)
 		elif icon.texture == null:
@@ -719,7 +737,7 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		else:
 			icon.modulate = Color(1, 1, 1, 1)
 	if name_l != null:
-		var bright := (collected and revealed) or (is_new and revealed)
+		var bright := (collected and revealed) or (is_new and revealed) or is_seen_only
 		name_l.add_theme_color_override(
 			"font_color",
 			Color("f0e6d8") if bright else Color("9a9080")
@@ -728,6 +746,13 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		if is_new and revealed:
 			state_l.text = PLAYER_COPY.text("postrun.collection.item_new", "New!")
 			state_l.add_theme_color_override("font_color", Color("e8c36a"))
+		elif is_seen_only:
+			## COPY GAP — Spin: approved key postrun.collection.item_seen not yet authored.
+			state_l.text = PLAYER_COPY.text(
+				"postrun.collection.item_seen",
+				"[Spin copy: Recognized — not banked yet]"
+			)
+			state_l.add_theme_color_override("font_color", Color("c4b48a"))
 		elif not collected:
 			state_l.text = PLAYER_COPY.text("postrun.collection.item_missing", "Not yet collected")
 			state_l.add_theme_color_override("font_color", Color("7a7060"))
