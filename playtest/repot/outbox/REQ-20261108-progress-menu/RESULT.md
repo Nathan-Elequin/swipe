@@ -7,7 +7,7 @@
 | Role | SHA | Notes |
 |------|-----|--------|
 | **VALIDATION_HEAD / feature body tested** | `03821635e7bd42284d24e3b1c83338e8d67b9708` | Aggregate total + settle + public main-routes harness |
-| Wrapper / PR tip | `69597af9a4150544b413f89552b0281e8004ab8b` | Receipt stamp commits after `03821635` — not gameplay |
+| Wrapper / PR tip | branch tip after receipt stamps (see `git rev-parse` / PR head) | Receipt-only commits after `03821635` — not gameplay |
 
 Stamped in logs/shots: `PROGRESS_SOURCE_SHA` / `SHOT_SOURCE_BODY_SHA` / `PROGRESS_MENU_MAIN_ROUTES_SHA` / `BANKING_SOURCE_SHA` = `03821635…`.
 
