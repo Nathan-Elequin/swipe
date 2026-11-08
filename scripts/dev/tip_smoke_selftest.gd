@@ -257,23 +257,44 @@ func _init() -> void:
 		and _source_contains("res://scripts/main.gd", '_fg("heart", "−2")')
 	) or failed
 
-	## 16) Ball & Chain is Draw a Card; draw items share the draw face glyph.
+	## 16) Ball & Chain: Flee Neighbor → Spin lands → Draw a Card; shared draw face glyph.
 	failed = _check(failed, "runtime_has_ball_and_chain", _runtime_has_item("ball_and_chain")) or failed
-	failed = _check(failed, "ball_and_chain_ops_draw", _catalog_item_ops_kind("ball_and_chain", "draw")) or failed
+	failed = _check(failed, "ball_and_chain_ops_chain_flee", _catalog_item_ops_kind("ball_and_chain", "chain_flee")) or failed
 	failed = _check(
 		failed,
-		"ball_and_chain_item_ops_draw",
-		_source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "draw"')
+		"ball_and_chain_item_ops_chain_flee",
+		_source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "chain_flee"')
 	) or failed
 	failed = _check(
 		failed,
-		"ball_and_chain_no_chain_flee_fallback",
-		not _source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "chain_flee"')
+		"ball_and_chain_no_pure_draw_ops",
+		not _source_contains("res://scripts/main.gd", '"ball_and_chain": {"kind": "draw"')
 	) or failed
 	failed = _check(
 		failed,
-		"ball_and_chain_ability_draw_a_card",
-		_catalog_item_ability_contains("ball_and_chain", "Draw a Card")
+		"ball_and_chain_ability_flee_spin_draw",
+		_catalog_item_ability_contains("ball_and_chain", "Flee")
+		and _catalog_item_ability_contains("ball_and_chain", "Draw a Card")
+		and _catalog_item_ability_contains("ball_and_chain", "Neighbor")
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_apply_sets_spin_land",
+		_source_contains("res://scripts/main.gd", "func _apply_chain_flee")
+		and _source_contains("res://scripts/main.gd", "_spin_land_uid = _seat_uid_at(index)")
+		and _source_contains("res://scripts/main.gd", "_chain_flee_draw_pending = true")
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_draw_after_spin_land",
+		_source_contains("res://scripts/main.gd", "if _chain_flee_draw_pending:")
+		and _source_contains("res://scripts/main.gd", "_draw_unseen_item()")
+	) or failed
+	failed = _check(
+		failed,
+		"ball_and_chain_face_keeps_draw_glyph",
+		_source_contains("res://scripts/main.gd", '"ball_and_chain":')
+		and _source_contains("res://scripts/main.gd", '", "", "", "", "draw")')
 	) or failed
 	failed = _check(
 		failed,

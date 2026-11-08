@@ -56,6 +56,9 @@ var _rules: Dictionary = {}
 var _state: Dictionary = {}
 var _push_block: bool = false
 var _tutorial: bool = false
+## Durable return milestones (gate / cabinet_full / collection_complete). Facts only.
+var _milestones: Array = []
+var _milestones_shown: bool = false
 var _area_filter: String = ""
 var _tab: int = Tab.OVERVIEW
 var _phase: int = Phase.INTRO
@@ -295,6 +298,8 @@ func present(payload: Dictionary, ack_cb: Callable = Callable()) -> Dictionary:
 	_state = payload.get("state", {})
 	_push_block = bool(payload.get("push_block", false))
 	_tutorial = bool(payload.get("tutorial", false)) or _kind == "tutorial"
+	_milestones = payload.get("milestones", []).duplicate()
+	_milestones_shown = false
 	_skip_pres = false
 	_revealed_new.clear()
 	_acked.clear()
@@ -460,9 +465,66 @@ func _overall_unique_counts() -> Vector2i:
 	return Vector2i(seen_collected.size(), seen_total.size())
 
 
+func _milestone_line_text(m: Dictionary) -> String:
+	var kind := str(m.get("kind", ""))
+	if kind == "gate":
+		## COPY GAP — Spin: postrun.milestone.gate
+		return PLAYER_COPY.fill(
+			"postrun.milestone.gate",
+			{
+				"from": str(m.get("from", 0)),
+				"to": str(m.get("to", 0)),
+				"quota": str(m.get("quota", 5)),
+				"next": str(m.get("next_name", m.get("next_id", ""))),
+			},
+			"[Spin copy: Route open — {from}→{to}/{quota} banked. Next: {next}]"
+		)
+	if kind == "cabinet_full":
+		## COPY GAP — Spin: postrun.milestone.cabinet_full (display/recognition only)
+		return PLAYER_COPY.fill(
+			"postrun.milestone.cabinet_full",
+			{
+				"pool": str(m.get("pool", "")),
+				"count": str(m.get("count", 0)),
+				"total": str(m.get("total", 0)),
+			},
+			"[Spin copy: Cabinet complete {count}/{total} — display only]"
+		)
+	if kind == "collection_complete":
+		## COPY GAP — Spin: postrun.milestone.collection_complete (neutral handoff)
+		return PLAYER_COPY.text(
+			"postrun.milestone.collection_complete",
+			"[Spin copy: Full collection — reserved inheritance entry]"
+		)
+	return ""
+
+
 func _rebuild_overview() -> void:
 	for c in _overview_box.get_children():
 		c.queue_free()
+	## Milestone queue (A17) — durable facts; skip reveals all at once.
+	if not _milestones.is_empty():
+		var head := Label.new()
+		head.name = "MilestoneHead"
+		head.add_theme_font_size_override("font_size", 18)
+		head.add_theme_color_override("font_color", Color("e8c36a"))
+		## COPY GAP — Spin: postrun.milestone.heading
+		head.text = PLAYER_COPY.text(
+			"postrun.milestone.heading",
+			"[Spin copy: This return]"
+		)
+		_overview_box.add_child(head)
+		for raw_m in _milestones:
+			if typeof(raw_m) != TYPE_DICTIONARY:
+				continue
+			var ml := Label.new()
+			ml.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			ml.add_theme_font_size_override("font_size", 18)
+			ml.add_theme_color_override("font_color", Color("f0e6d8"))
+			ml.text = _milestone_line_text(raw_m as Dictionary)
+			if ml.text != "":
+				_overview_box.add_child(ml)
+		_milestones_shown = true
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_rules) if not _rules.is_empty() else BIOME.CASES
 	## Spin postrun.collection.total — overall unique item-type aggregate.
 	if PLAYER_COPY.has_key("postrun.collection.total"):
@@ -1156,6 +1218,13 @@ func _run_presentation(gen: int) -> void:
 		return
 	## Ensure every new id was revealed+acked (including empty-news paths).
 	_ack_all_new()
+	## A17: ordered milestone recap after banked news; one skip already showed everything.
+	if not _milestones.is_empty() and not _skip_pres and gen == _pres_gen:
+		_show_panel(Tab.OVERVIEW)
+		_rebuild_overview()
+		await _wait_pres(STEP_HOLD_S, gen)
+		if _skip_pres or gen != _pres_gen:
+			return
 	_phase = Phase.TARGET
 	_show_panel(Tab.NEXT_TARGET)
 	_rebuild_target()

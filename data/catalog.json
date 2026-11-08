@@ -3880,22 +3880,22 @@
 			"type": "I"
 		},
 		{
-			"ability": "Choose a Neighbor. Flee, Spin to it, then Draw an Item.",
+			"ability": "Select a Neighbor. Flee and Spin that selected monster. Draw a Card.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "utility",
 			"count": 1.0,
-			"defined": "Click during a fight. Used up. Draw one random Item from the current loot pool (same draw as Smoke Bomb, Catapult, Ale Flagon, Grappling Hook, and Sling). If the hand is full, the new Item lands and you click one card to throw away.",
-			"exceptions": "Utility. Tier 1. Pool stays 5. Click a living Neighbor during a fight. Used up. The monster you were facing keeps their HP and is not Defeated. The Spin lands on that Neighbor. Does not cancel other Flees. Shopping-list hole 02.",
-			"explainer": "Choose Neighbor. Flee. Spin to it. Draw an Item.",
+			"defined": "Click during a fight, then click a living Neighbor of the monster you are facing. The item is used up. The monster you were facing is not Defeated and keeps their current HP. The wheel lands on the Neighbor you clicked. Then Draw one random Item from the current loot pool (same draw as Smoke Bomb, Catapult, Ale Flagon, Grappling Hook, and Sling). If the hand is full, the new Item lands and you click one card to throw away. No living Neighbor: cannot use. This does not cancel other Flees and does not deal Attack.",
+			"exceptions": "Utility. Tier 1. Pool stays 5. Flee+Spin on a Neighbor, then Draw a Card. Shared draw-card face glyph. Shopping-list hole 02.",
+			"explainer": "Pick a Neighbor. Flee. The Spin lands on them. Draw a Card.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Used up. Draw one random Item from the current loot pool (same draw as Smoke Bomb, Catapult, Ale Flagon, Grappling Hook, and Sling). If the hand is full, the new Item lands and you click one card to throw away.",
+			"flow": "Click during a fight, then click a living Neighbor of the monster you are facing. The item is used up. The monster you were facing is not Defeated and keeps their current HP. The wheel lands on the Neighbor you clicked. Then Draw one random Item from the current loot pool (same draw as Smoke Bomb, Catapult, Ale Flagon, Grappling Hook, and Sling). If the hand is full, the new Item lands and you click one card to throw away. No living Neighbor: cannot use. This does not cancel other Flees and does not deal Attack.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "ball_and_chain",
@@ -3920,12 +3920,12 @@
 				"card_color",
 				"log_hint"
 			],
-			"log_hint": "Draw a Card",
+			"log_hint": "Flee a Neighbor. Spin lands. Draw a Card.",
 			"mode_pool": "all",
 			"name": "Ball & Chain",
-			"notes": "Utility. Tier 1. Pool stays 5. Pure Draw a Card — no Flee, no Neighbor pick. Shared draw-card face glyph. Shopping-list hole 02.",
+			"notes": "Utility. Tier 1. Pool stays 5. Flee+Spin on a Neighbor, then Draw a Card. Shared draw-card face glyph. Shopping-list hole 02.",
 			"ops": {
-				"kind": "draw"
+				"kind": "chain_flee"
 			},
 			"poc": false,
 			"pool": 5.0,

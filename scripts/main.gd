@@ -193,7 +193,7 @@ const ITEM_OPS := {
 	"chakram": {"kind": "chakram", "blk": 3, "atk": 3},
 	"signpost": {"kind": "signpost", "n": 7},
 	"sling": {"kind": "sling"},
-	"ball_and_chain": {"kind": "draw"},
+	"ball_and_chain": {"kind": "chain_flee"},
 	"energy_drink": {"kind": "player_flee_keep"},
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
@@ -771,6 +771,8 @@ var _skip_item_use_count: bool = false
 var _after_item_use_armed: bool = false
 var _flee_random_spin: bool = false
 var _spin_land_uid: int = -1
+## Ball & Chain: after Flee+Spin lands on the selected Neighbor, Draw one Item once.
+var _chain_flee_draw_pending: bool = false
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
@@ -2611,6 +2613,7 @@ func _reset_run() -> void:
 	pending_chaos.clear()
 	_pending_item_flee = false
 	_drink_hp_due = false
+	_chain_flee_draw_pending = false
 	_magnet_seq = 0
 	_magnet_pending_consume = ""
 	beads_step = 1
@@ -2898,14 +2901,15 @@ func _adventure_leave() -> void:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
 	await _biome_dissolve_out()
+	var leave_milestones: Array = []
 	if _campaign_on:
 		## Leave awards deferred map scrap (idempotent) — Push may have crossed without stamp.
-		await _campaign_bank_from_hand(true)
+		leave_milestones = await _campaign_bank_from_hand_with_milestones(true)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	## Dedicated progress menu replaces automatic S7 cabin homecoming.
-	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false)
+	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false, "", "", leave_milestones)
 	await _finalize_progress_menu_result(leave_result)
 	_adventure_busy = false
 
@@ -2941,16 +2945,29 @@ func _push_interrupt_home() -> void:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
 	await _biome_dissolve_out()
+	var push_milestones: Array = []
 	if _campaign_on:
 		## Push-block: bank credit yes, map-piece stamp never (deferred to later Leave).
-		await _campaign_bank_from_hand(false)
+		## Gate milestones suppressed in payload (push_block) — credit still banks.
+		push_milestones = await _campaign_bank_from_hand_with_milestones(false)
+		## Do not celebrate route unlock on Push-block interrupt (stamp deferred).
+		var filtered: Array = []
+		for raw_m in push_milestones:
+			if typeof(raw_m) != TYPE_DICTIONARY:
+				continue
+			if str((raw_m as Dictionary).get("kind", "")) == "gate":
+				continue
+			filtered.append(raw_m)
+		push_milestones = filtered
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	if pool != "":
 		_sync_dungeon_biome(pool)
 	## Progress menu always; Push-block suppresses unlock/map celebration (payload flag).
-	var push_result: Dictionary = await _open_progress_menu("win", news, ids, true, pool, biome_name)
+	var push_result: Dictionary = await _open_progress_menu(
+		"win", news, ids, true, pool, biome_name, push_milestones
+	)
 	await _finalize_progress_menu_result(push_result, true)
 	_adventure_busy = false
 
@@ -3475,8 +3492,13 @@ func _campaign_abort() -> void:
 ## stamp_crosses=false (Push-block): bank credit only — never stamp here.
 ## stamp_map_piece is idempotent per next id — old saves / re-Leave do not double-award.
 func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
+	await _campaign_bank_from_hand_with_milestones(stamp_crosses)
+
+
+## Same as `_campaign_bank_from_hand`, returning Journey A milestone facts for the receipt.
+func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Array:
 	if _campaign == null:
-		return
+		return []
 	var ids: Array = []
 	var pools := {}
 	for it in hotbar:
@@ -3487,6 +3509,7 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 			continue
 		ids.append(id)
 		pools[id] = _campaign_pool_of_item(id)
+	var before: Dictionary = _campaign.state.duplicate(true)
 	var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
 	if stamp_crosses:
@@ -3497,6 +3520,31 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 			## Deferred award: stamp whenever cabinet is at/over quota (not only this-return cross).
 			if CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota:
 				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, pool_id)
+	## Roster totals for cabinet_full (catalog live non-token) — not Doop page fixtures.
+	var roster_totals := {}
+	var touched: Array = []
+	for pid in pools.values():
+		var p := str(pid)
+		if p == "" or touched.has(p):
+			continue
+		touched.append(p)
+	for raw_b2 in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
+		var bid := str((raw_b2 as Dictionary).get("id", ""))
+		if bid == "" or roster_totals.has(bid):
+			continue
+		var n := 0
+		for cid in items_by_id.keys():
+			var card: Dictionary = items_by_id.get(cid, {})
+			if BucketRules.is_token(card):
+				continue
+			if str(card.get("status", "live")) in ["retired", "hold"]:
+				continue
+			if _campaign_pool_of_item(str(cid)) == bid:
+				n += 1
+		roster_totals[bid] = n
+	var milestones: Array = COLLECTION_JOURNEY.milestones_from_bank(
+		_campaign.rules, before, _campaign.state, touched, roster_totals
+	)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
@@ -3509,6 +3557,8 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
 		campaign_map.hide_map()
+	return milestones
+
 
 
 func _campaign_draw_pair(tier: int) -> Array:
@@ -3718,7 +3768,8 @@ func _open_progress_menu(
 	held_ids: Array,
 	push_block: bool = false,
 	played_pool: String = "",
-	played_name: String = ""
+	played_name: String = "",
+	milestones: Array = []
 ) -> Dictionary:
 	if progress_menu == null:
 		_open_home_cabin(false, kind, new_ids, held_ids)
@@ -3769,6 +3820,8 @@ func _open_progress_menu(
 		"state": state,
 		"push_block": push_block,
 		"tutorial": kind == "tutorial",
+		## Ordered durable milestones (gate / cabinet_full / collection_complete).
+		"milestones": milestones.duplicate(),
 	}
 	var ack := func(id: String) -> void:
 		if home_cabin != null and home_cabin.has_method("_ack_bank_presented"):
@@ -9045,6 +9098,10 @@ func _on_spin() -> void:
 	_log("var", "enemy ATK %s   HP %s" % [m["atk"], m["hp"]])
 	_log("var", "BLK 0")
 	_log("var", "items this combat 0")
+	## Ball & Chain: Select Neighbor → Flee → Spin lands here → Draw one Item (once).
+	if _chain_flee_draw_pending:
+		_chain_flee_draw_pending = false
+		_draw_unseen_item()
 	if combat_stage:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
@@ -10089,6 +10146,7 @@ func _undo_abort() -> void:
 	_skip_item_use_count = false
 	_after_item_use_armed = false
 	_shroud_blocks_undo = false
+	_chain_flee_draw_pending = false
 	_undo_inflight = false
 	_sync_buttons()
 
@@ -21295,6 +21353,7 @@ func _apply_signpost(index: int, it: Dictionary) -> void:
 
 func _apply_chain_flee(index: int, it: Dictionary) -> void:
 	if index < 0 or index >= wheel.size():
+		_chain_flee_draw_pending = false
 		_undo_abort()
 		call_deferred("_refresh")
 		return
@@ -21306,6 +21365,8 @@ func _apply_chain_flee(index: int, it: Dictionary) -> void:
 	await _count_item_use()
 	_toss_item(int(it.get("uid", -1)), false)
 	_spin_land_uid = _seat_uid_at(index)
+	## Draw fires once after the forced Spin lands on this Neighbor (not on cancel).
+	_chain_flee_draw_pending = true
 	_undo_finish_item()
 	await _flee_spin()
 
@@ -24307,7 +24368,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"chain_flee":
 			out["value"] = _value_bb("Flee", "", gold)
-			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster."))
+			out["body"] = str(it.get("ability", "Select a Neighbor. Flee and Spin that selected monster. Draw a Card."))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
 		"draw":
