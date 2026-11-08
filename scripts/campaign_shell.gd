@@ -48,6 +48,9 @@ static func fresh_state() -> Dictionary:
 		"endless_best": 0,
 		"won": false,
 		"drawer_seen": false,
+		## First successful Leave from the last tip biome (Shadow Abyss). Distinct from
+		## cabinets_complete won/endless and from full-collection inheritance.
+		"final_dungeon_cleared": false,
 		"pencil_fresh": [],
 		"mudroom_loadout": [],
 		"next_run": {},
@@ -70,6 +73,7 @@ static func normalize(state: Dictionary) -> void:
 	state["endless_best"] = maxi(0, int(state.get("endless_best", 0)))
 	state["won"] = bool(state.get("won", false))
 	state["drawer_seen"] = bool(state.get("drawer_seen", false))
+	state["final_dungeon_cleared"] = bool(state.get("final_dungeon_cleared", false))
 	state["map_pieces"] = _clean_id_list(state.get("map_pieces", []))
 	state["pencil_fresh"] = _clean_id_list(state.get("pencil_fresh", []))
 	var pieces: Variant = state.get("map_pieces", [])
@@ -468,6 +472,39 @@ static func cabinets_complete(rules: Dictionary, state: Dictionary) -> bool:
 	return not biomes_of(rules).is_empty()
 
 
+## Last tip biome id (Shadow Abyss / b5). Empty when rules have no biomes.
+static func last_tip_biome_id(rules: Dictionary) -> String:
+	var biomes: Array = biomes_of(rules)
+	if biomes.is_empty():
+		return ""
+	return str((biomes[biomes.size() - 1] as Dictionary).get("id", ""))
+
+
+## First successful Leave from the last tip biome → durable final-clear recognition.
+## Does NOT set won / endless_unlocked (cabinets_complete owns those) and does NOT
+## imply full-collection inheritance. Returns milestone dict once, else {}.
+static func recognize_final_dungeon_clear(
+	rules: Dictionary,
+	state: Dictionary,
+	played_pool: String
+) -> Dictionary:
+	normalize(state)
+	if bool(state.get("final_dungeon_cleared", false)):
+		return {}
+	var last_id := last_tip_biome_id(rules)
+	if last_id == "" or played_pool == "" or played_pool != last_id:
+		return {}
+	var endless_id := str(rules.get("endless", {}).get("id", "endless"))
+	if played_pool == endless_id:
+		return {}
+	state["final_dungeon_cleared"] = true
+	return {
+		"kind": "final_clear",
+		"pool": played_pool,
+		"name": biome_name(rules, played_pool),
+	}
+
+
 static func debug_bank_matching(rules: Dictionary, state: Dictionary, entries: Array, n: int, pool: String) -> int:
 	normalize(state)
 	var got := 0
@@ -771,6 +808,7 @@ func _copy_state(disk: Dictionary) -> void:
 	state["endless_best"] = maxi(0, int(disk.get("endless_best", 0)))
 	state["won"] = bool(disk.get("won", false))
 	state["drawer_seen"] = bool(disk.get("drawer_seen", false))
+	state["final_dungeon_cleared"] = bool(disk.get("final_dungeon_cleared", false))
 	if disk.has("run") and typeof(disk["run"]) == TYPE_DICTIONARY:
 		state["run"] = (disk["run"] as Dictionary).duplicate(true)
 

@@ -494,6 +494,17 @@ func _milestone_line_text(m: Dictionary) -> String:
 			},
 			"[Spin copy: Cabinet complete {count}/{total} — display only]"
 		)
+	if kind == "final_clear":
+		## COPY GAP — Spin: postrun.milestone.final_clear (distinct from inheritance)
+		## Reuses approved summary "Made it home…" for the header; this line is the
+		## durable final-dungeon recognition fact only — no invented story copy.
+		return PLAYER_COPY.fill(
+			"postrun.milestone.final_clear",
+			{
+				"area": str(m.get("name", m.get("pool", ""))),
+			},
+			"[Spin copy: Final dungeon cleared — {area}]"
+		)
 	if kind == "collection_complete":
 		## COPY GAP — Spin: postrun.milestone.collection_complete (neutral handoff)
 		return PLAYER_COPY.text(
