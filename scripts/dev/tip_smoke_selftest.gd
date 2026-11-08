@@ -510,6 +510,52 @@ func _init() -> void:
 		and _source_contains("res://scripts/boss_wheel.gd", "loud: bool = false")
 	) or failed
 
+	## 23) TeslaCoil — Across full-block Defeat; silent TakeX; consume on success only; no charge/spin.
+	failed = _check(failed, "runtime_has_tesla_coil", _runtime_has_item("tesla_coil")) or failed
+	failed = _check(
+		failed,
+		"tesla_ops_kind",
+		_catalog_item_ops_kind("tesla_coil", "tesla_coil")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_ability_across_block",
+		_catalog_item_ability_contains("tesla_coil", "Across")
+		and _catalog_item_ability_contains("tesla_coil", "fully Blocking")
+		and not _catalog_item_ability_contains("tesla_coil", "Charge")
+		and not _catalog_item_ability_contains("tesla_coil", "Flee")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_across_helpers",
+		_source_has_func("res://scripts/main.gd", "_use_tesla_coil")
+		and _source_has_func("res://scripts/main.gd", "_tesla_can_play")
+		and _source_has_func("res://scripts/main.gd", "_tesla_across_takex")
+		and _source_has_func("res://scripts/main.gd", "_incoming_total_at")
+		and _source_has_func("res://scripts/main.gd", "_damsel_incoming_at")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_no_charge_spin_fire",
+		not _source_has_func("res://scripts/main.gd", "_tesla_on_spin")
+		and not _source_has_func("res://scripts/main.gd", "_tesla_to_fire")
+		and not _source_has_func("res://scripts/main.gd", "_tesla_charge")
+		and _source_func_calls("res://scripts/main.gd", "_use_tesla_coil", "_hydra_defeat_as_item")
+		and _source_func_calls("res://scripts/main.gd", "_use_tesla_coil", "_lich_keep_defeat_item")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_grey_unless_full_block",
+		_source_contains("res://scripts/main.gd", '"tesla_coil":')
+		and _source_contains("res://scripts/main.gd", "out[\"can_use\"] = _tesla_can_play()")
+		and _source_func_calls("res://scripts/main.gd", "_tesla_can_play", "_tesla_across_takex")
+	) or failed
+	failed = _check(
+		failed,
+		"tesla_flags_dev_clear",
+		not _catalog_item_flag("tesla_coil", "dev")
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 

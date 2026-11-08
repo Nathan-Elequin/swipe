@@ -90,6 +90,7 @@ const DEFAULT_EXPLAINER := {
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
 	"venom_veins": "On Lose HP: Gain a 3-Poison Flask",
 	"kiss_of_death": "Neighbor: 4 Poison + Lifelink",
+	"tesla_coil": "Defeat Across if fully Blocking them",
 	"glass_asp": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",
