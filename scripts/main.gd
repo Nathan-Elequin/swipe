@@ -180,7 +180,10 @@ const ITEM_OPS := {
 	"ale_flagon": {"kind": "heal_both_draw", "heal": 3},
 	"fairy_in_a_bottle": {"kind": "heal", "n": 2},
 	"napalm": {"kind": "napalm"},
-	"lucky_nickel": {"kind": "blk_coin_keep", "lo": 2, "hi": 6, "hp": 2},
+	"lucky_nickel": {"kind": "choose", "options": [
+		{"id": "safe", "label": "Block 2", "blk": 2, "keep": true},
+		{"id": "risky", "label": "Block 6, -2 HP", "blk": 6, "hp": 2, "keep": true},
+	]},
 	"double_buckler": {"kind": "blk_last_atk"},
 	"blood_pact": {"kind": "blood_pact", "n": 2},
 	"swift_sneaks": {"kind": "move2_keep", "n": 2},
@@ -10606,6 +10609,9 @@ func _choose_option(opt: Dictionary) -> void:
 	if int(opt.get("atk_drop", 0)) > 0:
 		await _apply_ops(it, {"kind": "atk_drop", "n": int(opt.get("atk_drop", 0))}, opt)
 	elif int(opt.get("blk", 0)) > 0:
+		## Lucky Nickel risky side: Block then Lose HP (same bleed path as old coin).
+		if int(opt.get("hp", 0)) > 0:
+			it["_coin_bleed"] = int(opt.get("hp", 0))
 		await _apply_ops(it, {"kind": "blk", "n": int(opt.get("blk", 0))}, opt)
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
@@ -16638,6 +16644,13 @@ func _item_grants_block(it: Dictionary) -> bool:
 		return _shield_face(it) == "blk"
 	if kind == "marble" or kind == "signpost":
 		return true
+	if kind == "choose":
+		var opts: Variant = _ops_of(it).get("options", [])
+		if typeof(opts) == TYPE_ARRAY:
+			for ov in opts:
+				if typeof(ov) == TYPE_DICTIONARY and (ov as Dictionary).has("blk"):
+					return true
+		return false
 	return kind.begins_with("blk")
 
 
@@ -21936,6 +21949,9 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart", "=1")]]
 		"rust":
 			return [[_fg("shield", n if n != "" else "2"), _fg("heart", "−1")]]
+		"lucky_nickel":
+			## Knife-style both sides on the face: 2 Block / 6 Block + −2 HP heart.
+			return [[_fg("shield", "2"), _fg("shield", "6"), _fg("heart", "−2")]]
 		"quiet_bell":
 			return [[_fg("icon", "", "", "", "", "ban")]]
 		"hex", "toll":
@@ -22021,16 +22037,32 @@ func _item_view(it: Dictionary) -> Dictionary:
 		"choose":
 			out["kind"] = "ATK"
 			var drop_v := false
+			var blk_only_v := false
+			var has_atk_v := false
+			var has_blk_v := false
+			var blk_bits: PackedStringArray = PackedStringArray()
 			var copts_v: Variant = ops.get("options", [])
 			if typeof(copts_v) == TYPE_ARRAY:
 				for ov in copts_v:
-					if typeof(ov) == TYPE_DICTIONARY and (ov as Dictionary).has("atk_drop"):
+					if typeof(ov) != TYPE_DICTIONARY:
+						continue
+					var od: Dictionary = ov
+					if od.has("atk_drop"):
 						drop_v = true
-						break
+					if od.has("atk"):
+						has_atk_v = true
+					if od.has("blk"):
+						has_blk_v = true
+						blk_bits.append(str(int(od.get("blk", 0))))
+			blk_only_v = has_blk_v and not has_atk_v and not drop_v
 			if drop_v:
 				out["kind"] = "BLK"
 				out["number"] = "−1–3"
 				out["n"] = 0
+			elif blk_only_v:
+				out["kind"] = "BLK"
+				out["n"] = int(blk_bits[0]) if blk_bits.size() > 0 else 2
+				out["number"] = " / ".join(blk_bits) if blk_bits.size() >= 2 else str(out["n"])
 			else:
 				out["n"] = 3
 				out["number"] = "3"
@@ -23014,18 +23046,34 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 						p[facing_index]["kill"] = true
 		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty", "atk_spins":
 			var drop_prev := false
+			var blk_only_prev := false
 			if kind == "choose":
 				var popts: Variant = _ops_of(it).get("options", [])
+				var has_atk_prev := false
+				var has_blk_prev := false
 				if typeof(popts) == TYPE_ARRAY:
 					for po in popts:
-						if typeof(po) == TYPE_DICTIONARY and (po as Dictionary).has("atk_drop"):
+						if typeof(po) != TYPE_DICTIONARY:
+							continue
+						var pod: Dictionary = po
+						if pod.has("atk_drop"):
 							drop_prev = true
-							break
+						if pod.has("atk"):
+							has_atk_prev = true
+						if pod.has("blk"):
+							has_blk_prev = true
+				blk_only_prev = has_blk_prev and not has_atk_prev and not drop_prev
 			if drop_prev:
 				if bool(view.get("can_use", false)):
 					var net_slot: Dictionary = p.get(facing_index, {})
 					net_slot["who"] = true
 					p[facing_index] = net_slot
+			elif blk_only_prev:
+				if bool(view.get("can_use", false)):
+					var gain_n: int = maxi(0, int(view.get("n", 2)))
+					if _twins_double_blk(gain_n):
+						gain_n *= 2
+					_ghost_blk = blk + gain_n
 			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
 				var dmg: int = n if kind != "choose" else int(view.get("n", 3))
 				if _kind_deals_atk(kind):
@@ -23554,15 +23602,24 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"choose":
 			var drop_n := false
 			var spike_n := false
+			var blk_only_n := false
+			var has_atk_n := false
+			var has_blk_n := false
 			var copts: Variant = _ops_of(it).get("options", [])
 			if typeof(copts) == TYPE_ARRAY:
 				for o2 in copts:
 					if typeof(o2) != TYPE_DICTIONARY:
 						continue
-					if (o2 as Dictionary).has("atk_drop"):
+					var o2d: Dictionary = o2
+					if o2d.has("atk_drop"):
 						drop_n = true
-					if (o2 as Dictionary).has("blk") and (o2 as Dictionary).has("atk"):
+					if o2d.has("atk"):
+						has_atk_n = true
+					if o2d.has("blk"):
+						has_blk_n = true
+					if o2d.has("blk") and o2d.has("atk"):
 						spike_n = true
+			blk_only_n = has_blk_n and not has_atk_n and not drop_n
 			if drop_n:
 				out["value"] = _value_bb("Attack", "−1 / −2 / −3", atk_c)
 				out["body"] = "Click 1, 2, or 3. The facing owner's Attack drops by that much after their own ability and Commander, then stays there this fight. Owners whose Attack always equals a number ignore this."
@@ -23573,6 +23630,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["value"] = "%s    %s" % [_value_bb("Attack", str(spike_atk), atk_c), _value_bb("Block", "2", blk_c)]
 				out["equation"] = "(%s) or (%s)" % [_bb(atk_c, str(spike_atk)), _bb(blk_c, "2")]
 				out["body"] = "Deal 2 attack, or gain 2 block."
+			elif blk_only_n:
+				out["value"] = _value_bb("Block", "2/6", blk_c)
+				out["equation"] = "(%s) or (%s and %s). %s" % [_bb(blk_c, "2"), _bb(blk_c, "6"), _bb(hp_c, "Lose 2 HP"), _bb(gold, "Keep")]
+				out["body"] = str(it.get("ability", "Gain 2 Block, or Gain 6 Block and Lose 2 HP. Keep."))
 			else:
 				out["value"] = _value_bb("Attack", str(live if live > 0 else 3), atk_c)
 				out["equation"] = "(%s) or (%s and %s)" % [_bb(atk_c, str(_atk_with_head(3))), _bb(atk_c, str(_atk_with_head(1))), _bb(gold, "Keep")]
@@ -27516,6 +27577,8 @@ func _choice_badge_text(it: Dictionary) -> String:
 		var o: Dictionary = ov
 		if o.has("atk"):
 			bits.append(str(int(o["atk"])))
+		elif o.has("blk"):
+			bits.append(str(int(o["blk"])))
 		elif o.has("atk_drop"):
 			bits.append(str(int(o["atk_drop"])))
 	if bits.size() < 2:
@@ -27885,6 +27948,8 @@ func _mode_choice_prompt(it: Dictionary) -> String:
 	var cid: String = str(it.get("card_id", ""))
 	if cid == "throwing_knife":
 		return PLAYER_COPY.text("combat.knife_choose_prompt", "choose a throw")
+	if cid == "lucky_nickel":
+		return PLAYER_COPY.text("combat.nickel_choose_prompt", "choose a side")
 	if cid == "net":
 		return PLAYER_COPY.text("combat.net_choose_prompt", "how much Attack to strip?")
 	## Magnet: do not invent a prompt beyond existing option strings.
@@ -27906,6 +27971,10 @@ func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 			lab = PLAYER_COPY.text("combat.knife_throw", lab)
 		elif oid == "nick":
 			lab = PLAYER_COPY.text("combat.knife_nick", lab)
+		elif oid == "safe":
+			lab = PLAYER_COPY.text("combat.nickel_safe", lab)
+		elif oid == "risky":
+			lab = PLAYER_COPY.text("combat.nickel_risky", lab)
 		## ASCII hyphen OK for Net labels in code / display.
 		lab = lab.replace("−", "-").replace("–", "-")
 		var row := {"label": lab, "opt": opt, "badge": "", "pips": 0, "primary": lab, "secondary": ""}
@@ -27914,7 +27983,7 @@ func _mode_choice_overlay_rows(it: Dictionary) -> Array:
 			var parts_t: PackedStringArray = lab.split(",", true, 1)
 			row["primary"] = (str(parts_t[0]).strip_edges() + ",") if parts_t.size() > 1 else lab
 			row["secondary"] = str(parts_t[1]).strip_edges() if parts_t.size() > 1 else ""
-		elif oid == "nick" or bool(opt.get("keep", false)):
+		elif oid == "nick" or oid == "safe" or oid == "risky" or bool(opt.get("keep", false)):
 			row["badge"] = "keep"
 			var parts_k: PackedStringArray = lab.split(",", true, 1)
 			row["primary"] = (str(parts_k[0]).strip_edges() + ",") if parts_k.size() > 1 else lab
