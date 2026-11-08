@@ -4,8 +4,9 @@ status: done
 fulfilled_by: local-cursor
 fulfilled_at: 2026-11-08T08:30:00-06:00
 machine: Cherry
-tip_sha: PENDING_PR_HEAD
+tip_sha: 61b94b86dc3f23ef4ae88df28ad1997c8bce6425
 base_tip: 4a103c42fae3ce2a1abcd1036aae70ae30a49f75
+local_tip_smoke: TIP_SMOKE_OK
 godot: windowed isolated process (not MCP 6550), Godot 4.7.2-stable, viewport 1680x1040
 branch_fixes: cursor/collection-a-honesty-drain-e524
 ---
