@@ -662,8 +662,8 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-11-06",
-			"name": "Healing Potion"
+			"locked_at": "2026-11-08",
+			"name": "Revival Potion"
 		},
 		"item:helmet": {
 			"fields": [

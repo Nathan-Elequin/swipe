@@ -126,7 +126,8 @@
 		"monster:vampire": 1794006248.0,
 		"monster:wick": 1792689329.0,
 		"monster:wizard": 1792790558.82853,
-		"monster:zombie": 1793700000.0
+		"monster:zombie": 1793700000.0,
+		"item:healing_potion": 1794127312.6000087
 	},
 	"id": "boss-rush-recent-edits",
 	"item:signpost": 1792450564.02935,

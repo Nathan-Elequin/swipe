@@ -17188,7 +17188,7 @@ func _glass_asp_dose(index: int) -> int:
 
 func _glass_asp_on_attack(index: int, dose: int = -1) -> void:
 	# dose < 0: read the live stack. A passed dose is the stack from the start of
-	# this swing, so a lethal hit and Healing Potion cannot drop it.
+	# this swing, so a lethal hit and Revival Potion cannot drop it.
 	if dose < 0:
 		dose = _glass_asp_dose(index)
 	if dose <= 0:
@@ -19319,7 +19319,7 @@ func _sandbag_would_kill() -> bool:
 		return false
 	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
 		return false
-	# Same number as Take. Block already gained counts. An unspent Buckler does not. Ignores Healing Potion.
+	# Same number as Take. Block already gained counts. An unspent Buckler does not. Ignores Revival Potion.
 	return _incoming_hit() >= hp
 
 
