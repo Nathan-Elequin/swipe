@@ -83,5 +83,13 @@
     "shown": 2,
     "retired": true,
     "why": "Second show in Still broken in F5 on 2026-11-06, Tesla Coil paper fight."
+  },
+  "451": {
+    "shown": 1,
+    "retired": false
+  },
+  "452": {
+    "shown": 1,
+    "retired": false
   }
 }
