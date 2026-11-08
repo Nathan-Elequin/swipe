@@ -28666,52 +28666,9 @@ func _tutorial_play_unlock() -> void:
 
 
 func _tutorial_unlock_entries() -> Array:
-	## Pool-1 reveal minus whatever the Yes path already seated / granted / drafted.
-	var skip: Dictionary = _tut_seen.duplicate(true)
-	## Always omit Smoke Bomb / forced openers if present in seen.
-	var loot: Array = []
-	var loot_extra: Array = []
-	var foes: Array = []
-	var foe_extra: Array = []
-	for id in items_by_id.keys():
-		if skip.has(str(id)):
-			continue
-		var card: Dictionary = items_by_id[id]
-		if BucketRules.of_card(card) != 1:
-			continue
-		if str(card.get("status", "live")) == "retired" or str(card.get("status", "live")) == "hold":
-			continue
-		if BucketRules.is_token(card) or BucketRules.is_always_starter(card):
-			continue
-		var loot_tex: Texture2D = tex_by_item.get(id, null)
-		if loot_tex == null and art != null:
-			loot_tex = art.item_tex(id)
-		var entry: Dictionary = _bucket_entry(card, "Loot", loot_tex, str(id))
-		if BucketRules.counts_for_mill(card):
-			loot.append(entry)
-		else:
-			loot_extra.append(entry)
-	for id2 in monsters_by_id.keys():
-		if skip.has(str(id2)):
-			continue
-		var card2: Dictionary = monsters_by_id[id2]
-		if BucketRules.of_card(card2) != 1:
-			continue
-		if str(card2.get("status", "live")) == "retired" or str(card2.get("status", "live")) == "hold":
-			continue
-		if BucketRules.is_token(card2):
-			continue
-		var entry2: Dictionary = _bucket_entry(card2, "Foe", tex_by_monster.get(id2, null), str(id2))
-		if BucketRules.counts_for_mill(card2):
-			foes.append(entry2)
-		else:
-			foe_extra.append(entry2)
-	var out: Array = []
-	out.append_array(loot)
-	out.append_array(loot_extra)
-	out.append_array(foes)
-	out.append_array(foe_extra)
-	return out
+	## Full canonical Pool 1 (same membership as post-dungeon bucket reveal).
+	## Tutorial-seen cards stay included; prior Yes-path subtract is retired (Nathan 2026-11-07).
+	return _bucket_entries(1)
 
 
 func _tut_mark_seen(id: String) -> void:

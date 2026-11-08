@@ -198,6 +198,17 @@ func _init() -> void:
 	failed = _check(failed, "unlock_before_cabin_music", finish_order_ok) or failed
 	## Hide-under-road must silence cabin (no music/chrome during approach/ambush/overlay).
 	failed = _check(failed, "hide_under_road_silences", _source_func_calls("res://scripts/home_cabin.gd", "_hide_cabin_under_road", "_silence_cabin")) or failed
+	## Post-tutorial reveal is full Pool 1 via `_bucket_entries(1)` — not `_tut_seen` subtract.
+	failed = _check(
+		failed,
+		"tutorial_unlock_uses_bucket_entries",
+		_source_func_calls("res://scripts/main.gd", "_tutorial_unlock_entries", "_bucket_entries")
+	) or failed
+	failed = _check(
+		failed,
+		"tutorial_unlock_no_tut_seen_filter",
+		_tutorial_unlock_entries_omits_tut_seen()
+	) or failed
 
 	## 14) Kiss of Death / Venom Veins mill membership + combat hooks (runtime, not flags.dev).
 	failed = _check(failed, "runtime_has_kiss_of_death", _runtime_has_item("kiss_of_death")) or failed
@@ -386,6 +397,19 @@ func _road_finish_unlock_before_cabin_music() -> bool:
 		return false
 	## At least one of music / arrive should follow unlock (arrive splash owns cabin return).
 	return music_i > unlock_i or arrive_i > unlock_i
+
+
+func _tutorial_unlock_entries_omits_tut_seen() -> bool:
+	## Body must reuse `_bucket_entries` and must not filter on `_tut_seen`.
+	var src := _read_source("res://scripts/main.gd")
+	var start: int = src.find("func _tutorial_unlock_entries(")
+	if start < 0:
+		return false
+	var next_func: int = src.find("\nfunc ", start + 1)
+	var body: String = src.substr(start, next_func - start if next_func >= 0 else src.length() - start)
+	if body.find("_bucket_entries(1)") < 0 and body.find("_bucket_entries (1)") < 0:
+		return false
+	return body.find("_tut_seen") < 0
 
 
 func _load_json(res_path: String) -> Dictionary:
