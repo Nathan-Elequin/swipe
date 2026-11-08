@@ -1,51 +1,6 @@
 {
-	"cards": {
-		"item:da_boot": {
-			"fields": {
-				"explainer": {
-					"from": "Defeat Enemy if HP < Your HP",
-					"to": "Defeat Enemy if they have less HP"
-				}
-			},
-			"id": "da_boot",
-			"kind": "item",
-			"name": "The Boot",
-			"saved_at": "2026-11-06T23:10:12"
-		},
-		"monster:almighty_worm": {
-			"fields": {
-				"atk_base": {
-					"from": 9.0,
-					"to": 12.0
-				},
-				"hp_base": {
-					"from": 9.0,
-					"to": 12.0
-				}
-			},
-			"id": "almighty_worm",
-			"kind": "monster",
-			"name": "Almighty Worm",
-			"saved_at": "2026-11-06T23:03:47"
-		},
-		"monster:vampire": {
-			"fields": {
-				"atk_base": {
-					"from": 4.0,
-					"to": 5.0
-				},
-				"hp_base": {
-					"from": 4.0,
-					"to": 5.0
-				}
-			},
-			"id": "vampire",
-			"kind": "monster",
-			"name": "Vampire",
-			"saved_at": "2026-11-06T23:04:08"
-		}
-	},
+	"cards": {},
 	"id": "boss-rush-editor-pending",
 	"instructions": "F5 card editor Save writes a row here whenever HP, ATK, Ability, or another official field changes. Chat treats these like gold boxes. After applying, clear that card's row.",
-	"updated": "2026-11-08T10:10:00"
+	"updated": "2026-11-08T10:50:00"
 }
