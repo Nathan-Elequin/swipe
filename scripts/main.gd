@@ -181,7 +181,7 @@ const ITEM_OPS := {
 	"fairy_in_a_bottle": {"kind": "heal", "n": 2},
 	"napalm": {"kind": "napalm"},
 	"lucky_nickel": {"kind": "blk_coin_keep", "lo": 2, "hi": 6, "hp": 2},
-	"double_buckler": {"kind": "blk_half_atk"},
+	"double_buckler": {"kind": "blk_last_atk"},
 	"blood_pact": {"kind": "blood_pact", "n": 2},
 	"swift_sneaks": {"kind": "move2_keep", "n": 2},
 	"shardplate": {"kind": "shardplate"},
@@ -481,6 +481,9 @@ var smoke_given: bool = false
 var drafts_left: int = 0
 var last_mob_hp: int = 3
 var last_mob_atk: int = 0
+## Buckler: ATK of the last enemy that actually Attacked the player (`_owner_attack`).
+## Not Spin / Take preview / facing UI. Cleared each combat. Do not reuse `last_mob_atk`.
+var last_attacker_atk: int = 0
 var items_used_this_combat: int = 0
 var last_item_atk: int = 0
 var last_blk_gain: int = 0
@@ -2573,6 +2576,7 @@ func _reset_run() -> void:
 	_slain_shown = -1
 	last_mob_hp = 3
 	last_mob_atk = 0
+	last_attacker_atk = 0
 	items_used_this_combat = 0
 	_after_item_use_armed = false
 	last_item_atk = 0
@@ -4097,6 +4101,7 @@ func _prep_next_dungeon() -> void:
 	_slain_shown = -1
 	last_mob_hp = 3
 	last_mob_atk = 0
+	last_attacker_atk = 0
 	items_used_this_combat = 0
 	_after_item_use_armed = false
 	last_item_atk = 0
@@ -6406,7 +6411,7 @@ func _item_look(it: Dictionary) -> Dictionary:
 	if kind == "chain_flee":
 		if phase == "fighting" and _mark_targets("chain_flee").is_empty():
 			unplayable = true
-	if kind == "blk_half_atk" and not bool(view.get("can_use", false)):
+	if kind == "blk_last_atk" and not bool(view.get("can_use", false)):
 		unplayable = true
 	var cursed: bool = _item_is_curse(it)
 	return {
@@ -9004,6 +9009,7 @@ func _on_spin() -> void:
 	num_items_at_combat = hotbar.size()
 	lost_hp_this_combat = false
 	enemy_attacked = false
+	last_attacker_atk = 0
 	pending_mark.clear()
 	pending_chaos.clear()
 	_sync_wheel_stats()
@@ -9533,6 +9539,8 @@ func _apply_resolve_hits() -> int:
 ## Returns HP lost on this swing.
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int = -1) -> int:
 	enemy_attacked = true
+	# Buckler snapshot: buffed ATK at this Attack event (once per swing value, not hit-sum).
+	last_attacker_atk = maxi(int(m.get("atk", 0)), 0)
 	var at: int = src if src >= 0 else facing_index
 	# Bitter Blood's dose is the stack at the swing, before Block, death, or the potion.
 	var bitter_dose: int = _glass_asp_dose(at)
@@ -9946,6 +9954,7 @@ func _capture_run() -> Dictionary:
 		"magnet_pending_consume": _magnet_pending_consume,
 		"last_mob_hp": last_mob_hp,
 		"last_mob_atk": last_mob_atk,
+		"last_attacker_atk": last_attacker_atk,
 		"items_used_this_combat": items_used_this_combat,
 		"after_item_use_armed": _after_item_use_armed,
 		"last_item_atk": last_item_atk,
@@ -10197,6 +10206,7 @@ func _restore_run(snap: Dictionary) -> void:
 	_magnet_pending_consume = str(snap.get("magnet_pending_consume", ""))
 	last_mob_hp = int(snap.get("last_mob_hp", last_mob_hp))
 	last_mob_atk = int(snap.get("last_mob_atk", last_mob_atk))
+	last_attacker_atk = int(snap.get("last_attacker_atk", last_attacker_atk))
 	items_used_this_combat = int(snap.get("items_used_this_combat", items_used_this_combat))
 	_after_item_use_armed = bool(snap.get("after_item_use_armed", false))
 	last_item_atk = int(snap.get("last_item_atk", last_item_atk))
@@ -10700,7 +10710,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			var shield_gain: int = _gain_blk(3)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [shield_gain, blk])
-		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_half_atk", "blk_coin_keep":
+		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk", "blk_coin_keep":
 			var n: int = int(view.get("n", ops.get("n", 0)))
 			if kind == "blk_coin_keep":
 				if randi_range(0, 1) == 0:
@@ -10709,7 +10719,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				else:
 					n = int(ops.get("hi", 6))
 					it["_coin_bleed"] = int(ops.get("hp", 2))
-			if kind == "blk_half_atk" and not bool(view.get("can_use", false)):
+			if kind == "blk_last_atk" and not bool(view.get("can_use", false)):
 				_log_begin_item(it)
 				_log("on_item_use", "%s — cannot" % str(it.get("name", "?")))
 				if sfx:
@@ -17763,7 +17773,7 @@ func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 	match kind:
 		"atk_hp_loss", "atk_spins", "atk_alt_24", "atk_echo":
 			return "atk"
-		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_half_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor":
+		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_last_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor":
 			return "blk"
 		"heal_keep", "heal_kills", "heal_swap_keep":
 			return "heal"
@@ -19309,7 +19319,7 @@ func _sandbag_would_kill() -> bool:
 		return false
 	if _is_silenced(m) or int(m.get("hp", 0)) <= 0:
 		return false
-	# Same number as Take. Block already gained counts. An unspent Half-Buckler does not. Ignores Healing Potion.
+	# Same number as Take. Block already gained counts. An unspent Buckler does not. Ignores Healing Potion.
 	return _incoming_hit() >= hp
 
 
@@ -21494,13 +21504,12 @@ func _try_potion() -> bool:
 	return false
 
 
-func _buckler_half(m: Dictionary, fighting: bool) -> Dictionary:
+func _buckler_last_attacker_view(fighting: bool) -> Dictionary:
+	## Block face for Buckler: stamped ATK from last actual enemy Attack this combat.
 	if not fighting:
-		return {"n": 0, "even": false}
-	var atk_n: int = int(m.get("atk", 0))
-	if atk_n < 0 or atk_n % 2 != 0:
-		return {"n": 0, "even": false}
-	return {"n": int(atk_n / 2), "even": true}
+		return {"n": 0, "can_use": false}
+	var n: int = maxi(0, last_attacker_atk)
+	return {"n": n, "can_use": n > 0}
 
 
 func _preview_swing(m: Dictionary, left_blk: int, _allow_buckler: bool) -> Dictionary:
@@ -22050,14 +22059,13 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting and out["n"] > 0
-		"blk_half_atk":
-			var half: Dictionary = _buckler_half(m, fighting)
+		"blk_last_atk":
+			var buck: Dictionary = _buckler_last_attacker_view(fighting)
 			out["kind"] = "BLK"
-			out["even"] = bool(half.get("even", false))
-			out["n"] = int(half.get("n", 0))
-			out["number"] = str(out["n"]) if bool(half.get("even", false)) else "—"
+			out["n"] = int(buck.get("n", 0))
+			out["number"] = str(out["n"]) if bool(buck.get("can_use", false)) else "—"
 			out["note"] = ""
-			out["can_use"] = fighting and bool(half.get("even", false))
+			out["can_use"] = bool(buck.get("can_use", false))
 		"heal_last_loss":
 			out["kind"] = "HEAL"
 			out["n"] = last_hp_lost
@@ -22957,7 +22965,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 	var view: Dictionary = _item_view(it)
 	var n: int = int(view.get("n", 0))
 	match kind:
-		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_siphon", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_half_atk":
+		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_siphon", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk":
 			if bool(view.get("can_use", false)):
 				var gain_n: int = maxi(0, n)
 				if _twins_double_blk(gain_n):
@@ -23602,15 +23610,15 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Gain Block equal to your highest Attack Item"
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — no Attack item."
-		"blk_half_atk":
-			if bool(view.get("even", false)):
+		"blk_last_atk":
+			if bool(view.get("can_use", false)):
 				out["value"] = _value_bb("Block", str(live), blk_c)
 			else:
 				out["value"] = _value_bb("Block", "—", blk_c)
-			out["equation"] = "(%s ÷ 2)" % _bb(atk_c, "Enemy Attack")
-			out["body"] = str(it.get("ability", "If enemy Attack is Even, this Blocks for half of it."))
-			if fighting and not bool(view.get("even", false)):
-				out["warn"] = "Can't — their Attack is odd."
+			out["equation"] = "(%s)" % _bb(atk_c, "Last attacker Attack")
+			out["body"] = str(it.get("ability", "Gain Block equal to the Attack of the last enemy that attacked you."))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — no enemy has Attacked you yet."
 			elif not fighting:
 				out["warn"] = "Can't — you are not in a fight."
 		"heal_last_loss":

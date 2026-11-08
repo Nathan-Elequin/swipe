@@ -2411,8 +2411,8 @@
 			]
 		},
 		{
-			"id": "double_buckler-unplayable",
-			"title": "Half-Buckler stays Unplayable",
+			"id": "double_buckler-grey-no-attacker",
+			"title": "Buckler grey with no prior attacker",
 			"family": "item",
 			"items": [
 				"double_buckler"
@@ -2423,7 +2423,7 @@
 			"face": "golem",
 			"challenge": true,
 			"clicks": [],
-			"expected_text": "Half-Buckler is Unplayable. Do not click it. It stays in hand.",
+			"expected_text": "Buckler is grey until an enemy has Attacked you. It stays in hand.",
 			"expected": {
 				"in_hand": {
 					"double_buckler": true
@@ -2433,8 +2433,8 @@
 				{
 					"id": "double_buckler",
 					"kind": "item",
-					"name": "Half-Buckler",
-					"ability": "Unplayable. Take half damage the next time you receive Even Atk damage, then Discard this.",
+					"name": "Buckler",
+					"ability": "Gain Block equal to the Attack of the last enemy that attacked you.",
 					"sprite": "assets/dungeon/items/double_buckler.png"
 				},
 				{
