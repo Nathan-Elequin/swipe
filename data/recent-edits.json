@@ -14,7 +14,7 @@
 		"item:counting_beads": 1792689981.0,
 		"item:crossbow": 1792035889.34183,
 		"item:cursed_scroll": 1792282200.0,
-		"item:da_boot": 1794006612,
+		"item:da_boot": 1794006612.0,
 		"item:danger_magnet": 1792976856.0,
 		"item:double_axe": 1792470000.0,
 		"item:double_buckler": 1793740860.0,
@@ -88,7 +88,7 @@
 		"monster:fairy": 1793690400.0,
 		"monster:gargoyle": 1792136735.68746,
 		"monster:gelatinous_cube": 1792277100.0,
-		"monster:glass_asp": 1793993400.0,
+		"monster:glass_asp": 1794099853,
 		"monster:golem": 1792790558.82853,
 		"monster:harpy": 1793319300.0,
 		"monster:hired_hand": 1792400000.0,
@@ -133,5 +133,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1792450564.02935,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-06T23:10:12"
+	"updated": "2026-11-08T01:04:13"
 }

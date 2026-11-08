@@ -2274,7 +2274,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-07",
 			"name": "Glass Asp"
 		},
 		"monster:goblin": {
@@ -4191,7 +4191,7 @@
 		"playtest.tier_list": {
 			"cat": "Playtest",
 			"locked_at": "2026-11-05",
-			"text": "Tier List",
+			"text": "Rankings",
 			"where": "Feedback submenu"
 		},
 		"playtest.unranked": {
@@ -5731,5 +5731,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-06"
+	"updated": "2026-11-07"
 }

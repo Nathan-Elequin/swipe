@@ -279,7 +279,7 @@
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
-			"count": 2,
+			"count": 2.0,
 			"explainer": "Defeat Enemy if they have less HP",
 			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"hp_base": null,
@@ -320,14 +320,14 @@
 					"to": "Defeat Enemy if they have less HP"
 				}
 			},
-			"pool": 5,
-			"priority": 2,
+			"pool": 5.0,
+			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "1 Attack, plus 1 for each HP you are missing.",
@@ -7092,24 +7092,20 @@
 		},
 		{
 			"ability": "On Spin, I gain 1 Poison. When I Attack, you gain Poison equal to mine.",
-			"atk_base": 2.0,
+			"atk_base": 2,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Bitter Blood",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "Each Spin: I gain 1 Poison (ticks and clears). Attack: you gain Poison equal to mine",
-			"flags": {
-				"art": true,
-				"dev": false,
-				"hide": false
-			},
 			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When I Attack you, you Gain player Poison equal to my Poison stack at that moment. Quiet Bell turns this off.",
-			"hp_base": 9.0,
+			"hp_base": 9,
 			"hp_formula": "",
 			"id": "glass_asp",
-			"locked_at": "2026-11-05",
+			"kind": "monster",
+			"locked_at": "2026-11-07",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7136,14 +7132,20 @@
 			"name": "Glass Asp",
 			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Combat follow-up: self-Poison gain/tick/clear on Spin; on Attack transfer equal Poison to player. flags.dev until combat wired.",
 			"ops": {},
-			"pool": 4.0,
-			"priority": 3.0,
+			"pending_fields": {
+				"status": {
+					"from": "live",
+					"to": "todo"
+				}
+			},
+			"pool": 4,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 2.0
+			"review_note": "Rework: 'On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine.' This would trigger AFTER poison does, so eg if it has 9 hp and 6 poison, when the player spins it, it would (1) lose 6 hp and gain 1 poison, then (2) player would have their  hp set to 3.",
+			"status": "todo",
+			"tier": 2
 		},
 		{
 			"ability": "When you Spin me, I force you to Move to the highest Attack enemy.",
@@ -7425,5 +7427,5 @@
 			"tier": 3.0
 		}
 	],
-	"updated": "2026-11-06"
+	"updated": "2026-11-07"
 }
