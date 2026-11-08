@@ -4910,7 +4910,8 @@ func _arm_rug_secret_for_run() -> void:
 
 
 func _rug_secret_gated(id: String) -> bool:
-	return id == "poison_flask" and not _rug_secret_in_run
+	## Poison Flask is a normal Pool 1 unlock; cabin rug is flavor only (no mill gate).
+	return false
 
 
 func _empty_wheel(n: int = 8) -> void:
@@ -4953,7 +4954,8 @@ func _item_is_curse(it: Dictionary) -> bool:
 	var card: Dictionary = items_by_id.get(id, {})
 	if bool(card.get("curse", false)):
 		return true
-	return id == "spider_egg" or id == "toll" or id == "rust" or id == "cursed_scroll"
+	## cursed_scroll is an ordinary Tier 1 heal item — not a Curse rank.
+	return id == "spider_egg" or id == "toll" or id == "rust"
 
 
 func _item_uncollected_in_hand(it: Dictionary) -> bool:
