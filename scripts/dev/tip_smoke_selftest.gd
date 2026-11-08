@@ -218,6 +218,12 @@ func _init() -> void:
 	failed = _check(failed, "kiss_ops_wired", _source_contains("res://scripts/main.gd", "\"kiss_of_death\":")) or failed
 	failed = _check(failed, "kiss_apply_hook", _source_has_func("res://scripts/main.gd", "_apply_kiss_of_death")) or failed
 	failed = _check(failed, "venom_hp_loss_hook", _source_has_func("res://scripts/main.gd", "_venom_veins_on_hp_lost")) or failed
+	failed = _check(
+		failed,
+		"venom_flask_only_no_player_poison",
+		_source_func_calls("res://scripts/main.gd", "_venom_veins_on_hp_lost", "_gain_marked_poison_flask")
+		and not _source_func_calls("res://scripts/main.gd", "_venom_veins_on_hp_lost", "_gain_player_poison")
+	) or failed
 	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
 	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
 

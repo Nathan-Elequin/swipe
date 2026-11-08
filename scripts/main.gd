@@ -11660,15 +11660,15 @@ func _apply_kiss_of_death(it: Dictionary) -> void:
 
 
 func _venom_veins_on_hp_lost() -> void:
+	## Once per HP-loss event: Mark-3 Poison Flask only (no player Poison downside).
 	for it in hotbar:
 		if str(it.get("card_id", "")) != "venom_veins":
 			continue
 		if bool(it.get("spent", false)):
 			continue
 		_log_begin_item(it, false)
-		_gain_player_poison(1)
-		_log("on_resolve", "Venom Veins → Poison %s" % player_poison)
 		await _gain_marked_poison_flask(3)
+		_log("on_resolve", "Venom Veins → Mark-3 Flask")
 		_log_end_proc()
 
 
