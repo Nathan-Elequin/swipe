@@ -7,7 +7,7 @@
 | Role | SHA | Notes |
 |------|-----|--------|
 | **VALIDATION_HEAD / feature body tested** | `03821635e7bd42284d24e3b1c83338e8d67b9708` | Aggregate total + settle + public main-routes harness |
-| Wrapper-only later | *(this RESULT/outbox stamp commit, if tip advances)* | Receipt text / outbox only — not gameplay |
+| Wrapper / PR tip (receipts) | `edbf7f67c107d5eec8924903ba0a742f192b7bb2` | Outbox RESULT + logs/shots only — not gameplay |
 
 Stamped in logs/shots: `PROGRESS_SOURCE_SHA` / `SHOT_SOURCE_BODY_SHA` / `PROGRESS_MENU_MAIN_ROUTES_SHA` / `BANKING_SOURCE_SHA` = `03821635…`.
 
