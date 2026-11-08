@@ -2896,7 +2896,7 @@ func _shot_anim_cascade_ticker() -> void:
 	_log_progress("cascade1 done phase=%s busy=%s hp=%s" % [main.phase, main._walker_busy, main.hp])
 	# Let the first `_on_spin` coroutine finish its deferred intent-plate tail.
 	await _wait(0.35)
-	# Repeat with Shift / FF held. Fresh HP so Grief Jar bleed cannot end the cascade early.
+	# Repeat with Shift / FF held. Fresh HP so early HP loss cannot end the cascade early.
 	await _anim_ready_seat(
 		["plague_doctor", "spider_queen", "cultist", "harpy"],
 		["grief_jar", "marble"],

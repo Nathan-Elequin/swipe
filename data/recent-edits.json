@@ -22,7 +22,7 @@
 		"item:fangs": 1792282200.0,
 		"item:flying_saucer": 1793342400.0,
 		"item:grappling_hook": 1793411200.0,
-		"item:grief_jar": 1793740860.0,
+		"item:grief_jar": 1794126874.6541982,
 		"item:grimoire": 1792282200.0,
 		"item:helmet": 1792446156.0,
 		"item:hex": 1793347200.0,
@@ -133,5 +133,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.3456936,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-08T08:28:21"
+	"updated": "2026-11-08T08:34:34Z"
 }

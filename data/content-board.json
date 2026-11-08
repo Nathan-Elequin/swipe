@@ -1245,7 +1245,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Each time you Spin, Lose 1 HP and this item gains +3 Block",
+			"ability": "This gains +2 Block each time you lose any HP.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -1253,13 +1253,13 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Spin: −1 HP, +3 BLK",
-			"flow": "While in hand and not spent: at combat start, player loses 1 HP (counts as a bleed for Spiked Flail) and this card's block number +3. On use, gain that much block, then used up. Starts at 0.",
+			"explainer": "+2 Block each Lose HP",
+			"flow": "While in hand and not spent: each time you lose HP for any reason, this card's block number +2 once per loss event (same cadence as Spiked Flail / hp_loss_events, not per point). On use, gain that much Block, then used up. Starts at 0. No Spin tax and no Spin Block gain.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "grief_jar",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1277,7 +1277,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "Each Spin: lose HP, gain Block",
+			"log_hint": "Lose HP → +2 Block",
 			"mode_pool": "all",
 			"name": "Grief Jar",
 			"notes": "",
@@ -7445,5 +7445,5 @@
 			}
 		}
 	],
-	"updated": "2026-11-07"
+	"updated": "2026-11-08T08:34:47Z"
 }
