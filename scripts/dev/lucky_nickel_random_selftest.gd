@@ -55,15 +55,18 @@ func _contracts() -> bool:
 		"force_coin_test_hook",
 		src.find('"_force_coin"') >= 0 or src.find("\"_force_coin\"") >= 0
 	) or failed
-	## Chance face: shield 2 / slash / shield 6 / heart −2 (not selectable options).
-	var face_i: int = src.find('"lucky_nickel":')
+	## Chance face in _face_rows — match the full glyph recipe (not the earlier
+	## ITEM_OPS / icon-map `"lucky_nickel":` hits). Same cells as face_four_cells.
+	var face_recipe: String = (
+		'_fg("shield", "2"), _fg("icon", "", "", "", "", "slash"), '
+		+ '_fg("shield", "6"), _fg("heart", "−2")'
+	)
+	var face_i: int = src.find(face_recipe)
 	failed = _check(failed, "face_rows_present", face_i >= 0) or failed
-	if face_i >= 0:
-		var face_chunk: String = src.substr(face_i, 280)
-		failed = _check(failed, "face_has_slash", face_chunk.find('"slash"') >= 0) or failed
-		failed = _check(failed, "face_has_shield_2", face_chunk.find('_fg("shield", "2")') >= 0) or failed
-		failed = _check(failed, "face_has_shield_6", face_chunk.find('_fg("shield", "6")') >= 0) or failed
-		failed = _check(failed, "face_has_heart_m2", face_chunk.find('_fg("heart", "−2")') >= 0) or failed
+	failed = _check(failed, "face_has_slash", face_i >= 0) or failed
+	failed = _check(failed, "face_has_shield_2", face_i >= 0) or failed
+	failed = _check(failed, "face_has_shield_6", face_i >= 0) or failed
+	failed = _check(failed, "face_has_heart_m2", face_i >= 0) or failed
 
 	var cat: Dictionary = _load_json("res://data/catalog.json")
 	var ops: Dictionary = _catalog_ops(cat, "lucky_nickel")
