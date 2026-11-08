@@ -58,5 +58,17 @@ if [[ "$SHROUD" -ne 0 ]]; then
   echo "PHANTOM_SHROUD_SMOKE failed (exit $SHROUD)" >&2
   exit "$SHROUD"
 fi
+
+# House rooms unlock after first successful full dungeon return (cabin doors only).
+chmod +x "$ROOT/tools/qa/run_house_unlock_first_return.sh"
+set +e
+GODOT="$GODOT_BIN" "$ROOT/tools/qa/run_house_unlock_first_return.sh"
+HOUSE=$?
+set -e
+if [[ "$HOUSE" -ne 0 ]]; then
+  echo "HOUSE_UNLOCK_FIRST_RETURN_SMOKE failed (exit $HOUSE)" >&2
+  exit "$HOUSE"
+fi
+
 echo "TIP_SMOKE local run OK"
 exit 0
