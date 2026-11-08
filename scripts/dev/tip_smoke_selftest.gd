@@ -361,6 +361,48 @@ func _init() -> void:
 		_source_func_calls("res://scripts/main.gd", "_recycle_insert_copy", "duplicate(true)")
 	) or failed
 
+	## 19) Glass Asp — Bitter Blood Spin-me HP-set; poison-kill uses hp_pre_hit; no Attack Poison.
+	failed = _check(failed, "runtime_has_glass_asp", _runtime_has_monster("glass_asp")) or failed
+	failed = _check(
+		failed,
+		"glass_asp_stats_9_2",
+		_catalog_monster_hp_atk("glass_asp", 9, 2)
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_ability_spin_me_set_hp",
+		_catalog_monster_ability_contains("glass_asp", "On Spin")
+		and _catalog_monster_ability_contains("glass_asp", "Spin me")
+		and _catalog_monster_ability_contains("glass_asp", "set your HP")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_ability_no_attack_poison",
+		not _catalog_monster_ability_contains("glass_asp", "When I Attack")
+		and not _catalog_monster_ability_contains("glass_asp", "you gain Poison equal")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_set_hp_hooks",
+		_source_has_func("res://scripts/main.gd", "_apply_glass_asp_set_hp")
+		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_spin_me_set")
+		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_on_spin")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "lifelink_hp")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "hp_pre_hit")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_poison_kill_uses_pre_hit",
+		_source_func_calls("res://scripts/main.gd", "_tick_facing_monster_poison", "_apply_glass_asp_set_hp")
+	) or failed
+	failed = _check(
+		failed,
+		"glass_asp_no_attack_poison_transfer",
+		not _source_has_func("res://scripts/main.gd", "_glass_asp_on_attack")
+		and not _source_has_func("res://scripts/main.gd", "_glass_asp_dose")
+		and not _source_func_calls("res://scripts/main.gd", "_owner_attack", "_glass_asp_on_attack")
+	) or failed
+
 	if guide != null and is_instance_valid(guide):
 		guide.free()
 
@@ -642,6 +684,21 @@ func _catalog_monster_ability_contains(id: String, needle: String) -> bool:
 		if str(card.get("id", "")) != id:
 			continue
 		return str(card.get("ability", "")).find(needle) >= 0
+	return false
+
+
+func _catalog_monster_hp_atk(id: String, hp: int, atk: int) -> bool:
+	var cat: Dictionary = _load_json("res://data/catalog.json")
+	var mons: Variant = cat.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return false
+	for raw in mons as Array:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		if str(card.get("id", "")) != id:
+			continue
+		return int(card.get("hp_base", -1)) == hp and int(card.get("atk_base", -1)) == atk
 	return false
 
 

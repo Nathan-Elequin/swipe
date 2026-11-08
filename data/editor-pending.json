@@ -44,18 +44,6 @@
 			"name": "Almighty Worm",
 			"saved_at": "2026-11-06T23:03:47"
 		},
-		"monster:glass_asp": {
-			"fields": {
-				"status": {
-					"from": "live",
-					"to": "todo"
-				}
-			},
-			"id": "glass_asp",
-			"kind": "monster",
-			"name": "Glass Asp",
-			"saved_at": "2026-11-08T01:04:13"
-		},
 		"monster:vampire": {
 			"fields": {
 				"atk_base": {
