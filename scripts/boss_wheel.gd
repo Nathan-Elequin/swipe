@@ -3040,17 +3040,19 @@ func set_facing_for_bonds(index: int) -> void:
 	queue_redraw()
 
 
-func poison_badge_gain(index: int) -> void:
-	_poison_badge_scale[index] = 1.2
+func poison_badge_gain(index: int, loud: bool = false) -> void:
+	var peak: float = 2.05 if loud else 1.2
+	var dur: float = 0.28 if loud else 0.10
+	_poison_badge_scale[index] = peak
 	queue_redraw()
 	var tw := create_tween()
 	tw.tween_method(
 		func(v: float) -> void:
 			_poison_badge_scale[index] = v
 			queue_redraw(),
-		1.2,
+		peak,
 		1.0,
-		0.10
+		dur
 	)
 
 

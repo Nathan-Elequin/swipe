@@ -4324,26 +4324,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Mark a random enemy with 4 Poison and change their ability to Lifelink.",
+			"ability": "Mark a Neighbor with 4 Poison and change their ability to Lifelink.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight. Pick a random living enemy. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up.",
+			"defined": "Click during a fight. Choose a Neighbor. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up. Louder apply burst on the chosen seat.",
 			"exceptions": "Scale-four 2026-11-05 Pixel art. Combat follow-up: random 4 Poison + swap ability to Wraith Lifelink. Reminder/subtooltip points at Wraith. flags.dev until combat wired.",
-			"explainer": "Random enemy: 4 Poison + Lifelink",
+			"explainer": "Neighbor: 4 Poison + Lifelink",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight. Pick a random living enemy. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up.",
+			"flow": "Click during a fight. Choose a Neighbor. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up. Louder apply burst on the chosen seat.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "kiss_of_death",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4365,10 +4365,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Random: 4 Poison + Lifelink",
+			"log_hint": "Neighbor: 4 Poison + Lifelink",
 			"mode_pool": "all",
 			"name": "Kiss Of Death",
-			"notes": "Scale-four 2026-11-05 Pixel art. Combat follow-up: random 4 Poison + swap ability to Wraith Lifelink. Reminder/subtooltip points at Wraith. flags.dev until combat wired.",
+			"notes": "Scale-four 2026-11-05 Pixel art. Balance Nov8 Slice M: Neighbor choose (not random); Ability starts Mark a Neighbor with 4 Poison and…; Lifelink = Wraith text + cap/Quiet Bell; louder apply anim. Reminder/subtooltip points at Wraith.",
 			"ops": {
 				"kind": "kiss_of_death"
 			},
