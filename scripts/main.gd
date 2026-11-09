@@ -20804,7 +20804,8 @@ func _collector_alive_indices(except: int = -1) -> Array[int]:
 
 
 ## Bag a defeated OTHER enemy at pre-lethal HP (Bag of Holding peer into hotbar).
-## Each living Collector then loses 3 HP. No discard-without-Use tax.
+## Each living Collector then loses 3 HP. The bag is an ordinary item gain:
+## a hand over the cap must discard down to that cap before the fight continues.
 func _collector_bag_defeated(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
@@ -20859,6 +20860,10 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 	_refresh()
 	if sfx:
 		sfx.play_event(&"hand.gain", {"card_id": "bag_of_holding"})
+	## Same bar as a draft, an egg, or a gift: over the cap, throw until you are at it.
+	## Campaign's hold limit is wider than this cap, so a full-looking hand still lands here.
+	if hotbar.size() > _forced_hand_cap():
+		await _enforce_hand_cap()
 
 
 ## After Bagging another Defeat, each living Collector loses 3 HP.
