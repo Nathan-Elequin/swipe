@@ -315,7 +315,7 @@
 				"kind": "defeat_hp"
 			},
 			"pending_fields": null,
-			"pool": 1,
+			"pool": 1.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
@@ -1230,7 +1230,7 @@
 			"ops": {
 				"kind": "shield_alt"
 			},
-			"pool": 4,
+			"pool": 4.0,
 			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -1483,7 +1483,7 @@
 			"ops": {
 				"kind": "echo"
 			},
-			"pool": 5,
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -1638,7 +1638,7 @@
 			"ops": {
 				"kind": "atk_spend_blk"
 			},
-			"pool": 5,
+			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -2797,7 +2797,7 @@
 			"ops": {
 				"kind": "polymorph"
 			},
-			"pool": 3,
+			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
@@ -3281,10 +3281,10 @@
 			"tier": 2.0
 		},
 		{
-			"ability": "Defeat an enemy with HP equal to this number. Starts at 0. +1 each Spin while held.",
+			"ability": "Defeat an enemy with HP equal to this number. +1 each Spin.",
 			"atk_base": null,
 			"atk_formula": "",
-			"author_lock": false,
+			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
@@ -3295,8 +3295,27 @@
 			"hp_formula": "",
 			"id": "spinning_top",
 			"kind": "item",
-			"locked_at": "",
-			"locked_fields": [],
+			"locked_at": "2026-11-08",
+			"locked_fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
 			"log_hint": "Defeat equal HP; +1 / Spin from 0",
 			"mode_pool": "all",
 			"name": "Spinning Top",
@@ -3304,7 +3323,8 @@
 			"ops": {
 				"kind": "defeat_spins"
 			},
-			"pool": 3,
+			"pending_fields": {},
+			"pool": 3.0,
 			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
@@ -3375,7 +3395,12 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
+			"defined": "Click during a fight. Choose a Neighbor. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up. Louder apply burst on the chosen seat.",
 			"explainer": "Neighbor: 4 Poison + Lifelink",
+			"flags": {
+				"art": true,
+				"dev": false
+			},
 			"flow": "Click during a fight. Choose a Neighbor. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up. Louder apply burst on the chosen seat.",
 			"hp_base": null,
 			"hp_formula": "",
@@ -3417,12 +3442,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"defined": "Click during a fight. Choose a Neighbor. They gain 4 Poison (amounts add; same Spin-pay rules as Poison Flask). Replace their ability with Lifelink — exact Wraith: when they are Defeated, set your HP to their HP just before Defeat (cap 6; Quiet Bell turns Lifelink off). Used up. Louder apply burst on the chosen seat.",
-			"flags": {
-				"dev": false,
-				"art": true
-			}
+			"tier": 2.0
 		},
 		{
 			"ability": "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block.",
@@ -3433,7 +3453,7 @@
 			"card_color": "blk",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "Counter Block: +1 when an enemy takes Attack Damage; cash on play",
+			"explainer": "+1 when an enemy takes Attack Damage",
 			"flow": "Starts at 0 Block on this card. Whenever an enemy takes Attack Damage (AOE / multi-target: +1 per enemy that actually loses HP; Goblin that takes no damage does not grow; Poison and Bleed do not count), this Gains +1 Block. Play spends the card for its current Block (used up). Keep until cashed. No On Spin Block loss.",
 			"hp_base": null,
 			"hp_formula": "",
@@ -3461,13 +3481,14 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Enemy Attack dmg → +1 Block; cash on play",
+			"log_hint": "+1 when an enemy takes Attack Damage",
 			"mode_pool": "all",
 			"name": "Shardplate",
 			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 3 T1. Balance Nov8 Slice K: +1 Block per enemy Attack-damage event; remove Spin −2; cash-on-play discard remains.",
 			"ops": {
 				"kind": "shardplate"
 			},
+			"pending_fields": {},
 			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -3475,12 +3496,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"flags": {
-				"art": true,
-				"dev": false,
-				"hide": false
-			}
+			"tier": 1.0
 		},
 		{
 			"ability": "Select any 2 enemies. Lower their HP until equal, then lower their Attack until equal.",
@@ -3544,7 +3560,14 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
+			"defined": "Click during a fight when you fully Block Across (silent TakeX as if facing Across, including Damsel neighbors, is 0). Defeat that Across monster. Discard this only if the Defeat succeeds. Across uses existing living-opposite geometry — no click target. Grey (unplayable) unless Across exists and TakeX is 0. Check does not mutate HP, Block, or poison. No new preview UX.",
+			"exceptions": "Balance Nov8 Slice N. Across full-block Defeat peer Orb Safe. Pool 5. Consume only on successful Defeat.",
 			"explainer": "Defeat Across if fully Blocking them.",
+			"flags": {
+				"art": true,
+				"dev": false,
+				"hide": false
+			},
 			"flow": "Click during a fight when you fully Block Across (silent TakeX as if facing Across, including Damsel neighbors, is 0). Defeat that Across monster. Discard this only if the Defeat succeeds. Across uses existing living-opposite geometry — no click target. Grey (unplayable) unless Across exists and TakeX is 0. Check does not mutate HP, Block, or poison. No new preview UX.",
 			"hp_base": null,
 			"hp_formula": "",
@@ -3587,14 +3610,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"defined": "Click during a fight when you fully Block Across (silent TakeX as if facing Across, including Damsel neighbors, is 0). Defeat that Across monster. Discard this only if the Defeat succeeds. Across uses existing living-opposite geometry — no click target. Grey (unplayable) unless Across exists and TakeX is 0. Check does not mutate HP, Block, or poison. No new preview UX.",
-			"exceptions": "Balance Nov8 Slice N. Across full-block Defeat peer Orb Safe. Pool 5. Consume only on successful Defeat.",
-			"flags": {
-				"dev": false,
-				"art": true,
-				"hide": false
-			}
+			"tier": 1.0
 		},
 		{
 			"ability": "Choose Highest Attack, Lowest Attack, or Off. The next Spin lands on that monster, then discard this.",
@@ -4302,16 +4318,7 @@
 			"name": "Vampire",
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
-			"pending_fields": {
-				"atk_base": {
-					"from": 4.0,
-					"to": 5.0
-				},
-				"hp_base": {
-					"from": 4.0,
-					"to": 5.0
-				}
-			},
+			"pending_fields": {},
 			"pool": 1.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
@@ -4967,19 +4974,20 @@
 		},
 		{
 			"ability": "I petrify your highest Attack item until you Spin again.",
-			"atk_base": 4.0,
+			"atk_base": 5,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Petrify",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "Petrify highest Attack",
 			"flow": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
-			"hp_base": 5.0,
+			"hp_base": 4,
 			"hp_formula": "",
 			"id": "gargoyle",
-			"locked_at": "2026-10-28",
+			"kind": "monster",
+			"locked_at": "2026-11-08",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4998,21 +5006,23 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
 			"log_hint": "Petrifies your best Attack",
 			"mode_pool": "all",
 			"name": "Gargoyle",
 			"notes": "Petrify tooltip: Unplayable until your next Spin.",
 			"ops": {},
-			"pool": 2.0,
-			"priority": 3.0,
+			"pending_fields": {},
+			"pool": 2,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
-			"status": "live",
-			"tier": 2.0
+			"status": "todo",
+			"tier": 2
 		},
 		{
 			"ability": "I attack you when you Spin me, and after each item you use when facing me.",
@@ -5899,6 +5909,10 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "When a Neighbor drops to 3 HP or less and survives, Defeat them once and gain an extra Take swing. No HP gain.",
+			"flags": {
+				"art": true,
+				"dev": false
+			},
 			"flow": "While I live unsilenced on the wheel: after the current action finishes, look at my Neighbors (left, then right) whose HP went down during that action and who are still alive at 3 HP or less. Do not fire on a killing blow. Once per combat: Slash Portrait, beam line to the victim, Defeat them like a Defeat item, then pop +1 multiattack count (hydra_heads — Take swing count, not Attack power). No HP gain. Commander Flee / Triclops bail / Phoenix / Lich chip 1: I still gain the swing. Quiet Bell: I do not listen; swings I already Gained stay. I do not eat myself. Printed Attack is 3. Printed HP is 7.",
 			"hp_base": 7.0,
 			"hp_formula": "",
@@ -5937,11 +5951,7 @@
 			"review": "change",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
-			"flags": {
-				"art": true,
-				"dev": false
-			}
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",
@@ -6727,6 +6737,9 @@
 		},
 		{
 			"ability": "When you Spin me, if you have more HP than me I lose 2 HP and Flee",
+			"atk": {
+				"base": 2.0
+			},
 			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -6741,6 +6754,9 @@
 				"hide": false
 			},
 			"flow": "On Spin, before the fight: if the player current HP is greater than this unit current HP, this unit loses 2 HP and Flee. Quiet Bell skips Scurry. Paper Fight: what happens if the -2 drops them to 0.",
+			"hp": {
+				"base": 6.0
+			},
 			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "mouse",
@@ -6776,13 +6792,7 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
-			"hp": {
-				"base": 6.0
-			},
-			"atk": {
-				"base": 2.0
-			}
+			"tier": 1.0
 		},
 		{
 			"ability": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value",
@@ -7105,16 +7115,16 @@
 		},
 		{
 			"ability": "On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine.",
-			"atk_base": 2,
+			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Bitter Blood",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
 			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When you Spin me, after all other on-spin effects including that Poison tick and my +1 Poison, set your HP equal to my current HP (Quiet Bell turns this off; clamps to your max like Wraith Lifelink). If that Poison tick Defeats me, set your HP to my HP from before the lethal chip (hp_pre_hit / Lifelink snapshot).",
-			"hp_base": 9,
+			"hp_base": 9.0,
 			"hp_formula": "",
 			"id": "glass_asp",
 			"kind": "monster",
@@ -7146,14 +7156,14 @@
 			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Balance Slice J: Bitter Blood Spin-me HP-set after on-spin; poison-kill uses Lifelink hp_pre_hit; Attack Poison transfer removed; 9/2 kept.",
 			"ops": {},
 			"pending_fields": {},
-			"pool": 4,
-			"priority": 3,
+			"pool": 4.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, I force you to Move to the highest Attack enemy.",
@@ -7326,6 +7336,9 @@
 		},
 		{
 			"ability": "When you use a non-Shrouded Item, I Shroud one of your Items",
+			"atk": {
+				"base": 5.0
+			},
 			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -7340,6 +7353,9 @@
 				"hide": false
 			},
 			"flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
+			"hp": {
+				"base": 6.0
+			},
 			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "phantom",
@@ -7377,16 +7393,13 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"hp": {
-				"base": 6.0
-			},
-			"atk": {
-				"base": 5.0
-			}
+			"tier": 3.0
 		},
 		{
 			"ability": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
+			"atk": {
+				"base": 7.0
+			},
 			"atk_base": 7.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -7401,6 +7414,9 @@
 				"hide": false
 			},
 			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP. Quiet Bell turns this off. Discard without Use no longer harms me.",
+			"hp": {
+				"base": 15.0
+			},
 			"hp_base": 15.0,
 			"hp_formula": "",
 			"id": "collector",
@@ -7438,14 +7454,8 @@
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
-			"hp": {
-				"base": 15.0
-			},
-			"atk": {
-				"base": 7.0
-			}
+			"tier": 3.0
 		}
 	],
-	"updated": "2026-11-08T09:09:42Z"
+	"updated": "2026-11-08"
 }

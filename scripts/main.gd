@@ -8866,7 +8866,7 @@ func _on_slice_hovered(index: int) -> void:
 	_fill_inspect_from_slice(index)
 	if not pending_mark.is_empty() and phase == "fighting":
 		var mk: String = str(pending_mark.get("kind", ""))
-		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion" or mk == "kiss_of_death":
+		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "hypnotize" or mk == "defeat_double_hp" or mk == "defeat_spins" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion" or mk == "kiss_of_death":
 			_apply_preview(_preview_mark_aim(mk, index))
 		else:
 			_apply_preview(_preview_bribe(index))
@@ -9160,9 +9160,14 @@ func _on_spin() -> void:
 		if await _tick_player_poison():
 			_undo_arm()
 			return
+	## Poison can kill the monster you just spun and leave this Spin before the
+	## later item steps. Marble and Spinning Top still tick for this Spin.
+	_step_marbles()
+	_step_spinning_tops()
 	var facing_poison_ended: bool = await _tick_facing_monster_poison()
 	# Bitter Blood adds after the tick, so the new Poison stays until a later Spin.
 	await _apply_glass_asp_on_spin()
+	await _flush_poison_sides()
 	if facing_poison_ended:
 		_undo_arm()
 		await _unlock_if_fighting()
@@ -9221,8 +9226,6 @@ func _on_spin() -> void:
 			return
 	_refresh()
 	await _step_berserkers()
-	_step_marbles()
-	_step_spinning_tops()
 	_sync_wheel_stats()
 	await _apply_queen_eggs_on_spin()
 	if phase == "fighting":
@@ -9308,7 +9311,7 @@ func _grant_saucer_block() -> bool:
 		return false
 	var n: int = _saucer_blk_due
 	_saucer_blk_due = 0
-	_gain_blk(n)
+	await _gain_blk(n)
 	_log("blk", "+%s  →  %s" % [n, blk])
 	_refresh()
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
@@ -10122,7 +10125,7 @@ func _undo_in_scope() -> bool:
 
 
 func _undo_can_undo() -> bool:
-	if in_tutorial:
+	if in_tutorial or _shroud_blocks_undo:
 		return false
 	if _undo_inflight:
 		return true
@@ -10184,15 +10187,24 @@ func _undo_abort() -> void:
 	_sling_aim = -1
 	_skip_item_use_count = false
 	_after_item_use_armed = false
-	_shroud_blocks_undo = false
 	_chain_flee_draw_pending = false
+	var shroud: bool = _shroud_blocks_undo
+	_shroud_blocks_undo = false
 	_undo_inflight = false
+	if shroud:
+		## The peel already happened. Drop the stack so Undo cannot put the veil back.
+		_undo_wall()
+		return
 	_sync_buttons()
 
 
 func _undo_commit() -> void:
 	if in_tutorial:
 		_undo_inflight = false
+		return
+	if _shroud_blocks_undo:
+		_shroud_blocks_undo = false
+		_undo_wall()
 		return
 	if not _undo_inflight:
 		_undo_arm()
@@ -10542,12 +10554,18 @@ func _use_item(uid: int) -> void:
 	## The peel is random, like a Spin, so Undo cannot put the veil back.
 	var revealed_shroud: bool = false
 	if bool(it.get("shrouded", false)):
+		_shroud_blocks_undo = true
+		_sync_buttons()
 		var play_revealed: bool = await _phantom_reveal_for_use(uid)
 		_undo_wall()
 		if not play_revealed:
+			_shroud_blocks_undo = false
+			_sync_buttons()
 			return
 		it = _find_item(uid)
 		if it.is_empty() or bool(it.get("spent", false)):
+			_shroud_blocks_undo = false
+			_sync_buttons()
 			return
 		_phantom_skip_dark_matter = true
 		revealed_shroud = true
@@ -10556,10 +10574,16 @@ func _use_item(uid: int) -> void:
 			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
+		if _shroud_blocks_undo:
+			_shroud_blocks_undo = false
+			_sync_buttons()
 		return
 	if str(pending_mark.get("kind", "")) == "sling_any":
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
+		if _shroud_blocks_undo:
+			_shroud_blocks_undo = false
+			_sync_buttons()
 		return
 	if sfx:
 		sfx.play("select", -10.0)
@@ -10569,6 +10593,9 @@ func _use_item(uid: int) -> void:
 	if kind == "passive" or kind == "toll" or kind == "hex" or kind == "recycle_watch" or kind == "pacemaker_use":
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
+		if _shroud_blocks_undo:
+			_shroud_blocks_undo = false
+			_sync_buttons()
 		return
 	_undo_begin()
 	if revealed_shroud:
@@ -10612,9 +10639,18 @@ func _use_item(uid: int) -> void:
 		_sync_buttons()
 		call_deferred("_refresh")
 		return
-	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion" or kind == "kiss_of_death":
+	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion" or kind == "kiss_of_death":
 		if kind == "love_potion":
 			if _living_monster_indices().size() < 2:
+				_log("on_item_use", "cannot")
+				if sfx:
+					sfx.play("error", -10.0)
+				_undo_abort()
+				return
+		elif kind == "defeat_spins":
+			pending_mark = {"uid": uid, "kind": kind, "top_n": _spinning_top_n(it)}
+			if _mark_targets(kind).is_empty():
+				pending_mark.clear()
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
@@ -10629,15 +10665,18 @@ func _use_item(uid: int) -> void:
 		_log_begin_item(it)
 		_pending_echo_snap = _item_echo_snapshot(it)
 		if kind == "signpost":
-			_gain_blk(7)
+			await _gain_blk(7)
 			_log("on_item_use", str(it.get("name", "Signpost")))
 			_log("blk", "+%s  →  %s" % [7, blk])
 			await _flush_rust_from_block()
-		pending_mark = {"uid": uid, "kind": kind}
+		if kind == "defeat_spins":
+			pending_mark = {"uid": uid, "kind": kind, "top_n": _spinning_top_n(it)}
+		else:
+			pending_mark = {"uid": uid, "kind": kind}
 		if kind == "love_potion":
 			_log("on_item_use", "pick two monsters")
 		else:
-			_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "sling_any" or kind == "hook_swap" else "pick a neighbor"))
+			_log("on_item_use", "pick who attacks across" if kind == "hypnotize" else ("pick a monster" if kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "sling_any" or kind == "hook_swap" else "pick a neighbor"))
 		_loud_mark_prompt(kind)
 		call_deferred("_refresh")
 		return
@@ -10657,8 +10696,9 @@ func _use_item(uid: int) -> void:
 	await _apply_ops(it, ops, {})
 	await _end_item_resolve()
 	if epoch != _fight_epoch:
-		# Fight already ended inside the item (Defeat, lethal Attack) and the
-		# next Spin may already be up. Do not run the rest of this click on it.
+		# Fight already ended inside the item (Bag, Defeat, lethal Attack).
+		# The click still counts: Toll, Beads, and items-this-combat.
+		await _commit_after_item_use()
 		_undo_finish_item()
 		return
 	if _undo_stale(token):
@@ -10825,7 +10865,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					if not _wick_waiting(facing_index):
 						await _begin_slay()
 				return
-			var shield_gain: int = _gain_blk(3)
+			var shield_gain: int = await _gain_blk(3)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [shield_gain, blk])
 		"blk", "blk_from_hp", "blk_min_hp", "blk_neighbor", "blk_keep", "blk_from_atk", "blk_even_keep", "blk_from_highest_atk", "blk_last_atk", "blk_coin_keep":
@@ -10862,7 +10902,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
-			var gained: int = _gain_blk(maxi(0, n))
+			var gained: int = await _gain_blk(maxi(0, n))
 			_log("on_item_use", str(it["name"]))
 			var shown_blk: int = gained if kind == "blk_coin_keep" else maxi(0, n)
 			_log("blk", "+%s  →  %s" % [shown_blk, blk])
@@ -10943,7 +10983,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				return
 			var saucer_fled: bool = await _flee_spin()
 			if not saucer_fled:
-				_gain_blk(saucer_n)
+				await _gain_blk(saucer_n)
 				_log("blk", "+%s  →  %s" % [saucer_n, blk])
 				if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0 and not _wick_waiting(facing_index):
 					await _begin_slay()
@@ -11114,7 +11154,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
-			_gain_blk(n)
+			await _gain_blk(n)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [n, blk])
 		"shardplate":
@@ -11125,7 +11165,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
-			_gain_blk(sn)
+			await _gain_blk(sn)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [sn, blk])
 		"smoke":
@@ -11225,7 +11265,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
-			_gain_blk(last_blk_gain)
+			await _gain_blk(last_blk_gain)
 			_log("on_item_use", str(it["name"]))
 			_log("blk", "+%s  →  %s" % [last_blk_gain, blk])
 		"quiet":
@@ -14156,7 +14196,7 @@ func _item_opens_use_pick(it: Dictionary) -> bool:
 		return true
 	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "kiss_of_death":
 		return true
-	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "love_potion":
+	if kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "love_potion":
 		return true
 	return kind == "polymorph" or kind == "signpost" or kind == "chain_flee"
 
@@ -15430,7 +15470,7 @@ func _sync_hub_cue() -> void:
 	if not pending_mark.is_empty() and phase == "fighting":
 		var mk: String = str(pending_mark.get("kind", ""))
 		var line: String = PLAYER_COPY.text("cue.mark", "Pick a neighbor.")
-		if mk == "hypnotize" or mk == "defeat_double_hp" or mk == "sling_any":
+		if mk == "hypnotize" or mk == "defeat_double_hp" or mk == "defeat_spins" or mk == "sling_any":
 			line = "Click any monster."
 		elif mk == "love_potion":
 			if int(pending_mark.get("first_uid", -1)) >= 0:
@@ -17071,7 +17111,7 @@ func _apply_chakram(it: Dictionary) -> bool:
 		return false
 	_log("on_item_use", str(it.get("name", "Chakram")))
 	if do_blk:
-		_gain_blk(3)
+		await _gain_blk(3)
 		_log("blk", "+%s  →  %s" % [3, blk])
 	if do_atk:
 		var hit: int = _atk_with_head(3)
@@ -17112,7 +17152,7 @@ func _apply_marble(it: Dictionary) -> bool:
 			return true
 		_log("atk", last_atk_line if last_atk_line != "" else "%s  →  enemy HP %s" % [hit, wheel[facing_index]["hp"]])
 		return false
-	_gain_blk(maxi(0, n))
+	await _gain_blk(maxi(0, n))
 	_log("blk", "+%s  →  %s" % [maxi(0, n), blk])
 	return false
 
@@ -17527,19 +17567,43 @@ func _apply_magicat_on_spin() -> void:
 
 
 func _apply_glass_asp_on_spin() -> void:
-	for i in wheel.size():
+	## Every living Asp, every Spin: tick the poison it already has (the one you
+	## are facing was just ticked), clear it, then gain 1. The new point stays
+	## until a later Spin.
+	var i: int = 0
+	while i < wheel.size():
 		if i >= wheel.size():
 			break
 		var s: Dictionary = wheel[i]
-		if str(s.get("card_id", "")) != "glass_asp":
+		if str(s.get("card_id", "")) != "glass_asp" or int(s.get("hp", 0)) <= 0 or _is_silenced(s):
+			i += 1
 			continue
-		if int(s.get("hp", 0)) <= 0 or _is_silenced(s):
+		if i != facing_index:
+			var dose: int = _poison_of(wheel[i])
+			if dose > 0:
+				await _chip_hp(i, dose)
+				if i >= wheel.size():
+					break
+				_clear_monster_poison(i)
+				_log("on_spin", "poison  →  %s HP" % wheel[i].get("hp", 0))
+				if int(wheel[i].get("hp", 0)) <= 0:
+					wheel[i]["poison_down"] = true
+					i += 1
+					continue
+		if i >= wheel.size() or str(wheel[i].get("card_id", "")) != "glass_asp":
+			i += 1
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
+			i += 1
 			continue
 		_add_monster_poison(i, 1)
 		_sfx_ability("glass_asp")
 		_log_begin_monster(i)
 		_log("on_spin", "Bitter Blood  →  Poison %s" % _poison_of(wheel[i]))
 		await _announce_slice(i, _slice_hp_pos(i))
+		i += 1
+	_sync_wheel_stats()
+	_refresh()
 
 
 ## Surviving Spin-me: after all other on-spin, set player HP to Asp's current HP.
@@ -17974,8 +18038,8 @@ func _gain_blk(n: int, skip_twins: bool = false) -> int:
 		_refresh_blk(false)
 		return 0
 	if not skip_twins and _twins_double_blk(n):
-		var a: int = _gain_blk(n, true)
-		var b: int = _gain_blk(n, true)
+		var a: int = await _gain_blk(n, true)
+		var b: int = await _gain_blk(n, true)
 		return a + b
 	last_blk_gain = n
 	blk += n
@@ -17988,7 +18052,7 @@ func _gain_blk(n: int, skip_twins: bool = false) -> int:
 		else:
 			sfx.play_event(&"blk.gain", {"n": n})
 	if not skip_twins:
-		_eel_on_blk(n)
+		await _eel_on_blk(n)
 	return n
 
 
@@ -20846,7 +20910,7 @@ func _neighbor_indices() -> Array[int]:
 
 func _mark_targets(kind: String) -> Array[int]:
 	var out: Array[int] = []
-	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "polymorph" or kind == "sling_any" or kind == "hook_swap" or kind == "love_potion":
+	if kind == "hypnotize" or kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "polymorph" or kind == "sling_any" or kind == "hook_swap" or kind == "love_potion":
 		for i in range(wheel.size()):
 			if _can_mark(i, kind):
 				out.append(i)
@@ -20893,6 +20957,12 @@ func _can_mark(index: int, kind: String) -> bool:
 		if _defeat_blocked(wheel[index]):
 			return false
 		return int(wheel[index].get("hp", 0)) == hp
+	if kind == "defeat_spins":
+		if int(wheel[index].get("hp", 0)) <= 0:
+			return false
+		if _defeat_blocked(wheel[index]):
+			return false
+		return int(wheel[index].get("hp", 0)) == int(pending_mark.get("top_n", -1))
 	if index == facing_index:
 		return false
 	if not _neighbor_indices().has(index):
@@ -20964,11 +21034,14 @@ func _apply_mark_inner(index: int) -> void:
 	var defer_announce: bool = kind == "hook_swap"
 	if not defer_announce:
 		## Signpost / Hypnotize / Scythe then move the wheel. Finish the banner first.
-		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize" and kind != "defeat_double_hp" and kind != "chain_flee"
+		var overlap_ok: bool = kind != "signpost" and kind != "hypnotize" and kind != "defeat_double_hp" and kind != "defeat_spins" and kind != "chain_flee"
 		await _announce_item_use(it, _slice_from(index) if index >= 0 else _hub_hp_pos(), overlap_ok)
 	var token: int = _undo_gen
 	if kind == "defeat_double_hp":
 		await _apply_scythe(index, it, token)
+		return
+	if kind == "defeat_spins":
+		await _apply_spinning_top(index, it, token)
 		return
 	if kind == "hypnotize":
 		await _apply_hypnotize(index, it)
@@ -21166,6 +21239,58 @@ func _heal_monster(index: int, n: int, grow_max: bool = false, from_pos: Vector2
 	if gained > 0:
 		_log("hp", "heal +%s  →  %s HP %s" % [gained, wheel[index].get("name", "?"), wheel[index].get("hp", 0)])
 	_refresh_face()
+
+
+func _apply_spinning_top(index: int, it: Dictionary, token: int) -> void:
+	if index < 0 or index >= wheel.size():
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	var m: Dictionary = wheel[index]
+	var top_n: int = int(pending_mark.get("top_n", _spinning_top_n(it)))
+	if _defeat_blocked(m) or int(m.get("hp", 0)) != top_n or int(m.get("hp", 0)) <= 0:
+		_log("on_item_use", "cannot")
+		if sfx:
+			sfx.play("error", -10.0)
+		_undo_abort()
+		call_deferred("_refresh")
+		return
+	if _undying(m):
+		_log("on_item_use", str(it["name"]))
+		_log("on_resolve", "undying")
+		if sfx:
+			sfx.play("draw", -8.0)
+		await _lich_keep_defeat_item(it)
+		var lich_down: bool = await _lich_chip_defeat(index)
+		if lich_down:
+			await _maybe_slay_down(index)
+		if _undo_stale(token):
+			return
+		await _after_item_resolved(it)
+		if _undo_stale(token):
+			return
+		_undo_finish_item()
+		call_deferred("_refresh")
+		return
+	it["spent"] = true
+	await _count_item_use()
+	_log("on_item_use", str(it["name"]))
+	_log("on_resolve", "defeat")
+	if sfx:
+		sfx.play("draw", -8.0)
+	_toss_item(int(it["uid"]), false)
+	await _await_slash_idle()
+	if index == facing_index:
+		await _begin_slay()
+	else:
+		await _hydra_defeat_as_item(index)
+	if _undo_stale(token):
+		return
+	await _after_item_resolved(it)
+	if _undo_stale(token):
+		return
+	_undo_finish_item()
+	call_deferred("_refresh")
 
 
 func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
@@ -22382,7 +22507,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("skull", n)]]
 		"marble":
 			var mn := str(int(it.get("marble_n", 0)))
-			return [[_fg("impact", mn), _fg("shield", mn)]]
+			return [[_fg("impact", mn), _fg("icon", "", "", "", "", "slash"), _fg("shield", mn)]]
 		"recycler":
 			## About-to-fire: green 0 sitting on the recycle (copy) icon.
 			## Counting 5→2 uses the big live number (empty glyphs) so dissolve
@@ -22458,7 +22583,17 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["n"] = _spinning_top_n(it)
 			out["number"] = str(out["n"])
 			out["note"] = ""
-			out["can_use"] = fighting and (not _defeat_blocked(m)) and int(m.get("hp", -1)) == int(out["n"])
+			var top_ok: bool = false
+			if fighting:
+				for top_i in range(wheel.size()):
+					if str(wheel[top_i].get("kind", "")) != "monster":
+						continue
+					if int(wheel[top_i].get("hp", 0)) <= 0 or _defeat_blocked(wheel[top_i]):
+						continue
+					if int(wheel[top_i].get("hp", 0)) == int(out["n"]):
+						top_ok = true
+						break
+			out["can_use"] = top_ok
 		"choose":
 			out["kind"] = "ATK"
 			var drop_v := false
@@ -22963,7 +23098,9 @@ func _item_view(it: Dictionary) -> Dictionary:
 	if str(it.get("card_id", "")) == "rust":
 		out["hp_cost"] = "−1"
 	var authored: String = str(it.get("card_color", ""))
-	if UxStyle.card_color_id(authored) != "auto":
+	if str(it.get("card_id", "")) == "marble":
+		out["fill"] = UxStyle.card_color_fill("yellow")
+	elif UxStyle.card_color_id(authored) != "auto":
 		out["fill"] = UxStyle.card_color_fill(authored)
 	else:
 		out["fill"] = _utility_fill(kind, str(out.get("kind", "ATK")))
@@ -23570,9 +23707,20 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					p[oi]["kill"] = true
 				if str(wheel[oi].get("card_id", "")) == "slime_boss":
 					p[oi]["atk"] = -od
-		"defeat_hp", "defeat_atk", "defeat_spins", "fangs", "defeat_only_item", "bag_hold":
+		"defeat_hp", "defeat_atk", "fangs", "defeat_only_item", "bag_hold":
 			if bool(view.get("can_use", false)):
 				p[facing_index] = {"hp": -int(wheel[facing_index].get("hp", 0)), "kill": true}
+		"defeat_spins":
+			if bool(view.get("can_use", false)):
+				var top_need: int = _spinning_top_n(it)
+				for top_i in range(wheel.size()):
+					if str(wheel[top_i].get("kind", "")) != "monster":
+						continue
+					if int(wheel[top_i].get("hp", 0)) != top_need or int(wheel[top_i].get("hp", 0)) <= 0:
+						continue
+					if _defeat_blocked(wheel[top_i]):
+						continue
+					p[top_i] = {"hp": -int(wheel[top_i].get("hp", 0)), "kill": true}
 		"defeat_double_hp":
 			if bool(view.get("can_use", false)):
 				for si in _mark_targets("defeat_double_hp"):
@@ -24106,11 +24254,9 @@ func _item_rule(it: Dictionary) -> Dictionary:
 		"defeat_spins":
 			out["value"] = _value_bb("Defeat", str(live), var_c)
 			out["equation"] = "(%s = %s) +1 / Spin from 0" % [_bb(hp_c, "Enemy HP"), _bb(var_c, str(live))]
-			out["body"] = str(it.get("ability", "Defeat an enemy with HP equal to this number. Starts at 0. +1 each Spin while held."))
-			if fighting and _defeat_blocked(m if fighting else {}):
-				out["warn"] = "Can't — this enemy cannot be Defeated."
-			elif fighting and not bool(view.get("can_use", false)):
-				out["warn"] = "Can't — their HP is not equal to this number."
+			out["body"] = str(it.get("ability", "Defeat an enemy with HP equal to this number. +1 each Spin."))
+			if fighting and not bool(view.get("can_use", false)):
+				out["warn"] = "Can't — no enemy HP equals this number."
 		"atk_if_enemy_atk_even":
 			out["value"] = _value_bb("Attack", str(live if fighting else 4), atk_c)
 			out["equation"] = "(%s) or (%s if %s)" % [_bb(cream, "2"), _bb(atk_c, "4"), _bb(gold, "Even ATK")]
@@ -26458,7 +26604,7 @@ func _cue_text() -> String:
 					return "Click the other item to reroll it."
 				return "Click two other items to reroll them."
 			if not pending_mark.is_empty():
-				if str(pending_mark.get("kind", "")) == "hypnotize" or str(pending_mark.get("kind", "")) == "defeat_double_hp" or str(pending_mark.get("kind", "")) == "sling_any":
+				if str(pending_mark.get("kind", "")) == "hypnotize" or str(pending_mark.get("kind", "")) == "defeat_double_hp" or str(pending_mark.get("kind", "")) == "defeat_spins" or str(pending_mark.get("kind", "")) == "sling_any":
 					return "Click any monster."
 				if str(pending_mark.get("kind", "")) == "love_potion":
 					if int(pending_mark.get("first_uid", -1)) >= 0:
