@@ -762,6 +762,9 @@ var _hold_holes: int = 0
 var _item_hold: bool = false
 var _vindictive_queue: Array = []
 var _vindictive_flushing: bool = false
+## Martyr seats that lost HP during an item. Noble Death waits until that item finishes.
+var _martyr_after_item: Dictionary = {}
+var _martyr_flushing: bool = false
 var _flushing_holes: bool = false
 var _spin_after_holes: bool = false
 var _death_seq: int = 0
@@ -9356,6 +9359,7 @@ func _unlock_if_fighting() -> void:
 	else:
 		await _flush_rust_from_block()
 	_release_item_hold()
+	await _flush_martyr_after_item()
 	var died: bool = await _flush_vindictive()
 	if not died:
 		await _flush_hydra_devour()
@@ -10722,6 +10726,7 @@ func _use_item(uid: int) -> void:
 	if epoch != _fight_epoch:
 		# Fight already ended inside the item (Bag, Defeat, lethal Attack).
 		# The click still counts: Toll, Beads, and items-this-combat.
+		await _flush_martyr_after_item()
 		await _commit_after_item_use()
 		_undo_finish_item()
 		return
@@ -10752,6 +10757,8 @@ func _unlock_after_item_body() -> void:
 	# after Oligarch force-uses an item.
 	if _spin_inflight:
 		_release_item_hold()
+		if _item_resolve_depth <= 0:
+			await _flush_martyr_after_item()
 		return
 	await _unlock_if_fighting()
 
@@ -12893,7 +12900,7 @@ func _flash_reset_line(index: int) -> void:
 
 func _apply_love_potion_mark(index: int) -> void:
 	## Select any 2 living enemies; lower HP until equal, then ATK until equal.
-	## HP chips use `_chip_hp` (HP-loss reactions, not Attack → no Shardplate).
+	## HP chips use `_chip_hp`. Noble Death waits until both stats finish.
 	if not _can_mark(index, "love_potion"):
 		if sfx:
 			sfx.play("error", -10.0)
@@ -13248,7 +13255,9 @@ func _chip_hp(index: int, n: int) -> bool:
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - slime_atk_before, _slice_from(index))
 	if before > int(m["hp"]):
-		if await _martyr_after_hp_loss(index, before, int(m["hp"])):
+		if _defer_martyr_until_item_done(index, before, int(m["hp"])) and _queue_martyr_after_item(index):
+			pass
+		elif await _martyr_after_hp_loss(index, before, int(m["hp"])):
 			return true
 		if await _vindictive_after_hp_loss(index):
 			return true
@@ -18355,11 +18364,12 @@ func _after_item_resolved(it: Dictionary) -> void:
 	_kick_beggar_fill()
 	## Quicksand Crab: Move steps from Hook / Swift Sneaks land after the item resolves.
 	await _flush_crab_move_tax()
+	# Item body is done, including Love Potion's HP and Attack.
+	# Noble Death reads the HP left after that, then the other after-item steps.
+	await _flush_martyr_after_item()
 	if it.is_empty():
 		_phantom_skip_dark_matter = false
 		return
-	# Item body is done. Dual Sais / Shield / Toll / Adaptation wait until now
-	# so Pocketwatch's attack (and Defeat, Signpost, Hook) can finish first.
 	# `_count_item_use` arms this. A spent dict with no count is not a click
 	# (Harpy Impatient was treating those as "Used" and swinging twice on Spin).
 	var counted_use: bool = _after_item_use_armed and not _skip_item_use_count
@@ -22278,6 +22288,57 @@ func _martyr_gift_neighbors(index: int) -> int:
 	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
 	_refresh()
 	return gift
+
+
+func _item_effect_open() -> bool:
+	if _martyr_flushing:
+		return false
+	return _item_hold or _item_resolve_depth > 0
+
+
+func _defer_martyr_until_item_done(index: int, before: int, after: int) -> bool:
+	if not _item_effect_open():
+		return false
+	if index < 0 or index >= wheel.size():
+		return false
+	var s: Dictionary = wheel[index]
+	if str(s.get("card_id", "")) != "martyr":
+		return false
+	return SP_DALLAS.martyr_dies_on_hp_loss(
+		before, after, _is_silenced(s) or bool(s.get("swing_muted", false)), bool(s.get("noble_death_done", false))
+	)
+
+
+func _queue_martyr_after_item(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	var uid: int = _seat_uid_at(index)
+	if uid < 0:
+		return false
+	_martyr_after_item[uid] = true
+	return true
+
+
+func _flush_martyr_after_item() -> void:
+	if _martyr_flushing or _martyr_after_item.is_empty():
+		return
+	_martyr_flushing = true
+	var uids: Array = _martyr_after_item.keys()
+	_martyr_after_item.clear()
+	var died := false
+	for uid_v in uids:
+		var index: int = _index_of_seat(int(uid_v))
+		if index < 0:
+			continue
+		var hp_now: int = int(wheel[index].get("hp", 0))
+		if hp_now <= 0:
+			wheel[index]["noble_death_done"] = true
+			continue
+		if await _martyr_after_hp_loss(index, hp_now + 1, hp_now):
+			died = true
+	if died:
+		await _run_dead_sweep()
+	_martyr_flushing = false
 
 
 ## SP-24: any HP loss kills Martyr; neighbors gain HP after that loss. Attacking does not.

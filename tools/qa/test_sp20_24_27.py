@@ -73,6 +73,11 @@ def main() -> int:
 	expect("Dance Swap" in main_gd or "dance_swap" in main_gd, "main has dance_swap", fails)
 	expect("_bushido_dance_swap" in main_gd, "main has dance swap fn", fails)
 	expect("_martyr_after_hp_loss" in main_gd, "main has martyr hp loss", fails)
+	expect("_defer_martyr_until_item_done" in main_gd, "martyr waits for the item", fails)
+	expect("_flush_martyr_after_item" in main_gd, "martyr flushes after the item", fails)
+	chip = main_gd.split("func _chip_hp", 1)[1].split("\nfunc ", 1)[0]
+	expect("_defer_martyr_until_item_done" in chip, "hp chips defer noble death during an item", fails)
+	expect("_martyr_after_hp_loss" in chip, "hp chips still call noble death outside an item", fails)
 	expect("patient_disarm" not in main_gd or "Dance Swap" in main_gd, "patient disarm replaced", fails)
 
 	if fails:
