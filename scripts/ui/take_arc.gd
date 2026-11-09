@@ -104,6 +104,28 @@ func top_y_local() -> float:
 	return guide_c.y + inner_radius()
 
 
+## Screen point of the Take damage burst (the number on the right third).
+func take_burst_global() -> Vector2:
+	var mid_t: float = SPLIT_T + (1.0 - SPLIT_T) * 0.5
+	var span: Vector2 = _arc_span()
+	var mid_ang: float = span.x + span.y * mid_t
+	var r: float = maxf(_content_radius(), 1.0)
+	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
+	var text_w := 0.0
+	if font != null and take_word != "":
+		text_w = font.get_string_size(take_word, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x
+	var icon_w := 0.0
+	if show_burst and burst_tex != null:
+		icon_w = _fitted_icon_size(burst_tex).x
+	var total: float = text_w + (6.0 + icon_w if icon_w > 0.0 else 0.0)
+	var burst_off: float = total * 0.5 - icon_w * 0.5
+	var burst_ang: float = mid_ang - burst_off / r
+	if icon_w <= 0.0:
+		burst_ang = mid_ang
+	var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
+	return get_global_transform() * bp
+
+
 func block_pip_global() -> Vector2:
 	var span: Vector2 = _arc_span()
 	var ang: float = span.x + span.y * (SPLIT_T * 0.5)

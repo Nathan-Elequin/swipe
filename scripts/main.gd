@@ -88,6 +88,7 @@ const BLEED_PULSE := preload("res://scripts/bleed_pulse.gd")
 const CASCADE_TICKER := preload("res://scripts/cascade_ticker.gd")
 const POISON_POP := preload("res://scripts/poison_pop.gd")
 const HOOK_FX := preload("res://scripts/hook_fx.gd")
+const STRAIGHT_SHOT_LINK := preload("res://scripts/fx/straight_shot_link.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
@@ -668,6 +669,7 @@ var btn_start: Button
 var btn_spin: Button
 var btn_done: Button
 var take_arc: Button
+var _shot_link: Node2D
 var tex_block_arc: Texture2D
 var _take_burst: Control
 var _take_style_base: Dictionary = {}
@@ -1785,6 +1787,11 @@ func _build_ui() -> void:
 	hook_fx = HOOK_FX.new()
 	add_child(hook_fx)
 	hook_fx.setup(self)
+	_shot_link = STRAIGHT_SHOT_LINK.new()
+	_shot_link.name = "StraightShotLink"
+	add_child(_shot_link)
+	if _shot_link.has_signal("pulse_hit"):
+		_shot_link.connect("pulse_hit", _on_straight_shot_pulse)
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
@@ -2845,6 +2852,7 @@ func _hide_clear_resolve_chrome() -> void:
 				var m: Color = (n as CanvasItem).modulate
 				m.a = 0.0
 				(n as CanvasItem).modulate = m
+	_clear_huntsman_threat_link()
 
 
 func _restore_clear_resolve_chrome() -> void:
@@ -7806,6 +7814,8 @@ func _process(delta: float) -> void:
 		_tutorial_try_shift_inspect()
 		_poll_tutorial_board_hover()
 	_sync_cascade_ff()
+	if phase == "fighting":
+		_sync_huntsman_threat_link()
 	_place_speech()
 	if draft_gate != null and draft_gate.visible and wheel_view != null:
 		draft_gate.dock(wheel_view)
@@ -10937,7 +10947,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("on_item_use", str(it["name"]))
 			var shown_blk: int = gained if kind == "blk_coin_keep" else maxi(0, n)
 			_log("blk", "+%s  →  %s" % [shown_blk, blk])
-			if str(it.get("card_id", "")) == "rust":
+			if _echo_played_id(it) == "rust":
 				if await _bleed(1):
 					it["spent"] = true
 					await _count_item_use()
@@ -11582,7 +11592,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		_:
 			return
 	it["spent"] = true
-	if str(it.get("card_id", "")) == "stone_wall":
+	# Stone Wall's leftover is a one-shot rule, not a live counter. Echo plays it too.
+	if _echo_played_id(it) == "stone_wall":
 		_stone_armed = true
 	if extra.has("keep"):
 		it["keep_after"] = bool(extra["keep"])
@@ -18316,6 +18327,27 @@ func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 	}
 
 
+## Card id this click is playing as. Echo uses the copied id so one-shot rules
+## still run (Stone Wall banks leftover Block, Rust still loses 1 HP).
+## Cards whose number keeps moving stay frozen: Grief Jar, Shardplate, Flail,
+## Lantern, Sai, Shield, Hex, Toll, Recycler, and the other live formulas.
+func _echo_played_id(it: Dictionary) -> String:
+	var id := str(it.get("card_id", ""))
+	if id != "echo_bell":
+		return id
+	var copied := str(_echo_face(it).get("card_id", ""))
+	if copied == "" or copied == "echo_bell" or _echo_number_tracks(copied):
+		return id
+	return copied
+
+
+func _echo_number_tracks(card_id: String) -> bool:
+	match card_id:
+		"spiked_flail", "sai", "grief_jar", "medallion", "helmet", "left_bracer", "bracers", "shardplate", "lantern", "victory_flask", "spiked_shield", "double_buckler", "iron_chain", "counting_beads", "blood_chalice", "grimoire", "knucklers", "bloody_gauntlets", "hex", "toll", "recycler", "pacemaker", "chakram", "fangs", "cursed_scroll":
+			return true
+	return false
+
+
 func _echo_face(it: Dictionary) -> Dictionary:
 	if str(it.get("card_id", "")) != "echo_bell":
 		return it
@@ -20119,6 +20151,61 @@ func _append_huntsman_intent(out: Array[Dictionary], attacker: int, left_blk: in
 		})
 		state["blk"] = int(swing["blk"])
 	return state
+
+
+func _sync_huntsman_threat_link() -> void:
+	if _shot_link == null or not is_instance_valid(_shot_link):
+		return
+	var show: bool = (
+		phase == "fighting"
+		and take_arc != null
+		and take_arc.visible
+		and facing_index >= 0
+		and facing_index < wheel.size()
+		and not _clear_resolving
+		and not _dungeon_clear_pending
+		and wheel_view != null
+	)
+	var watchers: Array[int] = []
+	if show:
+		watchers = _huntsman_watchers(facing_index)
+	if watchers.is_empty():
+		_clear_huntsman_threat_link()
+		return
+	var burst: Vector2 = take_arc.get_global_rect().get_center()
+	if take_arc.has_method("take_burst_global"):
+		burst = take_arc.take_burst_global()
+	var hub: Vector2 = wheel_view.get_global_rect().get_center()
+	if wheel_view.has_method("rim_global"):
+		hub = wheel_view.rim_global()
+	var froms: Array[Vector2] = []
+	for hi in watchers:
+		froms.append(wheel_view.slice_portrait_global(hi))
+	var frames: Array = []
+	if art != null and art.has_method("monster_slash_frames"):
+		frames = art.monster_slash_frames("huntsman")
+	if wheel_view.has_method("set_straight_shot_seats"):
+		wheel_view.set_straight_shot_seats(watchers, frames)
+	var started: bool = false
+	if _shot_link.has_method("set_links"):
+		started = bool(_shot_link.set_links(froms, hub, burst))
+	if started:
+		_sfx_ability("huntsman")
+
+
+func _clear_huntsman_threat_link() -> void:
+	if wheel_view != null and wheel_view.has_method("set_straight_shot_seats"):
+		wheel_view.set_straight_shot_seats([], [])
+	if _shot_link != null and is_instance_valid(_shot_link) and _shot_link.has_method("clear_link"):
+		_shot_link.clear_link()
+
+
+func _on_straight_shot_pulse() -> void:
+	if _shot_link == null or not is_instance_valid(_shot_link):
+		return
+	if not _shot_link.has_method("is_showing") or not _shot_link.is_showing():
+		return
+	_sfx_ability("huntsman")
 
 
 func _huntsman_incoming_extra(attacker: int, left_blk: int, buckler_ok: bool) -> Dictionary:
@@ -27330,6 +27417,7 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 		font = ThemeDB.fallback_font
 	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font)
 	_place_take_arc()
+	_sync_huntsman_threat_link()
 	## Re-place arrows after the arc is visible so pad snaps to the arc top.
 	if btn_move_left != null and btn_move_left.visible:
 		_place_move_arrows()
@@ -27366,6 +27454,7 @@ func _place_take_arc() -> void:
 func _hide_take_arc() -> void:
 	if take_arc != null and is_instance_valid(take_arc):
 		take_arc.visible = false
+	_clear_huntsman_threat_link()
 	_clear_undo_under_take_arc()
 
 

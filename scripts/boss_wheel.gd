@@ -160,6 +160,9 @@ var tex_by_id: Dictionary = {}
 var tex_special: Dictionary = {}
 var tex_portraits: Dictionary = {}
 var tex_wheel_frames: Dictionary = {}
+## Seat index → slash frames, while Straight Shot is adding to Take.
+var _seat_slash: Dictionary = {}
+var _seat_slash_sig: String = ""
 var tex_name_tag: Texture2D
 var _art = null
 var tex_medals: Dictionary = {}
@@ -810,6 +813,22 @@ func set_portraits(d: Dictionary) -> void:
 
 func set_wheel_frames(d: Dictionary) -> void:
 	tex_wheel_frames = d
+
+
+## Play these frames on the named seats instead of the idle wheel sprite.
+## Empty indices restores the normal seat art. Same seat list is a no-op.
+func set_straight_shot_seats(indices: Array, frames: Array) -> void:
+	var sig := ""
+	for i in indices:
+		sig += "%s," % int(i)
+	if sig == _seat_slash_sig:
+		return
+	_seat_slash_sig = sig
+	_seat_slash.clear()
+	if not frames.is_empty():
+		for i in indices:
+			_seat_slash[int(i)] = frames
+	queue_redraw()
 	_fit_sig = ""
 	queue_redraw()
 
@@ -1374,6 +1393,8 @@ func _process(delta: float) -> void:
 
 
 func _wheel_wants_live_draw() -> bool:
+	if not _seat_slash.is_empty():
+		return true
 	# Hit / punch / burn / floater reads always paint — attack must stay readable.
 	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
 		return true
@@ -1941,6 +1962,13 @@ func ability_color_for(sid: String) -> Color:
 func _wheel_tex(i: int) -> Texture2D:
 	if i < 0 or i >= slices.size():
 		return null
+	if _seat_slash.has(i):
+		var over: Array = _seat_slash[i]
+		if not over.is_empty():
+			var slash_i: int = int(_glow_t / 0.11) % over.size()
+			var slash_tex: Texture2D = over[slash_i] as Texture2D
+			if slash_tex != null:
+				return slash_tex
 	var pid: String = str(slices[i].get("card_id", ""))
 	var frames: Array = tex_wheel_frames.get(pid, [])
 	if frames.is_empty():
