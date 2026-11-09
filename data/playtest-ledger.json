@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-06T20:40:00Z",
+	"updated_at": "2026-11-09T00:50:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -70,7 +70,7 @@
 			"title": "When Wick is on a wheel with just 1 other monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/273",
 			"sha": "7f409be0",
-			"f5_note": "Wick \u22122 once per Defeat; two-alive wheels are adjacent. Stop Play, F5.",
+			"f5_note": "Wick −2 once per Defeat; two-alive wheels are adjacent. Stop Play, F5.",
 			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"190": {
@@ -83,7 +83,7 @@
 		},
 		"198": {
 			"status": "closed",
-			"title": "Spider Egg Take 2 \u2192 Take 1",
+			"title": "Spider Egg Take 2 → Take 1",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/198",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5.",
@@ -187,7 +187,7 @@
 		},
 		"236": {
 			"status": "closed",
-			"title": "Medallion Block is 7 \u2212 HP, not 6 \u2212 HP",
+			"title": "Medallion Block is 7 − HP, not 6 − HP",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/236",
 			"sha": "19f5e038",
 			"f5_note": "On playtest/latest. Stop Play, F5.",
@@ -262,7 +262,7 @@
 		},
 		"255": {
 			"status": "closed",
-			"title": "Pocketwatch Druid \u2192 Prism refract killed both neighbors, then soft-lock",
+			"title": "Pocketwatch Druid → Prism refract killed both neighbors, then soft-lock",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/255",
 			"sha": "040e7722",
 			"f5_note": "On playtest/latest. Stop Play, F5.",
@@ -348,7 +348,7 @@
 		},
 		"289": {
 			"status": "closed",
-			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the\u2026",
+			"title": "spacebar and \"m\" only didnt work on the start menu feedback. now the…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/289",
 			"sha": "7f409be0",
 			"f5_note": "F2/hub Feedback: shortcuts off except Escape. Stop Play, F5.",
@@ -356,7 +356,7 @@
 		},
 		"288": {
 			"status": "closed",
-			"title": "i clicked brand new game and my items are not shiny. they shoudnt be\u2026",
+			"title": "i clicked brand new game and my items are not shiny. they shoudnt be…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/288",
 			"sha": "7f409be0",
 			"f5_note": "Uncollected mill/hotbar cards shine until banked. Stop Play, F5.",
@@ -364,7 +364,7 @@
 		},
 		"287": {
 			"status": "closed",
-			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t\u2026",
+			"title": "thespacebarisbrokeninthefeedbackforand-the-letter-that-cones-after-t…",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/287",
 			"sha": "7f409be0",
 			"f5_note": "Space types a space, M types m in Feedback. Escape closes. Stop Play, F5.",
@@ -375,7 +375,7 @@
 			"title": "nibblinksrepeatedlyanditscreepy",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/286",
 			"sha": "7f409be0",
-			"f5_note": "Nib blink every 6\u201310s, 0.12s, then open eyes. Stop Play, F5.",
+			"f5_note": "Nib blink every 6–10s, 0.12s, then open eyes. Stop Play, F5.",
 			"closed_note": "Nathan signed off the F5 column 2026-11-02; GitHub closed."
 		},
 		"300": {
@@ -420,7 +420,7 @@
 		},
 		"341": {
 			"status": "closed",
-			"title": "Hydra rework: Hungry Heads \u2014 Gain HP and extra attacks like Hornet",
+			"title": "Hydra rework: Hungry Heads — Gain HP and extra attacks like Hornet",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/341",
 			"sha": "c400889e",
 			"f5_note": "Hungry Heads: Defeat, Gain their HP, extra Take swing. Attack still 3. Stop Play, F5.",
@@ -459,44 +459,50 @@
 			"status": "f5",
 			"title": "Glass Asp should gain Poison on every Spin",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/422",
-			"sha": "9073c4bf",
-			"f5_note": "Every Spin, each living Glass Asp gains 1 Poison. When it Attacks, you gain Poison equal to its stack. Stop Play, F5."
+			"sha": "11ab9848",
+			"f5_note": "Every Spin, each living Glass Asp ticks its old Poison, then gains 1. Stop Play, F5."
 		},
 		"429": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Marble should be yellow with a this-or-that slash; Lucky Nickel hotbar should show both sides",
-			"url": "https://github.com/Nathan-Elequin/swipe/issues/429"
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/429",
+			"sha": "11ab9848",
+			"f5_note": "Marble is the yellow plate: Attack, a slash, Block. Lucky Nickel is 2 Block, a slash, 6 Block and −2 HP. Stop Play, F5."
 		},
 		"433": {
 			"status": "f5",
 			"title": "Using a Shrouded item should remove Undo, because the reveal is random",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/433",
-			"sha": "46fb1cf7",
+			"sha": "11ab9848",
 			"f5_note": "Click a shrouded item. Undo goes away for that reveal, the same way it does after a Spin. Stop Play, F5."
 		},
 		"451": {
-			"status": "todo",
-			"title": "Eel block\u2192attack damage: Protector/bodyguard should have died",
+			"status": "f5",
+			"title": "Eel block→attack damage: Protector/bodyguard should have died",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/451",
-			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+			"sha": "11ab9848",
+			"f5_note": "Helmet full Block hits Eel. A neighboring Bodyguard takes that whole hit and can die. Stop Play, F5."
 		},
 		"452": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Poison-kill spin should still tick Spin items (Grief Jar, Marble, Spinning Top)",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/452",
-			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+			"sha": "11ab9848",
+			"f5_note": "Marble and Spinning Top still tick when poison kills the monster you spun. Grief Jar still grows only when you lose HP. Stop Play, F5."
 		},
 		"482": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Death Bell Toll does not seem to work",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/482",
-			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+			"sha": "11ab9848",
+			"f5_note": "Bag of Holding and Keep items count down Toll, even when the card stays. Stop Play, F5."
 		},
 		"483": {
-			"status": "todo",
+			"status": "f5",
 			"title": "Spinning Top should allow targeting any monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/483",
-			"column_note": "Opened from playtest Send; not on tip yet as a verified fix."
+			"sha": "11ab9848",
+			"f5_note": "Top opens a picker only when some monster HP matches. Click that monster. Stop Play, F5."
 		}
 	}
 }
