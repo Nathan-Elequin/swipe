@@ -70,38 +70,38 @@
     "why": "Nathan closed the Ready in F5 list on 2026-11-05 and said not to bring these up."
   },
   "422": {
-    "shown": 3,
+    "shown": 4,
     "retired": true,
-    "why": "Nathan asked about Bitter Blood on 2026-11-06. Listed once in Ready in F5 after the Spin fix, then retired again."
+    "why": "Nathan asked to see open issues on 2026-11-08. Listed again in Ready in F5, then retired again."
   },
   "429": {
-    "shown": 2,
+    "shown": 3,
     "retired": true,
-    "why": "Second show in Still broken in F5 on 2026-11-06, shroud-discard chat."
+    "why": "Nathan asked to see open issues on 2026-11-08. Listed again, then retired again."
   },
   "433": {
-    "shown": 2,
+    "shown": 3,
     "retired": true,
-    "why": "Second show in Still broken in F5 on 2026-11-06, Tesla Coil paper fight."
+    "why": "Nathan asked to see open issues on 2026-11-08. Listed again in Ready in F5, then retired again."
   },
   "451": {
-    "shown": 2,
+    "shown": 3,
     "retired": true,
-    "why": "Second show in Still broken in F5 on 2026-11-08, Buckler chat."
+    "why": "Nathan asked to see open issues on 2026-11-08. Listed again, then retired again."
   },
   "452": {
-    "shown": 2,
+    "shown": 3,
     "retired": true,
-    "why": "Second show in Still broken in F5 on 2026-11-08, Buckler chat."
+    "why": "Nathan asked to see open issues on 2026-11-08. Listed again, then retired again."
   },
   "482": {
-    "shown": 1,
-    "retired": false,
-    "why": "First show in Still broken in F5 on 2026-11-08, Collection A repot."
+    "shown": 2,
+    "retired": true,
+    "why": "Second show in Still broken in F5 on 2026-11-08, open-issues questions."
   },
   "483": {
-    "shown": 1,
-    "retired": false,
-    "why": "First show in Still broken in F5 on 2026-11-08, Collection A repot."
+    "shown": 2,
+    "retired": true,
+    "why": "Second show in Still broken in F5 on 2026-11-08, open-issues questions."
   }
 }

@@ -61,6 +61,9 @@ var _busy: bool = false
 var _chrome: Array = []
 var _loot_host: Control
 var _loot_count: int = 0
+## Bottoms of the haul icons, in this control's space. Arrows use these while the extract lesson is up.
+var _loot_tips: Array[Vector2] = []
+var _haul_pointers: HaulPointers
 ## Crypt Classic: cozy hole/torch stay hidden. Rope ladder is the diegetic Climb
 ## (Nathan lock 2026-11-03) — centered on the skylight shaft. Hatch plate stays
 ## on disk but hidden so the open shaft + ladder read clean.
@@ -211,6 +214,9 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 	_dialog.z_index = 90
 	add_child(_dialog)
+	_haul_pointers = HaulPointers.new()
+	_haul_pointers.name = "HaulPointers"
+	add_child(_haul_pointers)
 
 
 ## Layer order (bottom → top under chrome): cavern BG, hatch (hidden shaft cap),
@@ -590,6 +596,8 @@ func hide_exit() -> void:
 
 
 func _clear_loot() -> void:
+	_loot_tips.clear()
+	_hide_haul_pointers()
 	if _loot_host == null:
 		return
 	for c in _loot_host.get_children():
@@ -654,6 +662,8 @@ func _show_loot(loot: Array) -> void:
 		)
 		rank.set_outline(Color("100e0c"), 3)
 		_loot_host.add_child(rank)
+		## Just under the rank word, so the arrowhead meets the stack without covering it.
+		_loot_tips.append(origin + Vector2(32.0, 88.0))
 		var tw := create_tween()
 		tw.set_loops(4)
 		tw.tween_property(spr, "modulate:a", 0.55, 0.45)
@@ -927,8 +937,28 @@ func _make_hit(node_name: String, r: Rect2, z: int, hover: Callable, action: Cal
 func say_lesson(keys: Array) -> void:
 	if _dialog == null or keys.is_empty():
 		return
+	var point_haul := false
+	for k in keys:
+		if str(k) == "nib.lesson.extract_haul":
+			point_haul = true
+			break
 	_dialog.say(keys)
+	if point_haul:
+		_show_haul_pointers()
 	await _dialog.finished
+	_hide_haul_pointers()
+
+
+func _show_haul_pointers() -> void:
+	if _haul_pointers == null or _dialog == null or not _dialog.has_method("talk_bar_rect"):
+		return
+	var bar: Rect2 = _dialog.talk_bar_rect()
+	_haul_pointers.show_at(_loot_tips, bar.position.y)
+
+
+func _hide_haul_pointers() -> void:
+	if _haul_pointers:
+		_haul_pointers.hide_pointers()
 
 
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
@@ -1177,3 +1207,55 @@ func _do_deeper() -> void:
 	await tw2.finished
 	hide_exit()
 	deeper.emit()
+
+
+## Straight arrows from the top of Nib's bar up to each haul icon.
+class HaulPointers extends Control:
+	var _tips: PackedVector2Array = PackedVector2Array()
+	var _bar_top: float = 0.0
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		z_index = 96
+		visible = false
+
+	func show_at(tips: Array, bar_top: float) -> void:
+		_tips = PackedVector2Array()
+		for t in tips:
+			if typeof(t) == TYPE_VECTOR2:
+				_tips.append(t)
+		_bar_top = bar_top
+		visible = not _tips.is_empty()
+		queue_redraw()
+
+	func hide_pointers() -> void:
+		visible = false
+		_tips = PackedVector2Array()
+		queue_redraw()
+
+	func _draw() -> void:
+		var ink := Color("100e0c")
+		var gold := Color("ffd84a")
+		for tip in _tips:
+			var x := snappedf(tip.x, 4.0)
+			var tip_y := snappedf(tip.y, 4.0)
+			var start_y := snappedf(_bar_top, 4.0)
+			var head := 20.0
+			if start_y <= tip_y + head + 8.0:
+				continue
+			var shaft_top := tip_y + head
+			var start := Vector2(x, start_y)
+			var shaft_end := Vector2(x, shaft_top)
+			draw_line(start, shaft_end, ink, 16.0, false)
+			draw_line(start, shaft_end, gold, 8.0, false)
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(x, tip_y - 4.0),
+				Vector2(x - 22.0, shaft_top + 4.0),
+				Vector2(x + 22.0, shaft_top + 4.0),
+			]), ink)
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(x, tip_y),
+				Vector2(x - 14.0, shaft_top),
+				Vector2(x + 14.0, shaft_top),
+			]), gold)

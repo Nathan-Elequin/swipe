@@ -143,6 +143,12 @@ func is_open() -> bool:
 	return _open
 
 
+func talk_bar_rect() -> Rect2:
+	if _box == null:
+		return Rect2()
+	return Rect2(_box.position, _box.size)
+
+
 func has_choices() -> bool:
 	return _open and _choices.visible
 

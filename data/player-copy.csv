@@ -341,7 +341,7 @@ Nib,nib.home.win.3,Win homecoming (random 3),He'd be insufferable about this. In
 Nib,nib.home.new,First NEW item flies to the hall,That one's new! Off to the hall with it.
 Nib,nib.home.give_home,Campaign win homecoming: before S7 bank flight into trophy slots,Let's give these a home.
 Nib,nib.lesson.new_mark,"First campaign ready beat with a real hotbar New! badge visible (not tutorial, not peg twinkle)","See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection."
-Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; Verdant/b1 only,These are the new finds you can bring home. Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
+Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,See those? They go in the cabinet when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together.
 Nib,nib.lesson.five_finds,Post-return under-quota teaching if extract lesson not yet said; Verdant/b1 only,Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
 Nib,nib.lesson.five_threshold,After S7 celebration when b1 cabinet first crosses 5/5,Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.
 Nib,nib.lesson.tutorial_return,Tutorial clear cabin arrival; zero bank credit,"Back in one piece. Next time, let's bring something home for these shelves."

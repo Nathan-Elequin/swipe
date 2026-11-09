@@ -168,7 +168,7 @@ func _h2(cabin, id: String) -> void:
 		if rope == null or not rope.has_method("is_open") or not rope.is_open():
 			return false
 		var lab = rope.get("_text")
-		return lab != null and str(lab.text).find("These are the new finds you can bring home.") >= 0
+		return lab != null and str(lab.text).find("They go in the cabinet when you get home.") >= 0
 	, 8.0)
 	await _frames(320)
 	if exit != null:
