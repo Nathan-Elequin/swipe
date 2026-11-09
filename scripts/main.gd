@@ -7447,9 +7447,11 @@ func _apply_hunger_penalty(s: Dictionary, touch_atk: bool = true, touch_hp: bool
 func _apply_formulas_to(s: Dictionary) -> void:
 	_peel_auras(s)
 	var id: String = str(s.get("card_id", ""))
-	if _is_silenced(s):
+	if _is_quiet_belled(s):
 		# Quiet Bell freezes Vampire at the HP and Attack it already gained.
 		# Queen eggs already eaten stay on the number.
+		# Kiss Lifelink is gone too: the bell turns the replacement off.
+		s["kiss_lifelink"] = false
 		if id != "vampire":
 			if not bool(s.get("atk_locked", false)):
 				var atk_n: int = _card_base_atk(id) + int(s.get("egg_atk", 0)) + int(s.get("hydra_bonus", 0)) + int(s.get("outburst", 0))
@@ -7480,6 +7482,11 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		s["call_name"] = ""
 		s["reminder"] = ""
 		s["log_hint"] = ""
+		return
+	# Kiss of Death replaced the printed ability. Keep the HP and Attack already
+	# on the seat. Do not run the old formula, and do not show the old call.
+	if bool(s.get("kiss_lifelink", false)) and id != "wraith":
+		_paint_kiss_lifelink(s)
 		return
 	var hold_hp: int = int(s.get("hp", 0))
 	var hold_max: int = int(s.get("hp_max", hold_hp))
@@ -7654,9 +7661,10 @@ func _sync_wheel_stats() -> void:
 	for i in n:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
-		wheel[i]["silenced"] = _is_silenced(wheel[i])
+		# The seat flag is Quiet Bell only. Kiss still shows the Lifelink call.
+		wheel[i]["silenced"] = _is_quiet_belled(wheel[i])
 		if str(wheel[i].get("card_id", "")) == "berserker":
-			wheel[i]["rage_fire"] = (not bool(wheel[i]["silenced"])) and int(wheel[i].get("outburst", 0)) > 0
+			wheel[i]["rage_fire"] = (not _is_silenced(wheel[i])) and int(wheel[i].get("outburst", 0)) > 0
 	_sync_plague_poison()
 	_mark_vars()
 
@@ -7719,6 +7727,8 @@ func _mark_vars() -> void:
 	for i in n:
 		var cid: String = str(wheel[i].get("card_id", ""))
 		if cid == "commander":
+			if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
+				continue
 			var cl: int = (i - 1 + n) % n
 			var cr: int = (i + 1) % n
 			if cl != i:
@@ -7729,8 +7739,13 @@ func _mark_vars() -> void:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		var id: String = str(wheel[i].get("card_id", ""))
-		wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i) or bool(wheel[i].get("headstrong_up", false))
-		wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or bool(wheel[i].get("headstrong_up", false))
+		var kissed: bool = bool(wheel[i].get("kiss_lifelink", false)) and id != "wraith"
+		if kissed:
+			wheel[i]["atk_variable"] = cmd_touch.has(i) or bool(wheel[i].get("headstrong_up", false))
+			wheel[i]["hp_variable"] = bool(wheel[i].get("headstrong_up", false))
+		else:
+			wheel[i]["atk_variable"] = id == "dire_wolf" or id == "bandit" or id == "berserker" or id == "slime_boss" or id == "vampire" or cmd_touch.has(i) or bool(wheel[i].get("headstrong_up", false))
+			wheel[i]["hp_variable"] = id == "ogre" or id == "skeleton" or id == "leech_league" or id == "wick" or bool(wheel[i].get("headstrong_up", false))
 		wheel[i]["cmd_buff"] = cmd_touch.has(i)
 		wheel[i]["lich_buff"] = false
 		wheel[i]["copy_from"] = -1
@@ -11279,12 +11294,15 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_log("blk", "+%s  →  %s" % [last_blk_gain, blk])
 		"quiet":
 			var qid: String = str(m.get("card_id", ""))
-			if not _has_unique_ability(qid) or _is_silenced(m):
+			# Kiss already replaced the printed ability with Lifelink. The bell can still turn that off.
+			var kiss_live: bool = bool(m.get("kiss_lifelink", false))
+			if _is_quiet_belled(m) or (not _has_unique_ability(qid) and not kiss_live):
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
 				return
 			_mark_silenced(m, true)
+			m["kiss_lifelink"] = false
 			wheel[facing_index] = m
 			if qid == "zombie":
 				keep_blocked_this_fight = false
@@ -11701,7 +11719,9 @@ func _on_owner_defeated(index: int, from_bag: bool = false) -> void:
 			m["egg_laid"] = true
 			wheel[index] = m
 			_lay_phoenix_egg()
-	elif _special_id_of(m) == "lifelink" and not quiet:
+	elif _special_id_of(m) == "lifelink" and not _is_quiet_belled(m):
+		# Kiss counts as silenced for the old ability. Lifelink is the replacement, so it still resolves.
+		# Quiet Bell is the one that turns Lifelink off.
 		await _apply_lifelink(m)
 		if hp <= 0:
 			return
@@ -11836,10 +11856,12 @@ func _paint_kiss_lifelink(s: Dictionary) -> void:
 	s["special_id"] = "lifelink"
 	s["special_text"] = text
 	s["ability"] = text
+	s["explainer"] = text
 	s["call_name"] = MONSTER_LINES.call_of("wraith", monsters_by_id.get("wraith", {}))
 	s["reminder"] = MONSTER_LINES.reminder_of("wraith", monsters_by_id.get("wraith", {}))
 	if str(s.get("reminder", "")).strip_edges() == "":
 		s["reminder"] = text
+	s["log_hint"] = ""
 	s["kiss_lifelink"] = true
 
 
@@ -18008,7 +18030,7 @@ func _mark_silenced(s: Dictionary, on: bool = true) -> void:
 		silenced.erase(key)
 
 
-func _is_silenced(who) -> bool:
+func _is_quiet_belled(who) -> bool:
 	if typeof(who) == TYPE_DICTIONARY:
 		var s: Dictionary = who
 		if bool(s.get("silenced", false)):
@@ -18020,7 +18042,7 @@ func _is_silenced(who) -> bool:
 	if typeof(who) == TYPE_INT:
 		var idx: int = int(who)
 		if idx >= 0 and idx < wheel.size():
-			return _is_silenced(wheel[idx])
+			return _is_quiet_belled(wheel[idx])
 		return bool(silenced.get("seat:%s" % idx, false))
 	var key := str(who)
 	if key.begins_with("seat:"):
@@ -18029,8 +18051,34 @@ func _is_silenced(who) -> bool:
 	if facing_index >= 0 and facing_index < wheel.size():
 		var face: Dictionary = wheel[facing_index]
 		if str(face.get("card_id", "")) == key:
-			return _is_silenced(face)
+			return _is_quiet_belled(face)
 	return false
+
+
+func _is_silenced(who) -> bool:
+	# Quiet Bell, or Kiss of Death. Kiss leaves Lifelink in place of the printed ability.
+	# Wraith's printed ability already is Lifelink, so the kiss flag does not turn it off.
+	if _is_quiet_belled(who):
+		return true
+	if typeof(who) == TYPE_DICTIONARY:
+		var ks: Dictionary = who
+		return bool(ks.get("kiss_lifelink", false)) and str(ks.get("card_id", "")) != "wraith"
+	if typeof(who) == TYPE_INT:
+		var kidx: int = int(who)
+		if kidx >= 0 and kidx < wheel.size():
+			return _is_silenced(wheel[kidx])
+		return false
+	var kkey := str(who)
+	if facing_index >= 0 and facing_index < wheel.size():
+		var kface: Dictionary = wheel[facing_index]
+		if str(kface.get("card_id", "")) == kkey:
+			return _is_silenced(kface)
+	return false
+
+
+func _atk_immune(s: Dictionary) -> bool:
+	# Goblin's printed rule. Quiet Bell and Kiss both remove it.
+	return str(s.get("card_id", "")) == "goblin" and not _is_silenced(s)
 
 
 func _has_unique_ability(id: String) -> bool:
@@ -19620,7 +19668,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	var m: Dictionary = wheel[index]
 	_poison_frog_on_hit(index)
 	var hit_n: int = _anvil_floor(m, n)
-	var immune_goblin: bool = str(m.get("card_id", "")) == "goblin" and not _is_silenced(m)
+	var immune_goblin: bool = _atk_immune(m)
 	var immune_lich: bool = _undying(m)
 	var immune: bool = immune_goblin or immune_lich
 	last_atk_index = index
@@ -20981,7 +21029,7 @@ func _can_mark(index: int, kind: String) -> bool:
 	if kind == "kiss_of_death":
 		return int(wheel[index].get("hp", 0)) > 0
 	if kind == "mark_crossbow" or kind == "atk_neighbor":
-		if str(wheel[index].get("card_id", "")) == "goblin":
+		if _atk_immune(wheel[index]):
 			return false
 		return int(wheel[index].get("hp", 0)) > 0
 	return false
@@ -22157,6 +22205,9 @@ func _shark_incoming_at(seat: int) -> int:
 
 func _hit_count(index: int) -> int:
 	if index < 0 or index >= wheel.size():
+		return 1
+	# Printed multi-hit is the ability. Quiet Bell and Kiss both leave one swing.
+	if _is_silenced(wheel[index]):
 		return 1
 	var id: String = str(wheel[index].get("card_id", ""))
 	if _is_silenced(wheel[index]):
@@ -23486,7 +23537,7 @@ func _preview_mark_aim(kind: String, hover: int) -> Dictionary:
 			dmg = int(_ops_of(it).get("n", dmg))
 		dmg = _atk_with_head(dmg)
 	for i in _mark_targets(kind):
-		if str(wheel[i].get("card_id", "")) == "goblin" and (kind == "atk_neighbor" or kind == "mark_crossbow"):
+		if _atk_immune(wheel[i]) and (kind == "atk_neighbor" or kind == "mark_crossbow"):
 			continue
 		var slot: Dictionary = p.get(i, {})
 		if dmg > 0:
@@ -23558,7 +23609,7 @@ func _preview_sling_payload(hover: int) -> Dictionary:
 			hits[h] = true
 	for i in _mark_targets("sling_any"):
 		var slot: Dictionary = p.get(i, {})
-		if hits.has(i) and str(wheel[i].get("card_id", "")) != "goblin":
+		if hits.has(i) and not _atk_immune(wheel[i]):
 			var one: int = _anvil_floor(wheel[i], dmg)
 			slot["hp"] = -one
 			if int(wheel[i].get("hp", 0)) - one <= 0:
@@ -23608,7 +23659,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if _twins_double_blk(cg):
 					cg *= 2
 				_ghost_blk = blk + cg
-			if bool(view.get("can_use", false)) and bool(halves_p.get("atk", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
+			if bool(view.get("can_use", false)) and bool(halves_p.get("atk", false)) and not _atk_immune(wheel[facing_index]):
 				var cdmg: int = _atk_with_head(3)
 				var cprocs: int = 2 if _twins_double_atk(facing_index, cdmg) else 1
 				var ctotal: int = 0
@@ -23632,7 +23683,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if _twins_double_blk(shg):
 					shg *= 2
 				_ghost_blk = blk + shg
-			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
+			elif bool(view.get("can_use", false)) and not _atk_immune(wheel[facing_index]):
 				var sdmg: int = _atk_with_head(3)
 				var sprocs: int = 2 if _twins_double_atk(facing_index, sdmg) else 1
 				var stotal: int = 0
@@ -23672,7 +23723,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					if _twins_double_blk(gain_n):
 						gain_n *= 2
 					_ghost_blk = blk + gain_n
-			elif bool(view.get("can_use", false)) and str(wheel[facing_index].get("card_id", "")) != "goblin":
+			elif bool(view.get("can_use", false)) and not _atk_immune(wheel[facing_index]):
 				var dmg: int = n if kind != "choose" else int(view.get("n", 3))
 				if _kind_deals_atk(kind):
 					dmg = _atk_with_head(dmg)
@@ -23690,7 +23741,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			if bool(view.get("can_use", false)):
 				var cn: int = _atk_with_head(int(view.get("n", 2)))
 				for ci in _cleave_targets():
-					if str(wheel[ci].get("card_id", "")) == "goblin":
+					if _atk_immune(wheel[ci]):
 						continue
 					var procs_c: int = 2 if _twins_double_atk(ci, cn) else 1
 					var hitn: int = 0
@@ -23705,7 +23756,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 					p[ci] = slot
 		"atk_opposite":
 			var oi: int = _opposite_index()
-			if bool(view.get("can_use", false)) and oi >= 0 and str(wheel[oi].get("card_id", "")) != "goblin":
+			if bool(view.get("can_use", false)) and oi >= 0 and not _atk_immune(wheel[oi]):
 				var od: int = _atk_with_head(int(view.get("n", 4)))
 				var procs_o: int = 2 if _twins_double_atk(oi, od) else 1
 				var od_total: int = 0
@@ -23751,7 +23802,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 			if bool(view.get("can_use", false)):
 				var nd: int = _atk_with_head(int(view.get("n", 4)))
 				for ni in _mark_targets("atk_neighbor"):
-					if str(wheel[ni].get("card_id", "")) == "goblin":
+					if _atk_immune(wheel[ni]):
 						continue
 					var nslot: Dictionary = p.get(ni, {})
 					nslot["hp"] = int(nslot.get("hp", 0)) - nd
@@ -24717,7 +24768,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 	out["reminder"] = reminder
 	var call_n: String = str(s.get("call_name", "")).strip_edges()
 	out["call"] = call_n
-	if _is_silenced(s):
+	if _is_quiet_belled(s):
 		var sil: String = PLAYER_COPY.text("status.silenced", "Silenced")
 		out["speech"] = ""
 		out["equation"] = ""
@@ -30498,7 +30549,7 @@ func _run_hover_preview(it: Dictionary, card: Control) -> void:
 			h["ghost_mode"] = true
 	var kill: bool = false
 	var shield_atk_face: bool = kind == "shield_alt" and _shield_face(it) == "atk"
-	if bool(view.get("can_use", false)) and (_kind_previews_facing_kill(kind) or shield_atk_face) and fid != "goblin":
+	if bool(view.get("can_use", false)) and (_kind_previews_facing_kill(kind) or shield_atk_face) and not (fid == "goblin" and not silenced):
 		var dmg: int = _atk_with_head(3) if shield_atk_face else int(view.get("n", 0))
 		if int(face.get("hp", 0)) > 0 and dmg >= int(face.get("hp", 0)):
 			if _fairy_dust_covers(facing_index):

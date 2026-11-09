@@ -3122,6 +3122,9 @@ func _collect_bond_pairs() -> Array:
 			continue
 		if int(s.get("hp", 0)) <= 0:
 			continue
+		# Kiss replaced this ability. Do not keep drawing the old bond.
+		if bool(s.get("kiss_lifelink", false)):
+			continue
 		var cid: String = str(s.get("card_id", ""))
 		var silenced: bool = bool(s.get("silenced", false))
 		match cid:
@@ -3526,7 +3529,7 @@ func _who_ring_damsel_neighbor(i: int) -> bool:
 	var face: Dictionary = slices[facing_index]
 	if str(face.get("card_id", "")) != "damsel_in_distress":
 		return false
-	if bool(face.get("silenced", false)):
+	if bool(face.get("silenced", false)) or bool(face.get("kiss_lifelink", false)):
 		return false
 	if str(slices[i].get("kind", "")) != "monster":
 		return false
