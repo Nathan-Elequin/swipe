@@ -2449,7 +2449,7 @@
 			"contradiction_ids": [],
 			"count": 1.0,
 			"explainer": "Block = last attacker Attack",
-			"flow": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you this combat (including commanded Attacks like Fangs, Damsel neighbors, and Petty King). Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
+			"flow": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you (including commanded Attacks like Fangs, Damsel neighbors, and Petty King). That number stays between fights in the same dungeon. It clears when a new dungeon or a new run starts. Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "double_buckler",

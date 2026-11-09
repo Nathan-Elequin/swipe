@@ -484,8 +484,11 @@ var drafts_left: int = 0
 var last_mob_hp: int = 3
 var last_mob_atk: int = 0
 ## Buckler: ATK of the last enemy that actually Attacked the player (`_owner_attack`).
-## Not Spin / Take preview / facing UI. Cleared each combat. Do not reuse `last_mob_atk`.
+## Not Spin / Take preview / facing UI. Stays between fights. Clears on a new run or a new dungeon.
+## `buckler_seen` is separate from `enemy_attacked` so Mimic still checks this fight only.
+## Attack 0 still counts (Wick). Do not reuse `last_mob_atk`.
 var last_attacker_atk: int = 0
+var buckler_seen: bool = false
 var items_used_this_combat: int = 0
 var last_item_atk: int = 0
 var last_blk_gain: int = 0
@@ -2596,6 +2599,7 @@ func _reset_run() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	last_attacker_atk = 0
+	buckler_seen = false
 	items_used_this_combat = 0
 	_after_item_use_armed = false
 	last_item_atk = 0
@@ -4207,6 +4211,7 @@ func _prep_next_dungeon() -> void:
 	last_mob_hp = 3
 	last_mob_atk = 0
 	last_attacker_atk = 0
+	buckler_seen = false
 	items_used_this_combat = 0
 	_after_item_use_armed = false
 	last_item_atk = 0
@@ -9114,8 +9119,8 @@ func _on_spin() -> void:
 	await _tick_gaze_petrify()
 	num_items_at_combat = hotbar.size()
 	lost_hp_this_combat = false
+	## Mimic's gift is this fight only. Buckler's last Attack stays until a new dungeon.
 	enemy_attacked = false
-	last_attacker_atk = 0
 	pending_mark.clear()
 	pending_chaos.clear()
 	_sync_wheel_stats()
@@ -9651,7 +9656,9 @@ func _apply_resolve_hits() -> int:
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int = -1) -> int:
 	enemy_attacked = true
 	# Buckler snapshot: buffed ATK at this Attack event (once per swing value, not hit-sum).
+	# Commanded swings (Fangs, Damsel neighbors, Petty King) come through here too.
 	last_attacker_atk = maxi(int(m.get("atk", 0)), 0)
+	buckler_seen = true
 	var at: int = src if src >= 0 else facing_index
 	if at >= 0 and at < wheel.size():
 		wheel[at]["has_attacked"] = true
@@ -10062,6 +10069,7 @@ func _capture_run() -> Dictionary:
 		"last_mob_hp": last_mob_hp,
 		"last_mob_atk": last_mob_atk,
 		"last_attacker_atk": last_attacker_atk,
+		"buckler_seen": buckler_seen,
 		"items_used_this_combat": items_used_this_combat,
 		"after_item_use_armed": _after_item_use_armed,
 		"last_item_atk": last_item_atk,
@@ -10324,6 +10332,7 @@ func _restore_run(snap: Dictionary) -> void:
 	last_mob_hp = int(snap.get("last_mob_hp", last_mob_hp))
 	last_mob_atk = int(snap.get("last_mob_atk", last_mob_atk))
 	last_attacker_atk = int(snap.get("last_attacker_atk", last_attacker_atk))
+	buckler_seen = bool(snap.get("buckler_seen", buckler_seen))
 	items_used_this_combat = int(snap.get("items_used_this_combat", items_used_this_combat))
 	_after_item_use_armed = bool(snap.get("after_item_use_armed", false))
 	last_item_atk = int(snap.get("last_item_atk", last_item_atk))
@@ -22048,9 +22057,10 @@ func _try_potion() -> bool:
 
 
 func _buckler_last_attacker_view(fighting: bool) -> Dictionary:
-	## Block face for Buckler: stamped ATK from the last actual enemy Attack this combat.
-	## Attack 0 still counts (Wick). Spin and Move do not set enemy_attacked.
-	if not fighting or not enemy_attacked:
+	## Block face for Buckler: stamped ATK from the last actual enemy Attack.
+	## Stays between fights in this dungeon. Attack 0 still counts (Wick).
+	## Spin and Move do not set buckler_seen.
+	if not fighting or not buckler_seen:
 		return {"n": 0, "can_use": false}
 	return {"n": maxi(0, last_attacker_atk), "can_use": true}
 
