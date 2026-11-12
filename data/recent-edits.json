@@ -38,7 +38,7 @@
 		"item:lucky_nickel": 1794129975.90906,
 		"item:marble": 1792479900.0,
 		"item:measuring_tape": 1793400000.0,
-		"item:medallion": 1794469678,
+		"item:medallion": 1794469678.0,
 		"item:miasma": 1793347200.0,
 		"item:mirror_shard": 1792136735.68746,
 		"item:mute_stone": 1792452000.0,
@@ -78,9 +78,9 @@
 		"monster:bushido": 1793238694.0,
 		"monster:cleric": 1791944780.0,
 		"monster:clockwork_knight": 1793651427.0,
-		"monster:collector": 1794128982.32904,
+		"monster:collector": 1794475653,
 		"monster:commander": 1792136735.68746,
-		"monster:cowardly_king": 1793319300.0,
+		"monster:cowardly_king": 1794500000.0,
 		"monster:cultist": 1792438800.0,
 		"monster:damsel_in_distress": 1792136735.68746,
 		"monster:death_bell": 1792508400.0,
@@ -96,7 +96,7 @@
 		"monster:hired_hand": 1792400000.0,
 		"monster:hollow": 1792136735.68746,
 		"monster:huntsman": 1793940000.0,
-		"monster:hydra": 1794132875.75729,
+		"monster:hydra": 1794500000.0,
 		"monster:imp": 1794005101.0,
 		"monster:juggernaut": 1792507200.0,
 		"monster:kobold_trapper": 1793418000.0,
@@ -135,5 +135,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.34569,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-12T07:47:58"
+	"updated": "2026-11-12T09:27:33"
 }

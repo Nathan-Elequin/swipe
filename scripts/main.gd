@@ -243,7 +243,7 @@ const MONSTER_SPECIAL := {
 	"prism": {"id": "refract", "text": "Attack at me hits both neighbors instead."},
 	"plague_doctor": {"id": "time_bomb", "text": "On each Spin, I give all You and all Monsters 1 Poison."},
 	"hired_hand": {"id": "bribe", "text": "Discard an item: I Attack a Neighbor and Flee."},
-	"hydra": {"id": "hungry_heads", "text": "If a Neighbor's HP is reduced to 3 or less and they survive, I Defeat them and gain an additional attack."},
+	"hydra": {"id": "hungry_heads", "text": "On Spin, I Attack one of my Neighbors. If I Defeat them, I gain an extra Attack"},
 	"three_seeker": {"id": "triple_threat", "text": "If you have 3, 6, or 9 Items, you Always Spin me next"},
 	"triclops": {"id": "three_hp", "text": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee."},
 	"phoenix_egg": {"id": "hatch", "text": "When I am Defeated, I Flee and hatch into a Phoenix."},
@@ -9361,6 +9361,14 @@ func _on_spin() -> void:
 		_undo_arm()
 		await _unlock_if_fighting()
 		return
+	if await _apply_hydra_on_spin():
+		_undo_arm()
+		await _unlock_if_fighting()
+		return
+	if hp <= 0:
+		_undo_arm()
+		await _unlock_if_fighting()
+		return
 	await _headstrong_on_face(facing_index)
 	await _quicksand_crab_on_spin()
 	await _apply_plague_doctor_on_spin()
@@ -16275,11 +16283,6 @@ func _try_commander_flee(index: int) -> bool:
 	if bool(s.get("fled_once", false)):
 		return false
 	var shown_flee: int = int(s.get("hp", 0))
-	var pre_hp: int = shown_flee
-	if s.has("flee_before") and typeof(s.get("flee_before")) == TYPE_DICTIONARY:
-		pre_hp = int((s["flee_before"] as Dictionary).get("hp", shown_flee))
-	elif int(s.get("hp_pre_hit", -1)) >= 0:
-		pre_hp = int(s.get("hp_pre_hit", pre_hp))
 	var new_hp: int = _commander_flee_hp(s)
 	s["fled_once"] = true
 	s["crossbowed"] = false
@@ -16295,20 +16298,6 @@ func _try_commander_flee(index: int) -> bool:
 	wheel[index] = s
 	await _show_flee_stat_snap(index, shown_flee)
 	## Poison on the hit stays. It ticks the next time he is spun.
-	## Hydra looks at the HP after the Gain: lost HP, and that new HP is 3 or less.
-	if pre_hp > new_hp and new_hp > 0 and new_hp <= 3 and not _hydra_listener_uids().is_empty():
-		_note_hydra_survive_loss(index, pre_hp, new_hp)
-		var was_busy: bool = _slay_busy
-		_slay_busy = false
-		await _flush_hydra_devour()
-		_slay_busy = was_busy
-		if index < 0 or index >= wheel.size():
-			return true
-		if str(wheel[index].get("kind", "")) != "monster" or int(wheel[index].get("hp", 0)) <= 0:
-			return true
-		if str(wheel[index].get("card_id", "")) != "commander":
-			return true
-		s = wheel[index]
 	_log("on_resolve", "%s flees" % s.get("name", "Commander"))
 	_sfx_ability("commander")
 	if sfx:
@@ -19217,17 +19206,9 @@ func _petrify_best_atk() -> void:
 	_refresh()
 
 
-func _note_hydra_survive_loss(index: int, before: int, after: int) -> void:
-	if before <= after or after <= 0:
-		return
-	if index < 0 or index >= wheel.size():
-		return
-	if str(wheel[index].get("kind", "")) != "monster":
-		return
-	var uid: int = int(wheel[index].get("seat_uid", -1))
-	if uid < 0:
-		return
-	_hydra_hurt_uids[uid] = true
+func _note_hydra_survive_loss(_index: int, _before: int, _after: int) -> void:
+	## Old ≤3 devour removed (Hungry Heads 2026-11-12). Call sites kept.
+	return
 
 
 func _hydra_listener_uids() -> Array[int]:
@@ -19285,67 +19266,89 @@ func _hydra_defeat_as_item(index: int) -> void:
 
 
 func _flush_hydra_devour() -> void:
-	## Hungry Heads (locked Nov8): Neighbor survive at 1–3 → Defeat once; +1 multiattack count; no HP gain.
-	if _hydra_devouring:
-		return
-	if _hydra_hurt_uids.is_empty():
-		return
-	if _hydra_listener_uids().is_empty():
-		_hydra_hurt_uids.clear()
-		return
-	_hydra_devouring = true
+	## Old ≤3 devour removed. Unlock / slay still await this.
+	_hydra_hurt_uids.clear()
+	_hydra_devouring = false
+
+
+func _apply_hydra_on_spin() -> bool:
+	## Hungry Heads: every Spin, one random Neighbor Attack. Defeat → +1 Take swing.
+	if phase != "fighting" or hp <= 0:
+		return false
 	var hydra_uids: Array[int] = _hydra_listener_uids()
+	if hydra_uids.is_empty():
+		return false
+	var facing_uid: int = -1
+	if facing_index >= 0 and facing_index < wheel.size():
+		facing_uid = int(wheel[facing_index].get("seat_uid", -1))
 	for h_uid in hydra_uids:
+		if hp <= 0 or phase != "fighting":
+			break
 		var h_i: int = _index_of_seat(h_uid)
-		if h_i < 0:
+		if h_i < 0 or h_i >= wheel.size():
 			continue
 		if str(wheel[h_i].get("card_id", "")) != "hydra":
 			continue
 		if int(wheel[h_i].get("hp", 0)) <= 0 or _is_silenced(wheel[h_i]):
 			continue
-		if bool(wheel[h_i].get("hungry_heads_done", false)):
+		var nbs: Array[int] = []
+		for j in _damsel_neighbors(h_i):
+			if int(wheel[j].get("hp", 0)) > 0:
+				nbs.append(j)
+		if nbs.is_empty():
 			continue
-		for v_i in _hydra_neighbor_victim_order(h_i):
-			if v_i < 0 or v_i >= wheel.size() or v_i == h_i:
+		var dest: int = nbs[rng.randi() % nbs.size()]
+		var dest_uid: int = int(wheel[dest].get("seat_uid", -1))
+		var dest_id: String = str(wheel[dest].get("card_id", ""))
+		var dest_fled: bool = bool(wheel[dest].get("fled_once", false))
+		var dest_hp_before: int = int(wheel[dest].get("hp", 0))
+		var snap: int = int(wheel[h_i].get("atk", 0))
+		await _announce_slice(h_i)
+		h_i = _index_of_seat(h_uid)
+		dest = _index_of_seat(dest_uid)
+		if h_i < 0 or dest < 0:
+			continue
+		var from: Vector2 = _slice_from(h_i)
+		var to: Vector2 = _slice_from(dest)
+		if wheel_view != null and wheel_view.has_method("slice_portrait_global"):
+			from = wheel_view.slice_portrait_global(h_i)
+			to = wheel_view.slice_portrait_global(dest)
+		await _radiate_line(from, to, _link_color("hungry_heads"), 0.12, true, false, 0, "hydra")
+		_log("on_spin", "Hungry Heads  →  %s" % wheel[dest].get("name", "?"))
+		_watch_thorns_seat = h_i
+		await _watch_attack(h_i, dest, snap, 1, {})
+		_watch_thorns_seat = -1
+		_hide_hypno()
+		if hp <= 0:
+			return false
+		await _slay_dead_after_watch()
+		var dest_now: int = _index_of_seat(dest_uid)
+		var defeated: bool = dest_now < 0
+		if not defeated and dest_now >= 0 and dest_now < wheel.size():
+			var after: Dictionary = wheel[dest_now]
+			if int(after.get("hp", 0)) <= 0:
+				defeated = true
+			elif str(after.get("card_id", "")) != dest_id:
+				defeated = true
+			elif bool(after.get("fled_once", false)) and not dest_fled:
+				defeated = true
+			elif dest_id == "triclops" and dest_hp_before > 0 and dest_hp_before <= snap and int(after.get("hp", 0)) > 0:
+				defeated = true
+		h_i = _index_of_seat(h_uid)
+		if defeated and h_i >= 0 and h_i < wheel.size() and str(wheel[h_i].get("card_id", "")) == "hydra":
+			wheel[h_i]["hydra_heads"] = int(wheel[h_i].get("hydra_heads", 0)) + 1
+			_log("on_resolve", "Hungry Heads  +1 swing")
+			await _hydra_multiattack_pop(h_i)
+			_refresh()
+		if dest_uid == facing_uid and defeated:
+			if _facing_can_act():
 				continue
-			if _slay_busy and v_i == facing_index:
-				continue
-			var v: Dictionary = wheel[v_i]
-			if str(v.get("kind", "")) != "monster":
-				continue
-			var v_uid: int = int(v.get("seat_uid", -1))
-			if not _hydra_hurt_uids.has(v_uid):
-				continue
-			var vhp: int = int(v.get("hp", 0))
-			if vhp <= 0 or vhp > 3:
-				continue
-			## Slash portrait → line to victim → devour Defeat → multiattack pop.
-			await _announce_slice(h_i)
-			h_i = _index_of_seat(h_uid)
-			v_i = _index_of_seat(v_uid)
-			if h_i < 0 or v_i < 0:
-				continue
-			if int(wheel[v_i].get("hp", 0)) <= 0 or int(wheel[v_i].get("hp", 0)) > 3:
-				continue
-			var from: Vector2 = _slice_from(h_i)
-			var to: Vector2 = _slice_from(v_i)
-			if wheel_view != null:
-				if wheel_view.has_method("slice_portrait_global"):
-					from = wheel_view.slice_portrait_global(h_i)
-					to = wheel_view.slice_portrait_global(v_i)
-			await _radiate_line(from, to, _link_color("hungry_heads"), 0.12, true, false, 0, "hydra")
-			_log("on_resolve", "Hungry Heads %s  +1 multiattack" % [wheel[v_i].get("name", "?")])
-			await _hydra_defeat_as_item(v_i)
-			h_i = _index_of_seat(h_uid)
-			if h_i >= 0 and h_i < wheel.size():
-				wheel[h_i]["hydra_heads"] = int(wheel[h_i].get("hydra_heads", 0)) + 1
-				wheel[h_i]["hungry_heads_done"] = true
-				await _hydra_multiattack_pop(h_i)
-				_refresh()
-			## Once per Hydra — stop after the first Neighbor meal.
-			break
-	_hydra_hurt_uids.clear()
-	_hydra_devouring = false
+			if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
+				await _force_clear_dead_facing()
+			return true
+	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0:
+		_show_fight_portrait()
+	return false
 
 
 func _hydra_multiattack_pop(index: int) -> void:

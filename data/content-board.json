@@ -5499,7 +5499,7 @@
 		},
 		{
 			"ability": "When I Attack while you face me, I force you to Gain 1 Item and Flee.",
-			"atk_base": 4.0,
+			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Mockery",
@@ -5901,7 +5901,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "If a Neighbor's HP is reduced to 3 or less and they survive, I Defeat them and gain an additional attack.",
+			"ability": "On Spin, I Attack one of my Neighbors. If I Defeat them, I gain an extra Attack",
 			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
@@ -5909,16 +5909,16 @@
 			"card_color": "",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "When a Neighbor drops to 3 HP or less and survives, Defeat them once and gain an extra Take swing. No HP gain.",
+			"explainer": "On every Spin, Attack one random Neighbor. If that Defeats them, gain an extra Take swing.",
 			"flags": {
 				"art": true,
 				"dev": false
 			},
-			"flow": "While I live unsilenced on the wheel: after the current action finishes, look at my Neighbors (left, then right) whose HP went down during that action and who are still alive at 3 HP or less. Do not fire on a killing blow. Once per combat: Slash Portrait, beam line to the victim, Defeat them like a Defeat item, then pop +1 multiattack count (hydra_heads — Take swing count, not Attack power). No HP gain. Commander Flee / Triclops bail / Phoenix / Lich chip 1: I still gain the swing. Quiet Bell: I do not listen; swings I already Gained stay. I do not eat myself. Printed Attack is 3. Printed HP is 7.",
+			"flow": "Every Spin while I live unsilenced on the wheel: Attack one random living Neighbor (including the monster you just landed on). One Attack at my printed Attack (3), not my extra Take swings. Goblin and other immune seats still get the swing; 0 damage; no extra Attack. If that Neighbor is Defeated (dead, fled, Egg), I gain +1 Take swing (hydra_heads). Extra swings count immediately, including Take this landing if you face me. Bodyguard: extra swing only if the Neighbor I chose is Defeated. Prism: I chose Prism, so no extra swing. Quiet Bell: I do not bite; swings I already gained stay. No living Neighbor: skip. Replaces the old Neighbor-survives-at-3 devour. Printed Attack 3. Printed HP 7.",
 			"hp_base": 7.0,
 			"hp_formula": "",
 			"id": "hydra",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5940,15 +5940,15 @@
 				"log_hint",
 				"review"
 			],
-			"log_hint": "Neighbor ≤3: Defeat once, +1 swing",
+			"log_hint": "On Spin: Attack a random Neighbor. Defeat: +1 Take swing",
 			"mode_pool": "all",
 			"name": "Hydra",
-			"notes": "Pool 5, power band 2. Hungry Heads FINAL Nov8. Neighbor only. Survive 1–3. Once. No HP gain. +1 multiattack count. Loud slash/line/devour/pop. Art existing.",
+			"notes": "Pool 5. Hungry Heads 2026-11-12. Every Spin. Random Neighbor. Extra Take swing on Defeat. Art existing.",
 			"ops": {},
 			"pool": 5.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "Neighbor at 3 HP or less who survives: Defeat once and gain an extra attack.",
+			"reminder": "On Spin, Attack one Neighbor. Defeat them: extra Take swing.",
 			"review": "change",
 			"review_note": "",
 			"status": "live",

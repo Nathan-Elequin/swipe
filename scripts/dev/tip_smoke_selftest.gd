@@ -566,7 +566,7 @@ func _init() -> void:
 		not _catalog_item_flag("tesla_coil", "dev")
 	) or failed
 
-	## 24) Hydra HungryHeads — Neighbor 1–3 Defeat once; +multiattack count; no HP gain; loud FX helpers.
+	## 24) Hydra HungryHeads — On Spin random Neighbor Attack; Defeat → extra Take swing.
 	failed = _check(failed, "runtime_has_hydra", _runtime_has_monster("hydra")) or failed
 	failed = _check(
 		failed,
@@ -577,21 +577,20 @@ func _init() -> void:
 		failed,
 		"hydra_ability_neighbor_no_hp_gain",
 		_catalog_monster_ability_contains("hydra", "Neighbor")
-		and _catalog_monster_ability_contains("hydra", "additional attack")
+		and _catalog_monster_ability_contains("hydra", "On Spin")
+		and _catalog_monster_ability_contains("hydra", "extra Attack")
 		and not _catalog_monster_ability_contains("hydra", "Gain their HP")
 		and not _catalog_monster_ability_contains("hydra", "any other Monster")
 	) or failed
 	failed = _check(
 		failed,
 		"hydra_hungry_heads_helpers",
-		_source_has_func("res://scripts/main.gd", "_flush_hydra_devour")
-		and _source_has_func("res://scripts/main.gd", "_hydra_neighbor_victim_order")
+		_source_has_func("res://scripts/main.gd", "_apply_hydra_on_spin")
 		and _source_has_func("res://scripts/main.gd", "_hydra_multiattack_pop")
-		and _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_hydra_multiattack_pop")
-		and _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_petrify_beam")
-		and _source_contains("res://scripts/main.gd", "hungry_heads_done")
+		and _source_func_calls("res://scripts/main.gd", "_apply_hydra_on_spin", "_hydra_multiattack_pop")
+		and _source_func_calls("res://scripts/main.gd", "_on_spin", "_apply_hydra_on_spin")
 		and _source_contains("res://scripts/main.gd", "hydra_heads")
-		and not _source_func_calls("res://scripts/main.gd", "_flush_hydra_devour", "_fly_stat_courier")
+		and not _source_func_calls("res://scripts/main.gd", "_apply_hydra_on_spin", "_fly_stat_courier")
 	) or failed
 	failed = _check(
 		failed,

@@ -894,7 +894,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"name": "Love Potion"
 		},
 		"item:lucky_nickel": {
@@ -1374,7 +1374,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-12",
 			"name": "Shuriken"
 		},
 		"item:signpost": {
@@ -1986,7 +1986,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"name": "Collector"
 		},
 		"monster:commander": {
@@ -2488,7 +2488,7 @@
 				"log_hint",
 				"review"
 			],
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"name": "Hydra"
 		},
 		"monster:imp": {
