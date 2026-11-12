@@ -7820,6 +7820,15 @@ func _sync_wheel_stats() -> void:
 	_sync_plague_poison()
 	_mark_vars()
 	_phantom_paint_covers()
+	# Noble Death already fired. A later stat refresh must not put his HP back
+	# or the poison tick will think he lived and leave him on the wheel.
+	for i in n:
+		if str(wheel[i].get("card_id", "")) != "martyr":
+			continue
+		if not bool(wheel[i].get("noble_death_done", false)):
+			continue
+		wheel[i]["hp"] = 0
+		wheel[i]["hp_locked"] = true
 
 
 func _paint_late_auras() -> void:
@@ -13749,6 +13758,71 @@ func _last_living_monster_is_down() -> bool:
 	return _living_monster_count() <= 0
 
 
+func _seat_is_dead_monster(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	if str(wheel[index].get("kind", "")) != "monster":
+		return false
+	if _wick_waiting(index):
+		return false
+	return int(wheel[index].get("hp", 0)) <= 0
+
+
+## Poison (and any other HP loss) can play Noble Death and still leave Martyr
+## in the fight. Close that seat, then Spin the next monster.
+func _force_clear_dead_facing() -> void:
+	if not _seat_is_dead_monster(facing_index):
+		if phase == "ready" and facing_index < 0 and _monsters_left() > 0:
+			_walker_busy = false
+			_spin_inflight = false
+			if wheel_view != null:
+				wheel_view.busy = false
+			await _maybe_auto_spin()
+		return
+	var uid: int = _seat_uid_at(facing_index)
+	var at: int = facing_index
+	_slay_busy = false
+	await _maybe_slay_down(at)
+	var still: int = _index_of_seat(uid)
+	if still < 0 and uid < 0 and _seat_is_dead_monster(at):
+		still = at
+	if _seat_is_dead_monster(still):
+		_slay_busy = false
+		facing_index = still
+		phase = "fighting"
+		if not bool(wheel[still].get("defeat_rewards_done", false)):
+			await _on_owner_defeated(still)
+		if still < 0 or still >= wheel.size():
+			still = _index_of_seat(uid)
+		if _seat_is_dead_monster(still):
+			facing_index = still
+			if adventure:
+				_challenge_vacate(still)
+			else:
+				_remove_facing()
+				mobs_defeated += 1
+				_discard_spent_items()
+				_bank_stone_wall()
+			facing_index = -1
+			phase = "ready"
+			blk = 0
+			_walker_busy = false
+			_spin_inflight = false
+			if wheel_view != null:
+				wheel_view.busy = false
+			_refresh()
+			if adventure:
+				await _challenge_resolve_holes(still)
+			else:
+				await _collapse_dead_wicks()
+	if phase == "ready" and facing_index < 0 and _monsters_left() > 0:
+		_walker_busy = false
+		_spin_inflight = false
+		if wheel_view != null:
+			wheel_view.busy = false
+		await _maybe_auto_spin()
+
+
 func _facing_can_act() -> bool:
 	if phase != "fighting":
 		return false
@@ -13775,7 +13849,7 @@ func _tick_facing_monster_poison() -> bool:
 		await poison_pop.burst_slice(i, dose)
 	if i < 0 or i >= wheel.size() or i != facing_index:
 		return false
-	await _chip_hp(i, dose)
+	var killed: bool = await _chip_hp(i, dose)
 	if i < 0 or i >= wheel.size():
 		return false
 	_clear_monster_poison(i)
@@ -13783,9 +13857,21 @@ func _tick_facing_monster_poison() -> bool:
 	_log("on_spin", "poison  →  %s HP" % m.get("hp", 0))
 	_refresh()
 	# Facing poison death (Martyr Noble Death zeros HP here) must Defeat.
-	# Returning "stopped" without slay left a 0 HP seat and skipped the wheel close.
-	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
-		await _maybe_slay_down(i)
+	# A refresh used to put the HP back after Noble Death, so the old check
+	# skipped the close and left him on the wheel.
+	if i < wheel.size() and (killed or int(wheel[i].get("hp", 0)) <= 0) and not _wick_waiting(i):
+		if int(wheel[i].get("hp", 0)) > 0:
+			var corpse: Dictionary = wheel[i]
+			corpse["hp"] = 0
+			corpse["hp_locked"] = true
+			corpse["noble_death_done"] = true
+			_note_death(corpse)
+			wheel[i] = corpse
+			_refresh()
+		if i == facing_index:
+			await _force_clear_dead_facing()
+		else:
+			await _maybe_slay_down(i)
 		return true
 	if i != facing_index and int(wheel[i].get("hp", 0)) <= 0:
 		wheel[i]["poison_down"] = true
@@ -22840,6 +22926,7 @@ func _flush_martyr_after_item() -> void:
 			died = true
 	if died:
 		await _run_dead_sweep()
+		await _force_clear_dead_facing()
 	_martyr_flushing = false
 
 
@@ -22856,9 +22943,12 @@ func _martyr_after_hp_loss(index: int, before: int, after: int) -> bool:
 		return false
 	if after <= 0:
 		## Lethal chip already dropped him; remaining HP is 0 so gift is 0.
+		## Still report the death so the poison tick closes the fight.
 		s["noble_death_done"] = true
+		s["hp"] = 0
+		s["hp_locked"] = true
 		wheel[index] = s
-		return false
+		return true
 	await _martyr_gift_neighbors(index)
 	var left: int = int(wheel[index].get("hp", 0)) if index < wheel.size() else 0
 	if left > 0:
