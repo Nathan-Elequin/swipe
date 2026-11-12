@@ -163,6 +163,10 @@ var tex_wheel_frames: Dictionary = {}
 ## Seat index → slash frames, while Straight Shot is adding to Take.
 var _seat_slash: Dictionary = {}
 var _seat_slash_sig: String = ""
+## Beam in wheel-local space. Drawn under seat numbers and the Take control.
+var _shot_polys: Array = []
+var _shot_burst: Vector2 = Vector2.ZERO
+var _shot_u: float = 0.0
 var tex_name_tag: Texture2D
 var _art = null
 var tex_medals: Dictionary = {}
@@ -829,6 +833,33 @@ func set_straight_shot_seats(indices: Array, frames: Array) -> void:
 		for i in indices:
 			_seat_slash[int(i)] = frames
 	queue_redraw()
+
+
+## Global points. Returns true the frame the beam turns on.
+func set_straight_shot_line(froms: Array, hub: Vector2, burst: Vector2) -> bool:
+	var was_on := not _shot_polys.is_empty()
+	var inv: Transform2D = get_global_transform().affine_inverse()
+	_shot_burst = inv * burst
+	var hub_l: Vector2 = inv * hub
+	_shot_polys.clear()
+	for origin_v in froms:
+		var poly := PackedVector2Array()
+		poly.append(inv * (origin_v as Vector2))
+		poly.append(hub_l)
+		poly.append(_shot_burst)
+		_shot_polys.append(poly)
+	if not was_on:
+		_shot_u = 0.0
+	queue_redraw()
+	return not was_on and not _shot_polys.is_empty()
+
+
+func clear_straight_shot_line() -> void:
+	if _shot_polys.is_empty():
+		return
+	_shot_polys.clear()
+	_shot_u = 0.0
+	queue_redraw()
 	_fit_sig = ""
 	queue_redraw()
 
@@ -1299,6 +1330,8 @@ func _radius() -> float:
 
 func _process(delta: float) -> void:
 	_glow_t += delta
+	if not _shot_polys.is_empty():
+		_shot_u = fposmod(_shot_u + delta / 1.15, 1.0)
 	# One angle for the whole wheel. Seats used to snap in 0.02 rad steps while the wedges eased, so the art looked like it was stuttering against the rim.
 	var hint_goal: float = -0.32 * float(move_hint_dir)
 	var hint_k: float = 1.0 - exp(-delta * 8.0)
@@ -1393,7 +1426,7 @@ func _process(delta: float) -> void:
 
 
 func _wheel_wants_live_draw() -> bool:
-	if not _seat_slash.is_empty():
+	if not _seat_slash.is_empty() or not _shot_polys.is_empty():
 		return true
 	# Hit / punch / burn / floater reads always paint — attack must stay readable.
 	if not _floaters.is_empty() or not _pt_ghosts.is_empty():
@@ -2477,6 +2510,75 @@ func _slay_push(i: int) -> Vector2:
 	return _dir_of(i) * collapse * _radius() * 0.42
 
 
+func _draw_straight_shot_line() -> void:
+	if _shot_polys.is_empty():
+		return
+	var gold := Color("FFD84A")
+	var core := Color("fff8e8")
+	var amber := Color("c45a12")
+	var glow_a: float = 0.35 + 0.15 * sin(_shot_u * TAU)
+	for poly_v in _shot_polys:
+		var poly: PackedVector2Array = poly_v
+		if poly.size() < 2:
+			continue
+		draw_polyline(poly, Color(amber, glow_a + 0.25), 22.0, false)
+		draw_polyline(poly, Color(gold, 0.95), 8.0, false)
+		draw_polyline(poly, core, 2.0, false)
+		var head: PackedVector2Array = _shot_slice(poly, maxf(_shot_u - 0.16, 0.0), _shot_u)
+		if head.size() >= 2:
+			draw_polyline(head, core, 10.0, false)
+			draw_polyline(head, gold, 4.0, false)
+		var tip: Vector2 = _shot_at(poly, _shot_u)
+		var prev_p: Vector2 = _shot_at(poly, maxf(_shot_u - 0.04, 0.0))
+		var dir: Vector2 = tip - prev_p
+		if dir.length() > 0.5:
+			var tan := Vector2(-dir.y, dir.x).normalized()
+			draw_line(tip - tan * 14.0, tip + tan * 14.0, Color(core, 0.85), 2.0, false)
+		draw_arc(poly[0], 10.0 + 8.0 * _shot_u, 0.0, TAU, 16, Color(gold, 0.55 * (1.0 - _shot_u)), 2.0, false)
+	var ring: float = 8.0 + 18.0 * _shot_u
+	draw_arc(_shot_burst, ring, 0.0, TAU, 20, Color(gold, 0.45 * (1.0 - _shot_u)), 2.0, false)
+
+
+func _shot_slice(poly: PackedVector2Array, u0: float, u1: float) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	out.append(_shot_at(poly, u0))
+	var metrics: Dictionary = _shot_metrics(poly)
+	var lens: PackedFloat32Array = metrics["lens"]
+	var total: float = float(metrics["total"])
+	var d0: float = u0 * total
+	var d1: float = u1 * total
+	for i in range(1, poly.size() - 1):
+		var d: float = float(lens[i])
+		if d > d0 and d < d1:
+			out.append(poly[i])
+	out.append(_shot_at(poly, u1))
+	return out
+
+
+func _shot_at(poly: PackedVector2Array, u: float) -> Vector2:
+	var metrics: Dictionary = _shot_metrics(poly)
+	var lens: PackedFloat32Array = metrics["lens"]
+	var total: float = float(metrics["total"])
+	var dist: float = clampf(u, 0.0, 1.0) * total
+	for i in range(1, poly.size()):
+		var a: float = float(lens[i - 1])
+		var b: float = float(lens[i])
+		if dist <= b or i == poly.size() - 1:
+			var span: float = maxf(b - a, 0.001)
+			return poly[i - 1].lerp(poly[i], clampf((dist - a) / span, 0.0, 1.0))
+	return poly[poly.size() - 1]
+
+
+func _shot_metrics(poly: PackedVector2Array) -> Dictionary:
+	var lens := PackedFloat32Array()
+	var total := 0.0
+	lens.append(0.0)
+	for i in range(1, poly.size()):
+		total += poly[i - 1].distance_to(poly[i])
+		lens.append(total)
+	return {"lens": lens, "total": maxf(total, 1.0)}
+
+
 func _draw() -> void:
 	# Count real draws — queue_redraw in _process inflated wheel spike tags.
 	FRAME_METRICS.note_wheel()
@@ -2505,6 +2607,8 @@ func _draw() -> void:
 	for i in top:
 		_draw_slice(c, radius, starts[i], starts[i] + _span(i), i)
 	_draw_pointer(c, radius)
+	## Under seat attack numbers and the Take control, which paints later.
+	_draw_straight_shot_line()
 	var font: Font = get_theme_default_font()
 	if font == null:
 		font = ThemeDB.fallback_font

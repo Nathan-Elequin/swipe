@@ -1790,8 +1790,7 @@ func _build_ui() -> void:
 	_shot_link = STRAIGHT_SHOT_LINK.new()
 	_shot_link.name = "StraightShotLink"
 	add_child(_shot_link)
-	if _shot_link.has_signal("pulse_hit"):
-		_shot_link.connect("pulse_hit", _on_straight_shot_pulse)
+	_shot_link.visible = false
 
 	draft_gate = DRAFT_GATE.new()
 	add_child(draft_gate)
@@ -20173,7 +20172,9 @@ func _sync_huntsman_threat_link() -> void:
 		_clear_huntsman_threat_link()
 		return
 	var burst: Vector2 = take_arc.get_global_rect().get_center()
-	if take_arc.has_method("take_burst_global"):
+	if take_arc.has_method("threat_line_end_global"):
+		burst = take_arc.threat_line_end_global()
+	elif take_arc.has_method("take_burst_global"):
 		burst = take_arc.take_burst_global()
 	var hub: Vector2 = wheel_view.get_global_rect().get_center()
 	if wheel_view.has_method("rim_global"):
@@ -20187,8 +20188,10 @@ func _sync_huntsman_threat_link() -> void:
 	if wheel_view.has_method("set_straight_shot_seats"):
 		wheel_view.set_straight_shot_seats(watchers, frames)
 	var started: bool = false
-	if _shot_link.has_method("set_links"):
-		started = bool(_shot_link.set_links(froms, hub, burst))
+	if wheel_view.has_method("set_straight_shot_line"):
+		started = bool(wheel_view.set_straight_shot_line(froms, hub, burst))
+	if _shot_link != null and is_instance_valid(_shot_link):
+		_shot_link.visible = false
 	if started:
 		_sfx_ability("huntsman")
 
@@ -20196,16 +20199,10 @@ func _sync_huntsman_threat_link() -> void:
 func _clear_huntsman_threat_link() -> void:
 	if wheel_view != null and wheel_view.has_method("set_straight_shot_seats"):
 		wheel_view.set_straight_shot_seats([], [])
+	if wheel_view != null and wheel_view.has_method("clear_straight_shot_line"):
+		wheel_view.clear_straight_shot_line()
 	if _shot_link != null and is_instance_valid(_shot_link) and _shot_link.has_method("clear_link"):
 		_shot_link.clear_link()
-
-
-func _on_straight_shot_pulse() -> void:
-	if _shot_link == null or not is_instance_valid(_shot_link):
-		return
-	if not _shot_link.has_method("is_showing") or not _shot_link.is_showing():
-		return
-	_sfx_ability("huntsman")
 
 
 func _huntsman_incoming_extra(attacker: int, left_blk: int, buckler_ok: bool) -> Dictionary:

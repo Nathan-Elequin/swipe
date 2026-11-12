@@ -104,6 +104,16 @@ func top_y_local() -> float:
 	return guide_c.y + inner_radius()
 
 
+## Inner edge of the Take band, toward the wheel, so a beam can stop
+## before the word and the damage icon.
+func threat_line_end_global() -> Vector2:
+	var span: Vector2 = _arc_span()
+	var mid_t: float = SPLIT_T + (1.0 - SPLIT_T) * 0.5
+	var ang: float = span.x + span.y * mid_t
+	var p: Vector2 = guide_c + Vector2.from_angle(ang) * inner_radius()
+	return get_global_transform() * p
+
+
 ## Screen point of the Take damage burst (the number on the right third).
 func take_burst_global() -> Vector2:
 	var mid_t: float = SPLIT_T + (1.0 - SPLIT_T) * 0.5
