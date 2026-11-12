@@ -15761,7 +15761,9 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false, 
 	if index < 0 or index >= wheel.size():
 		return
 	var s: Dictionary = wheel[index]
-	if _monster_shrouded(s):
+	# Neighbors you have not spun onto stay a mystery. The one you are facing
+	# plays the real slash, then the callout, with stats still hidden.
+	if _monster_shrouded(s) and index != facing_index:
 		await _phantom_slash_mystery()
 		return
 	_trace_resolve("announce %s call=%s" % [str(s.get("card_id", "")), str(s.get("call_name", ""))])
@@ -20495,7 +20497,10 @@ func _phantom_paint_covers() -> void:
 				var uid: int = int(u)
 				if live.has(uid):
 					kept.append(uid)
-		if not bool(wheel[i].get("shroud_seen", false)):
+		# During the covered shuffle, seats are only hidden visually. Neighbor
+		# marks are written after the monsters have landed, so a monster who
+		# merely passed a neighbor seat does not stay covered across the wheel.
+		if not _phantom_veil_all and not bool(wheel[i].get("shroud_seen", false)):
 			for pi in active_idx:
 				if pi == i:
 					continue
@@ -20567,6 +20572,9 @@ func _phantom_shuffle_seats() -> void:
 		_undo_wall()
 		return
 	_phantom_veil_all = true
+	for body in bodies:
+		if typeof(body) == TYPE_DICTIONARY:
+			body["shroud_from"] = []
 	_phantom_paint_covers()
 	_refresh()
 	if get_tree():
@@ -21109,9 +21117,6 @@ func _show_fight_portrait() -> void:
 		return
 	var m: Dictionary = wheel[index]
 	if str(m.get("kind", "")) != "monster":
-		return
-	if _monster_shrouded(m):
-		combat_stage.hide_stage()
 		return
 	if combat_stage.card_id == str(m.get("card_id", "")) and combat_stage.visible and index == facing_index and _watch_portrait < 0:
 		_tune_combat_stage()
@@ -26757,12 +26762,6 @@ func _refresh_face() -> void:
 	if combat_stage and not combat_stage.visible and not combat_stage.busy:
 		_show_fight_portrait()
 	var m: Dictionary = wheel[_fight_portrait_index()]
-	if _monster_shrouded(m):
-		face_box.show_rule("?", "", "", "", "", null, "monster", "", {"stage_card": true, "slice": m})
-		_face_atk_shown = "?"
-		_face_hp_shown = "?"
-		_mark_fight_art_dirty()
-		return
 	# #199: Shift must not change the active combatant callout (size / position / content).
 	# Hotbar formulas, cascade FF, and wheel wedge Shift inspect stay on `_shift_held`.
 	var held_shift: bool = _shift_held
@@ -26781,8 +26780,9 @@ func _refresh_face() -> void:
 	var card_s: String = str(m.get("card_id", ""))
 	var atk_s: String = str(m.get("atk", 0))
 	var hp_s: String = str(m.get("hp", 0))
-	var content_sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
-		card_s, title_s, value_s, eq_s, speech_s, warn_s, atk_s, hp_s, str(face_look.get("call_chip", "")),
+	var shroud_s: String = "1" if _monster_shrouded(m) else "0"
+	var content_sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+		card_s, title_s, value_s, eq_s, speech_s, warn_s, atk_s, hp_s, str(face_look.get("call_chip", "")), shroud_s,
 	]
 	var plate_changed: bool = content_sig != _face_plate_content_sig
 	face_box.show_rule(title_s, value_s, eq_s, speech_s, warn_s, null, "monster", card_s, face_look)
@@ -26792,7 +26792,7 @@ func _refresh_face() -> void:
 		# show_rule already reset_size — warm plaque cache so full place skips remeasure.
 		_fight_art_plaque_h = maxf(face_box.get_combined_minimum_size().y, face_box.size.y)
 		_fight_art_plaque_rev = _face_plate_rev
-	if (atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != ""):
+	if shroud_s == "0" and ((atk_s != _face_atk_shown and _face_atk_shown != "") or (hp_s != _face_hp_shown and _face_hp_shown != "")):
 		face_box.pivot_offset = face_box.size * 0.5
 		var tw := create_tween()
 		tw.tween_property(face_box, "scale", Vector2(1.06, 1.06), 0.08)
@@ -27337,10 +27337,8 @@ func _sync_buttons() -> void:
 		btn_done.visible = false
 		_hide_take_burst()
 		var sel_word: String = _selector_take_word()
-		if facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index]):
-			sel_word = "Take ?"
-			hit = 0
-		_sync_take_arc(hit, busy, sel_word)
+		var mystery_take: bool = facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index])
+		_sync_take_arc(hit, busy, sel_word, mystery_take)
 		_sync_intent_plate()
 	else:
 		_hide_take_arc()
@@ -27658,7 +27656,7 @@ func _take_burst_tex_for(hit: int) -> Dictionary:
 	return {"tex": tex, "pip": pip, "hit": hit}
 
 
-func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
+func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: bool = false) -> void:
 	if take_arc == null:
 		return
 	if move_box != null:
@@ -27669,7 +27667,13 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 	var burst: Texture2D = null
 	var pip := ""
 	var shown_n: int = hit
-	if word_override != "":
+	if mystery:
+		var hidden: String = PLAYER_COPY.text("combat.take_hit", "Take {n}")
+		word = hidden.replace("{n}", "").strip_edges()
+		var hidden_info: Dictionary = _take_burst_tex_for(maxi(hit, 1))
+		burst = hidden_info.get("tex", null)
+		shown_n = maxi(hit, 1)
+	elif word_override != "":
 		word = word_override
 		shown_n = 0
 	elif hit > 0:
@@ -27684,7 +27688,7 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "") -> void:
 	var font: Font = btn_done.get_theme_font("font") if btn_done != null else null
 	if font == null:
 		font = ThemeDB.fallback_font
-	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font)
+	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font, mystery)
 	_place_take_arc()
 	_sync_huntsman_threat_link()
 	## Re-place arrows after the arc is visible so pad snaps to the arc top.

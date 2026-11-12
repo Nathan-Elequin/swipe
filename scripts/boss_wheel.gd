@@ -2945,7 +2945,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if plate_r < 8.0:
 		plate_r = 48.0
 	if bool(s.get("phantom_shroud", false)):
-		_draw_shroud_wedge(port_pos, plate_r)
+		_draw_shroud_wedge(sprite_rect)
 		return
 	if i == aura_index or threat_indices.has(i):
 		var glow := Color("e8c36a")
@@ -3017,16 +3017,23 @@ func _draw_shroud_stat(font: Font, pos: Vector2) -> void:
 	ci.draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
 
 
-func _draw_shroud_wedge(center: Vector2, rad: float) -> void:
+func _draw_shroud_wedge(sprite_rect: Rect2) -> void:
+	# Same box the monster sprite uses: feet at the bottom, art centered above them.
+	var center: Vector2 = sprite_rect.get_center()
+	var rad: float = minf(sprite_rect.size.x, sprite_rect.size.y) * 0.46
+	if rad < 18.0:
+		rad = 18.0
 	var veil := Color(0.03, 0.02, 0.05, 0.96)
 	draw_circle(center, rad, veil)
-	draw_arc(center, rad * 0.72, 0.4, PI * 1.3, 18, Color(0.22, 0.16, 0.28, 0.7), 2.0, true)
-	draw_arc(center, rad * 0.42, 1.2, PI * 1.8, 14, Color(0.16, 0.12, 0.2, 0.8), 2.0, true)
+	draw_arc(center, rad * 0.72, 0.0, TAU, 28, Color(0.22, 0.16, 0.28, 0.7), 2.0, true)
+	draw_arc(center, rad * 0.42, 0.0, TAU, 20, Color(0.16, 0.12, 0.2, 0.8), 2.0, true)
 	var font: Font = ThemeDB.fallback_font
 	var q := "?"
 	var fs := 28
 	var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p := center + Vector2(-tsz.x * 0.5, fs * 0.35)
+	var ascent: float = font.get_ascent(fs)
+	var descent: float = font.get_descent(fs)
+	var p := Vector2(center.x - tsz.x * 0.5, center.y + (ascent - descent) * 0.5)
 	draw_string(font, p + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
 	draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
 

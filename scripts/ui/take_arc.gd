@@ -43,6 +43,7 @@ var burst_tex: Texture2D
 var burst_pip: String = ""
 var block_tex: Texture2D
 var word_font: Font
+var mystery_take: bool = false
 var _down: bool = false
 
 
@@ -79,7 +80,7 @@ func set_guide(c_local: Vector2, radius: float, gap: float = -1.0) -> void:
 	queue_redraw()
 
 
-func set_combat(block_amt: int, net_take: int, word: String, burst: Texture2D, pip: String, blk_tex: Texture2D, font: Font) -> void:
+func set_combat(block_amt: int, net_take: int, word: String, burst: Texture2D, pip: String, blk_tex: Texture2D, font: Font, mystery: bool = false) -> void:
 	block_n = maxi(block_amt, 0)
 	take_n = maxi(net_take, 0)
 	take_word = word
@@ -87,7 +88,8 @@ func set_combat(block_amt: int, net_take: int, word: String, burst: Texture2D, p
 	burst_pip = pip
 	block_tex = blk_tex
 	word_font = font
-	show_burst = burst != null and net_take >= 0
+	mystery_take = mystery
+	show_burst = burst != null and (mystery or net_take >= 0)
 	queue_redraw()
 
 
@@ -516,7 +518,7 @@ func _draw_take_side(press: Vector2) -> void:
 	var word_off: float = -total * 0.5 + text_w * 0.5
 	var burst_off: float = total * 0.5 - icon_w * 0.5
 	if font != null and word != "":
-		var ink := Color("6a1212") if take_n > 0 else Color("1c120c")
+		var ink := Color("6a1212") if mystery_take or take_n > 0 else Color("1c120c")
 		var word_ang: float = mid_ang - word_off / r
 		_draw_arc_text(font, word, fs, word_ang, r, ink, Color("100e0c"))
 	if show_burst and burst_tex != null:
@@ -524,7 +526,7 @@ func _draw_take_side(press: Vector2) -> void:
 		var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
 		draw_set_transform(bp, burst_ang - PI * 0.5, Vector2.ONE)
 		draw_texture_rect(burst_tex, Rect2(Vector2(-icon_w * 0.5, -icon_h * 0.5), Vector2(icon_w, icon_h)), false)
-		_draw_hit_num(font, Vector2.ZERO, str(take_n))
+		_draw_hit_num(font, Vector2.ZERO, "?" if mystery_take else str(take_n))
 		if burst_pip != "" and font != null:
 			var pip_fs := 13
 			var origin := Vector2(-icon_w * 0.5, -icon_h * 0.5)
