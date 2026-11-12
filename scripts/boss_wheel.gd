@@ -3279,12 +3279,6 @@ func _collect_bond_pairs() -> Array:
 					if not _living_neighbor(j3):
 						continue
 					out.append(_bond_pair(i, j3, "plague", Color("9a5bd1"), "drop", false, false, silenced, "hp", true))
-			"wraith":
-				var src: int = int(s.get("copy_from", -1))
-				if src < 0:
-					src = _higher_atk_neighbor(i)
-				if src >= 0 and src < n and _living_neighbor(src):
-					out.append(_bond_pair(src, i, "wraith", Color("c9b9a8"), "", true, false, silenced, "atk"))
 			"slime_boss":
 				out.append({"key": "slime:%s" % i, "i": i, "j": i, "kind": "slime", "col": Color(0.45, 0.82, 0.42, 0.85), "glyph": "", "dashed": false, "dotted": false, "silenced": false, "punch": "", "lock": false, "special": "slime"})
 			"bodyguard":
@@ -3336,21 +3330,6 @@ func _bond_pair(i: int, j: int, kind: String, col: Color, glyph: String, dashed:
 		"rainbow": rainbow,
 		"special": "",
 	}
-
-
-func _higher_atk_neighbor(i: int) -> int:
-	var n: int = slices.size()
-	var best: int = -1
-	var best_atk: int = -1
-	for off in [n - 1, 1]:
-		var j: int = (i + off) % n
-		if not _living_neighbor(j):
-			continue
-		var a: int = int(slices[j].get("atk", 0))
-		if a > best_atk:
-			best_atk = a
-			best = j
-	return best
 
 
 func _lowest_hp_other(i: int) -> int:
@@ -3925,9 +3904,9 @@ func _ability_icon_color(sid: String) -> Color:
 	match sid:
 		"item_atk", "two_items", "gift", "eat_item", "petrify", "petrify_gaze", "no_keep", "item_swings", "hunter_mark", "bear_trap", "fair_trade", "gift_shield", "insure", "triple_threat", "hunger_pains", "dance_swap", "hatch", "rebirth", "adaptation", "fairy_dust", "fairy_bottle", "cats_eye", "toxic_skin", "decay":
 			return Color("e8c36a")
-		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive":
+		"no_atk_dmg", "double_hit", "self_deconstruct", "atk_spin", "copy_atk", "buff_atk", "pierce", "thorns", "queen_hits", "interrupt", "even_twice", "left_atk", "pass_right", "coward", "blood_thresh", "conductive", "vindictive":
 			return Color("e07040")
-		"last_hp", "buff_hp", "undying", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "headstrong", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink":
+		"last_hp", "buff_hp", "undying", "hp_spin", "pack_hp", "leech_lowest", "one_chip", "headstrong", "take_instead", "blood_pact", "three_hp", "cultivator", "lifelink", "noble_death":
 			return Color("e8a0a0")
 		"kill_scale", "atk_eq_hp":
 			return Color("c9a0ff")
@@ -3939,6 +3918,8 @@ func _ability_icon_color(sid: String) -> Color:
 			return Color("7eb6d6")
 		"toll_dead":
 			return Color("d4a24a")
+		"sink_charge":
+			return Color("FFD84A")
 		"rust":
 			return Color("c47a3a")
 		_:

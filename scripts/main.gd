@@ -7150,6 +7150,15 @@ func _stat_pip_pos(index: int, hp_stat: bool) -> Vector2:
 	return pip
 
 
+func _show_hp_loss_pips(index: int, before: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	var lost: int = before - int(wheel[index].get("hp", 0))
+	if lost <= 0:
+		return
+	await _play_stat_delta(index, true, -lost, _slice_from(index))
+
+
 func _play_stat_delta(index: int, hp_stat: bool, delta: int, from_pos: Vector2 = Vector2.ZERO) -> void:
 	if index < 0 or index >= wheel.size() or delta == 0:
 		return
@@ -7193,9 +7202,7 @@ func _echo_skeletons() -> void:
 			continue
 		var look_from: Vector2 = _stat_pip_pos(idx, true)
 		if look_from != Vector2.ZERO and from != Vector2.ZERO:
-			if sfx:
-				sfx.play_event(&"wheel.num_tick_hp")
-			await _petrify_beam(from, 0.18, look_from)
+			await _radiate_line(from, look_from, _link_color("last_hp"))
 		var now_hp: int = int(wheel[idx].get("hp", 0))
 		var d: int = now_hp - int(before[i])
 		if d == 0:
@@ -9694,6 +9701,10 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	## War Cry is the neighbor +2. Play it only on the first swing of a monster who has that bonus right now.
 	if hit_n <= 1 and at >= 0 and at < wheel.size() and int(wheel[at].get("aura_atk", 0)) > 0:
 		_sfx_ability("commander")
+		for cmd_i in _neighbors_of(at):
+			if not _living_id(cmd_i, "commander"):
+				continue
+			await _radiate_line(_slice_from(cmd_i), _slice_from(at), _link_color("buff_atk"))
 	## Monster4 optional attack oneshots (Scale kick A).
 	var swing_id: String = str(m.get("card_id", ""))
 	if swing_id == "quicksand_crab":
@@ -11117,7 +11128,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_toss_item(int(it["uid"]), false)
 				return
 		"atk_cleave":
-			if await _apply_cleave(int(ops.get("n", 2))):
+			if await _apply_cleave(int(ops.get("n", 2)), _item_card_global(int(it.get("uid", -1)))):
 				it["spent"] = true
 				await _count_item_use()
 				_toss_item(int(it["uid"]), false)
@@ -12825,7 +12836,11 @@ func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 		if av == bv:
 			return
 		var low: int = a if av < bv else b
-		await _sync_grant_one(src, low, hp_stat)
+		if guard == 1:
+			await _radiate_line(_slice_from(src), _stat_pip_pos(low, hp_stat), _link_color("synchronize"))
+		_sync_grant_one(src, low, hp_stat)
+		if get_tree():
+			await get_tree().create_timer(0.08).timeout
 	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
 		return
 	var av2: int = int(wheel[a].get(key, 0))
@@ -12841,12 +12856,10 @@ func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 	_show_sync_slice(low2, hp_stat)
 
 
-func _sync_grant_one(src: int, low: int, hp_stat: bool) -> void:
-	var from: Vector2 = _slice_from(src)
-	var to: Vector2 = _stat_pip_pos(low, hp_stat)
-	await _fly_stat_courier(from, to, hp_stat, false)
+func _sync_grant_one(_src: int, low: int, hp_stat: bool) -> void:
 	_sync_grant_instant(low, hp_stat)
 	_show_sync_slice(low, hp_stat)
+	_play_stat_pulse(hp_stat, false)
 	var stat_name: String = "HP" if hp_stat else "Attack"
 	_log("on_resolve", "Synchronize +1 %s → %s" % [stat_name, str(wheel[low].get("name", "?"))])
 
@@ -13203,6 +13216,14 @@ func _fairy_floor_after_loss(index: int, before: int) -> bool:
 	var m: Dictionary = wheel[index]
 	if int(m.get("hp", 0)) >= 1:
 		return false
+	var fairy_i: int = _fairy_seat_for(index)
+	if fairy_i >= 0:
+		await _radiate_line(_slice_from(fairy_i), _slice_hp_pos(index), _link_color("buff_hp"))
+	if index < 0 or index >= wheel.size():
+		return false
+	m = wheel[index]
+	if int(m.get("hp", 0)) >= 1:
+		return false
 	m["hp"] = 1
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = 1
@@ -13210,6 +13231,19 @@ func _fairy_floor_after_loss(index: int, before: int) -> bool:
 	_sfx_ability("fairy")
 	_log("on_resolve", "Fairy Dust  →  %s HP 1" % str(m.get("name", "?")))
 	return true
+
+
+func _fairy_seat_for(index: int) -> int:
+	if index < 0 or index >= wheel.size():
+		return -1
+	var n: int = wheel.size()
+	for off in [n - 1, 1]:
+		var j: int = (index + off) % n
+		if j == index:
+			continue
+		if _living_id(j, "fairy"):
+			return j
+	return -1
 
 
 func _preview_stamp_fairy_save(index: int, slot: Dictionary) -> Dictionary:
@@ -13246,7 +13280,7 @@ func _chip_hp(index: int, n: int) -> bool:
 		drop = 1
 	m["hp"] = maxi(0, before - drop)
 	wheel[index] = m
-	_fairy_floor_after_loss(index, before)
+	await _fairy_floor_after_loss(index, before)
 	m = wheel[index]
 	_note_hydra_survive_loss(index, before, int(m["hp"]))
 	if before > 0 and int(m["hp"]) <= 0:
@@ -13414,15 +13448,21 @@ func _apply_plague_doctor_on_spin() -> void:
 			continue
 		if _is_silenced(wheel[pd]):
 			continue
+		await _announce_slice(pd, _slice_hp_pos(pd))
+		if pd < 0 or pd >= wheel.size():
+			continue
+		var origin: Vector2 = _slice_from(pd)
+		var col: Color = _link_color("time_bomb")
+		await _radiate_line(origin, _hub_hp_pos(), col)
 		_gain_player_poison(1)
 		for i in wheel.size():
 			if str(wheel[i].get("kind", "")) != "monster":
 				continue
 			if int(wheel[i].get("hp", 0)) <= 0:
 				continue
+			await _radiate_line(origin, _slice_hp_pos(i), col)
 			_add_monster_poison(i, 1)
 		_log("on_spin", "Outbreak  →  you and every monster +1")
-		await _announce_slice(pd, _slice_hp_pos(pd))
 	_sync_plague_poison()
 	_refresh()
 
@@ -14409,10 +14449,12 @@ func _apply_death_bell_on_spin() -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
 			continue
+		var bell_before: int = int(wheel[i].get("hp", 0))
+		if sfx:
+			sfx.play("bong", -6.0, 0.7)
 		await _chip_hp(i, 2)
 		_log("on_spin", "Death Bell -2 HP")
-		if sfx:
-			sfx.play("bong", -10.0, 0.75)
+		await _show_hp_loss_pips(i, bell_before)
 	var i2: int = wheel.size() - 1
 	while i2 >= 0:
 		if i2 == facing_index:
@@ -14701,7 +14743,7 @@ func _feed_worm(uid: int) -> void:
 			m["hp"] = maxi(0, worm_before - 3)
 			m["hp_max"] = maxi(int(m.get("hp_max", 0)) - 3, int(m.get("hp", 0)))
 			wheel[facing_index] = m
-			_fairy_floor_after_loss(facing_index, worm_before)
+			await _fairy_floor_after_loss(facing_index, worm_before)
 			m = wheel[facing_index]
 			m["hp_max"] = maxi(int(m.get("hp_max", 0)), int(m.get("hp", 0)))
 		else:
@@ -15388,7 +15430,7 @@ func _hurt_ogres(lost: int) -> void:
 		var before: int = int(s.get("hp", 0))
 		s["hp"] = maxi(0, before - lost)
 		wheel[i] = s
-		_fairy_floor_after_loss(i, before)
+		await _fairy_floor_after_loss(i, before)
 		s = wheel[i]
 		_note_hydra_survive_loss(i, before, int(s["hp"]))
 		if before > 0 and int(s["hp"]) <= 0:
@@ -16456,6 +16498,7 @@ func _damsel_resolve() -> void:
 		await _announce_slice(facing_index, aim)
 	for j in _damsel_neighbors(facing_index):
 		var nm: Dictionary = wheel[j]
+		await _radiate_line(_slice_from(facing_index), _slice_from(j), _link_color("two_items"))
 		await _announce_slice(j, _hub_hp_pos())
 		if combat_stage:
 			combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
@@ -16581,11 +16624,10 @@ func _leech_pulse(index: int) -> void:
 	var steps: int = 0
 	while steps < 48:
 		steps += 1
-		var from: Vector2 = _slice_from(index)
-		var to: Vector2 = _stat_pip_pos(target, true)
-		await _fly_stat_courier(from, to, true, false)
+		await _radiate_line(_slice_from(index), _stat_pip_pos(target, true), _link_color("leech_lowest"))
 		_grant_leech_hp(target)
 		_show_sync_slice(target, true)
+		_play_stat_pulse(true, false)
 		_log("on_spin", "Leech +1 HP → %s" % str(wheel[target].get("name", "?")))
 		_refresh()
 		if _leech_hp_tied(target):
@@ -16699,26 +16741,7 @@ func _leech_takeover_one(index: int) -> void:
 
 
 func _spawn_leech_intent_ray(from: Vector2, tip: Vector2) -> void:
-	var host: Node2D = _petrify_fx_host()
-	var ray := Line2D.new()
-	ray.z_index = 18
-	ray.width = 5.0
-	ray.default_color = Color("c43c3c")
-	ray.antialiased = false
-	ray.add_point(from)
-	ray.add_point(from)
-	host.add_child(ray)
-	var rtw := create_tween()
-	rtw.tween_method(
-		func(u: float) -> void:
-			if is_instance_valid(ray):
-				ray.set_point_position(1, from.lerp(tip, u)),
-		0.0,
-		1.0,
-		0.12
-	)
-	rtw.tween_property(ray, "modulate:a", 0.0, 0.1)
-	rtw.finished.connect(ray.queue_free, CONNECT_ONE_SHOT)
+	await _radiate_line(from, tip, _link_color("leech_lowest"), 0.04, false)
 
 
 func _play_leech_takeover_fx(from_i: int, to_i: int) -> void:
@@ -16734,12 +16757,11 @@ func _play_leech_takeover_fx(from_i: int, to_i: int) -> void:
 	if to == Vector2.ZERO:
 		to = _slice_hp_pos(to_i)
 	if sfx:
-		sfx.play("whoosh", -6.0, 0.92)
 		sfx.play_event(&"mon.leech_pulse")
 	for k in 4:
 		var ang: float = TAU * float(k) / 4.0 + 0.2
 		_spawn_leech_intent_ray(from, from + Vector2(cos(ang), sin(ang)) * 54.0)
-	await _petrify_beam(to, 0.18, from)
+	await _radiate_line(from, to, _link_color("leech_lowest"), 0.1)
 	if wheel_view:
 		wheel_view.hit_feedback(to_i, 1)
 	var tex: Texture2D = null
@@ -17334,6 +17356,7 @@ func _grant_blood_pact(index: int) -> void:
 	if hotbar_box:
 		to = hotbar_box.global_position + hotbar_box.size * 0.5
 	await _announce_slice(index, to if to != Vector2.ZERO else _hub_hp_pos())
+	await _radiate_line(from, to, _link_color("blood_pact"))
 	if tex != null and from != Vector2.ZERO:
 		await _fly_courier(tex, from, to, 0.42)
 	await _try_gain_item("blood_pact")
@@ -18533,20 +18556,32 @@ func _petrify_beam_from() -> Vector2:
 	return Vector2.ZERO
 
 
-func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector2 = Vector2.INF) -> Array:
-	## Returns [beam, core] Line2Ds. linger keeps them visible after hit for QA / read.
-	var from: Vector2 = from_override
-	if from == Vector2.INF or from == Vector2.ZERO:
-		from = _petrify_beam_from()
+func _link_color(sid: String) -> Color:
+	if wheel_view != null and wheel_view.has_method("ability_color_for"):
+		return wheel_view.ability_color_for(sid)
+	return Color("c5cdd8")
+
+
+## One travel line. Grows from `from` to `to` in the capsule color, then fades.
+## Stone petrify keeps the grey wrapper below and does not play the travel whoosh.
+func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06, play_sound: bool = true) -> void:
+	if _qa_instant():
+		return
+	if to == Vector2.ZERO:
+		return
 	if from == Vector2.ZERO:
-		from = to_card + Vector2(0, -80)
+		from = to + Vector2(0, -80)
+	if play_sound and sfx:
+		sfx.play("whoosh", -12.0, 1.2)
 	var host: Node2D = _petrify_fx_host()
 	var beam := Line2D.new()
 	beam.name = "PetrifyBeam"
 	beam.z_index = 15
 	beam.width = 6.0
-	beam.default_color = Color("c9b9a8")
+	beam.default_color = col
 	beam.antialiased = false
+	beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	beam.end_cap_mode = Line2D.LINE_CAP_ROUND
 	beam.add_point(from)
 	beam.add_point(from)
 	host.add_child(beam, true)
@@ -18555,6 +18590,9 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector
 	core.z_index = 16
 	core.width = 2.5
 	core.default_color = Color.WHITE
+	core.antialiased = false
+	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	core.end_cap_mode = Line2D.LINE_CAP_ROUND
 	core.add_point(from)
 	core.add_point(from)
 	host.add_child(core, true)
@@ -18562,7 +18600,9 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector
 	var tw := create_tween()
 	tw.tween_method(
 		func(u: float) -> void:
-			var p: Vector2 = from.lerp(to_card, u)
+			if not is_instance_valid(beam) or not is_instance_valid(core):
+				return
+			var p: Vector2 = from.lerp(to, u)
 			beam.set_point_position(1, p)
 			core.set_point_position(1, p),
 		0.0,
@@ -18572,22 +18612,39 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector
 	await tw.finished
 	for i in 3:
 		var dust := ColorRect.new()
-		dust.color = Color("c9b9a8")
+		dust.color = col
 		dust.size = Vector2(4, 4)
 		dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dust.z_index = 17
 		host.add_child(dust)
-		dust.global_position = to_card + Vector2(randf_range(-8, 8), randf_range(-8, 8))
+		dust.global_position = to + Vector2(randf_range(-8, 8), randf_range(-8, 8))
 		var dt := create_tween()
 		dt.tween_property(dust, "modulate:a", 0.0, 0.12)
 		dt.finished.connect(dust.queue_free, CONNECT_ONE_SHOT)
-	if linger > 0.0:
+	if linger > 0.0 and get_tree():
 		await get_tree().create_timer(linger).timeout
+	var fade := create_tween()
+	fade.set_parallel(true)
+	if is_instance_valid(beam):
+		fade.tween_property(beam, "modulate:a", 0.0, 0.1)
+	if is_instance_valid(core):
+		fade.tween_property(core, "modulate:a", 0.0, 0.1)
+	await fade.finished
 	if is_instance_valid(beam):
 		beam.queue_free()
 	if is_instance_valid(core):
 		core.queue_free()
 	set_meta("qa_petrify_beams", _count_petrify_beams())
+
+
+func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector2 = Vector2.INF) -> Array:
+	## Grey stone beam. Adjacency tells use `_radiate_line` with a capsule color.
+	var from: Vector2 = from_override
+	if from == Vector2.INF or from == Vector2.ZERO:
+		from = _petrify_beam_from()
+	if from == Vector2.ZERO:
+		from = to_card + Vector2(0, -80)
+	await _radiate_line(from, to_card, Color("c9b9a8"), linger, false)
 	return []
 
 
@@ -18933,7 +18990,7 @@ func _flush_hydra_devour() -> void:
 				if wheel_view.has_method("slice_portrait_global"):
 					from = wheel_view.slice_portrait_global(h_i)
 					to = wheel_view.slice_portrait_global(v_i)
-			await _petrify_beam(to, 0.28, from)
+			await _radiate_line(from, to, _link_color("hungry_heads"), 0.12)
 			if sfx:
 				sfx.play_event(&"mon.ability.hydra")
 			_log("on_resolve", "Hungry Heads %s  +1 multiattack" % [wheel[v_i].get("name", "?")])
@@ -19569,9 +19626,20 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 		if typeof(share) != TYPE_DICTIONARY:
 			continue
 		tags.append(_tag_share(share))
+	var told := false
 	_begin_simul()
 	for tok in tags:
 		var j: int = _index_of_share(tok)
+		if j < 0:
+			continue
+		if not told:
+			await _announce_slice(index, _slice_hp_pos(j))
+			told = true
+			j = _index_of_share(tok)
+			if j < 0:
+				continue
+		await _radiate_line(_slice_from(index), _slice_hp_pos(j), _link_color("refract"))
+		j = _index_of_share(tok)
 		if j < 0:
 			continue
 		if _living_id(j, "prism"):
@@ -19579,13 +19647,11 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 			last_atk_index = -1
 			last_atk_line = "0  →  %s" % jname
 			_log("atk", last_atk_line)
-			await _announce_slice(index, _slice_hp_pos(j))
 			if wheel_view:
 				wheel_view.hit_feedback(j, 0, 0)
 			if sfx:
 				sfx.play("glass", -8.0, 0.85)
 			continue
-		await _announce_slice(index, _slice_hp_pos(j))
 		if await _deal_atk_at(j, n, false, false, true, true):
 			_end_simul()
 			for done in tags:
@@ -19652,13 +19718,13 @@ func _telegraph_pass(path: Array) -> void:
 		if idx < 0 or idx >= wheel.size():
 			continue
 		if i > 0:
+			var prev: int = int(path[i - 1])
 			var nxt: int = int(path[mini(i + 1, path.size() - 1)])
 			await _announce_slice(idx, _slice_from(nxt) if nxt != idx else _slice_hp_pos(idx))
+			await _radiate_line(_slice_from(prev), _slice_hp_pos(idx), _link_color("take_instead"))
 		if wheel_view:
 			wheel_view.hit_feedback(idx, 0)
 			wheel_view.pulse_arrive(idx)
-		if sfx and i < path.size() - 1:
-			sfx.play("whoosh", -14.0, 1.05 + float(i) * 0.06)
 		if i < path.size() - 1 and get_tree():
 			await get_tree().create_timer(0.14).timeout
 
@@ -19736,7 +19802,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	## Attack HP drop only — not Poison/`_chip_hp`, not player bleed.
 	if before_hp > int(m["hp"]):
 		_shardplate_on_enemy_atk_damage()
-	_fairy_floor_after_loss(index, before_hp)
+	await _fairy_floor_after_loss(index, before_hp)
 	m = wheel[index]
 	_note_hydra_survive_loss(index, before_hp, int(m["hp"]))
 	if before_hp > 0 and int(m["hp"]) <= 0:
@@ -19818,6 +19884,8 @@ func _flush_vindictive() -> bool:
 			continue
 		await _announce_slice(king)
 		var j: int = _right_monster(king)
+		if j >= 0:
+			await _radiate_line(_slice_from(king), _slice_from(j), _link_color("vindictive"))
 		if await _commanded_neighbor_attack(j):
 			died = true
 			break
@@ -20242,13 +20310,20 @@ func _flush_crab_move_tax() -> void:
 		return
 	var loss: int = steps * 2
 	_sfx_ability("quicksand_crab")
+	var from_move: Vector2 = Vector2.ZERO
+	if btn_move_left != null and btn_move_left.visible and btn_move_left.has_method("count_global_pos"):
+		from_move = btn_move_left.count_global_pos()
 	for i in range(wheel.size()):
 		if str(wheel[i].get("card_id", "")) != "quicksand_crab":
 			continue
 		if _is_silenced(wheel[i]) or int(wheel[i].get("hp", 0)) <= 0:
 			continue
+		var crab_before: int = int(wheel[i].get("hp", 0))
+		if from_move != Vector2.ZERO:
+			await _radiate_line(from_move, _slice_hp_pos(i), _link_color("sink_charge"))
 		_log("on_resolve", "Quicksand Crab −%s HP (%s steps)" % [loss, steps])
 		await _chip_hp(i, loss)
+		await _show_hp_loss_pips(i, crab_before)
 	await _run_dead_sweep()
 
 
@@ -20310,103 +20385,8 @@ func _crab_slash(m: Dictionary) -> void:
 	})
 
 
-func _crab_fx_host() -> Node2D:
-	var host := get_node_or_null("CrabMoveFxHost") as Node2D
-	if host != null:
-		return host
-	host = Node2D.new()
-	host.name = "CrabMoveFxHost"
-	host.top_level = true
-	host.z_index = 55
-	host.z_as_relative = false
-	add_child(host)
-	return host
-
-
 func _crab_move_rays(from: Vector2, to: Vector2) -> void:
-	var host: Node2D = _crab_fx_host()
-	var span: Vector2 = to - from
-	var dist: float = maxf(span.length(), 1.0)
-	var dir: Vector2 = span / dist
-	var tan := Vector2(-dir.y, dir.x)
-	var offsets: Array = [0.0, -26.0, 26.0, -48.0, 48.0]
-	var widths: Array = [8.0, 4.0, 4.0, 2.5, 2.5]
-	var lines: Array = []
-	for i in offsets.size():
-		var beam := Line2D.new()
-		beam.width = float(widths[i])
-		beam.default_color = Color("FFD84A")
-		beam.antialiased = false
-		beam.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		beam.end_cap_mode = Line2D.LINE_CAP_ROUND
-		beam.z_index = 2
-		var start: Vector2 = from + tan * float(offsets[i])
-		beam.add_point(start)
-		beam.add_point(start)
-		host.add_child(beam)
-		lines.append({"line": beam, "start": start, "off": float(offsets[i])})
-	var core := Line2D.new()
-	core.width = 2.5
-	core.default_color = Color("fff8e8")
-	core.antialiased = false
-	core.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	core.end_cap_mode = Line2D.LINE_CAP_ROUND
-	core.z_index = 3
-	core.add_point(from)
-	core.add_point(from)
-	host.add_child(core)
-	var tw := create_tween()
-	tw.tween_method(func(u: float) -> void:
-		var tip_on_path: Vector2 = from.lerp(to, u)
-		for rec in lines:
-			var line: Line2D = rec["line"]
-			if not is_instance_valid(line):
-				continue
-			var off: float = float(rec["off"])
-			var start: Vector2 = rec["start"]
-			line.set_point_position(0, start.lerp(from, u))
-			line.set_point_position(1, tip_on_path + tan * off * (1.0 - u))
-		if is_instance_valid(core):
-			core.set_point_position(1, tip_on_path)
-	, 0.0, 1.0, 0.36)
-	await tw.finished
-	var burst: Array = []
-	for k in 8:
-		var ray := Line2D.new()
-		ray.width = 3.0
-		ray.default_color = Color("FFD84A")
-		ray.antialiased = false
-		ray.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		ray.end_cap_mode = Line2D.LINE_CAP_ROUND
-		ray.add_point(to)
-		ray.add_point(to)
-		host.add_child(ray)
-		burst.append({"line": ray, "dir": Vector2.from_angle(TAU * float(k) / 8.0)})
-	var fade := create_tween()
-	fade.tween_method(func(u: float) -> void:
-		for rec2 in burst:
-			var ray_line: Line2D = rec2["line"]
-			if is_instance_valid(ray_line):
-				ray_line.set_point_position(1, to + (rec2["dir"] as Vector2) * (16.0 + 36.0 * u))
-				ray_line.modulate.a = 1.0 - u
-		for rec3 in lines:
-			var stay: Line2D = rec3["line"]
-			if is_instance_valid(stay):
-				stay.modulate.a = 1.0 - u
-		if is_instance_valid(core):
-			core.modulate.a = 1.0 - u
-	, 0.0, 1.0, 0.16)
-	await fade.finished
-	for rec4 in lines:
-		var done_line: Line2D = rec4["line"]
-		if is_instance_valid(done_line):
-			done_line.queue_free()
-	for rec5 in burst:
-		var done_ray: Line2D = rec5["line"]
-		if is_instance_valid(done_ray):
-			done_ray.queue_free()
-	if is_instance_valid(core):
-		core.queue_free()
+	await _radiate_line(from, to, _link_color("sink_charge"), 0.08)
 
 
 func _crab_pop_move_count() -> void:
@@ -20955,8 +20935,10 @@ func _cleave_targets_from(pivot: int) -> Array[int]:
 	return out
 
 
-func _apply_cleave(n: int) -> bool:
+func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 	n = _atk_with_head(n)
+	if from_pos == Vector2.ZERO:
+		from_pos = _item_card_global_by_id("double_axe")
 	var targets: Array[int] = _cleave_targets()
 	_begin_simul()
 	var plans: Array = []
@@ -20979,6 +20961,8 @@ func _apply_cleave(n: int) -> bool:
 		var amount: int = int(plan.get("amount", n))
 		var already_doubled: bool = amount != n
 		var land_twins: bool = _twins_double_atk(landed, n) and not already_doubled
+		if landed >= 0:
+			await _radiate_line(from_pos, _slice_hp_pos(landed), Color("e07040"))
 		if await _deal_atk_at(landed, amount, not land_twins, true, true):
 			_end_simul()
 			return true
@@ -21934,6 +21918,7 @@ func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dict
 		for j in _damsel_neighbors(src):
 			if dest < 0 or dest >= wheel.size() or int(wheel[dest].get("hp", 0)) <= 0:
 				break
+			await _radiate_line(_slice_from(src), _slice_from(j), _link_color("two_items"))
 			var nb: Dictionary = wheel[j]
 			if str(nb.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(nb):
 				await _watch_attack(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
@@ -22361,16 +22346,19 @@ func _martyr_gift_neighbors(index: int) -> int:
 			continue
 		if int(wheel[j].get("hp", 0)) <= 0:
 			continue
+		await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"))
 		for _pip in gift:
 			if j < 0 or j >= wheel.size() or int(wheel[j].get("hp", 0)) <= 0:
 				break
-			await _fly_stat_courier(from, _stat_pip_pos(j, true), true, false)
 			var n: Dictionary = wheel[j]
 			n["hp"] = int(n.get("hp", 0)) + 1
 			n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
 			n["hp_locked"] = true
 			wheel[j] = n
 			_show_sync_slice(j, true)
+			_play_stat_pulse(true, false)
+			if get_tree():
+				await get_tree().create_timer(0.08).timeout
 	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
 	_refresh()
 	return gift
