@@ -13895,6 +13895,8 @@ func _hand_discard_uids() -> Array:
 			continue
 		if bool(it.get("spent", false)):
 			continue
+		if _item_blocks_hand_tax(it):
+			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid >= 0:
 			uids.append(uid)
@@ -13913,14 +13915,8 @@ func _hand_all_uids() -> Array:
 
 
 func _hand_bell_defeat_uids() -> Array:
-	var uids: Array = []
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		var uid: int = int(it.get("uid", -1))
-		if uid >= 0:
-			uids.append(uid)
-	return uids
+	## Death Knell cannot dump a curse (Toll, Rust, Spider Egg).
+	return _filter_toss_uids(_hand_all_uids())
 
 
 func _maybe_enter_gains(index: int) -> void:
@@ -14054,6 +14050,8 @@ func _beggar_pick_uid(owner: int) -> int:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
+		if _item_is_curse(it):
+			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid < 0:
 			continue
@@ -14097,7 +14095,9 @@ func _beggar_assign(index: int, anim: bool) -> void:
 		m["beggar_mark"] = -1
 		wheel[index] = m
 		return
-	if _item_uid_in_hand(int(m.get("beggar_mark", -1))):
+	var held_uid: int = int(m.get("beggar_mark", -1))
+	var held: Dictionary = _find_item(held_uid)
+	if _item_uid_in_hand(held_uid) and not _item_is_curse(held):
 		return
 	var uid: int = _beggar_pick_uid(index)
 	m["beggar_mark"] = uid
@@ -14136,6 +14136,8 @@ func _beggar_force_discard(index: int) -> void:
 	if not _item_uid_in_hand(uid):
 		return
 	var it: Dictionary = _find_item(uid)
+	if _item_is_curse(it):
+		return
 	var partner: int = int(it.get("decay_partner", -1))
 	_decay_clear_mark(it)
 	if partner >= 0:
@@ -14335,17 +14337,27 @@ func _dump_incoming_over_cap() -> void:
 	var cap: int = _forced_hand_cap()
 	var i: int = _incoming_gain_uids.size() - 1
 	while hotbar.size() > cap and i >= 0:
-		_discard_from_hand(int(_incoming_gain_uids[i]), false, false)
+		var incoming: Dictionary = _find_item(int(_incoming_gain_uids[i]))
+		if incoming.is_empty() or not _item_blocks_hand_tax(incoming):
+			_discard_from_hand(int(_incoming_gain_uids[i]), false, false)
 		i -= 1
 	var guard: int = 0
 	while hotbar.size() > cap and guard < 32:
 		guard += 1
-		var last: Dictionary = hotbar[hotbar.size() - 1]
-		var last_uid: int = int(last.get("uid", -1))
-		_log("discard", str(last.get("name", "?")))
-		_discard_from_hand(last_uid, false, false)
-		if not _find_item(last_uid).is_empty():
-			hotbar.remove_at(hotbar.size() - 1)
+		var dumped: bool = false
+		for j in range(hotbar.size() - 1, -1, -1):
+			var cand: Dictionary = hotbar[j]
+			if _item_blocks_hand_tax(cand):
+				continue
+			var cand_uid: int = int(cand.get("uid", -1))
+			_log("discard", str(cand.get("name", "?")))
+			_discard_from_hand(cand_uid, false, false)
+			if not _find_item(cand_uid).is_empty():
+				hotbar.remove_at(j)
+			dumped = true
+			break
+		if not dumped:
+			break
 	_incoming_gain_uids.clear()
 	_refresh()
 
@@ -14603,7 +14615,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	if _is_forced_gain_feed(kind) and _item_blocks_hand_tax(it):
+	if _item_blocks_hand_tax(it):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -14926,7 +14938,9 @@ func _feed_worm(uid: int) -> void:
 			sfx.play("error", -12.0)
 		return
 	var it: Dictionary = _find_item(uid)
-	if it.is_empty():
+	if it.is_empty() or _item_blocks_hand_tax(it):
+		if sfx:
+			sfx.play("error", -12.0)
 		return
 	_log("on_spin", "worm ate %s" % str(it.get("name", "?")))
 	_sfx_ability("almighty_worm")
@@ -14996,11 +15010,15 @@ func _pay_hired_hand(uid: int) -> void:
 		if sfx:
 			sfx.play("error", -12.0)
 		return
+	var it: Dictionary = _find_item(uid)
+	if it.is_empty() or _item_blocks_hand_tax(it):
+		if sfx:
+			sfx.play("error", -12.0)
+		return
 	pending_feed = {}
 	_cube_line = ""
 	if speech_box:
 		speech_box.hide_speech()
-	var it: Dictionary = _find_item(uid)
 	_log("on_spin", "bribe %s" % str(it.get("name", "?")))
 	_discard_from_hand(uid)
 	_refresh()
@@ -18224,6 +18242,8 @@ func _worst_item_uid() -> int:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
+		if _item_is_curse(it):
+			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid < 0:
 			continue
@@ -19415,7 +19435,7 @@ func _cube_ask_feed() -> void:
 	if hotbar.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
-	var ids: Array = _hand_all_uids()
+	var ids: Array = _filter_toss_uids(_hand_all_uids())
 	if ids.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
@@ -19563,6 +19583,11 @@ func _feed_cube(uid: int) -> void:
 	var allowed: Array = pending_feed.get("uids", [])
 	if not _uid_in(allowed, uid):
 		return
+	var it: Dictionary = _find_item(uid)
+	if it.is_empty() or _item_blocks_hand_tax(it):
+		if sfx:
+			sfx.play("error", -12.0)
+		return
 	pending_feed = {}
 	var dest: Vector2 = _item_card_global(uid)
 	if dest == Vector2.ZERO:
@@ -19576,7 +19601,6 @@ func _feed_cube(uid: int) -> void:
 	var home: Vector2 = Vector2.ZERO
 	if seat >= 0:
 		home = await _monster_walk_to(seat, "gelatinous_cube", dest)
-	var it: Dictionary = _find_item(uid)
 	_log("on_spin", "cube ate %s" % str(it.get("name", "?")))
 	_sfx_ability("gelatinous_cube")
 	_discard_from_hand(uid)
