@@ -308,6 +308,20 @@ var _threat_tween: Tween
 var draft_glow: bool = false
 var _glow_t: float = 0.0
 var _decor_wait: float = 0.0
+## Drawing-only. Main mirrors `_phantom_veil_all` here so the shuffle ring can play.
+var phantom_veil_all: bool = false:
+	set(v):
+		if phantom_veil_all == v:
+			return
+		phantom_veil_all = v
+		queue_redraw()
+const SHROUD_FRAME_S := 0.15
+var _shroud_idle: Array = []
+var _shroud_cover: Array = []
+var _shroud_uncover: Array = []
+var _shroud_ring: Array = []
+var _shroud_play: Dictionary = {}
+var _shroud_art_tried: bool = false
 var hub_pierce: bool = false
 signal death_floor
 
@@ -957,6 +971,7 @@ func set_slices(next: Array, face: int, mode: String = "none") -> void:
 	_pt_ghosts.clear()
 	_bond_prev = _bond_pair_map()
 	_start_bond_diff(bonds_before, _bond_prev)
+	_sync_shroud_edges()
 	queue_redraw()
 
 
@@ -1414,6 +1429,7 @@ func _process(delta: float) -> void:
 			atk_punch_keep[ak] = av
 	_atk_punch = atk_punch_keep
 	_hero_tick(delta)
+	_tick_shroud_anims(delta)
 	if not spinning:
 		_poll_tutorial_hover()
 		_sync_chrome_hover()
@@ -1435,6 +1451,15 @@ func _wheel_wants_live_draw() -> bool:
 		return true
 	if not _bond_anim.is_empty():
 		return true
+	if phantom_veil_all:
+		return true
+	for shroud_s in slices:
+		if bool(shroud_s.get("phantom_shroud", false)):
+			return true
+	for shroud_ent in _shroud_play.values():
+		var shroud_kind: String = str(shroud_ent.get("kind", ""))
+		if shroud_kind == "cover" or shroud_kind == "uncover":
+			return true
 	# Non-loop hub combat anims (swipe / grab / hit / attack) need paced
 	# redraws — `_on_hero_frame` already queues, but decor capping still
 	# applies between advances when heavy FX is up.
@@ -2614,6 +2639,7 @@ func _draw() -> void:
 		font = ThemeDB.fallback_font
 	for i in n:
 		_draw_slice_contents(font, c, radius, starts[i], _span(i), i)
+	_draw_shroud_shuffle_ring(c, radius)
 	# Mid-spin: skip bond/hint/threat chrome — rotation is the read.
 	if not spinning:
 		_draw_bonds(c, radius)
@@ -2945,7 +2971,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	if plate_r < 8.0:
 		plate_r = 48.0
 	if bool(s.get("phantom_shroud", false)):
-		_draw_shroud_wedge(sprite_rect)
+		_draw_shroud_wedge(sprite_rect, i)
 		return
 	if i == aura_index or threat_indices.has(i):
 		var glow := Color("e8c36a")
@@ -2965,6 +2991,7 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 			dim *= maxf(0.0, 1.0 - clampf(slay_t * 1.15, 0.0, 1.0))
 		if dim > 0.04:
 			_draw_wheel_sprite(i, sp, s, dim)
+	_draw_shroud_uncover_overlay(sprite_rect, i)
 	_draw_who_ring(i, sp)
 	if bool(s.get("hunter_mark", false)):
 		_draw_hunter_mark(sprite_rect.grow(8.0), dim)
@@ -3007,25 +3034,134 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_line(port_pos + Vector2(arm, -arm), port_pos + Vector2(-arm, arm), xc, 4.0, true)
 
 
-func _draw_shroud_wedge(sprite_rect: Rect2) -> void:
-	# Same box the monster sprite uses: feet at the bottom, art centered above them.
-	var center: Vector2 = sprite_rect.get_center()
-	var rad: float = minf(sprite_rect.size.x, sprite_rect.size.y) * 0.46
-	if rad < 18.0:
-		rad = 18.0
-	var veil := Color(0.03, 0.02, 0.05, 0.96)
-	draw_circle(center, rad, veil)
-	draw_arc(center, rad * 0.72, 0.0, TAU, 28, Color(0.22, 0.16, 0.28, 0.7), 2.0, true)
-	draw_arc(center, rad * 0.42, 0.0, TAU, 20, Color(0.16, 0.12, 0.2, 0.8), 2.0, true)
-	var font: Font = ThemeDB.fallback_font
-	var q := "?"
-	var fs := 28
-	var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var ascent: float = font.get_ascent(fs)
-	var descent: float = font.get_descent(fs)
-	var p := Vector2(center.x - tsz.x * 0.5, center.y + (ascent - descent) * 0.5)
-	draw_string(font, p + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
-	draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
+func _draw_shroud_wedge(sprite_rect: Rect2, i: int = -1) -> void:
+	# Same dest box `_draw_wheel_sprite` uses: feet on the bottom of sprite_rect.
+	var tex: Texture2D = _shroud_tex_for(i, true)
+	if tex == null:
+		return
+	_draw_shroud_tex(sprite_rect, tex)
+
+
+func _draw_shroud_uncover_overlay(sprite_rect: Rect2, i: int) -> void:
+	var tex: Texture2D = _shroud_tex_for(i, false)
+	if tex == null:
+		return
+	_draw_shroud_tex(sprite_rect, tex)
+
+
+func _draw_shroud_tex(sprite_rect: Rect2, tex: Texture2D) -> void:
+	var dest: Rect2 = sprite_rect
+	if dest.size.x < 1.0 or dest.size.y < 1.0:
+		return
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	draw_texture_rect(tex, dest, false)
+
+
+func _draw_shroud_shuffle_ring(c: Vector2, radius: float) -> void:
+	if not phantom_veil_all:
+		return
+	_ensure_shroud_art()
+	if _shroud_ring.is_empty():
+		return
+	var fi: int = int(_glow_t / SHROUD_FRAME_S) % _shroud_ring.size()
+	var tex: Texture2D = _shroud_ring[fi]
+	if tex == null:
+		return
+	var side: float = radius * 2.0
+	draw_texture_rect(tex, Rect2(c - Vector2(side, side) * 0.5, Vector2(side, side)), false)
+
+
+func _ensure_shroud_art() -> void:
+	if _shroud_art_tried:
+		return
+	_shroud_art_tried = true
+	_shroud_idle = _load_shroud_frames("res://assets/dungeon/vfx/shroud_apparition_f%s.png")
+	_shroud_cover = _load_shroud_frames("res://assets/dungeon/vfx/shroud_cover_f%s.png")
+	_shroud_uncover = _load_shroud_frames("res://assets/dungeon/vfx/shroud_uncover_f%s.png")
+	_shroud_ring = _load_shroud_frames("res://assets/dungeon/vfx/shroud_shuffle_ring_f%s.png")
+
+
+func _load_shroud_frames(path_fmt: String) -> Array:
+	var out: Array = []
+	for fi in 4:
+		var path: String = path_fmt % fi
+		if not ResourceLoader.exists(path):
+			continue
+		var tex: Texture2D = load(path) as Texture2D
+		if tex != null:
+			out.append(tex)
+	return out
+
+
+func _sync_shroud_edges() -> void:
+	var keep := {}
+	for i in slices.size():
+		var s: Dictionary = slices[i]
+		var now: bool = str(s.get("kind", "")) == "monster" and bool(s.get("phantom_shroud", false))
+		var uid: int = int(s.get("seat_uid", -1))
+		var prev: Dictionary = _shroud_play.get(i, {})
+		var was: bool = bool(prev.get("on", false))
+		var kind: String = str(prev.get("kind", ""))
+		var t: float = float(prev.get("t", 0.0))
+		if now and not was:
+			if phantom_veil_all:
+				kind = "idle"
+				t = 0.0
+			else:
+				kind = "cover"
+				t = 0.0
+		elif (not now) and was:
+			kind = "uncover"
+			t = 0.0
+		elif now and (kind == "" or kind == "uncover"):
+			kind = "idle"
+			t = 0.0
+		elif (not now) and kind != "uncover":
+			kind = ""
+			t = 0.0
+		keep[i] = {"on": now, "uid": uid, "kind": kind, "t": t}
+	_shroud_play = keep
+
+
+func _tick_shroud_anims(delta: float) -> void:
+	if _shroud_play.is_empty():
+		return
+	var dirty: bool = false
+	for k in _shroud_play.keys():
+		var ent: Dictionary = _shroud_play[k]
+		var kind: String = str(ent.get("kind", ""))
+		if kind != "cover" and kind != "uncover":
+			continue
+		ent["t"] = float(ent.get("t", 0.0)) + delta
+		if float(ent["t"]) >= SHROUD_FRAME_S * 4.0:
+			if kind == "cover":
+				ent["kind"] = "idle"
+				ent["t"] = 0.0
+			else:
+				ent["kind"] = ""
+				ent["t"] = 0.0
+		_shroud_play[k] = ent
+		dirty = true
+	if dirty:
+		queue_redraw()
+
+
+func _shroud_tex_for(i: int, covered: bool) -> Texture2D:
+	_ensure_shroud_art()
+	var ent: Dictionary = _shroud_play.get(i, {})
+	var kind: String = str(ent.get("kind", "idle" if covered else ""))
+	var t: float = float(ent.get("t", 0.0))
+	if covered:
+		if kind == "cover" and not _shroud_cover.is_empty():
+			var cfi: int = clampi(int(t / SHROUD_FRAME_S), 0, _shroud_cover.size() - 1)
+			return _shroud_cover[cfi]
+		if _shroud_idle.is_empty():
+			return null
+		return _shroud_idle[int(_glow_t / SHROUD_FRAME_S) % _shroud_idle.size()]
+	if kind == "uncover" and not _shroud_uncover.is_empty():
+		var ufi: int = clampi(int(t / SHROUD_FRAME_S), 0, _shroud_uncover.size() - 1)
+		return _shroud_uncover[ufi]
+	return null
 
 
 func _plate_tier(s: Dictionary) -> int:
@@ -3848,8 +3984,6 @@ func _title_metrics(font: Font, sp: Dictionary, s: Dictionary, is_face: bool, cr
 			shift_s = str(s.get("ability", "")).strip_edges()
 		if shift_s != "":
 			call_s = shift_s
-	if bool(s.get("fled_once", false)) and str(s.get("card_id", "")) == "commander" and call_s != "":
-		call_s = "%s · used" % call_s
 	if name_s == "":
 		return {}
 	var name_fs: int = 18 if is_face else (15 if is_hover else 13)
@@ -4196,6 +4330,7 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		var dust: float = 0.55 + 0.45 * absf(sin(_glow_t * 8.0))
 		ci.draw_arc(pos, hs * 0.62, 0.0, TAU, 22, Color("FFD84A", 0.55 + 0.45 * dust), 3.2, true)
 	_draw_stat_number(font, pos, hs, str(hp), -0.14 if is_skull_hp else -0.08)
+	_draw_fled_skull(pos, hs, s)
 	_draw_poison_badge(font, pos, s, big, i)
 	if hp_d != 0:
 		var blink: float = 0.40 + 0.60 * absf(sin(_glow_t * 10.0))
@@ -4204,6 +4339,26 @@ func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, b
 		_draw_bold_num(font, pos + Vector2(0.0, -hs * 0.62), str(hp_next), 18 if big else 15, dc)
 		ci.draw_string(font, pos + Vector2(hs * 0.28, -hs * 0.38), _delta_text(hp_d), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, dc)
 
+
+
+## Superscript on the heart: this Commander already fled once. The next Defeat removes him.
+func _draw_fled_skull(pos: Vector2, hs: float, s: Dictionary) -> void:
+	if str(s.get("card_id", "")) != "commander" or not bool(s.get("fled_once", false)):
+		return
+	const PIP_SKULL_HP := "res://assets/ui/icons/pips/pip_skull_hp_s24_2x.png"
+	if tex_pip_skull_hp == null and ResourceLoader.exists(PIP_SKULL_HP):
+		tex_pip_skull_hp = load(PIP_SKULL_HP) as Texture2D
+	if tex_pip_skull_hp == null:
+		return
+	var ci := _d()
+	var sz: float = maxf(14.0, hs * 0.46)
+	# Raised off the heart's upper-right. Poison stays further right.
+	var corner := pos + Vector2(hs * 0.22, -hs * 0.58)
+	var rect := Rect2(corner - Vector2(sz, sz) * 0.5, Vector2(sz, sz))
+	for k in 8:
+		var o := Vector2.from_angle(float(k) * TAU / 8.0) * 1.5
+		ci.draw_texture_rect(tex_pip_skull_hp, Rect2(rect.position + o, rect.size), false, Color("100e0c"))
+	ci.draw_texture_rect(tex_pip_skull_hp, rect, false, Color.WHITE)
 
 
 func _poison_n(s: Dictionary) -> int:

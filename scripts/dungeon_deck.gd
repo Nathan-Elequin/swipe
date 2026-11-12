@@ -69,6 +69,7 @@ var _deal_dest_size: Vector2 = Vector2.ZERO
 var _motion: Tween
 var _shimmer_mat: ShaderMaterial
 var _shimmer_clock: float = 0.0
+var _shroud_tex: Texture2D
 
 
 func setup() -> void:
@@ -83,6 +84,8 @@ func setup() -> void:
 	_back = _at_3x("res://assets/ui/deck/playing_card.png")
 	_front = _at_3x("res://assets/ui/deck/card_front.png")
 	_slot = _at_3x("res://assets/ui/deck/card_slot_empty.png")
+	if ResourceLoader.exists("res://assets/ui/deck_shroud.png"):
+		_shroud_tex = load("res://assets/ui/deck_shroud.png") as Texture2D
 	texture_filter = TEXTURE_FILTER_NEAREST
 	_shimmer_mat = RANK_SHIMMER.make_mat(1, 2, Vector2(148, 168))
 	material = _shimmer_mat
@@ -361,14 +364,10 @@ func _draw() -> void:
 		_draw_card(-CARD * 0.5, show_face, peek_tex, peek_name, peek_tier)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		if shroud_top and count > 0:
-			draw_rect(Rect2(CARD_POS, CARD), Color(0.03, 0.02, 0.05, 0.96))
-			var font: Font = ThemeDB.fallback_font
-			var q := "?"
-			var fs := 28
-			var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-			var qp := CARD_POS + CARD * 0.5 + Vector2(-tsz.x * 0.5, fs * 0.35)
-			draw_string(font, qp + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
-			draw_string(font, qp, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
+			if _shroud_tex != null:
+				draw_texture_rect(_shroud_tex, Rect2(CARD_POS, CARD), false)
+			else:
+				draw_rect(Rect2(CARD_POS, CARD), Color(0.03, 0.02, 0.05, 0.96))
 	if not _out.is_empty():
 		var a: float = 1.0 if _deal_full else (1.0 - _slide_t)
 		var off: Vector2 = _slide_offset().round()

@@ -20768,6 +20768,8 @@ func _phantom_paint_covers() -> void:
 		else:
 			wheel[i]["phantom_shroud"] = _monster_shrouded(wheel[i])
 	_phantom_deck_cover = not active_idx.is_empty()
+	if wheel_view != null:
+		wheel_view.phantom_veil_all = _phantom_veil_all
 
 
 func _shroud_mark_seen(index: int) -> void:
@@ -20798,10 +20800,13 @@ func _phantom_slash_real(index: int) -> void:
 func _phantom_slash_mystery() -> void:
 	if ability_slash == null:
 		return
+	var tex: Texture2D = null
+	if ResourceLoader.exists("res://assets/dungeon/vfx/shroud_apparition_f0.png"):
+		tex = load("res://assets/dungeon/vfx/shroud_apparition_f0.png") as Texture2D
 	await ability_slash.play({
 		"title": "?",
 		"call": "",
-		"tex": null,
+		"tex": tex,
 		"is_item": false,
 		"card_id": "",
 	})

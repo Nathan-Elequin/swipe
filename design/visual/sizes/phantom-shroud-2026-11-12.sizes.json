@@ -1,0 +1,236 @@
+{
+  "notes": "Phantom shroud art, 2026-11-12. Apparition / uncover / cover are 64\u00d764 native (feet on the bottom row), displayed at 2\u00d7 and scaled down into a 96px Weak/Tough seat. Deck cover is 32\u00d744, drawn at 3\u00d7 (96\u00d7132) over the top dungeon-deck card. Shuffle ring (160\u00d7160) and wave (64\u00d732) are optional extras for the whole-wheel shuffle veil. Filter nearest, lossless, no mipmaps.",
+  "assets": [
+    {
+      "path": "assets/dungeon/vfx/shroud_apparition_f0.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_apparition_f1.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_apparition_f2.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_apparition_f3.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_cover_f0.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_cover_f1.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_cover_f2.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_cover_f3.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_ring_f0.png",
+      "native": [
+        160,
+        160
+      ],
+      "shipped": [
+        160,
+        160
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_ring_f1.png",
+      "native": [
+        160,
+        160
+      ],
+      "shipped": [
+        160,
+        160
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_ring_f2.png",
+      "native": [
+        160,
+        160
+      ],
+      "shipped": [
+        160,
+        160
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_ring_f3.png",
+      "native": [
+        160,
+        160
+      ],
+      "shipped": [
+        160,
+        160
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_wave_f0.png",
+      "native": [
+        64,
+        32
+      ],
+      "shipped": [
+        64,
+        32
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_wave_f1.png",
+      "native": [
+        64,
+        32
+      ],
+      "shipped": [
+        64,
+        32
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_wave_f2.png",
+      "native": [
+        64,
+        32
+      ],
+      "shipped": [
+        64,
+        32
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_shuffle_wave_f3.png",
+      "native": [
+        64,
+        32
+      ],
+      "shipped": [
+        64,
+        32
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_uncover_f0.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_uncover_f1.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_uncover_f2.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/dungeon/vfx/shroud_uncover_f3.png",
+      "native": [
+        64,
+        64
+      ],
+      "shipped": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "assets/ui/deck_shroud.png",
+      "native": [
+        32,
+        44
+      ],
+      "shipped": [
+        32,
+        44
+      ]
+    }
+  ]
+}
