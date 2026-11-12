@@ -126,32 +126,8 @@ func _try_catches(ring: Dictionary) -> void:
 				main.wheel_view.punch_hp(i)
 				main.wheel_view.punch_atk(i)
 				_hop_at(pos)
-	# Hotbar cards
-	if main.hotbar_box != null:
-		for c in main.hotbar_box.get_children():
-			if c == null:
-				continue
-			var uid_v: Variant = c.get("uid")
-			if typeof(uid_v) != TYPE_INT:
-				continue
-			var uid: int = uid_v
-			if uid < 0:
-				continue
-			var key := "card_%s" % uid
-			if caught.has(key):
-				continue
-			var id := _card_id_for_uid(uid)
-			if id not in ["spiked_flail", "breastplate", "pacemaker", "blood_chalice"]:
-				continue
-			# Pacemaker only listens to an exact-2 loss. Other listeners hop on any bleed.
-			if id == "pacemaker" and int(ring.get("n", 0)) != 2:
-				continue
-			var pos2: Vector2 = c.get_global_rect().get_center()
-			if origin.distance_to(pos2) <= r:
-				caught[key] = true
-				if c.has_method("bounce"):
-					c.bounce()
-				_hop_control(c)
+	## Hotbar numbers pulse from the card itself when the digit changes.
+	## The ring stays the heart shockwave. It does not hop the cards.
 	ring["catches"] = caught
 
 

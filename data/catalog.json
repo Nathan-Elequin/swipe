@@ -273,7 +273,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1,
+			"count": 1.0,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(1 + missing HP)",
@@ -316,14 +316,14 @@
 			},
 			"pending_fields": null,
 			"poc": false,
-			"pool": 2,
-			"priority": 2,
+			"pool": 2.0,
+			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
@@ -515,7 +515,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1,
+			"count": 1.0,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(1 + missing HP)",
@@ -558,14 +558,14 @@
 			},
 			"pending_fields": null,
 			"poc": false,
-			"pool": 2,
-			"priority": 3,
+			"pool": 2.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
@@ -6517,14 +6517,14 @@
 		{
 			"ability": "I Always have +4 HP and +4 ATK when I am Facing you.",
 			"atk": {
-				"base": 2
+				"base": 2.0
 			},
-			"atk_base": 2,
+			"atk_base": 2.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Headstrong",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "While I am Facing you, my HP and Attack are each 4 higher than my base (base HP 3 and ATK 2 → 7 HP and 6 ATK while facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
 			"exceptions": "Batch-2 2026-11-06 Headstrong rework. Replaces Steady Steel min-3. Fairy no-carry. flags.dev until facing +4/+4 buff is wired. Still art reused; facing from Pixel lock B duplicated to idle f0–f3.",
 			"explainer": "Always +4/+4 while Facing (no carry after Move)",
@@ -6535,9 +6535,9 @@
 			},
 			"flow": "While I am Facing you, my HP and Attack are each 4 higher than my base (base HP 3 and ATK 2 → 7 HP and 6 ATK while facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
 			"hp": {
-				"base": 3
+				"base": 3.0
 			},
-			"hp_base": 3,
+			"hp_base": 3.0,
 			"hp_formula": "",
 			"id": "anvil",
 			"locked_at": "2026-11-12",
@@ -6569,14 +6569,14 @@
 			"ops": {},
 			"pending_fields": null,
 			"poc": false,
-			"pool": 5,
-			"priority": 4,
+			"pool": 5.0,
+			"priority": 4.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "Nerf base attack from 4 down to 2",
 			"status": "todo",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
@@ -6626,9 +6626,9 @@
 		{
 			"ability": "When I Attack while you face me, I force you to Gain 1 Item and Flee.",
 			"atk": {
-				"base": 4
+				"base": 4.0
 			},
-			"atk_base": 4,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Mockery",
@@ -6644,9 +6644,9 @@
 			},
 			"flow": "When I Attack while you are facing me, if you still have HP after that Attack: I say one mocking line, you Gain 1 Item (a random live item, not a copy from the dungeon pile; no Smoke Bomb, no tokens, no curses), and if your hand is over 10 you discard down to 10. Then you Flee. The wheel spins at random and I stay, still at my current HP. I do not gain HP. I do not play the item. Swings while you face someone else do not do this. Quiet Bell strips this. A blocked Attack still counts. If no item can be given, you still Flee. A hit that drops you to 0 does not give an item and does not spin.",
 			"hp": {
-				"base": 14
+				"base": 14.0
 			},
-			"hp_base": 14,
+			"hp_base": 14.0,
 			"hp_formula": "",
 			"id": "cowardly_king",
 			"locked_at": "2026-11-12",
@@ -8914,32 +8914,32 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
+			"ability": "When you Defeat any other enemy, I Bag it for you, lose 3 HP, and lose 2 Attack.",
 			"atk": {
-				"base": 7.0
+				"base": 10
 			},
-			"atk_base": 7.0,
+			"atk_base": 10,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "New Specimen",
 			"card_color": "",
-			"count": 1.0,
-			"defined": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP. Quiet Bell turns this off. Discard without Use no longer harms me.",
+			"count": 1,
+			"defined": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP and 2 Attack (Attack stops at 0). Quiet Bell turns this off. Discard without Use no longer harms me.",
 			"exceptions": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal). Balance Nov8 — Bag costs Collector −3 HP; discard tax removed.",
-			"explainer": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
+			"explainer": "Defeat other: Bag at pre-lethal HP; I lose 3 HP and 2 Attack",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP. Quiet Bell turns this off. Discard without Use no longer harms me.",
+			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP and 2 Attack (Attack stops at 0). Quiet Bell turns this off. Discard without Use no longer harms me.",
 			"hp": {
-				"base": 15.0
+				"base": 15
 			},
-			"hp_base": 15.0,
+			"hp_base": 15,
 			"hp_formula": "",
 			"id": "collector",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -8961,20 +8961,20 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Defeat other→Bag; Collector −3 HP",
+			"log_hint": "Defeat other→Bag; Collector −3 HP and −2 Attack",
 			"mode_pool": "all",
 			"name": "Collector",
-			"notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal). Balance Nov8 — Bag costs Collector −3 HP; discard tax removed.",
+			"notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal). Balance Nov8 — Bag costs Collector −3 HP; discard tax removed. 2026-11-12 — base Attack 10; each Bag also costs 2 Attack.",
 			"ops": {},
 			"poc": false,
-			"pool": 5.0,
-			"priority": 3.0,
+			"pool": 5,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M"
 		}
 	],

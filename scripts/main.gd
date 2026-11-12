@@ -271,7 +271,7 @@ const MONSTER_SPECIAL := {
 	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
 	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move."},
 	"phantom": {"id": "dark_matter", "text": "I Always Shroud my Neighbors and the Dungeon Deck. When I enter, I Shuffle the wheel."},
-	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it for you and lose 3 HP."},
+	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it for you, lose 3 HP, and lose 2 Attack."},
 }
 
 const MONSTER_CALL := {
@@ -393,7 +393,7 @@ const MONSTER_REMINDER := {
 	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
 	"phantom": "Enter: shuffle the wheel. Neighbors and the top of the Dungeon Deck stay hidden until you Defeat them or resolve combat while facing them. My Defeat clears every cover.",
-	"collector": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
+	"collector": "Defeat other: Bag at pre-lethal HP; I lose 3 HP and 2 Attack",
 }
 
 const MONSTER_SPEECH := {
@@ -452,7 +452,7 @@ const MONSTER_SPEECH := {
 	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
 	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
 	"phantom": "I Always Shroud my Neighbors and the Dungeon Deck. When I enter, I Shuffle the wheel.",
-	"collector": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
+	"collector": "When you Defeat any other enemy, I Bag it for you, lose 3 HP, and lose 2 Attack.",
 }
 
 var catalog: Dictionary = {}
@@ -542,6 +542,7 @@ var beads_step: int = 1
 var _reroll_skip: int = -1
 var rng := RandomNumberGenerator.new()
 var _hotbar_sig: String = ""
+var _item_pulses: Array = []
 var _blk_shown: int = -1
 var _ghost_blk: int = -1
 var _inspect_pinned: bool = false
@@ -7615,6 +7616,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 			_apply_hunger_penalty(s, not bool(s.get("atk_locked", false)), not bool(s.get("hp_locked", false)))
 		if not bool(s.get("atk_locked", false)):
 			_apply_sandbag_cut(s)
+			_apply_specimen_cut(s)
 		s["ability"] = ""
 		s["explainer"] = ""
 		s["special_id"] = ""
@@ -7677,12 +7679,22 @@ func _apply_formulas_to(s: Dictionary) -> void:
 				s["atk"] = int(s.get("atk", 0)) + extra_atk
 	if not atk_locked:
 		_apply_sandbag_cut(s)
+	_apply_specimen_cut(s)
 
 
 func _apply_sandbag_cut(s: Dictionary) -> void:
 	if str(s.get("card_id", "")) != "sandbag":
 		return
 	var n: int = int(s.get("sandbag_cut", 0))
+	if n <= 0:
+		return
+	s["atk"] = maxi(0, int(s.get("atk", 0)) - n)
+
+
+func _apply_specimen_cut(s: Dictionary) -> void:
+	if str(s.get("card_id", "")) != "collector":
+		return
+	var n: int = int(s.get("specimen_cut", 0))
 	if n <= 0:
 		return
 	s["atk"] = maxi(0, int(s.get("atk", 0)) - n)
@@ -21200,7 +21212,7 @@ func _collector_spawn_bag(m: Dictionary, pre_hp: int) -> void:
 		await _enforce_hand_cap()
 
 
-## After Bagging another Defeat, each living Collector loses 3 HP.
+## After Bagging another Defeat, each living Collector loses 3 HP and 2 Attack.
 func _collector_bag_self_cost(collectors: Array[int]) -> void:
 	if collectors.is_empty():
 		return
@@ -21225,6 +21237,20 @@ func _collector_bag_self_cost(collectors: Array[int]) -> void:
 		var delta: int = int(wheel[ci].get("hp", 0)) - before_hp
 		if delta != 0:
 			await _play_stat_delta(ci, true, delta)
+		if ci < 0 or ci >= wheel.size():
+			continue
+		if str(wheel[ci].get("card_id", "")) != "collector":
+			continue
+		if int(wheel[ci].get("hp", 0)) <= 0:
+			continue
+		var before_atk: int = int(wheel[ci].get("atk", 0))
+		wheel[ci]["specimen_cut"] = int(wheel[ci].get("specimen_cut", 0)) + 2
+		var after_atk: int = maxi(0, before_atk - 2)
+		wheel[ci]["atk"] = after_atk
+		var atk_delta: int = after_atk - before_atk
+		if atk_delta != 0:
+			_log("on_resolve", "Collector −2 Attack (New Specimen)")
+			await _play_stat_delta(ci, false, atk_delta)
 	await _run_dead_sweep()
 
 
@@ -28295,6 +28321,62 @@ func _free_stray_marble_rolls() -> void:
 			c.queue_free()
 
 
+func _note_item_update_pulse(card, it: Dictionary, petrify_n: int, can_click: bool) -> void:
+	if card == null or not is_instance_valid(card) or not card.has_method("take_value_edge"):
+		return
+	var edge: Dictionary = card.take_value_edge()
+	var id := str(it.get("card_id", ""))
+	var legal := false
+	if id in ["da_boot", "sledgehammer", "orb", "tesla_coil", "last_match"] and card.has_method("mark_became_legal"):
+		legal = card.mark_became_legal(can_click and not bool(it.get("spent", false)) and petrify_n <= 0)
+	if bool(it.get("shrouded", false)) or bool(it.get("spent", false)):
+		return
+	var tone := ""
+	if not edge.is_empty():
+		if id == "toll":
+			tone = "toll"
+		elif id in ["hex", "recycler", "spinning_top"]:
+			tone = "mint"
+		elif petrify_n > 0:
+			tone = "bad"
+		else:
+			tone = _item_value_tone(str(edge.get("old", "")), str(edge.get("new", "")))
+	elif legal:
+		tone = "light"
+	if tone == "":
+		return
+	_item_pulses.append({"card": card, "tone": tone})
+
+
+func _item_value_tone(old_s: String, new_s: String) -> String:
+	## Higher number you can spend is good. A lower one is bad.
+	if old_s.is_valid_int() and new_s.is_valid_int():
+		if int(new_s) > int(old_s):
+			return "good"
+		if int(new_s) < int(old_s):
+			return "bad"
+		return ""
+	if new_s.is_valid_int() and not old_s.is_valid_int():
+		return "good"
+	if old_s.is_valid_int() and not new_s.is_valid_int():
+		return "bad"
+	return "mint"
+
+
+func _flush_item_pulses() -> void:
+	var batch: Array = _item_pulses.duplicate()
+	_item_pulses.clear()
+	var step := 0
+	for row in batch:
+		if typeof(row) != TYPE_DICTIONARY:
+			continue
+		var card = row.get("card", null)
+		if card == null or not is_instance_valid(card) or not card.has_method("play_update_pulse"):
+			continue
+		card.play_update_pulse(str(row.get("tone", "good")), float(step) * 0.08)
+		step += 1
+
+
 func _sync_hotbar() -> void:
 	_free_stray_marble_rolls()
 	if hotbar_box is GridContainer:
@@ -28440,6 +28522,7 @@ func _sync_hotbar() -> void:
 		_apply_item_stone_look(card, it)
 		if card.has_method("set_playable"):
 			card.set_playable(can_click)
+		_note_item_update_pulse(card, it, pn, can_click)
 		if card.has_method("set_guarding"):
 			card.set_guarding(false)
 		_apply_bag_look(card, it)
@@ -28516,6 +28599,8 @@ func _sync_hotbar() -> void:
 		hotbar_panel.reset_size()
 	_recenter_hotbar()
 	call_deferred("_recenter_hotbar")
+	if not _item_pulses.is_empty():
+		call_deferred("_flush_item_pulses")
 	_place_hotbar_overflow()
 	call_deferred("_place_hotbar_overflow")
 	_clear_choice_overlay()

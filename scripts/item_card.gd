@@ -58,6 +58,12 @@ var _shroud_mark: Label
 var _tier: int = 1
 var _num_col: Color = Color.WHITE
 var _shown: String = ""
+var _edge_on: bool = false
+var _edge_old: String = ""
+var _edge_new: String = ""
+var _pulse_tw: Tween
+var _legal_known: bool = false
+var _legal_now: bool = false
 var _lift: Tween
 var _formula: String = ""
 var _formula_on: bool = false
@@ -1193,6 +1199,7 @@ func set_showcase(on: bool) -> void:
 func set_live(number_text: String, _note: String = "", can_use: bool = true) -> void:
 	if _num == null:
 		return
+	var prev_shown: String = _shown
 	var or_bits: PackedStringArray = _or_parts(number_text)
 	var wordy: bool = number_text.length() > 2 and not number_text.is_valid_int()
 	var face: int = 48 if _showcase else 32
@@ -1231,6 +1238,10 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 		_num.text = number_text
 		if _or:
 			_or.visible = false
+	if not _showcase and prev_shown != "" and number_text != "" and number_text != prev_shown:
+		_edge_on = true
+		_edge_old = prev_shown
+		_edge_new = number_text
 	if _mode_tags_on:
 		_num.visible = false
 		if _ghost:
@@ -2210,6 +2221,90 @@ func toss(slow: bool = false) -> void:
 	await tw.finished
 	if is_instance_valid(self):
 		queue_free()
+
+
+func take_value_edge() -> Dictionary:
+	if not _edge_on:
+		return {}
+	_edge_on = false
+	return {"old": _edge_old, "new": _edge_new}
+
+
+func mark_became_legal(now: bool) -> bool:
+	if not _legal_known:
+		_legal_known = true
+		_legal_now = now
+		return false
+	var rose: bool = now and not _legal_now
+	_legal_now = now
+	return rose
+
+
+func play_update_pulse(tone: String, delay: float = 0.0) -> void:
+	## Shared hotbar reaction: tint, lift, settle. Toll is larger.
+	if _showcase or _shrouded or _waiting_entry or _selector_dim:
+		return
+	if _pulse_tw != null and is_instance_valid(_pulse_tw):
+		_pulse_tw.kill()
+	var tw := create_tween()
+	_pulse_tw = tw
+	if delay > 0.0:
+		tw.tween_interval(delay)
+	tw.tween_callback(_run_update_pulse.bind(tone))
+
+
+func _run_update_pulse(tone: String) -> void:
+	if not is_instance_valid(self) or _showcase or _shrouded or _waiting_entry:
+		return
+	var lift := 6.0
+	var pop := 1.06
+	var up := 0.06
+	var down := 0.08
+	var tint := Color(0.62, 0.82, 1.0)
+	match tone:
+		"bad":
+			tint = Color(1.0, 0.55, 0.55)
+		"mint":
+			tint = Color(0.70, 0.96, 0.82)
+		"light":
+			tint = Color(0.70, 0.96, 0.82)
+			lift = 3.0
+			pop = 1.03
+		"toll":
+			tint = Color(0.86, 0.22, 0.22)
+			lift = 12.0
+			pop = 1.14
+			up = 0.08
+			down = 0.12
+		_:
+			tint = Color(0.62, 0.82, 1.0)
+	var base := position
+	var old_pivot := pivot_offset
+	pivot_offset = size * 0.5
+	var tw := create_tween()
+	_pulse_tw = tw
+	tw.tween_property(self, "position", base + Vector2(0, -lift), up).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(self, "scale", Vector2(pop, pop), up).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(self, "modulate", tint, up * 0.45)
+	tw.tween_property(self, "position", base, down).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.parallel().tween_property(self, "scale", Vector2.ONE, down).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.parallel().tween_property(self, "modulate", Color.WHITE, down)
+	tw.finished.connect(_end_update_pulse.bind(old_pivot), CONNECT_ONE_SHOT)
+
+
+func _end_update_pulse(old_pivot: Vector2) -> void:
+	if not is_instance_valid(self):
+		return
+	pivot_offset = old_pivot
+	scale = Vector2.ONE
+	if _selector_dim:
+		modulate = Color(0.38, 0.36, 0.34, 1.0)
+	elif _petrified and not _petrify_dummy:
+		modulate = Color(0.58, 0.56, 0.52, 1.0)
+	elif spent:
+		modulate = Color(0.86, 0.84, 0.80, 1.0)
+	else:
+		modulate = Color.WHITE
 
 
 func bounce() -> void:
