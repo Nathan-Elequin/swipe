@@ -7313,6 +7313,7 @@ func _echo_skeletons() -> void:
 	_sync_wheel_stats()
 	if wheel_view:
 		wheel_view.set_slices(wheel, facing_index, "none")
+	var echo_step: int = 0
 	for i in before.keys():
 		var idx: int = int(i)
 		if idx < 0 or idx >= wheel.size():
@@ -7323,12 +7324,12 @@ func _echo_skeletons() -> void:
 			continue
 		var look_from: Vector2 = _stat_pip_pos(idx, true)
 		if look_from != Vector2.ZERO and from != Vector2.ZERO:
-			await _radiate_line(from, look_from, _link_color("last_hp"))
+			await _radiate_line(from, look_from, _link_color("last_hp"), 0.06, true, false, echo_step, "skeleton")
+			echo_step += 1
 		var now_hp: int = int(wheel[idx].get("hp", 0))
 		var d: int = now_hp - int(before[i])
 		if d == 0:
 			continue
-		_sfx_ability("skeleton")
 		await _play_stat_delta(idx, true, d, from)
 
 
@@ -9827,11 +9828,12 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	_trace_resolve("swing %s n=%s" % [str(m.get("card_id", "")), hit_n])
 	## War Cry is the neighbor +2. Play it only on the first swing of a monster who has that bonus right now.
 	if hit_n <= 1 and at >= 0 and at < wheel.size() and int(wheel[at].get("aura_atk", 0)) > 0:
-		_sfx_ability("commander")
+		var cry_step: int = 0
 		for cmd_i in _neighbors_of(at):
 			if not _living_id(cmd_i, "commander"):
 				continue
-			await _radiate_line(_slice_from(cmd_i), _slice_from(at), _link_color("buff_atk"))
+			await _radiate_line(_slice_from(cmd_i), _slice_from(at), _link_color("buff_atk"), 0.06, true, false, cry_step, "commander" if cry_step == 0 else "")
+			cry_step += 1
 	## Monster4 optional attack oneshots (Scale kick A).
 	var swing_id: String = str(m.get("card_id", ""))
 	if swing_id == "quicksand_crab":
@@ -13402,7 +13404,7 @@ func _fairy_floor_after_loss(index: int, before: int) -> bool:
 		return false
 	var fairy_i: int = _fairy_seat_for(index)
 	if fairy_i >= 0:
-		await _radiate_line(_slice_from(fairy_i), _slice_hp_pos(index), _link_color("buff_hp"))
+		await _radiate_line(_slice_from(fairy_i), _slice_hp_pos(index), _link_color("buff_hp"), 0.06, true, false, 0, "fairy")
 	if index < 0 or index >= wheel.size():
 		return false
 	m = wheel[index]
@@ -13412,7 +13414,6 @@ func _fairy_floor_after_loss(index: int, before: int) -> bool:
 	if str(m.get("card_id", "")) == "slime_boss":
 		m["atk"] = 1
 	wheel[index] = m
-	_sfx_ability("fairy")
 	_log("on_resolve", "Fairy Dust  →  %s HP 1" % str(m.get("name", "?")))
 	return true
 
@@ -13639,14 +13640,17 @@ func _apply_plague_doctor_on_spin() -> void:
 			continue
 		var origin: Vector2 = _slice_from(pd)
 		var col: Color = _link_color("time_bomb")
-		await _radiate_line(origin, _hub_hp_pos(), col)
+		var out_step: int = 0
+		await _radiate_line(origin, _hub_hp_pos(), col, 0.06, false, false, out_step)
+		out_step += 1
 		_gain_player_poison(1)
 		for i in wheel.size():
 			if str(wheel[i].get("kind", "")) != "monster":
 				continue
 			if int(wheel[i].get("hp", 0)) <= 0:
 				continue
-			await _radiate_line(origin, _slice_hp_pos(i), col)
+			await _radiate_line(origin, _slice_hp_pos(i), col, 0.06, false, false, out_step)
+			out_step += 1
 			_add_monster_poison(i, 1)
 		_log("on_spin", "Outbreak  →  you and every monster +1")
 	_sync_plague_poison()
@@ -16729,43 +16733,45 @@ func _damsel_resolve() -> void:
 		if not neigh.is_empty():
 			aim = _slice_from(neigh[0])
 		await _announce_slice(facing_index, aim)
-	for j in _damsel_neighbors(facing_index):
-		var nm: Dictionary = wheel[j]
-		await _radiate_line(_slice_from(facing_index), _slice_from(j), _link_color("two_items"))
-		await _announce_slice(j, _hub_hp_pos())
-		if combat_stage:
-			combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
-		if get_tree():
-			await get_tree().create_timer(0.35).timeout
-		if _blood_threshes(j):
-			await _shark_attack_player(j)
+		var damsel_step: int = 0
+		for j in _damsel_neighbors(facing_index):
+			var nm: Dictionary = wheel[j]
+			await _radiate_line(_slice_from(facing_index), _slice_from(j), _link_color("two_items"), 0.06, false, false, damsel_step)
+			damsel_step += 1
+			await _announce_slice(j, _hub_hp_pos())
+			if combat_stage:
+				combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
+			if get_tree():
+				await get_tree().create_timer(0.35).timeout
+			if _blood_threshes(j):
+				await _shark_attack_player(j)
+				if hp > 0:
+					await _straight_shot_after(j)
+				if hp <= 0:
+					await _bleed_end()
+					_player_down()
+					return
+				continue
+			var hits: int = _hit_count(j)
+			for h in range(hits):
+				if hp <= 0:
+					break
+				await _owner_attack(nm, h + 1, hits, j)
+				await _after_self_deconstruct(j)
+				if j >= 0 and j < wheel.size():
+					nm = wheel[j]
+				if hp <= 0:
+					break
+				if j >= 0 and j < wheel.size() and int(wheel[j].get("hp", 0)) <= 0:
+					break
+				if hits > 1 and h < hits - 1:
+					await get_tree().create_timer(0.08).timeout
 			if hp > 0:
 				await _straight_shot_after(j)
 			if hp <= 0:
 				await _bleed_end()
 				_player_down()
 				return
-			continue
-		var hits: int = _hit_count(j)
-		for h in range(hits):
-			if hp <= 0:
-				break
-			await _owner_attack(nm, h + 1, hits, j)
-			await _after_self_deconstruct(j)
-			if j >= 0 and j < wheel.size():
-				nm = wheel[j]
-			if hp <= 0:
-				break
-			if j >= 0 and j < wheel.size() and int(wheel[j].get("hp", 0)) <= 0:
-				break
-			if hits > 1 and h < hits - 1:
-				await get_tree().create_timer(0.08).timeout
-		if hp > 0:
-			await _straight_shot_after(j)
-		if hp <= 0:
-			await _bleed_end()
-			_player_down()
-			return
 	await _slay_dead_after_watch()
 	if hp <= 0:
 		await _bleed_end()
@@ -18766,21 +18772,27 @@ func _link_color(sid: String) -> Color:
 
 ## One travel line. Adjacency uses the Straight Shot paint in the call-name color.
 ## Stone petrify stays the thin grey beam and does not play the travel whoosh.
-func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06, play_sound: bool = true, stone: bool = false) -> void:
+func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06, play_sound: bool = true, stone: bool = false, step: int = 0, sound_id: String = "") -> void:
 	if _qa_instant():
 		return
 	if to == Vector2.ZERO:
 		return
 	if from == Vector2.ZERO:
 		from = to + Vector2(0, -80)
+	var pace: float = pow(1.3, float(maxi(step, 0)))
 	if not stone:
-		if play_sound and sfx:
-			sfx.play("whoosh", -4.0, 0.88)
+		## No shared whoosh. The first line of a burst uses that monster's own cue.
+		if play_sound and step <= 0 and sound_id != "" and sfx:
+			if sound_id.begins_with("mon.") or sound_id.begins_with("item."):
+				sfx.play_event(StringName(sound_id))
+			else:
+				_sfx_ability(sound_id)
 		var link := ABILITY_LINK.new()
 		add_child(link)
-		await link.play(from, to, col)
-		if linger > 0.0 and get_tree():
-			await get_tree().create_timer(linger).timeout
+		await link.play(from, to, col, (0.34 / 1.5) / pace)
+		var hold: float = linger / pace
+		if hold > 0.0 and get_tree():
+			await get_tree().create_timer(hold).timeout
 		if is_instance_valid(link):
 			link.queue_free()
 		return
@@ -19201,9 +19213,7 @@ func _flush_hydra_devour() -> void:
 				if wheel_view.has_method("slice_portrait_global"):
 					from = wheel_view.slice_portrait_global(h_i)
 					to = wheel_view.slice_portrait_global(v_i)
-			await _radiate_line(from, to, _link_color("hungry_heads"), 0.12)
-			if sfx:
-				sfx.play_event(&"mon.ability.hydra")
+			await _radiate_line(from, to, _link_color("hungry_heads"), 0.12, true, false, 0, "hydra")
 			_log("on_resolve", "Hungry Heads %s  +1 multiattack" % [wheel[v_i].get("name", "?")])
 			await _hydra_defeat_as_item(v_i)
 			h_i = _index_of_seat(h_uid)
@@ -19824,6 +19834,7 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 			continue
 		tags.append(_tag_share(share))
 	var told := false
+	var prism_step: int = 0
 	_begin_simul()
 	for tok in tags:
 		var j: int = _index_of_share(tok)
@@ -19835,7 +19846,8 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 			j = _index_of_share(tok)
 			if j < 0:
 				continue
-		await _radiate_line(_slice_from(index), _slice_hp_pos(j), _link_color("refract"))
+		await _radiate_line(_slice_from(index), _slice_hp_pos(j), _link_color("refract"), 0.06, false, false, prism_step)
+		prism_step += 1
 		j = _index_of_share(tok)
 		if j < 0:
 			continue
@@ -19918,7 +19930,7 @@ func _telegraph_pass(path: Array) -> void:
 			var prev: int = int(path[i - 1])
 			var nxt: int = int(path[mini(i + 1, path.size() - 1)])
 			await _announce_slice(idx, _slice_from(nxt) if nxt != idx else _slice_hp_pos(idx))
-			await _radiate_line(_slice_from(prev), _slice_hp_pos(idx), _link_color("take_instead"))
+			await _radiate_line(_slice_from(prev), _slice_hp_pos(idx), _link_color("take_instead"), 0.06, false, false, i - 1)
 		if wheel_view:
 			wheel_view.hit_feedback(idx, 0)
 			wheel_view.pulse_arrive(idx)
@@ -20430,6 +20442,7 @@ func _flush_crab_move_tax() -> void:
 	var from_move: Vector2 = Vector2.ZERO
 	if btn_move_left != null and btn_move_left.visible and btn_move_left.has_method("count_global_pos"):
 		from_move = btn_move_left.count_global_pos()
+	var crab_step: int = 0
 	for i in range(wheel.size()):
 		if str(wheel[i].get("card_id", "")) != "quicksand_crab":
 			continue
@@ -20437,7 +20450,8 @@ func _flush_crab_move_tax() -> void:
 			continue
 		var crab_before: int = int(wheel[i].get("hp", 0))
 		if from_move != Vector2.ZERO:
-			await _radiate_line(from_move, _slice_hp_pos(i), _link_color("sink_charge"))
+			await _radiate_line(from_move, _slice_hp_pos(i), _link_color("sink_charge"), 0.06, false, false, crab_step)
+			crab_step += 1
 		_log("on_resolve", "Quicksand Crab −%s HP (%s steps)" % [loss, steps])
 		await _chip_hp(i, loss)
 		await _show_hp_loss_pips(i, crab_before)
@@ -21293,6 +21307,7 @@ func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 			continue
 		plans.append(_plan_redirect(t, n))
 	var touched: Array[int] = []
+	var cleave_step: int = 0
 	for plan in plans:
 		if bool(plan.get("fizzle", false)) or bool(plan.get("moved", false)):
 			await _telegraph_pass(plan.get("path", []))
@@ -21308,7 +21323,8 @@ func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 		var already_doubled: bool = amount != n
 		var land_twins: bool = _twins_double_atk(landed, n) and not already_doubled
 		if landed >= 0:
-			await _radiate_line(from_pos, _slice_hp_pos(landed), Color("e07040"))
+			await _radiate_line(from_pos, _slice_hp_pos(landed), Color("e07040"), 0.06, false, false, cleave_step)
+			cleave_step += 1
 		if await _deal_atk_at(landed, amount, not land_twins, true, true):
 			_end_simul()
 			return true
@@ -22247,10 +22263,12 @@ func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dict
 		if used_damsels.has(src):
 			return
 		used_damsels[src] = true
+		var watch_step: int = 0
 		for j in _damsel_neighbors(src):
 			if dest < 0 or dest >= wheel.size() or int(wheel[dest].get("hp", 0)) <= 0:
 				break
-			await _radiate_line(_slice_from(src), _slice_from(j), _link_color("two_items"))
+			await _radiate_line(_slice_from(src), _slice_from(j), _link_color("two_items"), 0.06, true, false, watch_step, "damsel_in_distress")
+			watch_step += 1
 			var nb: Dictionary = wheel[j]
 			if str(nb.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(nb):
 				await _watch_attack(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
@@ -22700,12 +22718,14 @@ func _martyr_gift_neighbors(index: int) -> int:
 		return 0
 	await _announce_slice(index, _hub_hp_pos())
 	var from: Vector2 = _slice_from(index)
+	var gift_step: int = 0
 	for j in _neighbors_of(index):
 		if j < 0 or j >= wheel.size():
 			continue
 		if int(wheel[j].get("hp", 0)) <= 0:
 			continue
-		await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"))
+		await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"), 0.06, false, false, gift_step)
+		gift_step += 1
 		for _pip in gift:
 			if j < 0 or j >= wheel.size() or int(wheel[j].get("hp", 0)) <= 0:
 				break

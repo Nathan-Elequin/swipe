@@ -4,7 +4,7 @@ extends Node2D
 ## the ability's call-name color.
 
 
-func play(from: Vector2, to: Vector2, col: Color) -> void:
+func play(from: Vector2, to: Vector2, col: Color, travel_s: float = 0.227) -> void:
 	top_level = true
 	z_as_relative = false
 	z_index = 30
@@ -20,14 +20,15 @@ func play(from: Vector2, to: Vector2, col: Color) -> void:
 	set_meta("glow", glow)
 	set_meta("u", 0.0)
 	visible = true
+	var travel: float = maxf(travel_s, 0.05)
 	var tw := create_tween()
 	tw.tween_method(func(u: float) -> void:
 		set_meta("u", u)
 		queue_redraw()
-	, 0.0, 1.0, 0.34)
+	, 0.0, 1.0, travel)
 	await tw.finished
 	var fade := create_tween()
-	fade.tween_property(self, "modulate:a", 0.0, 0.14)
+	fade.tween_property(self, "modulate:a", 0.0, maxf(travel * 0.4, 0.04))
 	await fade.finished
 
 
