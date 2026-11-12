@@ -273,10 +273,10 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
-			"explainer": "(7 − HP)",
+			"explainer": "(1 + missing HP)",
 			"flags": {
 				"art": true,
 				"dev": true,
@@ -286,7 +286,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "medallion",
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -314,15 +314,16 @@
 			"ops": {
 				"kind": "blk_from_hp"
 			},
+			"pending_fields": null,
 			"poc": false,
-			"pool": 2.0,
-			"priority": 2.0,
+			"pool": 2,
+			"priority": 2,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
@@ -508,13 +509,13 @@
 			"type": "I"
 		},
 		{
-			"ability": "1 Attack, plus 1 for each HP you are missing.",
+			"ability": "+1 Attack for each HP you are missing.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "atk",
-			"count": 1.0,
+			"count": 1,
 			"defined": "",
 			"exceptions": "",
 			"explainer": "(1 + missing HP)",
@@ -527,7 +528,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "bloody_gauntlets",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -545,7 +546,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "1 Attack + 1 per missing HP",
 			"mode_pool": "all",
@@ -554,15 +556,16 @@
 			"ops": {
 				"kind": "atk_7_hp"
 			},
+			"pending_fields": null,
 			"poc": false,
-			"pool": 2.0,
-			"priority": 3.0,
+			"pool": 2,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0,
+			"tier": 1,
 			"type": "I",
 			"when_updated": [
 				"On Spin",
@@ -3111,7 +3114,7 @@
 			"call_name": "",
 			"card_color": "blk",
 			"count": 1.0,
-			"defined": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you (including commanded Attacks like Fangs, Damsel neighbors, and Petty King). That number stays between fights in the same dungeon. It clears when a new dungeon or a new run starts. Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
+			"defined": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you (including commanded Attacks like Fangs and Damsel neighbors). That number stays between fights in the same dungeon. It clears when a new dungeon or a new run starts. Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
 			"exceptions": "Bucket 2. Two round bucklers. Not Egg, not Poison.",
 			"explainer": "Block = last attacker Attack",
 			"flags": {
@@ -3119,7 +3122,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you (including commanded Attacks like Fangs, Damsel neighbors, and Petty King). That number stays between fights in the same dungeon. It clears when a new dungeon or a new run starts. Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
+			"flow": "Click during a fight. Used up. Gain Block equal to the Attack number of the last enemy that actually Attacked you (including commanded Attacks like Fangs and Damsel neighbors). That number stays between fights in the same dungeon. It clears when a new dungeon or a new run starts. Uses the buffed Attack at the moment of that Attack. Multiattack uses that Attack number once, not the sum of hits (Hornet with Attack 2 stays Block 2). Spin, Take preview, and the selected-enemy plate do not set this. Counts even if you took 0 damage or a Revival Potion revived you. Grey until an enemy has Attacked you.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "double_buckler",
@@ -4225,7 +4228,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1,
+			"count": 1.0,
 			"defined": "Starts at 0. Each Spin while this copy is in the hotbar (Smoke, Flee, auto-spin, landing) adds +1. Spins before pickup do not count. Click during a fight to Defeat the facing enemy when their HP equals this number; on a successful Defeat the card is consumed. A new Top starts at 0. Recycler return keeps the earned number (duplicate as-was). The number carries between fights in the same dungeon; a new dungeon resets to 0. No Discard-at-cap.",
 			"exceptions": "Pool 1 T1 Defeat. Starts 0; +1 subsequent Spins while held; no retroactive. Consume on successful equal-HP Defeat. Recycler preserves spinning_top_n.",
 			"explainer": "Defeat equal HP. +1 / Spin from 0",
@@ -4268,14 +4271,14 @@
 			},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 3,
-			"priority": 2,
+			"pool": 3.0,
+			"priority": 2.0,
 			"rarity": "starter",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "I"
 		},
 		{
@@ -5099,16 +5102,7 @@
 			"name": "Vampire",
 			"notes": "Once per hit or bleed, not once per heart. Every copy on the wheel.",
 			"ops": {},
-			"pending_fields": {
-				"atk_base": {
-					"from": 4.0,
-					"to": 5.0
-				},
-				"hp_base": {
-					"from": 4.0,
-					"to": 5.0
-				}
-			},
+			"pending_fields": {},
 			"poc": false,
 			"pool": 1.0,
 			"priority": 3.0,
@@ -5966,14 +5960,14 @@
 		{
 			"ability": "I petrify your highest Attack item until you Spin again.",
 			"atk": {
-				"base": 5
+				"base": 5.0
 			},
-			"atk_base": 5,
+			"atk_base": 5.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Petrify",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
 			"exceptions": "Petrify tooltip: Unplayable until your next Spin.",
 			"explainer": "Petrify highest Attack",
@@ -5984,9 +5978,9 @@
 			},
 			"flow": "After spin numbers, the highest Attack item in hand becomes Unplayable until the next Spin. Tie is random. No Attack items: nothing. Longbow and Spiked Shield count. Boot and Poison Flask do not. Smoke is a new Spin, so it clears. Attack still works. Cannot be Defeated unless Quiet Bell has silenced me.",
 			"hp": {
-				"base": 4
+				"base": 4.0
 			},
-			"hp_base": 4,
+			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "gargoyle",
 			"locked_at": "2026-11-08",
@@ -6018,14 +6012,14 @@
 			"ops": {},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 2,
-			"priority": 3,
+			"pool": 2.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "refined",
 			"review_note": "",
 			"status": "todo",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
@@ -6523,15 +6517,15 @@
 		{
 			"ability": "I Always have +4 HP and +4 ATK when I am Facing you.",
 			"atk": {
-				"base": 3.0
+				"base": 2
 			},
-			"atk_base": 3.0,
+			"atk_base": 2,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Headstrong",
 			"card_color": "",
-			"count": 1.0,
-			"defined": "While I am Facing you, my HP and Attack are each 4 higher than my base (base 3/3 → 7/7 facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
+			"count": 1,
+			"defined": "While I am Facing you, my HP and Attack are each 4 higher than my base (base HP 3 and ATK 2 → 7 HP and 6 ATK while facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
 			"exceptions": "Batch-2 2026-11-06 Headstrong rework. Replaces Steady Steel min-3. Fairy no-carry. flags.dev until facing +4/+4 buff is wired. Still art reused; facing from Pixel lock B duplicated to idle f0–f3.",
 			"explainer": "Always +4/+4 while Facing (no carry after Move)",
 			"flags": {
@@ -6539,14 +6533,14 @@
 				"dev": false,
 				"hide": false
 			},
-			"flow": "While I am Facing you, my HP and Attack are each 4 higher than my base (base 3/3 → 7/7 facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
+			"flow": "While I am Facing you, my HP and Attack are each 4 higher than my base (base HP 3 and ATK 2 → 7 HP and 6 ATK while facing). When I Move away or you Move away so I am no longer Facing, the +4/+4 ends immediately (Fairy-style no-carry: HP/ATK snap back to base; damage taken while facing does not leave a residual after Move). Ranged Attack can kill me. Poison that resolves before Facing fires can kill me before the buff applies. Quiet Bell strips this. Defeat still works.",
 			"hp": {
-				"base": 3.0
+				"base": 3
 			},
-			"hp_base": 3.0,
+			"hp_base": 3,
 			"hp_formula": "",
 			"id": "anvil",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"tier",
 				"count",
@@ -6565,22 +6559,24 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
 			"log_hint": "Facing: +4/+4",
 			"mode_pool": "all",
 			"name": "Anvil",
 			"notes": "Batch-2 2026-11-06 Headstrong rework. Replaces Steady Steel min-3. Fairy no-carry. flags.dev until facing +4/+4 buff is wired. Still art reused; facing from Pixel lock B duplicated to idle f0–f3.",
 			"ops": {},
+			"pending_fields": null,
 			"poc": false,
-			"pool": 5.0,
-			"priority": 4.0,
+			"pool": 5,
+			"priority": 4,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "",
-			"status": "live",
-			"tier": 2.0,
+			"review_note": "Nerf base attack from 4 down to 2",
+			"status": "todo",
+			"tier": 2,
 			"type": "M"
 		},
 		{
@@ -6628,32 +6624,32 @@
 			"type": "M"
 		},
 		{
-			"ability": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
+			"ability": "When I Attack while you face me, I force you to Gain 1 Item and Flee.",
 			"atk": {
-				"base": 2.0
+				"base": 4
 			},
-			"atk_base": 2.0,
+			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
-			"call_name": "Vindictive",
+			"call_name": "Mockery",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off. When I Attack while you are facing me, I gain 3 HP and Flee, and I keep that HP. A commanded Attack does not. A Defeat that is not my Attack still Defeats me.",
-			"exceptions": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
-			"explainer": "When I lose HP, the monster on my right Attacks. When I Attack while facing you, I gain 3 HP and Flee.",
+			"defined": "When I Attack while you are facing me, if you still have HP after that Attack: I say one mocking line, you Gain 1 Item (a random live item, not a copy from the dungeon pile; no Smoke Bomb, no tokens, no curses), and if your hand is over 10 you discard down to 10. Then you Flee. The wheel spins at random and I stay, still at my current HP. I do not gain HP. I do not play the item. Swings while you face someone else do not do this. Quiet Bell strips this. A blocked Attack still counts. If no item can be given, you still Flee. A hit that drops you to 0 does not give an item and does not spin.",
+			"exceptions": "Bucket 6, tier 3. Id stays cowardly_king. Sprite stays the current king.",
+			"explainer": "Facing Attack: Gain 1 Item, then you Flee.",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Whenever I lose HP (Attack, Poison Flask, Napalm, poison ticks), after the current item finishes, the living monster in the one seat counter-clockwise Attacks you the same way a Damsel neighbor Attacks. One loss event is one command, including a killing blow. Empty or dead right seat: nobody. Defeat items do not command. Hornet extra swings, Shambling falling apart, pierce, and current Attack all count. Spiked Flail or Needleback chipping me again commands again. Quiet Bell on me turns this off. When I Attack while you are facing me, I gain 3 HP and Flee, and I keep that HP. A commanded Attack does not. A Defeat that is not my Attack still Defeats me.",
+			"flow": "When I Attack while you are facing me, if you still have HP after that Attack: I say one mocking line, you Gain 1 Item (a random live item, not a copy from the dungeon pile; no Smoke Bomb, no tokens, no curses), and if your hand is over 10 you discard down to 10. Then you Flee. The wheel spins at random and I stay, still at my current HP. I do not gain HP. I do not play the item. Swings while you face someone else do not do this. Quiet Bell strips this. A blocked Attack still counts. If no item can be given, you still Flee. A hit that drops you to 0 does not give an item and does not spin.",
 			"hp": {
-				"base": 8.0
+				"base": 14
 			},
-			"hp_base": 8.0,
+			"hp_base": 14,
 			"hp_formula": "",
 			"id": "cowardly_king",
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -6675,16 +6671,16 @@
 				"card_color",
 				"review"
 			],
-			"log_hint": "Right monster Attacks when I lose HP. Facing Attack: gain 3 HP and Flee.",
+			"log_hint": "Facing Attack: Gain 1 Item, then you Flee.",
 			"mode_pool": "all",
-			"name": "Petty King",
-			"notes": "Bucket 6, tier 3. Id stays cowardly_king. Right is one seat counter-clockwise like Right Bracer. Any is plain English, not the Any-monster keyword.",
+			"name": "Tyrant",
+			"notes": "Bucket 6, tier 3. Id stays cowardly_king. 2026-11-12 Mockery: facing Attack gives 1 conjured item, then the player Flees. Neighbor command removed.",
 			"ops": {},
 			"poc": false,
 			"pool": 4.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "When I lose HP, the monster on my right Attacks. When I Attack while facing you, I gain 3 HP and Flee.",
+			"reminder": "When I Attack while you face me, you Gain 1 Item and Flee.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -7501,16 +7497,7 @@
 			"name": "Almighty Worm",
 			"notes": "Bucket 3. Sand worm. Overlay + Continue. Stats stay reduced.",
 			"ops": {},
-			"pending_fields": {
-				"atk_base": {
-					"from": 9.0,
-					"to": 12.0
-				},
-				"hp_base": {
-					"from": 9.0,
-					"to": 12.0
-				}
-			},
+			"pending_fields": {},
 			"poc": false,
 			"pool": 3.0,
 			"priority": 3.0,
@@ -7977,7 +7964,7 @@
 			"call_name": "Fairy Dust",
 			"card_color": "",
 			"count": 2.0,
-			"defined": "While I am alive and not silenced, each living neighbor that would drop to 0 HP from Attack or Poison stays at 1 HP instead. That is not a Defeat, so Petty King Flee, Commander Flee, and Phoenix rebirth do not fire from it. Defeat items, Eject, Polymorph, and Martyr's own death still work. Quiet Bell turns this off. I do not create a Fairy in a Bottle.",
+			"defined": "While I am alive and not silenced, each living neighbor that would drop to 0 HP from Attack or Poison stays at 1 HP instead. That is not a Defeat, so Commander Flee and Phoenix rebirth do not fire from it. Defeat items, Eject, Polymorph, and Martyr's own death still work. Quiet Bell turns this off. I do not create a Fairy in a Bottle.",
 			"exceptions": "Bottle is no longer created. Rework 2026-11-02: 1 HP floor on neighbors, not +1 HP. Quiet Bell turns it off.",
 			"explainer": "Neighbors cannot drop below 1 HP from damage or Poison",
 			"flags": {
@@ -7985,7 +7972,7 @@
 				"dev": true,
 				"hide": false
 			},
-			"flow": "While I am alive and not silenced, each living neighbor that would drop to 0 HP from Attack or Poison stays at 1 HP instead. That is not a Defeat, so Petty King Flee, Commander Flee, and Phoenix rebirth do not fire from it. Defeat items, Eject, Polymorph, and Martyr's own death still work. Quiet Bell turns this off. I do not create a Fairy in a Bottle.",
+			"flow": "While I am alive and not silenced, each living neighbor that would drop to 0 HP from Attack or Poison stays at 1 HP instead. That is not a Defeat, so Commander Flee and Phoenix rebirth do not fire from it. Defeat items, Eject, Polymorph, and Martyr's own death still work. Quiet Bell turns this off. I do not create a Fairy in a Bottle.",
 			"hp": {
 				"base": 1.0
 			},
@@ -8863,25 +8850,25 @@
 			"type": "M"
 		},
 		{
-			"ability": "When you use a non-Shrouded Item, I Shroud one of your Items",
+			"ability": "I Always Shroud my Neighbors and the Dungeon Deck. When I enter, I Shuffle the wheel.",
 			"atk": {
-				"base": 5.0
+				"base": 6.0
 			},
-			"atk_base": 5.0,
+			"atk_base": 6.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Dark Matter",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
-			"exceptions": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Rework 2026-11-06 — 5 HP / 5 ATK. Dark Matter shrouds 1 other item and slides it to the end. Veil stays after Defeat until that item is used. Keep use clears Shroud and does not re-Shroud on that same use.",
-			"explainer": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
+			"defined": "On enter, shuffle the wheel under covers. Neighbors stay covered even if they later leave those seats, until you Defeat them or finish combat while facing them. After that combat they stay visible. Flee covers them again only if they are still beside Phantom. The top of the Dungeon Deck stays covered. Phantom's Defeat clears every cover that Phantom caused. Quiet Bell lifts the covers while it lasts.",
+			"exceptions": "Rework 2026-11-12 — 6 HP / 6 ATK. Dark Matter covers neighbors and the top of the Dungeon Deck. Item Shroud is gone.",
+			"explainer": "Enter: shuffle the wheel. Neighbors and the top of the Dungeon Deck stay hidden until you Defeat them or resolve combat while facing them. My Defeat clears every cover.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Trigger is non-Shrouded Use only (shrouded reveal-then-use does not re-trigger, so a Keep that was Shrouded stays clean after that use). Shroud 1 other unspent non-Shrouded hand item at random, then slide it to the end of the hotbar. Click reveals then uses immediately if playable; Unplayable reveals and discards. Shroud stays after Phantom is Defeated, and into later fights, until that item is used. Quiet Bell turns the trigger off and does not clear existing Shrouds.",
+			"flow": "On enter, shuffle the wheel under covers. Neighbors stay covered even if they later leave those seats, until you Defeat them or finish combat while facing them. After that combat they stay visible. Flee covers them again only if they are still beside Phantom. The top of the Dungeon Deck stays covered. Phantom's Defeat clears every cover that Phantom caused. Quiet Bell lifts the covers while it lasts.",
 			"hp": {
 				"base": 6.0
 			},
@@ -8910,10 +8897,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Use: Shroud 1 other item until it is used",
+			"log_hint": "Enter: shuffle. Neighbors and the deck top stay hidden",
 			"mode_pool": "all",
 			"name": "Phantom",
-			"notes": "Monster4 2026-11-06 Pixel art (still B + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Rework 2026-11-06 — 5 HP / 5 ATK. Dark Matter shrouds 1 other item and slides it to the end. Veil stays after Defeat until that item is used. Keep use clears Shroud and does not re-Shroud on that same use.",
+			"notes": "Rework 2026-11-12 — 6 HP / 6 ATK. Dark Matter covers neighbors and the dungeon-deck top. Item Shroud is gone.",
 			"ops": {},
 			"poc": false,
 			"pool": 4.0,

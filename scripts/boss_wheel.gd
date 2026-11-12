@@ -3294,11 +3294,6 @@ func _collect_bond_pairs() -> Array:
 					if not _living_neighbor(j5):
 						continue
 					out.append(_bond_pair(i, j5, "prism", Color("e8c36a"), "", false, false, silenced, "atk", false, true))
-			"cowardly_king":
-				# Right = counter-clockwise = previous index. Matches `_right_monster` in main.gd.
-				var jr: int = posmod(i - 1, n)
-				if _living_neighbor(jr):
-					out.append(_bond_pair(i, jr, "king", Color("a0a8b8"), "", false, false, silenced, "atk"))
 			"wick":
 				for off6 in [n - 1, 1]:
 					var j6: int = (i + off6) % n

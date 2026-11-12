@@ -235,7 +235,7 @@ const MONSTER_SPECIAL := {
 	"anvil": {"id": "headstrong", "text": "I Always have +4 HP and +4 ATK when I am Facing you."},
 	"vampire": {"id": "bloodlust", "text": "Every time you lose HP, I gain +1 HP and +1 Attack."},
 	"bodyguard": {"id": "take_instead", "text": "When my Neighbors would take Attack Damage, I take it instead."},
-	"cowardly_king": {"id": "vindictive", "text": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee."},
+	"cowardly_king": {"id": "vindictive", "text": "When I Attack while you face me, I force you to Gain 1 Item and Flee."},
 	"merchant": {"id": "fair_trade", "text": "When you Spin me, choose an Item and I will swap it for one from a higher rarity"},
 	"juggernaut": {"id": "gift_shield", "text": "When you face me, Gain a Shield."},
 	"cleric": {"id": "insure", "text": "After you Spin, if you are missing at least 3 HP I will Heal you for 3 and take your worst Item"},
@@ -270,7 +270,7 @@ const MONSTER_SPECIAL := {
 	"oligarch": {"id": "wealth_tax", "text": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item"},
 	"huntsman": {"id": "straight_shot", "text": "When the monster Across from me Attacks you, I also Attack once after that multiattack ends."},
 	"quicksand_crab": {"id": "sink_charge", "text": "When you Move, I lose 2 HP per step after resolve. When you Spin me, Gain 1 Move."},
-	"phantom": {"id": "dark_matter", "text": "When you use a non-Shrouded Item, I Shroud one of your Items"},
+	"phantom": {"id": "dark_matter", "text": "I Always Shroud my Neighbors and the Dungeon Deck. When I enter, I Shuffle the wheel."},
 	"collector": {"id": "new_specimen", "text": "When you Defeat any other enemy, I Bag it for you and lose 3 HP."},
 }
 
@@ -306,7 +306,7 @@ const MONSTER_CALL := {
 	"beggar": "Finders Keepers",
 	"wick": "Death Toll",
 	"anvil": "Headstrong",
-	"cowardly_king": "Vindictive",
+	"cowardly_king": "Mockery",
 	"hydra": "Hungry Heads",
 	"three_seeker": "Triple Threat",
 	"phoenix_egg": "Hatch",
@@ -368,7 +368,7 @@ const MONSTER_REMINDER := {
 	"beggar": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
 	"wick": "-2 HP per Neighbor Defeated.",
 	"anvil": "Facing: Always +4/+4",
-	"cowardly_king": "lose HP: right neighbor Attacks. Facing Attack: +3 HP and Flee",
+	"cowardly_king": "Facing Attack: Gain 1 Item, then you Flee",
 	"three_seeker": "3, 6, or 9 items: Always Spin me next",
 	"triclops": "3 HP: Defeated. Else Defeat: −2 HP and Flee",
 	"phoenix_egg": "Defeated: Flee, become Phoenix",
@@ -392,7 +392,7 @@ const MONSTER_REMINDER := {
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
 	"huntsman": "Across Attacks you: I also Attack once after multiattacks",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
-	"phantom": "Non-Shrouded Use: Shroud one other item and move it to the end. It stays Shrouded until you use it.",
+	"phantom": "Enter: shuffle the wheel. Neighbors and the top of the Dungeon Deck stay hidden until you Defeat them or resolve combat while facing them. My Defeat clears every cover.",
 	"collector": "Defeat other: Bag at pre-lethal HP; I lose 3 HP",
 }
 
@@ -428,7 +428,7 @@ const MONSTER_SPEECH := {
 	"beggar": "I mark your worst Item, then Discard that Item when you Spin me.",
 	"wick": "I Lose 2 HP each time a Neighbor is Defeated",
 	"anvil": "I Always have +4 HP and +4 ATK when I am Facing you.",
-	"cowardly_king": "Every time I lose HP, I command my Neighbor to the right to Attack. When I Attack while facing you, I gain +3 HP and Flee.",
+	"cowardly_king": "When I Attack while you face me, I force you to Gain 1 Item and Flee.",
 	"three_seeker": "If you have 3, 6, or 9 Items, you Always Spin me next",
 	"triclops": "If I have 3 HP, I am Defeated. If I would be Defeated in any other way, I instead lose 2 HP and Flee.",
 	"phoenix_egg": "When I am Defeated, I Flee and hatch into a Phoenix.",
@@ -451,7 +451,7 @@ const MONSTER_SPEECH := {
 	"oligarch": "When I enter the Dungeon, Gain 2 Items. Whenever you Spin, I force you to use a random Item",
 	"huntsman": "When the monster Across from me Attacks you, I also Attack.",
 	"quicksand_crab": "When you Move, I lose 2 HP. When you Spin me, you Gain 1 Move.",
-	"phantom": "When you use a non-Shrouded Item, I Shroud one of your Items",
+	"phantom": "I Always Shroud my Neighbors and the Dungeon Deck. When I enter, I Shuffle the wheel.",
 	"collector": "When you Defeat any other enemy, I Bag it for you and lose 3 HP.",
 }
 
@@ -762,8 +762,39 @@ var _courier_gear: Dictionary = {}
 var _walker_busy: bool = false
 var _hold_holes: int = 0
 var _item_hold: bool = false
-var _vindictive_queue: Array = []
-var _vindictive_flushing: bool = false
+const TYRANT_LINES: PackedStringArray = [
+	"Oh, you had a plan. How precious.",
+	"Keep that thought. I will be over here, laughing.",
+	"You swung like you meant it. Adorable.",
+	"Was that the whole idea?",
+	"I brought you a toy. Try not to thank me.",
+	"Bold. Wrong, but bold.",
+	"You can explain the strategy after you run.",
+	"I have seen scarier shopping lists.",
+	"Take this. You look like you need a hobby.",
+	"That was almost a threat.",
+	"Run along. The grown-ups are talking.",
+	"I would clap, but you might think it counted.",
+	"A gift, since the idea clearly needed help.",
+	"You aimed. I noticed. That is the review.",
+	"Fleeing is very brave of you.",
+	"Hold this. It will not fix the plan.",
+	"I expected a twist. I got you.",
+	"Charming effort. Truly. Now go.",
+	"You may explain it to the next one.",
+	"I am not mad. I am entertained.",
+	"That courage needs a snack and a head start.",
+	"Take the item. Leave the confidence.",
+	"If this was step one, skip to the end.",
+	"You looked so sure. I almost felt something.",
+	"A present, for the attempt.",
+	"Do not linger. Lingering looks like thinking.",
+	"I will miss this. You will not.",
+	"Strategy is cute when it panics.",
+	"Here. Something shiny for the road.",
+	"You may go. I already won the conversation.",
+]
+var _tyrant_line_bag: Array = []
 ## Martyr seats that lost HP during an item. Noble Death waits until that item finishes.
 var _martyr_after_item: Dictionary = {}
 var _martyr_flushing: bool = false
@@ -788,6 +819,12 @@ var _fungal_stop_fight: bool = false
 var _crab_pending_steps: int = 0
 ## Phantom Dark Matter: reveal-then-use must not re-trigger Shroud.
 var _phantom_skip_dark_matter: bool = false
+## Opening deal holds enter slashes until the covered shuffle.
+var _phantom_hold_enter: bool = false
+## True while the shuffle animation covers every seat.
+var _phantom_veil_all: bool = false
+## Top of the Dungeon Deck is covered while a Phantom is active.
+var _phantom_deck_cover: bool = false
 ## Set when this click peeled a Shroud. The reveal is random, so Undo cannot put the veil back.
 var _shroud_blocks_undo: bool = false
 var _shroud_seq: int = 0
@@ -5633,6 +5670,7 @@ func _deal_opening_hand(items: Array) -> void:
 
 func _challenge_seat_dungeon(upgrade: bool) -> void:
 	var seq: int = _mill_seq
+	_phantom_hold_enter = true
 	_empty_wheel(CHALLENGE_SEATS)
 	challenge_deck.clear()
 	challenge_draft_plan.clear()
@@ -5661,13 +5699,14 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 		})
 		if i < adventure_seat_tiers.size():
 			adventure_seat_tiers[i] = _tier_of(seated)
-		if wheel_view:
+		if wheel_view and not _phantom_hold_enter:
 			_stamp_atk_variants()
 			wheel_view.set_slices(wheel, -1, "none")
 			wheel_view.pulse_arrive(i)
-		if sfx:
+		if sfx and not _phantom_hold_enter:
 			sfx.play_event(&"chal.seat_dungeon", {"pitch_mul": 1.0 + float(i) * 0.03})
-		await get_tree().create_timer(0.08).timeout
+		if not _phantom_hold_enter:
+			await get_tree().create_timer(0.08).timeout
 	for _d in deck_n:
 		if seq != _mill_seq:
 			return
@@ -5685,6 +5724,11 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 		await dungeon_deck_ui.play_shuffle()
 	if upgrade and seq == _mill_seq:
 		await _upgrade_two_openers()
+	_phantom_hold_enter = false
+	if seq == _mill_seq and _phantom_has_any():
+		await _phantom_opening_show()
+	elif seq == _mill_seq:
+		await _phantom_release_enters()
 	_refresh()
 	_layout_play_field()
 
@@ -6273,7 +6317,7 @@ func _fill_challenge_hole(i: int) -> void:
 	if BucketRules.is_token(monsters_by_id.get(arriver_id, {})):
 		return
 	var t: int = _tier_of(arriver)
-	var who: String = str(arriver.get("name", "Monster"))
+	var who: String = "?" if _monster_shrouded(arriver) else str(arriver.get("name", "Monster"))
 	if sfx:
 		sfx.play("open", -8.0)
 		sfx.play("bong", -14.0, 1.1)
@@ -6311,16 +6355,17 @@ func _challenge_refill_or_collapse(index: int) -> void:
 				await wheel_view.rotate_index_to_top(index, 0.42)
 			if _undo_stale(token):
 				return
+		var mystery_draw: bool = _index_beside_active_phantom(index)
 		if ability_slash:
 			var tex: Texture2D = null
-			if art != null:
+			if art != null and not mystery_draw:
 				tex = art.monster_still(nid)
 			await ability_slash.play({
-				"title": _title_case(str(monsters_by_id.get(nid, {}).get("name", nid))),
-				"call": MONSTER_LINES.call_of(nid, monsters_by_id.get(nid, {})),
+				"title": "?" if mystery_draw else _title_case(str(monsters_by_id.get(nid, {}).get("name", nid))),
+				"call": "" if mystery_draw else MONSTER_LINES.call_of(nid, monsters_by_id.get(nid, {})),
 				"tex": tex,
 				"is_item": false,
-				"card_id": nid,
+				"card_id": "" if mystery_draw else nid,
 			})
 			if _undo_stale(token):
 				return
@@ -6829,9 +6874,15 @@ func _seat_opener(si: int, mid: String, pack_kind: String) -> void:
 	m["spin_locked"] = false
 	_stamp_pack(m, _pack_tier_for(mid, monsters_by_id, int(monsters_by_id.get(mid, {}).get("tier", 1))), pack_kind)
 	wheel[si] = m
-	_log("on_place", "%s → %s" % [m["name"], m["slot"]])
 	_sync_wheel_stats()
+	if _phantom_hold_enter:
+		wheel[si]["enter_pending"] = true
+		return
+	if not _monster_shrouded(wheel[si]):
+		_log("on_place", "%s → %s" % [m["name"], m["slot"]])
 	await _maybe_enter_gains(si)
+	if str(wheel[si].get("card_id", "")) == "phantom":
+		await _phantom_shuffle_seats()
 
 
 func _take_monster_of_tier(tier: int) -> String:
@@ -6896,7 +6947,7 @@ func _upgrade_two_openers() -> void:
 		if si < adventure_seat_tiers.size():
 			adventure_seat_tiers[si] = next_t
 		await _seat_opener(si, nid, "starter")
-		if wheel_view:
+		if wheel_view and not _phantom_hold_enter:
 			_stamp_atk_variants()
 			wheel_view.set_slices(wheel, -1, "none")
 			wheel_view.pulse_arrive(si)
@@ -7724,6 +7775,7 @@ func _sync_wheel_stats() -> void:
 			wheel[i]["rage_fire"] = (not _is_silenced(wheel[i])) and int(wheel[i].get("outburst", 0)) > 0
 	_sync_plague_poison()
 	_mark_vars()
+	_phantom_paint_covers()
 
 
 func _paint_late_auras() -> void:
@@ -9165,6 +9217,7 @@ func _on_spin() -> void:
 			land_ctx["pitch_mul"] = sfx.deadly_pitch(str(land_m.get("card_id", "")))
 		sfx.play_event(sfx.resolve(&"enter", land_ctx), land_ctx)
 	facing_index = idx
+	_phantom_finish_flee()
 	if _magnet_pending_consume != "":
 		_consume_armed_magnets(_magnet_pending_consume)
 		_magnet_pending_consume = ""
@@ -9416,10 +9469,8 @@ func _unlock_if_fighting() -> void:
 		await _flush_rust_from_block()
 	_release_item_hold()
 	await _flush_martyr_after_item()
-	var died: bool = await _flush_vindictive()
-	if not died:
-		await _flush_hydra_devour()
-		await _flush_midfight_holes()
+	await _flush_hydra_devour()
+	await _flush_midfight_holes()
 	if cascade_ticker != null and cascade_ticker.has_method("end"):
 		cascade_ticker.end()
 	_restore_cascade_time_scale()
@@ -9470,6 +9521,10 @@ func _on_done() -> void:
 	_undo_inflight = false
 	_unspin_armed = false
 	_undo_live = {}
+	if facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index]):
+		_shroud_mark_seen(facing_index)
+		_phantom_paint_covers()
+		_refresh()
 	_trace_resolve("done face=%s hp=%s skip=%s" % [
 		str(wheel[facing_index].get("card_id", "")),
 		str(wheel[facing_index].get("hp", 0)),
@@ -9731,7 +9786,7 @@ func _apply_resolve_hits() -> int:
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int = -1) -> int:
 	enemy_attacked = true
 	# Buckler snapshot: buffed ATK at this Attack event (once per swing value, not hit-sum).
-	# Commanded swings (Fangs, Damsel neighbors, Petty King) come through here too.
+	# Commanded swings (Fangs, Damsel neighbors) come through here too.
 	last_attacker_atk = maxi(int(m.get("atk", 0)), 0)
 	buckler_seen = true
 	var at: int = src if src >= 0 else facing_index
@@ -13310,6 +13365,9 @@ func _chip_hp(index: int, n: int) -> bool:
 	var m: Dictionary = wheel[index]
 	var drop: int = _anvil_floor(m, n)
 	var before: int = int(m.get("hp", 0))
+	if before - drop <= 0 and _monster_shrouded(m):
+		_shroud_mark_seen(index)
+		_phantom_paint_covers()
 	_stamp_flee_before(m, drop)
 	m["hp_pre_hit"] = before
 	if _undying(m):
@@ -13333,7 +13391,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	if int(m.get("hp", 0)) > 0:
 		m.erase("flee_before")
 	wheel[index] = m
-	if wheel_view:
+	if wheel_view and not _monster_shrouded(m):
 		wheel_view.punch_hp(index)
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - slime_atk_before, _slice_from(index))
@@ -13341,8 +13399,6 @@ func _chip_hp(index: int, n: int) -> bool:
 		if _defer_martyr_until_item_done(index, before, int(m["hp"])) and _queue_martyr_after_item(index):
 			pass
 		elif await _martyr_after_hp_loss(index, before, int(m["hp"])):
-			return true
-		if await _vindictive_after_hp_loss(index):
 			return true
 	return false
 
@@ -14255,7 +14311,7 @@ func _maybe_oligarch_spawn(index: int) -> void:
 	_refresh()
 
 
-func _oligarch_deliver_item(id: String, from_i: int) -> void:
+func _oligarch_deliver_item(id: String, from_i: int, after_line: String = "Here, I bought you something nice") -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
@@ -14294,9 +14350,10 @@ func _oligarch_deliver_item(id: String, from_i: int) -> void:
 				break
 	if hotbar.size() > _forced_hand_cap():
 		await _enforce_hand_cap()
-		_speech_from_index = from_i
-		_cube_line = "Here, I bought you something nice"
-		_refresh()
+		if after_line != "":
+			_speech_from_index = from_i
+			_cube_line = after_line
+			_refresh()
 
 
 func _oligarch_playable_uids() -> Array:
@@ -15718,6 +15775,9 @@ func _announce_slice(index: int, to: Vector2 = Vector2.INF, fast: bool = false, 
 	if index < 0 or index >= wheel.size():
 		return
 	var s: Dictionary = wheel[index]
+	if _monster_shrouded(s):
+		await _phantom_slash_mystery()
+		return
 	_trace_resolve("announce %s call=%s" % [str(s.get("card_id", "")), str(s.get("call_name", ""))])
 	var call_n: String = str(s.get("call_name", "")).strip_edges()
 	var mid: String = str(s.get("card_id", ""))
@@ -16020,7 +16080,16 @@ func _try_commander_flee(index: int) -> bool:
 	return true
 
 
+func _tyrant_next_line() -> String:
+	if _tyrant_line_bag.is_empty():
+		_tyrant_line_bag = Array(TYRANT_LINES)
+		_tyrant_line_bag.shuffle()
+	return str(_tyrant_line_bag.pop_back())
+
+
 func _try_petty_king_flee(index: int) -> bool:
+	if hp <= 0:
+		return false
 	if index < 0 or index >= wheel.size():
 		return false
 	var s: Dictionary = wheel[index]
@@ -16030,30 +16099,30 @@ func _try_petty_king_flee(index: int) -> bool:
 		return false
 	if int(s.get("hp", 0)) <= 0:
 		return false
-	## Only his own Attack while you are facing him. Damsel and other commands do not.
+	## Only the Attack he makes while you are facing him.
 	if index != facing_index or not bool(s.get("has_attacked", false)):
 		return false
-	var before_hp: int = int(s.get("hp", 0))
-	s["hp"] = before_hp + 3
-	if int(s.get("hp_max", 0)) < int(s["hp"]):
-		s["hp_max"] = int(s["hp"])
-	s["spin_locked"] = false
-	s["hp_locked"] = true
-	wheel[index] = s
-	await _show_flee_stat_snap(index, before_hp)
-	s = wheel[index]
-	_log("on_resolve", "%s flees" % s.get("name", "Petty King"))
+	var line: String = _tyrant_next_line()
+	_speech_from_index = index
+	_cube_line = line
+	_refresh()
+	var pool: Array = _oligarch_gift_pool()
+	if pool.is_empty() or _hand_cannot_admit():
+		_log("discard", "Tyrant gift — nothing to give")
+	else:
+		pool.shuffle()
+		await _oligarch_deliver_item(str(pool[0]), index, line)
+	_cube_line = ""
+	_speech_from_index = -1
+	if speech_box:
+		speech_box.hide_speech()
+	_refresh()
+	if hp <= 0:
+		return true
+	_log("on_resolve", "%s: you Flee" % s.get("name", "Tyrant"))
 	if sfx:
 		sfx.play("door_open", -12.0)
-	if index == facing_index:
-		await _flee_spin()
-	else:
-		if wheel_view and wheel_view.slay_index == index:
-			wheel_view.clear_slay()
-		_refresh()
-		_challenge_vacate(index)
-		if adventure:
-			await _challenge_resolve_holes(index)
+	await _flee_spin()
 	return true
 
 
@@ -18320,14 +18389,12 @@ func _apply_napalm() -> bool:
 	if lost > 0:
 		if wheel_view and wheel_view.has_method("play_burn"):
 			await wheel_view.play_burn(face)
-		_vindictive_note(face)
 	for j in nbs:
 		var n_lost: int = _napalm_set_monster(j)
 		if n_lost <= 0:
 			continue
 		if wheel_view and wheel_view.has_method("play_burn"):
 			await wheel_view.play_burn(j)
-		_vindictive_note(j)
 		if hp <= 0:
 			return true
 	var drop: int = maxi(0, hp - 1)
@@ -18473,8 +18540,6 @@ func _after_item_resolved(it: Dictionary) -> void:
 		if not _phantom_skip_dark_matter and not bool(it.get("shrouded", false)):
 			await _phantom_dark_matter_on_use(it)
 	_phantom_skip_dark_matter = false
-	if await _flush_vindictive():
-		return
 	var spent_use: bool = bool(it.get("spent", false))
 	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
 	if not spent_use and not magnet_use:
@@ -19568,21 +19633,6 @@ func _pulse_arrow_heads() -> void:
 				c.set_aura(true)
 
 
-func _right_monster(index: int) -> int:
-	var n: int = wheel.size()
-	if n < 2 or index < 0 or index >= n:
-		return -1
-	# Right = counter-clockwise = previous index. Left Bracer is clockwise (+1).
-	var j: int = posmod(index - 1, n)
-	if j == index:
-		return -1
-	if str(wheel[j].get("kind", "")) != "monster":
-		return -1
-	if int(wheel[j].get("hp", 0)) <= 0:
-		return -1
-	return j
-
-
 func _living_id(index: int, id: String) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
@@ -19836,6 +19886,10 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 		return false
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
+	if before_hp - hit_n <= 0 and _monster_shrouded(m):
+		_shroud_mark_seen(index)
+		_phantom_paint_covers()
+		m = wheel[index]
 	_stamp_flee_before(m, hit_n)
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
@@ -19858,14 +19912,18 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	wheel[index] = m
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - before_atk, _slice_from(index))
-	last_atk_line = "%s  →  %s HP %s" % [hit_n, m.get("name", "?"), m.get("hp", 0)]
-	if sfx:
-		var hit_ctx := {"card_id": str(m.get("card_id", "")), "dmg": hit_n, "tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
-		sfx.play_event(sfx.resolve(&"hit", hit_ctx), hit_ctx)
-		sfx.play_event(sfx.resolve(&"hurt", hit_ctx), hit_ctx)
-	if wheel_view:
-		wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
-	_flash_hit_portrait(index)
+	var hidden_hit: bool = _monster_shrouded(m)
+	if hidden_hit:
+		last_atk_line = ""
+	else:
+		last_atk_line = "%s  →  %s HP %s" % [hit_n, m.get("name", "?"), m.get("hp", 0)]
+		if sfx:
+			var hit_ctx := {"card_id": str(m.get("card_id", "")), "dmg": hit_n, "tier": _tier_of(m), "monster_id": str(m.get("card_id", ""))}
+			sfx.play_event(sfx.resolve(&"hit", hit_ctx), hit_ctx)
+			sfx.play_event(sfx.resolve(&"hurt", hit_ctx), hit_ctx)
+		if wheel_view:
+			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
+		_flash_hit_portrait(index)
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _watch_skip_thorns:
 			pass
@@ -19884,94 +19942,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	if before_hp > int(m["hp"]):
 		if await _martyr_after_hp_loss(index, before_hp, int(m["hp"])):
 			return true
-		if await _vindictive_after_hp_loss(index):
-			return true
 	if await _check_triclops_three(index):
-		return true
-	return false
-
-
-func _vindictive_note(index: int) -> void:
-	if index < 0 or index >= wheel.size():
-		return
-	var s: Dictionary = wheel[index]
-	if str(s.get("card_id", "")) != "cowardly_king":
-		return
-	if _is_silenced(s):
-		return
-	_vindictive_queue.append(index)
-
-
-func _vindictive_after_hp_loss(index: int) -> bool:
-	_vindictive_note(index)
-	if _item_hold or _vindictive_flushing:
-		return false
-	return await _flush_vindictive()
-
-
-func _flush_vindictive() -> bool:
-	if _vindictive_flushing:
-		return false
-	_vindictive_flushing = true
-	_sync_wheel_stats()
-	var died := false
-	while not _vindictive_queue.is_empty() and hp > 0:
-		var king: int = int(_vindictive_queue.pop_front())
-		if king < 0 or king >= wheel.size():
-			continue
-		if str(wheel[king].get("card_id", "")) != "cowardly_king":
-			continue
-		if _is_silenced(wheel[king]):
-			continue
-		await _announce_slice(king)
-		var j: int = _right_monster(king)
-		if j >= 0:
-			await _radiate_line(_slice_from(king), _slice_from(j), _link_color("vindictive"))
-		if await _commanded_neighbor_attack(j):
-			died = true
-			break
-	if died:
-		_vindictive_queue.clear()
-	_vindictive_flushing = false
-	return died
-
-
-func _commanded_neighbor_attack(j: int) -> bool:
-	if j < 0 or j >= wheel.size():
-		return false
-	if str(wheel[j].get("kind", "")) != "monster":
-		return false
-	if int(wheel[j].get("hp", 0)) <= 0:
-		return false
-	var nm: Dictionary = wheel[j]
-	await _announce_slice(j, _hub_hp_pos())
-	if combat_stage:
-		combat_stage.show_monster(str(nm.get("card_id", "")), int(nm.get("tier", 1)))
-	if _blood_threshes(j):
-		await _shark_attack_player(j)
-		if hp <= 0:
-			_player_down()
-			return true
-		return false
-	var hits: int = _hit_count(j)
-	for h in range(hits):
-		if hp <= 0:
-			break
-		await _owner_attack(nm, h + 1, hits, j)
-		await _after_self_deconstruct(j)
-		if j >= 0 and j < wheel.size():
-			nm = wheel[j]
-		if hp <= 0:
-			break
-		if j >= 0 and j < wheel.size() and int(wheel[j].get("hp", 0)) <= 0:
-			break
-		if hits > 1 and h < hits - 1:
-			await get_tree().create_timer(0.08).timeout
-	if hp > 0:
-		if await _straight_shot_after(j):
-			return true
-	if hp <= 0:
-		_player_down()
 		return true
 	return false
 
@@ -20066,6 +20037,7 @@ func _flee_spin(_shuffle: bool = false) -> bool:
 	if facing_index >= 0 and facing_index < wheel.size():
 		var s: Dictionary = wheel[facing_index]
 		s["spin_locked"] = false
+		s["shroud_reflee"] = true
 		wheel[facing_index] = s
 		last_mob_atk = int(s.get("atk", 0))
 	await _run_dead_sweep()
@@ -20460,6 +20432,229 @@ func _phantom_seat() -> int:
 			continue
 		return i
 	return -1
+
+
+func _phantom_is_active(m: Dictionary) -> bool:
+	return str(m.get("card_id", "")) == "phantom" and int(m.get("hp", 0)) > 0 and not _is_silenced(m)
+
+
+func _phantom_active_indices() -> Array[int]:
+	var out: Array[int] = []
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if _phantom_is_active(wheel[i]):
+			out.append(i)
+	return out
+
+
+func _phantom_uid_active(uid: int) -> bool:
+	if uid < 0:
+		return false
+	for s in wheel:
+		if typeof(s) != TYPE_DICTIONARY:
+			continue
+		if int(s.get("seat_uid", -1)) != uid:
+			continue
+		return _phantom_is_active(s)
+	return false
+
+
+func _index_beside_active_phantom(index: int) -> bool:
+	if index < 0:
+		return false
+	for p in _phantom_active_indices():
+		if p == index:
+			continue
+		if _neighbors_of(p).has(index):
+			return true
+	return false
+
+
+func _monster_shrouded(m: Dictionary) -> bool:
+	if m.is_empty() or bool(m.get("shroud_seen", false)):
+		return false
+	var raw: Variant = m.get("shroud_from", [])
+	if typeof(raw) != TYPE_ARRAY:
+		return false
+	for u in raw:
+		if _phantom_uid_active(int(u)):
+			return true
+	return false
+
+
+func _phantom_has_any() -> bool:
+	for s in wheel:
+		if typeof(s) == TYPE_DICTIONARY and str(s.get("card_id", "")) == "phantom" and int(s.get("hp", 0)) > 0:
+			return true
+	return false
+
+
+func _phantom_paint_covers() -> void:
+	var active_idx: Array[int] = _phantom_active_indices()
+	var live: Dictionary = {}
+	for i in active_idx:
+		live[int(wheel[i].get("seat_uid", -1))] = true
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) != TYPE_DICTIONARY or str(wheel[i].get("kind", "")) != "monster":
+			continue
+		var kept: Array = []
+		var raw: Variant = wheel[i].get("shroud_from", [])
+		if typeof(raw) == TYPE_ARRAY:
+			for u in raw:
+				var uid: int = int(u)
+				if live.has(uid):
+					kept.append(uid)
+		if not bool(wheel[i].get("shroud_seen", false)):
+			for pi in active_idx:
+				if pi == i:
+					continue
+				if not _neighbors_of(pi).has(i):
+					continue
+				var src: int = int(wheel[pi].get("seat_uid", -1))
+				if src >= 0 and kept.find(src) < 0:
+					kept.append(src)
+		wheel[i]["shroud_from"] = kept
+		if _phantom_veil_all:
+			wheel[i]["phantom_shroud"] = true
+		else:
+			wheel[i]["phantom_shroud"] = _monster_shrouded(wheel[i])
+	_phantom_deck_cover = not active_idx.is_empty()
+
+
+func _shroud_mark_seen(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	wheel[index]["shroud_seen"] = true
+	wheel[index]["shroud_from"] = []
+	wheel[index]["phantom_shroud"] = false
+
+
+func _phantom_slash_real(index: int) -> void:
+	if index < 0 or index >= wheel.size() or ability_slash == null:
+		return
+	var s: Dictionary = wheel[index]
+	var mid: String = str(s.get("card_id", ""))
+	var tex: Texture2D = null
+	if art != null:
+		tex = art.monster_still(mid)
+	await ability_slash.play({
+		"title": str(s.get("name", mid)),
+		"call": str(s.get("call_name", "")),
+		"tex": tex,
+		"is_item": false,
+		"card_id": mid,
+	})
+
+
+func _phantom_slash_mystery() -> void:
+	if ability_slash == null:
+		return
+	await ability_slash.play({
+		"title": "?",
+		"call": "",
+		"tex": null,
+		"is_item": false,
+		"card_id": "",
+	})
+
+
+func _phantom_shuffle_seats() -> void:
+	var idxs: Array[int] = []
+	var bodies: Array = []
+	var slots: Array[String] = []
+	var face_uid: int = -1
+	if facing_index >= 0 and facing_index < wheel.size():
+		face_uid = int(wheel[facing_index].get("seat_uid", -1))
+	for i in range(wheel.size()):
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		idxs.append(i)
+		bodies.append(wheel[i])
+		slots.append(str(wheel[i].get("slot", "")))
+	if bodies.size() < 2:
+		_phantom_paint_covers()
+		_undo_wall()
+		return
+	_phantom_veil_all = true
+	_phantom_paint_covers()
+	_refresh()
+	if get_tree():
+		await get_tree().create_timer(0.45).timeout
+	for i in range(bodies.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var tmp: Variant = bodies[i]
+		bodies[i] = bodies[j]
+		bodies[j] = tmp
+	for k in range(idxs.size()):
+		var body: Dictionary = bodies[k]
+		body["slot"] = slots[k]
+		wheel[idxs[k]] = body
+	if face_uid >= 0:
+		facing_index = -1
+		for i in range(wheel.size()):
+			if int(wheel[i].get("seat_uid", -1)) == face_uid:
+				facing_index = i
+				break
+	_phantom_veil_all = false
+	_phantom_paint_covers()
+	_undo_wall()
+	_refresh()
+
+
+func _phantom_opening_show() -> void:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("card_id", "")) != "phantom":
+			continue
+		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		await _phantom_slash_real(i)
+	await _phantom_shuffle_seats()
+	await _phantom_release_enters()
+
+
+func _phantom_release_enters() -> void:
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if not bool(wheel[i].get("enter_pending", false)):
+			continue
+		wheel[i].erase("enter_pending")
+		var hidden: bool = _monster_shrouded(wheel[i])
+		var is_ph: bool = str(wheel[i].get("card_id", "")) == "phantom"
+		if not hidden and not is_ph:
+			await _phantom_slash_real(i)
+		await _maybe_enter_gains(i)
+		if not hidden and wheel_view:
+			wheel_view.pulse_arrive(i)
+
+
+func _phantom_finish_flee() -> void:
+	var any: bool = false
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		if not bool(wheel[i].get("shroud_reflee", false)):
+			continue
+		any = true
+		wheel[i]["shroud_reflee"] = false
+		if _index_beside_active_phantom(i):
+			wheel[i]["shroud_seen"] = false
+		else:
+			wheel[i]["shroud_seen"] = true
+			wheel[i]["shroud_from"] = []
+			wheel[i]["phantom_shroud"] = false
+	if any:
+		_phantom_paint_covers()
+
+
+func _clear_legacy_item_shrouds() -> void:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if bool(it.get("shrouded", false)):
+			it["shrouded"] = false
+			it.erase("shroud_ord")
 
 
 func _phantom_dark_matter_on_use(it: Dictionary) -> void:
@@ -20924,6 +21119,9 @@ func _show_fight_portrait() -> void:
 		return
 	var m: Dictionary = wheel[index]
 	if str(m.get("kind", "")) != "monster":
+		return
+	if _monster_shrouded(m):
+		combat_stage.hide_stage()
 		return
 	if combat_stage.card_id == str(m.get("card_id", "")) and combat_stage.visible and index == facing_index and _watch_portrait < 0:
 		_tune_combat_stage()
@@ -25116,6 +25314,10 @@ func _fill_inspect_from_slice(index: int) -> void:
 	if fly_tip == null:
 		return
 	var s: Dictionary = wheel[index]
+	if str(s.get("kind", "")) == "monster" and _monster_shrouded(s):
+		fly_tip.show_text("?", "")
+		_place_fly(null, wheel_view.slice_portrait_global(index) if wheel_view else Vector2.INF)
+		return
 	if str(s.get("kind", "")) != "monster":
 		fly_tip.show_text(
 			PLAYER_COPY.text("inspect.empty_title", "Empty"),
@@ -26565,6 +26767,12 @@ func _refresh_face() -> void:
 	if combat_stage and not combat_stage.visible and not combat_stage.busy:
 		_show_fight_portrait()
 	var m: Dictionary = wheel[_fight_portrait_index()]
+	if _monster_shrouded(m):
+		face_box.show_rule("?", "", "", "", "", null, "monster", "", {"stage_card": true, "slice": m})
+		_face_atk_shown = "?"
+		_face_hp_shown = "?"
+		_mark_fight_art_dirty()
+		return
 	# #199: Shift must not change the active combatant callout (size / position / content).
 	# Hotbar formulas, cascade FF, and wheel wedge Shift inspect stay on `_shift_held`.
 	var held_shift: bool = _shift_held
@@ -27117,6 +27325,9 @@ func _sync_buttons() -> void:
 		btn_done.visible = false
 		_hide_take_burst()
 		var sel_word: String = _selector_take_word()
+		if facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index]):
+			sel_word = "Take ?"
+			hit = 0
 		_sync_take_arc(hit, busy, sel_word)
 		_sync_intent_plate()
 	else:

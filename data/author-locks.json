@@ -206,9 +206,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-12",
 			"name": "Bloody Wraps"
 		},
 		"item:bracers": {
@@ -415,7 +416,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "The Boot"
 		},
 		"item:dagger": {
@@ -525,7 +526,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-08",
 			"name": "Echo Bell"
 		},
 		"item:fangs": {
@@ -740,7 +741,7 @@
 				"priority",
 				"card_color"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-08",
 			"name": "Chain"
 		},
 		"item:kiss_of_death": {
@@ -989,7 +990,7 @@
 				"reminder",
 				"log_hint"
 			],
-			"locked_at": "2026-10-22",
+			"locked_at": "2026-11-12",
 			"name": "Medallion"
 		},
 		"item:miasma": {
@@ -1208,7 +1209,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-18",
+			"locked_at": "2026-11-08",
 			"name": "Polymorph"
 		},
 		"item:quiet_bell": {
@@ -1517,8 +1518,32 @@
 				"card_color",
 				"pool"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-08",
 			"name": "Spiked Shield"
+		},
+		"item:spinning_top": {
+			"fields": [
+				"name",
+				"ability",
+				"explainer",
+				"call_name",
+				"reminder",
+				"log_hint",
+				"flow",
+				"notes",
+				"ops",
+				"rarity",
+				"tier",
+				"count",
+				"priority",
+				"atk_base",
+				"hp_base",
+				"atk_formula",
+				"hp_formula",
+				"card_color"
+			],
+			"locked_at": "2026-11-08",
+			"name": "Spinning Top"
 		},
 		"item:stone_wall": {
 			"fields": [
@@ -1752,9 +1777,10 @@
 				"atk_formula",
 				"hp_formula",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-12",
 			"name": "Anvil"
 		},
 		"monster:bandit": {
@@ -1960,7 +1986,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-08T09:09:42Z",
+			"locked_at": "2026-11-08",
 			"name": "Collector"
 		},
 		"monster:commander": {
@@ -2009,8 +2035,8 @@
 				"card_color",
 				"review"
 			],
-			"locked_at": "2026-10-28",
-			"name": "Petty King"
+			"locked_at": "2026-11-12",
+			"name": "Tyrant"
 		},
 		"monster:cultist": {
 			"fields": [
@@ -2222,9 +2248,10 @@
 				"call_name",
 				"reminder",
 				"card_color",
-				"pool"
+				"pool",
+				"log_hint"
 			],
-			"locked_at": "2026-10-28",
+			"locked_at": "2026-11-08",
 			"name": "Gargoyle"
 		},
 		"monster:gelatinous_cube": {
@@ -2486,7 +2513,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-08",
 			"name": "Imp"
 		},
 		"monster:juggernaut": {
@@ -5731,5 +5758,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-08T08:34:47Z"
+	"updated": "2026-11-12"
 }
