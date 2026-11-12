@@ -659,6 +659,15 @@ func _snapshot(with_surfaces: bool = true) -> Dictionary:
 						"hp": int(nm.get("hp", 0)),
 						"silenced": bool(main._is_silenced(nm)),
 					})
+	var wheel_hp := {}
+	for wi in range(main.wheel.size()):
+		var ws: Dictionary = main.wheel[wi]
+		if str(ws.get("kind", "")) != "monster":
+			continue
+		var wid: String = str(ws.get("card_id", ""))
+		if wid == "":
+			continue
+		wheel_hp[wid] = int(ws.get("hp", 0))
 	var log := ""
 	if main.log_label and main.log_label.has_method("dump_plain"):
 		log = str(main.log_label.dump_plain())
@@ -686,6 +695,7 @@ func _snapshot(with_surfaces: bool = true) -> Dictionary:
 		"spent": spent,
 		"log": log,
 		"wheel_n": main.wheel.size(),
+		"wheel_hp": wheel_hp,
 		"surfaces": surfaces,
 		"items_this_combat": int(main.items_used_this_combat),
 		"last_item": str(main.last_item_copy.get("card_id", "")),
@@ -915,6 +925,12 @@ func _judge_reason(expected: Dictionary, snap: Dictionary, after_spin: Dictionar
 		for piece in expected.get("log_has", []):
 			if log_l.find(str(piece).to_lower()) < 0:
 				return "Combat log should mention %s." % piece
+	if expected.has("wheel_hp"):
+		var got_hp: Dictionary = snap.get("wheel_hp", {})
+		var want_hp: Dictionary = expected.get("wheel_hp", {})
+		for hid in want_hp.keys():
+			if int(got_hp.get(str(hid), -1)) != int(want_hp[hid]):
+				return "Wheel %s HP should be %s. It was %s." % [hid, want_hp[hid], got_hp.get(str(hid), "missing")]
 	return ""
 
 

@@ -592,6 +592,8 @@ var hypno_stage
 var hypno_box
 var _watch_thorns_seat: int = -1
 var _watch_skip_thorns: bool = false
+## Nested Attack packets (Prism Refract, cleave, Pocketwatch). HP applies now; deaths wait until 0.
+var _defer_slay: int = 0
 var _hypno_src: int = -1
 var _watch_portrait: int = -1
 var speech_box
@@ -9627,6 +9629,8 @@ func _on_done() -> void:
 
 
 func _begin_slay(banner: String = "slay") -> void:
+	if _defer_slay > 0:
+		return
 	_spin_inflight = false
 	if _tut_hold_slay:
 		## Cube→Shuriken beat: clear the dead Cube, keep Bandit for the next item.
@@ -10311,6 +10315,7 @@ func _capture_run() -> Dictionary:
 		"rng_state": rng.state,
 		"watch_thorns_seat": _watch_thorns_seat,
 		"watch_skip_thorns": _watch_skip_thorns,
+		"defer_slay": _defer_slay,
 		"pending_item_flee": _pending_item_flee,
 		"hypno_src": _hypno_src,
 		"watch_portrait": _watch_portrait,
@@ -10574,6 +10579,7 @@ func _restore_run(snap: Dictionary) -> void:
 	rng.state = snap.get("rng_state", rng.state)
 	_watch_thorns_seat = int(snap.get("watch_thorns_seat", -1))
 	_watch_skip_thorns = bool(snap.get("watch_skip_thorns", false))
+	_defer_slay = int(snap.get("defer_slay", 0))
 	_pending_item_flee = bool(snap.get("pending_item_flee", false))
 	_hypno_src = int(snap.get("hypno_src", -1))
 	_watch_portrait = int(snap.get("watch_portrait", -1))
@@ -11793,12 +11799,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 	else:
 		_toss_item(int(it["uid"]), false)
 	_sync_wheel_stats()
-	if last_atk_index >= 0 and last_atk_index != facing_index and last_atk_index < wheel.size():
-		if int(wheel[last_atk_index].get("hp", 0)) <= 0 and not _wick_waiting(last_atk_index):
-			await _maybe_slay_down(last_atk_index)
-	if facing_index >= 0 and int(wheel[facing_index].get("hp", 0)) <= 0:
-		if not _wick_waiting(facing_index):
-			await _begin_slay()
+	await _slay_dead_after_watch()
 
 
 func _trapper_phase_ok() -> bool:
@@ -19954,8 +19955,24 @@ func _clear_share_tag(tok: int) -> void:
 		wheel[i].erase("_share_tok")
 
 
+func _hit_tree_enter() -> void:
+	_defer_slay += 1
+
+
+func _hit_tree_leave() -> bool:
+	_defer_slay = maxi(0, _defer_slay - 1)
+	if _defer_slay > 0:
+		return hp <= 0
+	if hp <= 0:
+		return true
+	await _slay_dead_after_watch()
+	return hp <= 0 or phase != "fighting"
+
+
 ## Prism takes 0. Each living neighbor takes that Attack, clockwise first.
+## HP lands on every share before any Defeat / next fight.
 func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
+	_hit_tree_enter()
 	var pname: String = str(wheel[index].get("name", "Prism"))
 	last_atk_index = index
 	last_atk_line = "0  →  %s HP %s" % [pname, wheel[index].get("hp", 0)]
@@ -19971,6 +19988,8 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 	var prism_step: int = 0
 	_begin_simul()
 	for tok in tags:
+		if hp <= 0:
+			break
 		var j: int = _index_of_share(tok)
 		if j < 0:
 			continue
@@ -19996,27 +20015,12 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 				sfx.play("glass", -8.0, 0.85)
 			continue
 		if await _deal_atk_at(j, n, false, false, true, true):
-			_end_simul()
-			for done in tags:
-				_clear_share_tag(int(done))
-			_walker_restore(facing_index)
-			_walker_busy = false
-			await _unlock_if_fighting()
-			return true
+			if hp <= 0:
+				break
+			continue
 		j = _index_of_share(tok)
 		if j < 0:
 			continue
-		if int(wheel[j].get("hp", 0)) <= 0:
-			await _maybe_slay_down(j)
-			if phase != "fighting":
-				_end_simul()
-				for done2 in tags:
-					_clear_share_tag(int(done2))
-				last_atk_index = -1
-				_walker_restore(facing_index)
-				_walker_busy = false
-				await _unlock_if_fighting()
-				return true
 	_end_simul()
 	for tok2 in tags:
 		_clear_share_tag(int(tok2))
@@ -20024,7 +20028,7 @@ func _refract_from_prism(index: int, n: int, shares: Array) -> bool:
 	_walker_restore(facing_index)
 	_walker_busy = false
 	await _unlock_if_fighting()
-	return false
+	return await _hit_tree_leave()
 
 
 ## Each Bodyguard once, to the end of that line.
@@ -21453,13 +21457,13 @@ func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 	if from_pos == Vector2.ZERO:
 		from_pos = _item_card_global_by_id("double_axe")
 	var targets: Array[int] = _cleave_targets()
+	_hit_tree_enter()
 	_begin_simul()
 	var plans: Array = []
 	for t in targets:
 		if t < 0 or t >= wheel.size():
 			continue
 		plans.append(_plan_redirect(t, n))
-	var touched: Array[int] = []
 	var cleave_step: int = 0
 	for plan in plans:
 		if bool(plan.get("fizzle", false)) or bool(plan.get("moved", false)):
@@ -21479,29 +21483,13 @@ func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 			await _radiate_line(from_pos, _slice_hp_pos(landed), Color("e07040"), 0.06, false, false, cleave_step)
 			cleave_step += 1
 		if await _deal_atk_at(landed, amount, not land_twins, true, true):
-			_end_simul()
-			return true
+			if hp <= 0:
+				_end_simul()
+				return await _hit_tree_leave()
 		_log("atk", last_atk_line)
-		if landed >= 0:
-			touched.append(landed)
 	_end_simul()
-	var dead: Array[int] = []
-	var seen_dead := {}
-	for t in touched:
-		if seen_dead.has(t) or t == facing_index:
-			continue
-		seen_dead[t] = true
-		if t >= 0 and t < wheel.size() and int(wheel[t].get("hp", 0)) <= 0:
-			dead.append(t)
-	dead.sort()
-	dead.reverse()
-	for t2 in dead:
-		if t2 < 0 or t2 >= wheel.size() or t2 == facing_index:
-			continue
-		if int(wheel[t2].get("hp", 0)) <= 0:
-			await _maybe_slay_down(t2)
 	last_atk_index = -1
-	return false
+	return await _hit_tree_leave()
 
 
 func _weakest_neighbor_atk() -> int:
@@ -22407,6 +22395,12 @@ func _sling_slay_if_dead() -> void:
 
 
 func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dictionary) -> void:
+	_hit_tree_enter()
+	await _watch_attack_run(src, dest, snap, hits, used_damsels)
+	await _hit_tree_leave()
+
+
+func _watch_attack_run(src: int, dest: int, snap: int, hits: int, used_damsels: Dictionary) -> void:
 	if src < 0 or src >= wheel.size() or dest < 0 or dest >= wheel.size():
 		return
 	if int(wheel[dest].get("hp", 0)) <= 0:
@@ -22424,7 +22418,7 @@ func _watch_attack(src: int, dest: int, snap: int, hits: int, used_damsels: Dict
 			watch_step += 1
 			var nb: Dictionary = wheel[j]
 			if str(nb.get("card_id", "")) == "damsel_in_distress" and not _is_silenced(nb):
-				await _watch_attack(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
+				await _watch_attack_run(j, dest, int(nb.get("atk", 0)), _hit_count(j), used_damsels)
 			else:
 				_show_hypno(j)
 				await _watch_hits(j, dest, int(nb.get("atk", 0)), _hit_count(j))
@@ -22445,8 +22439,10 @@ func _watch_hits(src: int, dest: int, atk: int, hits: int) -> void:
 				await hypno_stage.lunge()
 			if await _deal_atk_at(dest, atk, false, false, true):
 				await _after_self_deconstruct(src)
-				return
-			await _after_self_deconstruct(src)
+				if hp <= 0:
+					return
+			else:
+				await _after_self_deconstruct(src)
 			if dest >= 0 and dest < wheel.size() and int(wheel[dest].get("hp", 0)) < before:
 				return
 			return
@@ -22462,8 +22458,10 @@ func _watch_hits(src: int, dest: int, atk: int, hits: int) -> void:
 			await hypno_stage.lunge()
 		if await _deal_atk_at(dest, atk, false, false, true):
 			await _after_self_deconstruct(src)
-			return
-		await _after_self_deconstruct(src)
+			if hp <= 0:
+				return
+		else:
+			await _after_self_deconstruct(src)
 		if src >= 0 and src < wheel.size() and int(wheel[src].get("hp", 0)) <= 0:
 			return
 		if hits > 1 and h < hits - 1 and get_tree():
@@ -22471,11 +22469,13 @@ func _watch_hits(src: int, dest: int, atk: int, hits: int) -> void:
 
 
 func _slay_dead_after_watch() -> void:
+	_defer_slay += 1
 	var i: int = wheel.size() - 1
 	while i >= 0:
 		if i != facing_index and str(wheel[i].get("kind", "")) == "monster" and int(wheel[i].get("hp", 0)) <= 0:
 			await _maybe_slay_down(i)
 		i -= 1
+	_defer_slay = maxi(0, _defer_slay - 1)
 	if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 		await _maybe_slay_down(facing_index)
 

@@ -3164,6 +3164,78 @@
 			]
 		},
 		{
+			"id": "prism-refract-both-before-slay",
+			"title": "Prism Refract finishes both neighbors before the next fight",
+			"family": "collide",
+			"items": [
+				"pocketwatch"
+			],
+			"monsters": [
+				"wizard",
+				"golem",
+				"dire_wolf",
+				"prism"
+			],
+			"face": "wizard",
+			"challenge": true,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "pocketwatch"
+				},
+				{
+					"op": "mark",
+					"monster": "golem"
+				}
+			],
+			"expected_text": "Pocketwatch on Golem. Golem Attacks Prism Across. Prism dumps that Attack clockwise onto Wizard (facing, dies) then Dire Wolf. Dire Wolf must take the hit before the next fight starts.",
+			"expected": {
+				"wheel_hp": {
+					"dire_wolf": 1
+				},
+				"log_has": [
+					"Dire Wolf"
+				]
+			},
+			"cards": [
+				{
+					"id": "pocketwatch",
+					"kind": "item",
+					"name": "Pocketwatch",
+					"ability": "Target any enemy. That enemy attacks the monster that is Across from them.",
+					"sprite": "assets/dungeon/items/watch.png"
+				},
+				{
+					"id": "wizard",
+					"kind": "monster",
+					"name": "Wizard",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/wizard.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				},
+				{
+					"id": "dire_wolf",
+					"kind": "monster",
+					"name": "Dire Wolf",
+					"ability": "My Attack always equals your HP.",
+					"sprite": "assets/dungeon/extra/dire_wolf.png"
+				},
+				{
+					"id": "prism",
+					"kind": "monster",
+					"name": "Prism",
+					"ability": "When I would take Attack damage, both of my Neighbors take it instead.",
+					"sprite": "assets/dungeon/extra/prism.png"
+				}
+			]
+		},
+		{
 			"id": "cowardly-king-redirect",
 			"title": "Cowardly King: Right neighbor takes your Attack",
 			"family": "collide",
