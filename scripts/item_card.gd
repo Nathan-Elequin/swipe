@@ -2734,6 +2734,14 @@ func marble_busy() -> bool:
 	return _marble_busy
 
 
+func set_shuriken_facing(points_left: bool) -> void:
+	if _icon != null:
+		_icon.flip_h = points_left
+		var arc: Node = _icon.get_node_or_null("MoveArc")
+		if arc != null and arc.has_method("set_points_left"):
+			arc.set_points_left(points_left)
+
+
 func set_sai_static(pair: bool) -> void:
 	_sai_busy = false
 	var path: String = "res://assets/dungeon/anim/sai_pair.png" if pair else "res://assets/dungeon/anim/sai_single.png"

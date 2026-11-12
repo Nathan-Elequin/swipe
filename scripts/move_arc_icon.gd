@@ -1,5 +1,13 @@
 extends Control
-## Gold arc on Shuriken. Up and to the right, matching a counter-clockwise step from the bottom of the wheel.
+## Gold arc on Shuriken. Points the way the next throw steps.
+
+var points_left: bool = false
+
+
+func set_points_left(on: bool) -> void:
+	points_left = on
+	queue_redraw()
+
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -23,6 +31,9 @@ func _draw() -> void:
 		pts.append(center + Vector2.from_angle(a) * radius)
 	draw_polyline(pts, Color("100e0c"), 4.0, false)
 	draw_polyline(pts, Color("FFD84A"), 2.0, false)
+	if points_left:
+		for i in pts.size():
+			pts[i] = Vector2(center.x * 2.0 - pts[i].x, pts[i].y)
 	var tip := pts[pts.size() - 1]
 	var prev := pts[pts.size() - 2]
 	var dir := (tip - prev).normalized()

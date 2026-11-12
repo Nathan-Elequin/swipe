@@ -425,7 +425,7 @@ func _init() -> void:
 		and not _source_func_calls("res://scripts/main.gd", "_owner_attack", "_glass_asp_on_attack")
 	) or failed
 
-	## 20) Shardplate — +1 Block per enemy Attack-damage event; no Spin −2; cash on play.
+	## 20) Captain's Wheel (id shardplate) — +2 stored Block per Move Left; cash on play.
 	failed = _check(failed, "runtime_has_shardplate", _runtime_has_item("shardplate")) or failed
 	failed = _check(
 		failed,
@@ -434,23 +434,16 @@ func _init() -> void:
 	) or failed
 	failed = _check(
 		failed,
-		"shardplate_ability_enemy_attack",
-		_catalog_item_ability_contains("shardplate", "enemy takes Attack Damage")
-		and _catalog_item_ability_contains("shardplate", "+1 Block")
+		"shardplate_ability_move_left",
+		_catalog_item_ability_contains("shardplate", "Move Left")
+		and _catalog_item_ability_contains("shardplate", "+2 Block")
 	) or failed
 	failed = _check(
 		failed,
-		"shardplate_ability_no_spin_loss",
-		not _catalog_item_ability_contains("shardplate", "On Spin")
-		and not _catalog_item_ability_contains("shardplate", "Loses 2 Block")
-	) or failed
-	failed = _check(
-		failed,
-		"shardplate_deal_atk_hook",
-		_source_has_func("res://scripts/main.gd", "_shardplate_on_enemy_atk_damage")
-		and _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_shardplate_on_enemy_atk_damage")
-		and not _source_func_calls("res://scripts/main.gd", "_chip_hp", "_shardplate_on_enemy_atk_damage")
-		and not _source_func_calls("res://scripts/main.gd", "_note_hp_lost", "_shardplate_on_enemy_atk_damage")
+		"shardplate_left_step_hook",
+		_source_has_func("res://scripts/main.gd", "_captain_wheel_on_left_step")
+		and _source_func_calls("res://scripts/main.gd", "_shift_facing", "_captain_wheel_on_left_step")
+		and not _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_captain_wheel_on_left_step")
 	) or failed
 	failed = _check(
 		failed,
@@ -460,7 +453,7 @@ func _init() -> void:
 		and _source_contains("res://scripts/main.gd", 'it["shard_blk"]')
 	) or failed
 
-	## 21) LovePotion — select any 2; lower HP then ATK until equal; HP via _chip_hp (not Attack/Shardplate).
+	## 21) Love Potion — equal HP, random Defeat, gift that HP.
 	failed = _check(failed, "runtime_has_love_potion", _runtime_has_item("love_potion")) or failed
 	failed = _check(
 		failed,
@@ -470,24 +463,21 @@ func _init() -> void:
 	failed = _check(
 		failed,
 		"love_potion_ability_select_two",
-		_catalog_item_ability_contains("love_potion", "Select any 2")
-		and _catalog_item_ability_contains("love_potion", "Lower their HP")
-		and _catalog_item_ability_contains("love_potion", "Attack")
+		_catalog_item_ability_contains("love_potion", "Equal HP")
+		and _catalog_item_ability_contains("love_potion", "Defeat")
 	) or failed
 	failed = _check(
 		failed,
 		"love_potion_equalize_helpers",
 		_source_has_func("res://scripts/main.gd", "_apply_love_potion_mark")
-		and _source_has_func("res://scripts/main.gd", "_love_potion_equalize")
-		and _source_has_func("res://scripts/main.gd", "_love_sync_pair_stat")
-		and _source_has_func("res://scripts/main.gd", "_love_drain_one")
+		and _source_has_func("res://scripts/main.gd", "_love_potion_defeat")
+		and _source_has_func("res://scripts/main.gd", "_love_gift_hp")
 	) or failed
 	failed = _check(
 		failed,
 		"love_potion_hp_via_chip_not_attack",
-		_source_func_calls("res://scripts/main.gd", "_love_drain_one", "_chip_hp")
-		and not _source_func_calls("res://scripts/main.gd", "_love_drain_one", "_deal_atk_at")
-		and not _source_func_calls("res://scripts/main.gd", "_love_potion_equalize", "_shardplate_on_enemy_atk_damage")
+		_source_func_calls("res://scripts/main.gd", "_love_potion_defeat", "_lich_chip_defeat")
+		and not _source_func_calls("res://scripts/main.gd", "_love_gift_hp", "_deal_atk_at")
 	) or failed
 	failed = _check(
 		failed,

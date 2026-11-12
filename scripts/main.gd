@@ -4301,6 +4301,9 @@ func _prep_next_dungeon() -> void:
 			continue
 		if str(_ops_of(it).get("kind", "")) == "atk_alt_24":
 			it["alt_n"] = 2
+		if str(it.get("card_id", "")) == "shuriken":
+			it["move_dir"] = -1
+			_apply_shuriken_words(it)
 		if str(_ops_of(it).get("kind", "")) == "shield_alt":
 			_set_shield_face(it, "atk")
 		if str(it.get("card_id", "")) == "hex":
@@ -7442,6 +7445,7 @@ func _make_item(id: String) -> Dictionary:
 		"basilisk_stone": false,
 		"echo_copy": last_item_copy.duplicate(true) if id == "echo_bell" and not last_item_copy.is_empty() else {},
 		"alt_n": 2 if str(ops.get("kind", "")) == "atk_alt_24" else 0,
+		"move_dir": -1 if id == "shuriken" else 0,
 		"shield_face": "atk" if str(ops.get("kind", "")) == "shield_alt" else "",
 		"magnet_mode": "off",
 		"magnet_seq": 0,
@@ -7615,7 +7619,7 @@ func _apply_formulas_to(s: Dictionary) -> void:
 		_paint_kiss_lifelink(s)
 	if hp_locked:
 		s["hp"] = hold_hp
-		if id == "vampire" or id == "amalgam" or id == "bushido" or id == "commander" or id == "cowardly_king":
+		if bool(s.get("bag_kept", false)) or id == "vampire" or id == "amalgam" or id == "bushido" or id == "commander" or id == "cowardly_king":
 			s["hp_max"] = maxi(hold_max, hold_hp)
 		if id == "slime_boss":
 			s["atk"] = hold_hp
@@ -8933,8 +8937,12 @@ func _stamp_live_item(it: Dictionary, board_card: Dictionary, ops: Dictionary) -
 	it["log_hint"] = str(board_card.get("log_hint", it.get("log_hint", "")))
 	it["pack_tier"] = int(board_card.get("tier", it.get("pack_tier", 1)))
 	it["pack_kind"] = "starter" if str(board_card.get("rarity", "")) == "starter" else "draft"
+	if str(board_card.get("card_color", "")) != "":
+		it["card_color"] = str(board_card.get("card_color", ""))
 	if not ops.is_empty():
 		it["ops"] = ops.duplicate(true)
+	if str(it.get("card_id", "")) == "shuriken":
+		_apply_shuriken_words(it)
 
 
 func _on_slice_clicked(index: int) -> void:
@@ -10764,7 +10772,7 @@ func _use_item(uid: int) -> void:
 		return
 	if kind == "mark_poison" or kind == "mark_crossbow" or kind == "atk_neighbor" or kind == "hook_swap" or kind == "hypnotize" or kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "polymorph" or kind == "signpost" or kind == "chain_flee" or kind == "love_potion" or kind == "kiss_of_death":
 		if kind == "love_potion":
-			if _living_monster_indices().size() < 2:
+			if not _love_any_equal_pair():
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
@@ -11039,7 +11047,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					_toss_item(int(it["uid"]), false)
 					return
 		"atk_move":
-			await _shift_facing(-1, false)
+			await _shift_facing(_shuriken_dir_of(it), false)
 			var n_mv: int = int(ops.get("n", 3))
 			last_item_atk = n_mv
 			var move_ended: bool = await _deal_atk(n_mv)
@@ -12644,10 +12652,22 @@ func _use_bag_hold(it: Dictionary) -> void:
 		return
 
 
+func _bag_atk_stays(id: String) -> bool:
+	# These rebuild Attack from their own counters or from your HP. Do not freeze the sword number.
+	var live: Array = ["bandit", "vampire", "dire_wolf", "slime_boss", "spider_queen", "hydra", "kobold_trapper", "berserker"]
+	return not live.has(id)
+
+
 func _fill_bag(it: Dictionary, m: Dictionary) -> void:
 	var who: String = str(m.get("name", "Monster"))
 	var cap: int = int(m.get("hp", 0))
 	it["bagged"] = m.duplicate(true)
+	# Neighbor buffs (Commander +2) are not part of the monster. They come back only if the source is on the wheel.
+	_peel_auras(it["bagged"])
+	it["bagged"]["bag_kept"] = true
+	it["bagged"]["hp_locked"] = true
+	if _bag_atk_stays(str(m.get("card_id", ""))):
+		it["bagged"]["atk_locked"] = true
 	it["bagged"]["hunter_mark"] = false
 	it["bagged"]["marked_by"] = -1
 	it["bagged"]["trapper_entered"] = false
@@ -13026,18 +13046,32 @@ func _apply_love_potion_mark(index: int) -> void:
 		if sfx:
 			sfx.play("error", -10.0)
 		return
+	if int(wheel[a].get("hp", 0)) != int(wheel[b].get("hp", 0)) or int(wheel[a].get("hp", 0)) <= 0:
+		if sfx:
+			sfx.play("error", -10.0)
+		return
+	var die_i: int = a if rng.randi_range(0, 1) == 0 else b
+	var live_i: int = b if die_i == a else a
+	var gift: int = int(wheel[die_i].get("hp", 0))
+	var die_uid: int = _seat_uid_at(die_i)
+	var live_uid: int = _seat_uid_at(live_i)
+	var from_pos: Vector2 = _slice_from(die_i)
 	pending_mark.clear()
 	await _announce_item_use(it, _slice_from(b) if b >= 0 else _hub_hp_pos(), true)
 	var token: int = _undo_gen
 	_bleed_begin()
 	_log("on_item_use", str(it.get("name", "Love Potion")))
-	await _love_potion_equalize(a, b)
+	await _love_show_pair(die_i, live_i)
+	await _love_heart_blossom()
+	await _love_vows(die_i, live_i)
+	_love_clear_pair()
+	die_i = _index_of_seat(die_uid)
+	var died: bool = await _love_potion_defeat(die_i, it, token)
+	if died and hp > 0 and not _undo_stale(token):
+		await _love_gift_hp(live_uid, gift, from_pos)
 	if _undo_stale(token):
 		await _bleed_end()
 		return
-	it["spent"] = true
-	await _count_item_use()
-	_toss_item(int(it["uid"]), false)
 	_sync_wheel_stats()
 	await _after_item_resolved(it)
 	await _bleed_end()
@@ -13047,123 +13081,170 @@ func _apply_love_potion_mark(index: int) -> void:
 	call_deferred("_refresh")
 
 
-func _love_potion_equalize(a: int, b: int) -> void:
-	## Inverse Clockwork Synchronize: lower the higher until equal (HP, then ATK).
-	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+func _love_has_hp_match(index: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	if int(wheel[index].get("hp", 0)) <= 0:
+		return false
+	var need: int = int(wheel[index].get("hp", 0))
+	for j in range(wheel.size()):
+		if j == index:
+			continue
+		if str(wheel[j].get("kind", "")) != "monster":
+			continue
+		if int(wheel[j].get("hp", 0)) == need:
+			return true
+	return false
+
+
+func _love_any_equal_pair() -> bool:
+	for i in range(wheel.size()):
+		if str(wheel[i].get("kind", "")) != "monster":
+			continue
+		if _love_has_hp_match(i):
+			return true
+	return false
+
+
+func _love_show_pair(die_i: int, live_i: int) -> void:
+	_watch_portrait = live_i
+	_watch_thorns_seat = -1
+	_show_hypno(die_i)
+	_show_fight_portrait()
+	_refresh_face()
+	_place_fight_art(true)
+
+
+func _love_clear_pair() -> void:
+	_watch_portrait = -1
+	_hide_hypno()
+	if phase == "fighting" or phase == "slaying":
+		_show_fight_portrait()
+		_refresh_face()
+
+
+func _love_heart_blossom() -> void:
+	if hypno_stage == null or combat_stage == null:
 		return
-	await _love_sync_pair_stat(a, b, true)
-	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+	var tex: Texture2D = null
+	if art != null and art.has_method("item_tex"):
+		tex = art.item_tex("love_potion")
+	if tex == null:
+		tex = _tex("res://assets/icons/heart.svg")
+	var heart := TextureRect.new()
+	heart.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	heart.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	heart.texture = tex
+	heart.z_index = 80
+	heart.size = Vector2(72, 72)
+	var mid: Vector2 = (hypno_stage.get_global_rect().get_center() + combat_stage.get_global_rect().get_center()) * 0.5
+	add_child(heart)
+	heart.global_position = mid - heart.size * 0.5
+	heart.pivot_offset = heart.size * 0.5
+	heart.scale = Vector2(0.15, 0.15)
+	if sfx:
+		sfx.play_event(&"status.poison")
+	var tw := create_tween()
+	tw.tween_property(heart, "scale", Vector2(1.45, 1.45), 0.28).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(heart, "scale", Vector2(1.05, 1.05), 0.18)
+	await tw.finished
+	if get_tree():
+		await get_tree().create_timer(0.35).timeout
+	if is_instance_valid(heart):
+		var fade := create_tween()
+		fade.tween_property(heart, "modulate:a", 0.0, 0.2)
+		await fade.finished
+		heart.queue_free()
+
+
+func _love_vows(die_i: int, live_i: int) -> void:
+	if die_i < 0 or die_i >= wheel.size() or live_i < 0 or live_i >= wheel.size():
 		return
-	if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
-		await _run_dead_sweep()
-		return
-	var before: Dictionary = {}
-	for j in [a, b]:
-		if j < 0 or j >= wheel.size():
-			continue
-		if _atk_is_always(wheel[j]):
-			before[j] = int(wheel[j].get("atk", 0))
-	await _love_sync_pair_stat(a, b, false)
-	_sync_wheel_stats()
-	if wheel_view:
-		wheel_view.set_slices(wheel, facing_index, "none")
-	for j3 in before.keys():
-		var ji: int = int(j3)
-		if ji < 0 or ji >= wheel.size():
-			continue
-		if not _atk_is_always(wheel[ji]):
-			continue
-		var now_atk: int = int(wheel[ji].get("atk", 0))
-		if now_atk == int(before[j3]):
-			continue
-		_log("on_resolve", "Reset due to ability")
-		_flash_reset_line(ji)
-		if wheel_view:
-			wheel_view.punch_atk(ji)
+	var die_m: Dictionary = wheel[die_i]
+	var tex: Texture2D = null
+	if art != null:
+		tex = art.monster_still(str(die_m.get("card_id", "")))
+	if ability_slash:
+		await ability_slash.play({
+			"title": str(die_m.get("name", "")),
+			"call": "",
+			"line": "I would die for you, my love!",
+			"tex": tex,
+			"is_item": false,
+			"card_id": str(die_m.get("card_id", "")),
+		})
+	_love_show_pair(die_i, live_i)
+	if speech_box != null and combat_stage != null and combat_stage.visible and live_i < wheel.size():
+		speech_box.present(combat_stage.mouth_global(), "No, my love!", _monster_look(wheel[live_i]))
 		if get_tree():
-			await get_tree().create_timer(0.45).timeout
-	await _run_dead_sweep()
+			await get_tree().create_timer(1.05).timeout
+		speech_box.hide_speech()
 
 
-func _love_sync_pair_stat(a: int, b: int, hp_stat: bool) -> void:
-	var key: String = "hp" if hp_stat else "atk"
-	var guard: int = 0
-	while guard < 48:
-		guard += 1
-		if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
-			return
-		if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
-			return
-		var av: int = int(wheel[a].get(key, 0))
-		var bv: int = int(wheel[b].get(key, 0))
-		if av == bv:
-			return
-		var high: int = a if av > bv else b
-		## Always ATK snaps back — cannot permanently lower (Clockwork Reset peer).
-		if not hp_stat and _atk_is_always(wheel[high]):
-			return
-		await _love_drain_one(high, hp_stat)
-	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
-		return
-	if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
-		return
-	var av2: int = int(wheel[a].get(key, 0))
-	var bv2: int = int(wheel[b].get(key, 0))
-	if av2 == bv2:
-		return
-	var high2: int = a if av2 > bv2 else b
-	if not hp_stat and _atk_is_always(wheel[high2]):
-		return
-	var goal: int = bv2 if av2 > bv2 else av2
-	var cur: int = av2 if av2 > bv2 else bv2
-	while cur > goal:
-		if hp_stat:
-			var stopped: bool = await _chip_hp(high2, 1)
-			if stopped:
-				return
-		else:
-			_love_drain_atk_instant(high2)
-		cur -= 1
-	_show_sync_slice(high2, hp_stat)
+func _love_seat_gone(uid: int) -> bool:
+	var i := _index_of_seat(uid)
+	if i < 0:
+		return true
+	return int(wheel[i].get("hp", 0)) <= 0
 
 
-func _love_drain_one(high: int, hp_stat: bool) -> void:
-	if high < 0 or high >= wheel.size():
-		return
-	var from: Vector2 = _stat_pip_pos(high, hp_stat)
-	var to: Vector2 = from + Vector2(0, -36)
-	await _fly_stat_courier(from, to, hp_stat, true)
-	if hp_stat:
-		## HP-loss reactions yes; Attack/Shardplate no.
-		await _chip_hp(high, 1)
+func _love_potion_defeat(index: int, it: Dictionary, token: int) -> bool:
+	if index < 0 or index >= wheel.size():
+		return false
+	var uid := _seat_uid_at(index)
+	var m: Dictionary = wheel[index]
+	if _undying(m):
+		_log("on_item_use", str(it.get("name", "Love Potion")))
+		_log("on_resolve", "undying")
+		if sfx:
+			sfx.play("draw", -8.0)
+		await _lich_keep_defeat_item(it)
+		var lich_down: bool = await _lich_chip_defeat(index)
+		if lich_down:
+			await _maybe_slay_down(index)
+		if _undo_stale(token):
+			return false
+		return _love_seat_gone(uid)
+	it["spent"] = true
+	await _count_item_use()
+	_log("on_item_use", str(it.get("name", "Love Potion")))
+	_log("on_resolve", "defeat")
+	if sfx:
+		sfx.play("draw", -8.0)
+	_toss_item(int(it.get("uid", -1)), false)
+	if index == facing_index:
+		await _begin_slay()
 	else:
-		_love_drain_atk_instant(high)
-	_show_sync_slice(high, hp_stat)
-	var stat_name: String = "HP" if hp_stat else "Attack"
-	if high >= 0 and high < wheel.size():
-		_log("on_resolve", "Love Potion −1 %s → %s" % [stat_name, str(wheel[high].get("name", "?"))])
+		await _hydra_defeat_as_item(index)
+	if _undo_stale(token):
+		return false
+	return _love_seat_gone(uid)
 
 
-func _love_drain_atk_instant(high: int) -> void:
-	if high < 0 or high >= wheel.size():
+func _love_gift_hp(live_uid: int, gift: int, from: Vector2) -> void:
+	if gift <= 0:
 		return
-	var s: Dictionary = wheel[high]
-	if _atk_is_always(s):
-		## Always ATK snaps back on sync — still show the drain attempt like Clockwork Reset.
-		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
-		wheel[high] = s
+	var j := _index_of_seat(live_uid)
+	if j < 0 or int(wheel[j].get("hp", 0)) <= 0:
 		return
-	var sync_extra: int = int(s.get("sync_atk", 0))
-	if sync_extra > 0:
-		s["sync_atk"] = sync_extra - 1
-		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
-	else:
-		s["atk_mod"] = int(s.get("atk_mod", 0)) - 1
-		s["atk"] = maxi(0, int(s.get("atk", 0)) - 1)
-		if s.has("atk_innate"):
-			s["atk_innate"] = maxi(0, int(s.get("atk_innate", 0)) - 1)
-	wheel[high] = s
-
+	await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"))
+	for _pip in gift:
+		j = _index_of_seat(live_uid)
+		if j < 0 or int(wheel[j].get("hp", 0)) <= 0:
+			break
+		var n: Dictionary = wheel[j]
+		n["hp"] = int(n.get("hp", 0)) + 1
+		n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
+		n["hp_locked"] = true
+		wheel[j] = n
+		_show_sync_slice(j, true)
+		_play_stat_pulse(true, false)
+		if get_tree():
+			await get_tree().create_timer(0.08).timeout
+	_sync_wheel_stats()
+	_log("on_resolve", "Love Potion gives %s HP" % gift)
 
 func _wick_waiting(_index: int) -> bool:
 	return false
@@ -15372,9 +15453,8 @@ func _grief_jar_on_hp_lost() -> void:
 		_refresh()
 
 
-func _shardplate_on_enemy_atk_damage() -> void:
-	## +1 Block on the card per enemy Attack-damage event (HP drop from `_deal_atk_at`).
-	## Poison/Bleed/`_chip_hp` and player HP loss never call this.
+func _captain_wheel_on_left_step() -> void:
+	## +2 stored Block per Move Left seat. Button and free steps both land here.
 	var grew := false
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -15383,12 +15463,45 @@ func _shardplate_on_enemy_atk_damage() -> void:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		it["shard_blk"] = int(it.get("shard_blk", 0)) + 1
-		_log("var", "Shardplate BLK %s" % it["shard_blk"])
+		it["shard_blk"] = int(it.get("shard_blk", 0)) + 2
+		_log("var", "Captain's Wheel BLK %s" % it["shard_blk"])
 		grew = true
 	if grew:
 		_hotbar_sig = ""
 		_refresh()
+
+
+func _shuriken_dir_of(it: Dictionary) -> int:
+	var src: Dictionary = it
+	if str(it.get("card_id", "")) == "echo_bell":
+		src = _echo_face(it)
+	var d: int = int(src.get("move_dir", -1))
+	if d != 1:
+		return -1
+	return 1
+
+
+func _apply_shuriken_words(it: Dictionary) -> void:
+	var d: int = 1 if int(it.get("move_dir", -1)) == 1 else -1
+	it["move_dir"] = d
+	var arrow := "←" if d == 1 else "→"
+	it["ability"] = "Move %s, then Attack 3." % arrow
+	it["explainer"] = "Move %s, then (Attack 3)." % arrow
+	it["log_hint"] = "Move %s, then Attack 3" % arrow
+
+
+func _flip_shuriken_dirs() -> void:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "shuriken":
+			continue
+		var old_d: int = int(it.get("move_dir", -1))
+		it["move_dir"] = 1 if old_d != 1 else -1
+		_apply_shuriken_words(it)
+		var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
+		if card != null and card.has_method("set_shuriken_facing"):
+			card.set_shuriken_facing(int(it.get("move_dir", -1)) == 1)
 
 
 func _flip_alt_sais() -> void:
@@ -15642,9 +15755,9 @@ func _sync_hub_cue() -> void:
 			line = "Click any monster."
 		elif mk == "love_potion":
 			if int(pending_mark.get("first_uid", -1)) >= 0:
-				line = "Click the second monster."
+				line = "Click the other monster with the same HP."
 			else:
-				line = "Click two monsters."
+				line = "Click two monsters with the same HP."
 		hub_cue.show_hold(line, "mark")
 		return
 	if challenge_draft_ui != null and challenge_draft_ui.visible and _draft_final_item:
@@ -18434,6 +18547,7 @@ func _item_echo_snapshot(it: Dictionary) -> Dictionary:
 		"shield_face": str(it.get("shield_face", "")),
 		"siphon_blk": frozen_n if kind == "blk_siphon" else int(it.get("siphon_blk", 0)),
 		"shard_blk": frozen_n if kind == "shardplate" else int(it.get("shard_blk", 0)),
+		"move_dir": int(it.get("move_dir", -1)),
 		"echo_silent": true,
 		"echo_frozen_n": frozen_n,
 	}
@@ -19462,6 +19576,7 @@ func _commit_after_item_use() -> void:
 	beads_step = (beads_step % 4) + 1
 	_log("var", "items this combat %s" % items_used_this_combat)
 	_flip_alt_sais()
+	_flip_shuriken_dirs()
 	_flip_shield_faces()
 	_tick_tolls()
 	if _toll_death_armed and not _bell_kill_this_use():
@@ -19877,9 +19992,6 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	m["hp_pre_hit"] = before_hp
 	m["hp"] = maxi(0, before_hp - hit_n)
 	wheel[index] = m
-	## Attack HP drop only — not Poison/`_chip_hp`, not player bleed.
-	if before_hp > int(m["hp"]):
-		_shardplate_on_enemy_atk_damage()
 	await _fairy_floor_after_loss(index, before_hp)
 	m = wheel[index]
 	_note_hydra_survive_loss(index, before_hp, int(m["hp"]))
@@ -21298,9 +21410,14 @@ func _can_mark(index: int, kind: String) -> bool:
 		if int(wheel[index].get("hp", 0)) <= 0:
 			return false
 		var first_uid: int = int(pending_mark.get("first_uid", -1))
-		if first_uid >= 0 and _seat_uid_at(index) == first_uid:
+		if first_uid < 0:
+			return _love_has_hp_match(index)
+		if _seat_uid_at(index) == first_uid:
 			return false
-		return true
+		var first_i := _index_of_seat(first_uid)
+		if first_i < 0:
+			return false
+		return int(wheel[index].get("hp", 0)) == int(wheel[first_i].get("hp", 0))
 	if kind == "signpost" or kind == "chain_flee":
 		if index == facing_index:
 			return false
@@ -22896,7 +23013,7 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"shardplate":
 			return [[_fg("shield", n)]]
 		"love_potion":
-			return [[_fg("heart"), _fg("heart")]]
+			return [[_fg("skull"), _fg("heart")]]
 		"kiss_of_death":
 			return [[_fg("drop", "4"), _fg("heart")]]
 		"venom_veins":
@@ -23430,7 +23547,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["kind"] = "MARK"
 			out["number"] = ""
 			out["note"] = ""
-			out["can_use"] = fighting and _living_monster_indices().size() >= 2
+			out["can_use"] = fighting and _love_any_equal_pair()
 		"toll":
 			out["kind"] = "HP"
 			out["n"] = int(it.get("toll_n", 6))
@@ -24898,16 +25015,16 @@ func _item_rule(it: Dictionary) -> Dictionary:
 				out["warn"] = "Can't — no block stored yet."
 		"shardplate":
 			out["value"] = _value_bb("Block", str(live), blk_c)
-			out["equation"] = "(%s) +1 per enemy Attack Damage" % _bb(blk_c, "BLK")
-			out["body"] = str(it.get("ability", "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block."))
+			out["equation"] = "(%s) +2 per Move Left" % _bb(blk_c, "BLK")
+			out["body"] = str(it.get("ability", "+2 Block each time you Move Left"))
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = "Can't — no block stored yet."
 		"love_potion":
-			out["value"] = _value_bb("Equalize", "2", gold)
-			out["equation"] = "lower %s then %s until equal" % [_bb(hp_c, "HP"), _bb(atk_c, "Attack")]
-			out["body"] = str(it.get("ability", "Select any 2 enemies. Lower their HP until equal, then lower their Attack until equal."))
+			out["value"] = _value_bb("Defeat", "2", gold)
+			out["equation"] = "equal %s, Defeat one, gift that %s" % [_bb(hp_c, "HP"), _bb(hp_c, "HP")]
+			out["body"] = str(it.get("ability", "Select Any two enemies with Equal HP. Defeat one at random and give their HP to the other."))
 			if fighting and not bool(view.get("can_use", false)):
-				out["warn"] = "Can't — need two living monsters."
+				out["warn"] = "Can't — no two monsters share HP."
 		"atk_wheel":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s)" % _bb(var_c, "Owners left")
@@ -27940,6 +28057,8 @@ func _shift_facing(dir: int, spend_move: bool) -> bool:
 		wheel_view.facing_index = dest
 		await wheel_view.recenter_on(dest, 0.28)
 	await _headstrong_on_face(dest)
+	if dir == 1:
+		_captain_wheel_on_left_step()
 	return true
 
 
@@ -30830,6 +30949,8 @@ func _sync_card_pass5(card: Control, it: Dictionary, _can_click: bool, in_fight:
 			pass
 		else:
 			card.set_icon(_item_icon_tex(it))
+			if cid == "shuriken" and card.has_method("set_shuriken_facing"):
+				card.set_shuriken_facing(_shuriken_dir_of(it) == 1)
 	if cid == "marble" and card.has_method("start_marble_idle") and not marble_busy:
 		card.start_marble_idle(bool(it.get("cats_eye", false)))
 	elif cid != "marble" and card.has_method("stop_marble_idle"):

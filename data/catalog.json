@@ -2637,19 +2637,19 @@
 			"call_name": "",
 			"card_color": "atk",
 			"count": 1.0,
-			"defined": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit.",
-			"exceptions": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
+			"defined": "Click during a fight. Used up. Starts each dungeon pointing Move Right. The throw steps that way, then deals 3 Attack. One living monster: no step, the 3 still hits. After every item resolves, the direction flips, including when this could not step. The arrow carries between fights in the same dungeon and starts to the right again in the next dungeon. The Ability line, the item picture, and the hotbar arrow all match the direction.",
+			"exceptions": "2026-11-12. Flips direction on item use, like Sai. Carries between fights, not between dungeons. Starts Move Right.",
 			"explainer": "Move →, then (Attack 3).",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Click during a fight. Used up. If another living monster is on the wheel, shift to the neighbor up and to the right (counter-clockwise, the same way as the Move-right button) without Spinning. This does not spend an adventure Move. Then deal 3 Attack to whoever you are facing. If they are the only living monster, skip the shift and deal 3 to them. No Keep. Goblin ignores Attack. Needleback, Harpy, Anvil, and Prism apply to whoever takes the hit.",
+			"flow": "Click during a fight. Used up. Starts each dungeon pointing Move Right. The throw steps that way, then deals 3 Attack. One living monster: no step, the 3 still hits. After every item resolves, the direction flips, including when this could not step. The arrow carries between fights in the same dungeon and starts to the right again in the next dungeon. The Ability line, the item picture, and the hotbar arrow all match the direction.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "shuriken",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -2673,7 +2673,7 @@
 			"log_hint": "Move →, then Attack 3",
 			"mode_pool": "all",
 			"name": "Shuriken",
-			"notes": "Move up-right, then 3 Attack. One living monster: no Move, the 3 still hits. No Keep.",
+			"notes": "2026-11-12. Flips direction on item use, like Sai. Carries between fights, not between dungeons. Starts Move Right.",
 			"ops": {
 				"kind": "atk_move",
 				"n": 3.0
@@ -4402,26 +4402,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Gain 0 Block. When an enemy takes Attack Damage, this Gains +1 Block.",
+			"ability": "+2 Block each time you Move Left",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "blk",
 			"count": 1.0,
-			"defined": "Starts at 0 Block on this card. Whenever an enemy takes Attack Damage (AOE / multi-target: +1 per enemy that actually loses HP; Goblin that takes no damage does not grow; Poison and Bleed do not count), this Gains +1 Block. Play spends the card for its current Block (used up). Keep until cashed. No On Spin Block loss.",
-			"exceptions": "Batch-2 2026-11-06 Pixel lock B. Pool 3 T1. Balance Nov8 Slice K: +1 Block per enemy Attack-damage event; remove Spin −2; cash-on-play discard remains.",
-			"explainer": "+1 when an enemy takes Attack Damage",
+			"defined": "Each Move Left adds 2 Block onto this card. Move Left is the Move Left button, and also every free step in that same direction (Shuriken when it points left, Swift Sneaks, Hook, Imp). Each seat is +2. Click the card to gain the stored Block and discard it. The stored number carries between fights in the same dungeon and clears when the next dungeon starts. Undo of that step removes the +2.",
+			"exceptions": "2026-11-12. Renamed from Shardplate. Bank on the card, cash on click. Move Left button and free steps in that direction.",
+			"explainer": "(+2 Block) stored each Move Left. Click to gain it.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Starts at 0 Block on this card. Whenever an enemy takes Attack Damage (AOE / multi-target: +1 per enemy that actually loses HP; Goblin that takes no damage does not grow; Poison and Bleed do not count), this Gains +1 Block. Play spends the card for its current Block (used up). Keep until cashed. No On Spin Block loss.",
+			"flow": "Each Move Left adds 2 Block onto this card. Move Left is the Move Left button, and also every free step in that same direction (Shuriken when it points left, Swift Sneaks, Hook, Imp). Each seat is +2. Click the card to gain the stored Block and discard it. The stored number carries between fights in the same dungeon and clears when the next dungeon starts. Undo of that step removes the +2.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "shardplate",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4443,10 +4443,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "+1 when an enemy takes Attack Damage",
+			"log_hint": "+2 Block stored each Move Left",
 			"mode_pool": "all",
-			"name": "Shardplate",
-			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 3 T1. Balance Nov8 Slice K: +1 Block per enemy Attack-damage event; remove Spin −2; cash-on-play discard remains.",
+			"name": "Captain's Wheel",
+			"notes": "2026-11-12. Renamed from Shardplate. Bank on the card, cash on click. Move Left button and free steps in that direction.",
 			"ops": {
 				"kind": "shardplate"
 			},
@@ -4463,26 +4463,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Select any 2 enemies. Lower their HP until equal, then lower their Attack until equal.",
+			"ability": "Select Any two enemies with Equal HP. Defeat one at random and give their HP to the other.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
-			"card_color": "utility",
+			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight. Select any two living monsters. Lower the higher HP until both match (each chip is HP loss, not Attack — triggers HP-loss reactions, not Shardplate). Then lower the higher Attack until both match. Used up.",
-			"exceptions": "Batch-2 2026-11-06 Pixel lock B. Pool 5. Balance Nov8 Slice L: inverse Clockwork Synchronize; HP via _chip_hp; consume.",
-			"explainer": "Pick 2: lower HP then ATK until equal",
+			"defined": "Click during a fight. First click is a living monster who shares current HP with someone else. Second click is only a different monster with that same current HP. One of the two is chosen at random to be Defeated. This is a Defeat item. Lich loses 1 HP and this is Kept. Commander Flees on his first Defeat and the gift does not happen. If the chosen monster actually dies, Wraith, Martyr neighbors, Phoenix, and the other on-defeat abilities still happen, and the survivor gains the current HP the dying monster had when you clicked. That gain raises max HP. Used up only when it is not Kept.",
+			"exceptions": "2026-11-12. Purple Defeat. Equal current HP. Random death. Add that HP and raise max.",
+			"explainer": "Equal HP. Defeat one at random. The other gains that HP.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight. Select any two living monsters. Lower the higher HP until both match (each chip is HP loss, not Attack — triggers HP-loss reactions, not Shardplate). Then lower the higher Attack until both match. Used up.",
+			"flow": "Click during a fight. First click is a living monster who shares current HP with someone else. Second click is only a different monster with that same current HP. One of the two is chosen at random to be Defeated. This is a Defeat item. Lich loses 1 HP and this is Kept. Commander Flees on his first Defeat and the gift does not happen. If the chosen monster actually dies, Wraith, Martyr neighbors, Phoenix, and the other on-defeat abilities still happen, and the survivor gains the current HP the dying monster had when you clicked. That gain raises max HP. Used up only when it is not Kept.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "love_potion",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4504,10 +4504,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Select 2; lower HP then ATK to equal",
+			"log_hint": "Equal HP. Defeat one. Gift that HP.",
 			"mode_pool": "all",
 			"name": "Love Potion",
-			"notes": "Batch-2 2026-11-06 Pixel lock B. Pool 5. Balance Nov8 Slice L: inverse Clockwork Synchronize; HP via _chip_hp; consume.",
+			"notes": "2026-11-12. Purple Defeat. Equal current HP. Random death. Add that HP and raise max.",
 			"ops": {
 				"kind": "love_potion"
 			},
