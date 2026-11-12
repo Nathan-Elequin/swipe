@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-09T00:50:00Z",
+	"updated_at": "2026-11-12T20:55:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -456,53 +456,60 @@
 			"note": "GitHub already closed."
 		},
 		"422": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Glass Asp should gain Poison on every Spin",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/422",
-			"sha": "11ab9848",
-			"f5_note": "Every Spin, each living Glass Asp ticks its old Poison, then gains 1. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Every Spin, each living Glass Asp ticks its old Poison, then gains 1. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"429": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Marble should be yellow with a this-or-that slash; Lucky Nickel hotbar should show both sides",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/429",
-			"sha": "11ab9848",
-			"f5_note": "Marble is the yellow plate: Attack, a slash, Block. Lucky Nickel is 2 Block, a slash, 6 Block and −2 HP. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Marble is the yellow plate: Attack, a slash, Block. Lucky Nickel is 2 Block, a slash, 6 Block and −2 HP. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"433": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Using a Shrouded item should remove Undo, because the reveal is random",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/433",
-			"sha": "11ab9848",
-			"f5_note": "Click a shrouded item. Undo goes away for that reveal, the same way it does after a Spin. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Click a shrouded item. Undo goes away for that reveal, the same way it does after a Spin. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"451": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Eel block→attack damage: Protector/bodyguard should have died",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/451",
-			"sha": "11ab9848",
-			"f5_note": "Helmet full Block hits Eel. A neighboring Bodyguard takes that whole hit and can die. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Helmet full Block hits Eel. A neighboring Bodyguard takes that whole hit and can die. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"452": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Poison-kill spin should still tick Spin items (Grief Jar, Marble, Spinning Top)",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/452",
-			"sha": "11ab9848",
-			"f5_note": "Marble and Spinning Top still tick when poison kills the monster you spun. Grief Jar still grows only when you lose HP. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Marble and Spinning Top still tick when poison kills the monster you spun. Grief Jar still grows only when you lose HP. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"482": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Death Bell Toll does not seem to work",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/482",
-			"sha": "11ab9848",
-			"f5_note": "Bag of Holding and Keep items count down Toll, even when the card stays. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Bag of Holding and Keep items count down Toll, even when the card stays. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		},
 		"483": {
-			"status": "f5",
+			"status": "itch",
 			"title": "Spinning Top should allow targeting any monster",
 			"url": "https://github.com/Nathan-Elequin/swipe/issues/483",
-			"sha": "11ab9848",
-			"f5_note": "Top opens a picker only when some monster HP matches. Click that monster. Stop Play, F5."
+			"sha": "0f480c91",
+			"f5_note": "Top opens a picker only when some monster HP matches. Click that monster. Stop Play, F5.",
+			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
 		}
 	}
 }
