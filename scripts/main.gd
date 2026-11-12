@@ -5111,14 +5111,29 @@ func _cap_discard_open() -> bool:
 
 
 func _item_is_curse(it: Dictionary) -> bool:
-	if bool(it.get("shrouded", false)):
+	if bool(it.get("curse", false)):
 		return true
 	var id: String = str(it.get("card_id", ""))
 	var card: Dictionary = items_by_id.get(id, {})
 	if bool(card.get("curse", false)):
 		return true
 	## cursed_scroll is an ordinary Tier 1 heal item — not a Curse rank.
-	return id == "spider_egg" or id == "toll" or id == "rust"
+	if id == "spider_egg" or id == "toll" or id == "rust" or id == "blood_pact":
+		return true
+	if id == "bag_of_holding" and (int(it.get("bagged_hp", 0)) > 0 or bool(it.get("collector_specimen", false))):
+		return true
+	return false
+
+
+func _mark_item_curse(it: Dictionary) -> void:
+	it["curse"] = true
+	it["pack_tier"] = 0
+
+
+func _item_rank_tier(it: Dictionary) -> int:
+	if _item_is_curse(it):
+		return 0
+	return int(it.get("pack_tier", 1))
 
 
 func _item_uncollected_in_hand(it: Dictionary) -> bool:
@@ -12741,6 +12756,7 @@ func _fill_bag(it: Dictionary, m: Dictionary) -> void:
 	it["spent"] = false
 	it["keep_after"] = true
 	it["card_id"] = "bag_of_holding"
+	_mark_item_curse(it)
 	var bag_card: Dictionary = items_by_id.get("bag_of_holding", {})
 	if typeof(bag_card.get("ops", null)) == TYPE_DICTIONARY:
 		it["ops"] = (bag_card["ops"] as Dictionary).duplicate(true)
@@ -12761,6 +12777,7 @@ func _empty_bag(it: Dictionary) -> Dictionary:
 	it["ability"] = str(card.get("ability", "Bag an enemy with less HP than you."))
 	it["explainer"] = str(card.get("explainer", ""))
 	it["keep_after"] = false
+	_mark_item_curse(it)
 	return snap
 
 
@@ -13989,8 +14006,6 @@ func _hand_discard_uids() -> Array:
 			continue
 		if bool(it.get("spent", false)):
 			continue
-		if _item_blocks_hand_tax(it):
-			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid >= 0:
 			uids.append(uid)
@@ -14009,8 +14024,8 @@ func _hand_all_uids() -> Array:
 
 
 func _hand_bell_defeat_uids() -> Array:
-	## Death Knell cannot dump a curse (Toll, Rust, Spider Egg).
-	return _filter_toss_uids(_hand_all_uids())
+	## Death Knell can take a curse. Over-ten toss still cannot.
+	return _hand_discard_uids()
 
 
 func _maybe_enter_gains(index: int) -> void:
@@ -14144,15 +14159,13 @@ func _beggar_pick_uid(owner: int) -> int:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		if _item_is_curse(it):
-			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid < 0:
 			continue
 		any.append(uid)
 		if not taken.has(uid):
 			preferred.append(uid)
-	# Same worst as Cleric: lowest tier, Spider Egg counts as 0, random among ties.
+	# Same worst as Cleric: lowest tier, curses count as 0, random among ties.
 	# Another Beggar's mark is skipped when something else is still free.
 	var best: int = 999
 	var cands: Array = []
@@ -14163,9 +14176,7 @@ func _beggar_pick_uid(owner: int) -> int:
 		var uid: int = int(it.get("uid", -1))
 		if uid < 0 or not pool.has(uid):
 			continue
-		var t: int = int(it.get("pack_tier", 1))
-		if str(it.get("card_id", "")) == "spider_egg":
-			t = 0
+		var t: int = _item_rank_tier(it)
 		if t < best:
 			best = t
 			cands = [uid]
@@ -14191,7 +14202,7 @@ func _beggar_assign(index: int, anim: bool) -> void:
 		return
 	var held_uid: int = int(m.get("beggar_mark", -1))
 	var held: Dictionary = _find_item(held_uid)
-	if _item_uid_in_hand(held_uid) and not _item_is_curse(held):
+	if _item_uid_in_hand(held_uid):
 		return
 	var uid: int = _beggar_pick_uid(index)
 	m["beggar_mark"] = uid
@@ -14230,8 +14241,6 @@ func _beggar_force_discard(index: int) -> void:
 	if not _item_uid_in_hand(uid):
 		return
 	var it: Dictionary = _find_item(uid)
-	if _item_is_curse(it):
-		return
 	var partner: int = int(it.get("decay_partner", -1))
 	_decay_clear_mark(it)
 	if partner >= 0:
@@ -14709,7 +14718,7 @@ func _feed_bell_overlay(uid: int) -> void:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty():
 		return
-	if _item_blocks_hand_tax(it):
+	if _is_forced_gain_feed(kind) and _item_blocks_hand_tax(it):
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -15032,7 +15041,7 @@ func _feed_worm(uid: int) -> void:
 			sfx.play("error", -12.0)
 		return
 	var it: Dictionary = _find_item(uid)
-	if it.is_empty() or _item_blocks_hand_tax(it):
+	if it.is_empty():
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -15105,7 +15114,7 @@ func _pay_hired_hand(uid: int) -> void:
 			sfx.play("error", -12.0)
 		return
 	var it: Dictionary = _find_item(uid)
-	if it.is_empty() or _item_blocks_hand_tax(it):
+	if it.is_empty():
 		if sfx:
 			sfx.play("error", -12.0)
 		return
@@ -18317,14 +18326,10 @@ func _worst_item_uid() -> int:
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		if _item_is_curse(it):
-			continue
 		var uid: int = int(it.get("uid", -1))
 		if uid < 0:
 			continue
-		var t: int = int(it.get("pack_tier", 1))
-		if str(it.get("card_id", "")) == "spider_egg":
-			t = 0
+		var t: int = _item_rank_tier(it)
 		if t < best:
 			best = t
 			cands = [uid]
@@ -19524,7 +19529,7 @@ func _cube_ask_feed() -> void:
 	if hotbar.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
-	var ids: Array = _filter_toss_uids(_hand_all_uids())
+	var ids: Array = _hand_discard_uids()
 	if ids.is_empty():
 		_log("on_spin", "cube ate nothing")
 		return
@@ -19568,6 +19573,8 @@ func _merchant_ask() -> void:
 
 
 func _stored_item_tier(it: Dictionary) -> int:
+	if _item_is_curse(it):
+		return 0
 	var card: Dictionary = items_by_id.get(str(it.get("card_id", "")), {})
 	if card.has("tier"):
 		return int(card.get("tier", 0))
@@ -19673,7 +19680,7 @@ func _feed_cube(uid: int) -> void:
 	if not _uid_in(allowed, uid):
 		return
 	var it: Dictionary = _find_item(uid)
-	if it.is_empty() or _item_blocks_hand_tax(it):
+	if it.is_empty():
 		if sfx:
 			sfx.play("error", -12.0)
 		return

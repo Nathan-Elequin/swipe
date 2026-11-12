@@ -654,12 +654,13 @@ func set_bag_stamp(tex: Texture2D) -> void:
 		_bag_stamp.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_bag_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_bag_stamp.texture_filter = TEXTURE_FILTER_NEAREST
-		_bag_stamp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-		_bag_stamp.offset_left = -36
-		_bag_stamp.offset_top = -36
-		_bag_stamp.offset_right = -2
-		_bag_stamp.offset_bottom = -2
+		_bag_stamp.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_bag_stamp.offset_left = 10
+		_bag_stamp.offset_top = 8
+		_bag_stamp.offset_right = -10
+		_bag_stamp.offset_bottom = -12
 		if _icon:
+			_icon.clip_contents = true
 			_icon.add_child(_bag_stamp)
 		else:
 			_overlay_host().add_child(_bag_stamp)

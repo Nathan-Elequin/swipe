@@ -3173,6 +3173,7 @@
 			"call_name": "",
 			"card_color": "egg",
 			"count": 0.0,
+			"curse": true,
 			"defined": "Click during a fight. Used up. You lose 2 HP and the facing enemy loses 2 HP. Not Attack: Block does not stop it, Goblin takes it, Flail ticks. Anvil still max 1. Both chips happen even if you would hit 0; Revival Potion can save you. If they hit 0, they are Defeated. If you hit 0 and Potion does not save, you die. Not drafted. Cultist creates it. Tier 0 so Merchant can turn it into a Tier 1 item.",
 			"exceptions": "Token. Not drafted. Cultist creates it. Black card like Egg. HP chip, not Attack.",
 			"explainer": "−2 HP you and Enemy",
@@ -3295,7 +3296,7 @@
 			"card_color": "egg",
 			"count": 0.0,
 			"curse": true,
-			"defined": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Revival Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Merchant can still upgrade it.",
+			"defined": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Revival Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: you cannot throw this away when the hand is over ten. Cube, Worm, Death Knell, Hired Hand, Beggar, and Merchant can still take it.",
 			"exceptions": "Token. Not drafted. Death Bell creates it. Black card like Egg. Starts at 6.",
 			"explainer": "−1 / Item Use  Die at 0",
 			"flags": {
@@ -3303,7 +3304,7 @@
 				"dev": true,
 				"hide": true
 			},
-			"flow": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Revival Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: Cube, Worm, Bell, Hired Hand, and a full-hand replace cannot dump it. Merchant can still upgrade it.",
+			"flow": "Unplayable token. Starts at 6. Each item use that increments the Beads counter lowers the number by 1. At 1 it pulses. At 0: Die, Revival Potion can save. Overlay picks (Cube, Worm, Merchant, Bell spawn/defeat) do not tick. Bushido dummy throw does tick. Potion auto and Buckler auto do not. Stays between fights until dumped or it hits 0. Curse: you cannot throw this away when the hand is over ten. Cube, Worm, Death Knell, Hired Hand, Beggar, and Merchant can still take it.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "toll",
@@ -4009,7 +4010,7 @@
 			"card_color": "egg",
 			"count": 0.0,
 			"curse": true,
-			"defined": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
+			"defined": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Death Knell, Hired Hand, and Beggar can dump Rust. A full-hand replace cannot. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
 			"exceptions": "Token. Curse (black card). Clickable. Rust Bucket creates it. Used up. Stacks per copy.",
 			"explainer": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 			"flags": {
@@ -4017,7 +4018,7 @@
 				"dev": true,
 				"hide": true
 			},
-			"flow": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Bell, Hired Hand, and a full-hand replace can dump Rust. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
+			"flow": "Click during a fight. Gain 2 Block, Lose 1 HP. Used up. Whenever you Gain Block from any source (including this card), each Rust already in your hand Gains you 1 more Rust. New Rusts from that wave do not fire on that same Gain. One wave per Gain Block, not per point of Block. New copies force into the hand like Spider Egg; if the hand is over cap, toss overlay (you cannot toss Rust or Spider Egg in that overlay). If the ten slots are all curses, leftover incoming cards are discarded instead of staying over cap. Cube, Worm, Death Knell, Hired Hand, and Beggar can dump Rust. A full-hand replace cannot. Stone Wall leftover Block is not a Gain. Quiet Bell does not skip the Bucket grant. Two Buckets grant two Rusts.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "rust",
