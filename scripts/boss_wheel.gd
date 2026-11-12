@@ -2944,6 +2944,9 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 	var plate_r: float = float(sp.get("plate_r", maxf(sprite_rect.size.x, sprite_rect.size.y) * 0.5))
 	if plate_r < 8.0:
 		plate_r = 48.0
+	if bool(s.get("phantom_shroud", false)):
+		_draw_shroud_wedge(port_pos, plate_r)
+		return
 	if i == aura_index or threat_indices.has(i):
 		var glow := Color("e8c36a")
 		glow.a = 0.50 + 0.28 * absf(sin(_glow_t * 9.0))
@@ -3002,6 +3005,30 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		var arm: float = 22.0
 		draw_line(port_pos + Vector2(-arm, -arm), port_pos + Vector2(arm, arm), xc, 4.0, true)
 		draw_line(port_pos + Vector2(arm, -arm), port_pos + Vector2(-arm, arm), xc, 4.0, true)
+
+
+func _draw_shroud_stat(font: Font, pos: Vector2) -> void:
+	var q := "?"
+	var fs := 22
+	var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var p := pos + Vector2(-tsz.x * 0.5, fs * 0.35)
+	var ci := _d()
+	ci.draw_string(font, p + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
+	ci.draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
+
+
+func _draw_shroud_wedge(center: Vector2, rad: float) -> void:
+	var veil := Color(0.03, 0.02, 0.05, 0.96)
+	draw_circle(center, rad, veil)
+	draw_arc(center, rad * 0.72, 0.4, PI * 1.3, 18, Color(0.22, 0.16, 0.28, 0.7), 2.0, true)
+	draw_arc(center, rad * 0.42, 1.2, PI * 1.8, 14, Color(0.16, 0.12, 0.2, 0.8), 2.0, true)
+	var font: Font = ThemeDB.fallback_font
+	var q := "?"
+	var fs := 28
+	var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var p := center + Vector2(-tsz.x * 0.5, fs * 0.35)
+	draw_string(font, p + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
+	draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
 
 
 func _plate_tier(s: Dictionary) -> int:
@@ -4054,6 +4081,9 @@ func _draw_closed_empty(origin: Vector2, dir: Vector2, r: float) -> void:
 
 
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
+	if bool(s.get("phantom_shroud", false)):
+		_draw_shroud_stat(font, pos)
+		return
 	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
 		atk = int(_atk_disp[i])
@@ -4115,6 +4145,9 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 
 
 func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
+	if bool(s.get("phantom_shroud", false)):
+		_draw_shroud_stat(font, pos)
+		return
 	var hp: int = int(s.get("hp", 0))
 	if i >= 0 and _hp_disp.has(i):
 		hp = int(_hp_disp[i])

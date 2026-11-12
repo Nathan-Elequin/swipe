@@ -5728,7 +5728,7 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 	if seq == _mill_seq and _phantom_has_any():
 		await _phantom_opening_show()
 	elif seq == _mill_seq:
-		await _phantom_release_enters()
+		await _phantom_release_enters(false)
 	_refresh()
 	_layout_play_field()
 
@@ -10693,25 +10693,11 @@ func _use_item(uid: int) -> void:
 		if sfx:
 			sfx.play_event(&"hand.petrified")
 		return
-	## Phantom Shroud: lift, peel, then Use. Unplayable discards. Reveal-use does not re-trigger Dark Matter.
-	## The peel is random, like a Spin, so Undo cannot put the veil back.
-	var revealed_shroud: bool = false
+	## Old item Shroud is retired. A saved flag must not block the click.
 	if bool(it.get("shrouded", false)):
-		_shroud_blocks_undo = true
-		_sync_buttons()
-		var play_revealed: bool = await _phantom_reveal_for_use(uid)
-		_undo_wall()
-		if not play_revealed:
-			_shroud_blocks_undo = false
-			_sync_buttons()
-			return
-		it = _find_item(uid)
-		if it.is_empty() or bool(it.get("spent", false)):
-			_shroud_blocks_undo = false
-			_sync_buttons()
-			return
-		_phantom_skip_dark_matter = true
-		revealed_shroud = true
+		it["shrouded"] = false
+		it.erase("shroud_ord")
+	var revealed_shroud: bool = false
 	if in_tutorial and not _tutorial_allows_item(str(it.get("card_id", ""))):
 		if tut:
 			tut.nudge(_tutorial_nudge_for_item(str(it.get("card_id", ""))))
@@ -16432,6 +16418,9 @@ func _apply_polymorph(index: int, it: Dictionary) -> void:
 	copy["poisoned"] = int(copy["poison"]) > 0
 	copy["spin_locked"] = true
 	copy["polymorphed_this_fight"] = true
+	copy["shroud_seen"] = true
+	copy["shroud_from"] = []
+	copy["phantom_shroud"] = false
 	copy["pack_tier"] = int(src.get("pack_tier", copy.get("pack_tier", 1)))
 	copy["pack_kind"] = str(src.get("pack_kind", copy.get("pack_kind", "draft")))
 	if nid == "kobold_trapper":
@@ -18537,8 +18526,6 @@ func _after_item_resolved(it: Dictionary) -> void:
 		_remember_item_use(it)
 		await _basilisk_on_gazed_use(it)
 		## Phantom Dark Matter: non-Shrouded Use only (reveal-use skips).
-		if not _phantom_skip_dark_matter and not bool(it.get("shrouded", false)):
-			await _phantom_dark_matter_on_use(it)
 	_phantom_skip_dark_matter = false
 	var spent_use: bool = bool(it.get("spent", false))
 	var magnet_use: bool = str(_ops_of(it).get("kind", "")) == "magnet"
@@ -20461,12 +20448,15 @@ func _phantom_uid_active(uid: int) -> bool:
 
 
 func _index_beside_active_phantom(index: int) -> bool:
-	if index < 0:
+	var n: int = wheel.size()
+	if index < 0 or n < 2:
 		return false
 	for p in _phantom_active_indices():
 		if p == index:
 			continue
-		if _neighbors_of(p).has(index):
+		var left_i: int = (p - 1 + n) % n
+		var right_i: int = (p + 1) % n
+		if index == left_i or index == right_i:
 			return true
 	return false
 
@@ -20613,7 +20603,7 @@ func _phantom_opening_show() -> void:
 	await _phantom_release_enters()
 
 
-func _phantom_release_enters() -> void:
+func _phantom_release_enters(do_slash: bool = true) -> void:
 	for i in range(wheel.size()):
 		if typeof(wheel[i]) != TYPE_DICTIONARY:
 			continue
@@ -20622,7 +20612,7 @@ func _phantom_release_enters() -> void:
 		wheel[i].erase("enter_pending")
 		var hidden: bool = _monster_shrouded(wheel[i])
 		var is_ph: bool = str(wheel[i].get("card_id", "")) == "phantom"
-		if not hidden and not is_ph:
+		if do_slash and not hidden and not is_ph:
 			await _phantom_slash_real(i)
 		await _maybe_enter_gains(i)
 		if not hidden and wheel_view:
@@ -26827,10 +26817,22 @@ func _sync_challenge_peek() -> void:
 	if challenge_deck.is_empty():
 		_peek_slice = {}
 		dungeon_deck_ui.set_peek(null, "")
+		if dungeon_deck_ui.has_method("set_shroud_top"):
+			dungeon_deck_ui.set_shroud_top(false)
 		if _deck_hovering:
 			_deck_hovering = false
 			_idle_inspect()
 		return
+	if _phantom_deck_cover:
+		_peek_slice = {}
+		dungeon_deck_ui.set_peek(null, "?")
+		if dungeon_deck_ui.has_method("set_shroud_top"):
+			dungeon_deck_ui.set_shroud_top(true)
+		if _deck_hovering:
+			_fill_inspect_from_deck()
+		return
+	if dungeon_deck_ui.has_method("set_shroud_top"):
+		dungeon_deck_ui.set_shroud_top(false)
 	var nid: String = _deck_card_id(challenge_deck[0])
 	var nm: String = str(monsters_by_id.get(nid, {}).get("name", nid))
 	var tex: Texture2D = null
@@ -26856,6 +26858,12 @@ func _on_deck_hovered() -> void:
 		return
 	if challenge_deck.is_empty() or _peek_slice.is_empty():
 		_sync_challenge_peek()
+	if _phantom_deck_cover:
+		if sfx and not _deck_hovering:
+			sfx.hover()
+		_deck_hovering = true
+		_fill_inspect_from_deck()
+		return
 	if _peek_slice.is_empty():
 		return
 	if sfx and not _deck_hovering:
@@ -26889,6 +26897,9 @@ func _fill_inspect_from_deck() -> void:
 	if inspect:
 		inspect.visible = false
 	if fly_tip == null:
+		return
+	if _phantom_deck_cover:
+		fly_tip.show_text("?", "")
 		return
 	if _peek_slice.is_empty():
 		_idle_inspect()
@@ -26945,6 +26956,7 @@ func _triclops_sorry(index: int) -> void:
 
 
 func _refresh() -> void:
+	_clear_legacy_item_shrouds()
 	_sync_log_panel()
 	_sync_wheel_stats()
 	_sync_triclops_glow()

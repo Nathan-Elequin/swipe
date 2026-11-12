@@ -39,6 +39,7 @@ var art_tex: Texture2D
 var peek_tex: Texture2D
 var peek_name: String = ""
 var peek_tier: int = 0
+var shroud_top: bool = false
 ## Global point the drawn card slides toward (e.g. the wheel slot it lands in). INF = slide left.
 var entry_global: Vector2 = Vector2.INF
 ## Item opening-deal stack: no loot bags, no auto face-up after shuffle.
@@ -126,6 +127,11 @@ func set_count(n: int) -> void:
 
 
 ## who == "" means no next monster to show (deck empty, or the mode hides it): top stays face down.
+func set_shroud_top(on: bool) -> void:
+	shroud_top = on
+	queue_redraw()
+
+
 func set_peek(tex: Texture2D, who: String, tier: int = -1) -> void:
 	peek_tex = tex
 	peek_name = who.strip_edges()
@@ -354,6 +360,15 @@ func _draw() -> void:
 		var show_face: bool = _face_up and peek_name != ""
 		_draw_card(-CARD * 0.5, show_face, peek_tex, peek_name, peek_tier)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		if shroud_top and count > 0:
+			draw_rect(Rect2(CARD_POS, CARD), Color(0.03, 0.02, 0.05, 0.96))
+			var font: Font = ThemeDB.fallback_font
+			var q := "?"
+			var fs := 28
+			var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+			var qp := CARD_POS + CARD * 0.5 + Vector2(-tsz.x * 0.5, fs * 0.35)
+			draw_string(font, qp + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
+			draw_string(font, qp, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
 	if not _out.is_empty():
 		var a: float = 1.0 if _deal_full else (1.0 - _slide_t)
 		var off: Vector2 = _slide_offset().round()

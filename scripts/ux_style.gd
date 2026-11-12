@@ -407,7 +407,7 @@ static func def_of(id: String) -> String:
 		"curse":
 			return "A harmful Item forced into your hand."
 		"shroud":
-			return "Fully covers an Item. Click to reveal and Use; Unplayable reveals and discards."
+			return "Hidden until Defeated, or until you resolve combat while facing them"
 		"toll":
 			return "Unplayable. −1 on each Item Use. At 0, you Die."
 		"hex":
