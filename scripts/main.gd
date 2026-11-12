@@ -199,7 +199,7 @@ const ITEM_OPS := {
 	"recycler": {"kind": "recycle_watch"},
 	"rust": {"kind": "blk", "n": 2},
 	"spinning_top": {"kind": "defeat_spins"},
-	"venom_veins": {"kind": "passive"},
+	"venom_veins": {"kind": "venom_veins"},
 	"kiss_of_death": {"kind": "kiss_of_death"},
 }
 
@@ -11588,6 +11588,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if sfx:
 				sfx.play("error", -10.0)
 			return
+		"venom_veins":
+			await _apply_venom_veins(it)
 		_:
 			return
 	it["spent"] = true
@@ -11926,17 +11928,13 @@ func _apply_kiss_of_death_mark(index: int) -> void:
 	call_deferred("_refresh")
 
 
-func _venom_veins_on_hp_lost() -> void:
-	## Once per HP-loss event: Mark-3 Poison Flask only (no player Poison downside).
-	for it in hotbar:
-		if str(it.get("card_id", "")) != "venom_veins":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		_log_begin_item(it, false)
-		await _gain_marked_poison_flask(3)
-		_log("on_resolve", "Venom Veins → Mark-3 Flask")
-		_log_end_proc()
+func _apply_venom_veins(it: Dictionary) -> void:
+	## Click: 1 Poison on you, one Mark-3 Poison Flask, then Keep. Not an HP-loss trigger.
+	_log("on_item_use", str(it.get("name", "Venom Veins")))
+	_gain_player_poison(1)
+	await _gain_marked_poison_flask(3)
+	it["keep_after"] = true
+	_log("on_resolve", "Venom Veins → Poison 1 + Mark-3 Flask, Keep")
 
 
 func _gain_marked_poison_flask(dose: int) -> void:
@@ -15993,7 +15991,6 @@ func _note_hp_lost(n: int) -> void:
 	_shake_screen()
 	_tut_note_hp_change()
 	_grief_jar_on_hp_lost()
-	await _venom_veins_on_hp_lost()
 	if n != 2:
 		return
 	for it in hotbar:
@@ -22681,6 +22678,9 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 			return [[_fg("heart"), _fg("heart")]]
 		"kiss_of_death":
 			return [[_fg("drop", "4"), _fg("heart")]]
+		"venom_veins":
+			## 1 Poison, the Poison Flask, then the Keep hand glyph.
+			return [[_fg("drop", "1"), _fg("icon", "", "", "", "", "flask"), _fg("icon", "", "", "", "", "hand")]]
 		"tesla_coil":
 			return [[_fg("skull"), _fg("text", "Across")]]
 		"spinning_top":
@@ -23194,6 +23194,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = ""
 			out["note"] = ""
 			out["can_use"] = false
+		"venom_veins":
+			out["kind"] = "POISON"
+			out["number"] = "1"
+			out["note"] = ""
+			out["can_use"] = fighting and not bool(it.get("spent", false))
 		"kiss_of_death":
 			out["kind"] = "MARK"
 			out["n"] = 4
@@ -25238,6 +25243,8 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 			return
 	fly_tip.global_position = pos
 	fly_tip.size = sz
+	if fly_tip.has_method("place_kiss_tip"):
+		fly_tip.place_kiss_tip()
 	if fly_tip.has_method("pin_always_def"):
 		fly_tip.pin_always_def()
 

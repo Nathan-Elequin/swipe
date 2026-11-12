@@ -79,6 +79,8 @@ static func _path_for(key: String) -> String:
 			return SKULL
 		"droplet", "poison", "drop", "heal":
 			return DROPLET
+		"flask":
+			return "res://assets/dungeon/items/poison_flask.png"
 		"ban":
 			return BAN
 		"copy":

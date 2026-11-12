@@ -3334,7 +3334,7 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Unplayable. When you Lose HP, Gain a 3-Poison Flask.",
+			"ability": "Gain 1 Poison and a 3-Poison Flask, then Keep this.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
@@ -3342,8 +3342,8 @@
 			"card_color": "defeat",
 			"contradiction_ids": [],
 			"count": 1.0,
-			"explainer": "On Lose HP: Gain a 3-Poison Flask",
-			"flow": "While this is in your hand: every time you lose HP (any amount, every event, no cap), add one Poison Flask to your hand that is already Mark-3 (same live poison_flask card — same art/anim; clicking it marks a Neighbor with 3 Poison). No player Poison from this card. Unplayable. You cannot click Venom Veins.",
+			"explainer": "1 Poison and a 3-Poison Flask, then Keep",
+			"flow": "Click during a fight. Gain 1 Poison on yourself. It pays when the wheel lands: enemy Poison first, then yours, before on-Spin effects. Also gain one Poison Flask already set to 3. Spent this fight, then Keep. HP loss does not trigger this.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "venom_veins",
@@ -3370,12 +3370,12 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Lose HP → 3-Poison Flask",
+			"log_hint": "1 Poison, 3-Poison Flask, Keep",
 			"mode_pool": "all",
 			"name": "Venom Veins",
-			"notes": "Scale-four 2026-11-05 Pixel art. Balance Nov8: every HP-loss event → spawn live poison_flask pre-marked at 3 only (Gain 1 Poison downside removed). Reuse poison_flask art/anim.",
+			"notes": "2026-11-12: click, Gain 1 Poison and a Mark-3 Poison Flask, then Keep. Poison pays on the land (enemy, then you) before on-Spin. Not an HP-loss trigger.",
 			"ops": {
-				"kind": "passive"
+				"kind": "venom_veins"
 			},
 			"pool": 4.0,
 			"priority": 3.0,
