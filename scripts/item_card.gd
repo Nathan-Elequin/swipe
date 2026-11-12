@@ -284,7 +284,7 @@ func setup(
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_icon)
-	if p_id == "shuriken" or p_id == "swift_sneaks":
+	if p_id == "swift_sneaks":
 		var arc := preload("res://scripts/move_arc_icon.gd").new()
 		arc.name = "MoveArc"
 		_icon.add_child(arc)
@@ -2554,7 +2554,10 @@ func adopt_identity(p_id: String, title: String, icon: Texture2D, p_kind: String
 		_icon.modulate.a = 1.0
 		_icon.texture = icon
 		var arc: Node = _icon.get_node_or_null("MoveArc")
-		var want_arc: bool = p_id == "shuriken" or p_id == "swift_sneaks"
+		var want_arc: bool = p_id == "swift_sneaks"
+		if p_id == "shuriken" and arc != null:
+			arc.queue_free()
+			arc = null
 		if want_arc and arc == null:
 			var move_arc := preload("res://scripts/move_arc_icon.gd").new()
 			move_arc.name = "MoveArc"
@@ -2830,11 +2833,13 @@ func marble_busy() -> bool:
 
 
 func set_shuriken_facing(points_left: bool) -> void:
-	if _icon != null:
-		_icon.flip_h = points_left
-		var arc: Node = _icon.get_node_or_null("MoveArc")
-		if arc != null and arc.has_method("set_points_left"):
-			arc.set_points_left(points_left)
+	## Same picture. Left is a horizontal mirror of the right-facing art.
+	if _icon == null:
+		return
+	var arc: Node = _icon.get_node_or_null("MoveArc")
+	if arc != null:
+		arc.queue_free()
+	_icon.flip_h = points_left
 
 
 func set_sai_static(pair: bool) -> void:

@@ -15543,6 +15543,8 @@ func _flip_shuriken_dirs() -> void:
 		var card: Control = _hotbar_card_by_uid(int(it.get("uid", -1)))
 		if card != null and card.has_method("set_shuriken_facing"):
 			card.set_shuriken_facing(int(it.get("move_dir", -1)) == 1)
+		if card != null and card.has_method("set_glyphs"):
+			card.set_glyphs(_face_rows(it, _item_view(it)))
 
 
 func _flip_alt_sais() -> void:
@@ -23022,6 +23024,10 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		return _face_rows(copied, _item_view(copied), depth + 1)
 	var n := str(view.get("number", ""))
 	match id:
+		"shuriken":
+			var step := "west" if _shuriken_dir_of(it) == 1 else "east"
+			var hit := n if n.is_valid_int() else "3"
+			return [[_fg("icon", "", "", "", "", step), _fg("impact", hit)]]
 		"crossbow":
 			return [[_fg("icon", "", "", "", "", "nw"), _fg("impact", n), _fg("icon", "", "", "", "", "ne")]]
 		"double_axe":

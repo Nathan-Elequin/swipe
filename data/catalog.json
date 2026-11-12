@@ -6574,8 +6574,8 @@
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
-			"review_note": "Nerf base attack from 4 down to 2",
-			"status": "todo",
+			"review_note": "",
+			"status": "live",
 			"tier": 2.0,
 			"type": "M"
 		},

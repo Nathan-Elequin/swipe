@@ -92,6 +92,8 @@ static func _path_for(key: String) -> String:
 		## "draw" / "draw_card" = shared Draw-a-Card glyph (bag.png card+plus).
 		"draw", "draw_card", "bag":
 			return FACE_DIR + "bag.png"
+		"west":
+			return FACE_DIR + "east.png"
 		"nw", "ne", "east", "far", "cleave", "spin", "retain", "hand", "flee", "slash", "swap":
 			return FACE_DIR + k + ".png"
 		_:
@@ -237,6 +239,8 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 				tex_key = k
 
 	var icon := make_icon(tex_key, offer)
+	if tex_key == "west":
+		icon.flip_h = true
 	host.custom_minimum_size = Vector2(px, px)
 	host.add_child(icon)
 	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
