@@ -5509,6 +5509,61 @@ func _bounce_hot_uid(uid: int) -> void:
 			return
 
 
+func _hide_item_deal_deck() -> void:
+	if item_deal_ui == null:
+		return
+	item_deal_ui.z_index = 40
+	item_deal_ui.visible = false
+	item_deal_ui.set_count(0)
+	item_deal_ui.set_peek(null, "")
+
+
+## Face-up toss from the item deck into the next hotbar seat. Same flight as the opening six.
+func _fly_dealt_item(it: Dictionary) -> void:
+	if item_deal_ui == null or it.is_empty():
+		return
+	var full: bool = hotbar.size() >= _forced_hand_cap()
+	var seat_i: int = hotbar.size()
+	var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_deal_slot_global(seat_i)
+	var dest_sz: Vector2 = _hotbar_deal_slot_size(seat_i)
+	var pad: Control = null if full else _hotbar_deal_slot_control(seat_i)
+	if pad != null:
+		pad.modulate.a = 0.12
+	var iid: String = str(it.get("card_id", ""))
+	_sync_item_deal_deck()
+	item_deal_ui.set_peek(_item_icon_tex(it, iid), str(it.get("name", "?")), _tier_of(it))
+	await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
+	item_deal_ui.set_peek(null, "")
+	if pad != null and is_instance_valid(pad):
+		pad.modulate.a = 1.0
+
+
+## One card from the loot pool, after an item's own effect. Same deck, flight, and sounds as the opening deal.
+func _present_pool_draw(it: Dictionary) -> void:
+	if item_deal_ui == null or _qa_busy() or not is_inside_tree() or it.is_empty():
+		return
+	var seq: int = _mill_seq
+	_sync_hotbar()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if seq != _mill_seq or not is_instance_valid(self):
+		return
+	_sync_item_deal_deck()
+	item_deal_ui.z_index = 52
+	item_deal_ui.visible = true
+	item_deal_ui.set_count(maxi(1, item_pool.size() + 1))
+	item_deal_ui.set_peek(null, "")
+	if sfx:
+		sfx.play("cloth", -10.0)
+		sfx.play("whoosh", -14.0, 1.2)
+	await item_deal_ui.play_shuffle(0.32)
+	if seq != _mill_seq or not is_instance_valid(self):
+		_hide_item_deal_deck()
+		return
+	await _fly_dealt_item(it)
+	_hide_item_deal_deck()
+
+
 func _deal_opening_hand(items: Array) -> void:
 	var seq: int = _mill_seq
 	if item_deal_ui == null:
@@ -5547,20 +5602,8 @@ func _deal_opening_hand(items: Array) -> void:
 		if typeof(it) != TYPE_DICTIONARY or it.is_empty():
 			continue
 		var full: bool = hotbar.size() >= _forced_hand_cap()
-		var seat_i: int = hotbar.size()
-		var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_deal_slot_global(seat_i)
-		var dest_sz: Vector2 = _hotbar_deal_slot_size(seat_i)
-		var pad: Control = null if full else _hotbar_deal_slot_control(seat_i)
-		if pad != null:
-			pad.modulate.a = 0.12
 		var iid: String = str(it.get("card_id", ""))
-		var tex: Texture2D = _item_icon_tex(it, iid)
-		_sync_item_deal_deck()
-		item_deal_ui.set_peek(tex, str(it.get("name", "?")), _tier_of(it))
-		await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
-		item_deal_ui.set_peek(null, "")
-		if pad != null and is_instance_valid(pad):
-			pad.modulate.a = 1.0
+		await _fly_dealt_item(it)
 		if seq != _mill_seq:
 			break
 		if full:
@@ -5583,10 +5626,7 @@ func _deal_opening_hand(items: Array) -> void:
 			sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
 		_refresh()
 		_bounce_hot_uid(int(it.get("uid", -1)))
-	if item_deal_ui:
-		item_deal_ui.visible = false
-		item_deal_ui.set_count(0)
-		item_deal_ui.set_peek(null, "")
+	_hide_item_deal_deck()
 	_sort_hotbar()
 	_refresh()
 
@@ -9179,7 +9219,7 @@ func _on_spin() -> void:
 	## Ball & Chain: Select Neighbor → Flee → Spin lands here → Draw one Item (once).
 	if _chain_flee_draw_pending:
 		_chain_flee_draw_pending = false
-		_draw_unseen_item()
+		await _draw_unseen_item()
 	if combat_stage:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
@@ -11172,14 +11212,14 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				var ale_face: Dictionary = wheel[facing_index]
 				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
 					await _heal_monster(facing_index, both_n, true, _item_card_global(int(it.get("uid", -1))))
-			_draw_unseen_item()
+			await _draw_unseen_item()
 			_undo_no_rewind = true
 		"draw":
 			## Pure Draw a Card (Ball & Chain). Same loot-pool draw as Smoke / Ale / Catapult.
 			_log("on_item_use", str(it["name"]))
 			it["spent"] = true
 			await _count_item_use()
-			_draw_unseen_item()
+			await _draw_unseen_item()
 			_toss_item(int(it["uid"]), false)
 			_undo_no_rewind = true
 			return
@@ -11223,7 +11263,6 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			# item.use.smoke_bomb already fired in _announce_item_use.
 			it["spent"] = true
 			await _count_item_use()
-			_draw_unseen_item()
 			_log("on_item_use", str(it["name"]))
 			_reroll_skip = facing_index
 			if facing_index >= 0:
@@ -11243,6 +11282,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			if player_stage:
 				player_stage.hide_stage()
 			_hide_hypno()
+			_refresh()
+			await _draw_unseen_item()
 			call_deferred("_maybe_auto_spin")
 			return
 		"atk_zero":
@@ -21236,15 +21277,10 @@ func _apply_mark_inner(index: int) -> void:
 		if combat_stage and facing_index >= 0 and facing_index < wheel.size():
 			combat_stage.show_monster(str(wheel[facing_index].get("card_id", "")), int(wheel[facing_index].get("tier", 1)))
 			_tune_combat_stage()
-		_draw_unseen_item()
+		await _announce_item_use(it, _slice_from(facing_index) if facing_index >= 0 else _hub_hp_pos())
+		await _draw_unseen_item()
 		_undo_no_rewind = true
 		_refresh()
-		if not hotbar.is_empty():
-			var gained = hotbar[hotbar.size() - 1]
-			var gained_card = _hotbar_card_by_uid(int(gained.get("uid", -1)))
-			if gained_card != null and gained_card.has_method("play_transform"):
-				gained_card.play_transform()
-		await _announce_item_use(it, _slice_from(facing_index) if facing_index >= 0 else _hub_hp_pos())
 		await _after_item_resolved(it)
 		await _bleed_end()
 		if _undo_stale(token):
@@ -21599,11 +21635,7 @@ func _apply_sling_convert(sling: Dictionary, target_uid: int) -> void:
 	await _count_item_use()
 	_toss_item(int(sling.get("uid", -1)), false)
 	_hotbar_sig = ""
-	var before_uids: Dictionary = {}
-	for held in hotbar:
-		if typeof(held) == TYPE_DICTIONARY:
-			before_uids[int(held.get("uid", -1))] = true
-	_draw_unseen_item()
+	await _draw_unseen_item()
 	_undo_no_rewind = true
 	_refresh()
 	if _challenge_loot_wait:
@@ -21611,16 +21643,6 @@ func _apply_sling_convert(sling: Dictionary, target_uid: int) -> void:
 		_undo_finish_item()
 		call_deferred("_refresh")
 		return
-	for held in hotbar:
-		if typeof(held) != TYPE_DICTIONARY:
-			continue
-		var drawn_uid: int = int(held.get("uid", -1))
-		if before_uids.has(drawn_uid):
-			continue
-		var drawn_card = _hotbar_card_by_uid(drawn_uid)
-		if drawn_card != null and drawn_card.has_method("play_transform"):
-			drawn_card.play_transform()
-		break
 	var marble_card = _hotbar_card_by_uid(target_uid)
 	if marble_card != null and marble_card.has_method("play_transform"):
 		marble_card.play_transform()
@@ -21787,7 +21809,7 @@ func _apply_sling(aim: int, sling: Dictionary, atk_uid: int) -> void:
 	for held in hotbar:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
-	_draw_unseen_item()
+	await _draw_unseen_item()
 	_undo_no_rewind = true
 	_refresh()
 	for held in hotbar:
@@ -22087,7 +22109,7 @@ func _remove_crossbowed() -> void:
 	_reseat_slots()
 
 
-func _draw_unseen_item(force_over: bool = false) -> void:
+func _draw_unseen_item(force_over: bool = false, present: bool = true) -> void:
 	if adventure and item_pool.is_empty():
 		_challenge_reshuffle_items()
 	if item_pool.is_empty():
@@ -22103,18 +22125,45 @@ func _draw_unseen_item(force_over: bool = false) -> void:
 	if id == "":
 		return
 	var it: Dictionary = _make_item(id)
-	if not force_over and adventure and _hand_full():
-		_start_full_hand_replace(it)
-		return
-	if _hand_cannot_admit():
+	if _hand_cannot_admit() and not force_over:
 		_abort_full_hand_gain(it)
+		return
+	var seq: int = _mill_seq
+	var full_replace: bool = not force_over and adventure and _hand_full()
+	if present:
+		await _present_pool_draw(it)
+		if seq != _mill_seq or not is_instance_valid(self):
+			return
+	if full_replace:
+		if not _start_full_hand_replace(it):
+			return
+		if not present:
+			return
+		var epoch: int = _loot_epoch
+		var token: int = _undo_gen
+		while _challenge_loot_wait and is_instance_valid(self):
+			if seq != _mill_seq or epoch != _loot_epoch or _undo_stale(token):
+				_challenge_loot_wait = false
+				_challenge_pending_gain = {}
+				break
+			await get_tree().process_frame
+		if sfx and not _challenge_loot_wait:
+			sfx.play_event(&"hand.gain", {"card_id": id})
 		return
 	hotbar.append(it)
 	_note_incoming_gain(it)
-	_sort_hotbar()
+	## Leave it in the seat the card just flew into. Sorting here snaps it sideways.
+	if not present:
+		_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
-		sfx.play("open", -10.0)
+		if present:
+			sfx.play_event(&"hand.gain", {"card_id": id})
+		else:
+			sfx.play("open", -10.0)
+	if present:
+		_refresh()
+		_bounce_hot_uid(int(it.get("uid", -1)))
 
 
 func _grant_mimic_gift(from_index: int = -1) -> void:
@@ -22128,7 +22177,7 @@ func _grant_mimic_gift(from_index: int = -1) -> void:
 	for held in hotbar:
 		if typeof(held) == TYPE_DICTIONARY:
 			before_uids[int(held.get("uid", -1))] = true
-	await _draw_unseen_item(true)
+	await _draw_unseen_item(true, false)
 	_log("on_remove_slice", "Mimic gift")
 	var gained: Dictionary = {}
 	for held in hotbar:
