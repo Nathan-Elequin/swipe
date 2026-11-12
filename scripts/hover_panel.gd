@@ -4,7 +4,6 @@ extends PanelContainer
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
-const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 
 signal edit_pressed(kind: String, card_id: String)
@@ -19,7 +18,6 @@ var last_shown: Dictionary = {}
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
 var _kw_tip: PanelContainer
-var _kiss_tip: Control
 var _pin_always: bool = false
 
 
@@ -34,12 +32,6 @@ func _ready() -> void:
 	_kw_tip = KEYWORD_TIP.new()
 	add_child(_kw_tip)
 	_kw_tip.setup()
-	_kiss_tip = ABILITY_CARD.new()
-	add_child(_kiss_tip)
-	_kiss_tip.visible = false
-	_kiss_tip.top_level = true
-	_kiss_tip.z_index = 120
-	_kiss_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func apply_skin(tex: Texture2D) -> void:
@@ -171,7 +163,6 @@ func show_rule(
 		custom_minimum_size = Vector2(340, 0)
 		reset_size()
 		size.x = 340
-		_sync_kiss_tip(p_id)
 		return
 	var center_copy: bool = p_kind == "monster"
 	var drop: float = float(look.get("title_drop", 0.0))
@@ -348,9 +339,10 @@ func show_rule(
 		nw.add_theme_color_override("font_color", Color("c45c5c"))
 		nw.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(nw)
+	if p_id == "kiss_of_death":
+		_append_kiss_lifelink(col)
 	visible = true
 	reset_size()
-	_sync_kiss_tip(p_id)
 
 
 ## Same heart and sword the wheel draws, with the number on the icon. Centered as a pair.
@@ -529,22 +521,15 @@ func hide_plate() -> void:
 		_kw_tip.unpin()
 	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
 		_kw_tip.hide_def()
-	if _kiss_tip != null:
-		_kiss_tip.visible = false
 	_apply_look({})
 
 
-## Kiss of Death inspect: Wraith's ability plate, same widget the wheel uses for a call + ability.
-func _sync_kiss_tip(p_id: String) -> void:
-	if _kiss_tip == null:
-		return
-	if p_id != "kiss_of_death":
-		_kiss_tip.visible = false
-		return
+## Lifelink, on the Kiss inspect, in the same call pill and sentence size as a monster plate.
+func _append_kiss_lifelink(col: VBoxContainer) -> void:
 	var call_s := "Lifelink"
 	var body_s := "When I am Defeated, set your HP to my most recent HP."
 	var medal: Texture2D = null
-	var col := Color("e8a0a0")
+	var ink := Color("e8a0a0")
 	var main: Node = get_tree().root.get_node_or_null("Main") if is_inside_tree() else null
 	if main != null:
 		var monsters: Variant = main.get("monsters_by_id")
@@ -564,32 +549,30 @@ func _sync_kiss_tip(p_id: String) -> void:
 		if wheel != null and wheel.has_method("ability_color_for"):
 			var raw_col: Variant = wheel.call("ability_color_for", "lifelink")
 			if raw_col is Color:
-				col = raw_col
-	_kiss_tip.set_content(call_s, body_s, medal, col, false)
-	_kiss_tip.visible = true
-	call_deferred("place_kiss_tip")
-
-
-func place_kiss_tip() -> void:
-	if _kiss_tip == null or not _kiss_tip.visible or not visible:
-		return
-	_kiss_tip.reset_size()
-	var sz: Vector2 = _kiss_tip.get_combined_minimum_size()
-	if sz.x < 8.0:
-		sz = _kiss_tip.size
-	var plate := get_global_rect()
-	var gap := 8.0
-	var below := Vector2(plate.position.x, plate.end.y + gap)
-	var above := Vector2(plate.position.x, plate.position.y - sz.y - gap)
-	var right := Vector2(plate.end.x + gap, plate.position.y)
-	var left := Vector2(plate.position.x - sz.x - gap, plate.position.y)
-	var blocks: Array = [plate]
-	var main: Node = get_tree().root.get_node_or_null("Main")
-	if main != null and main.has_method("_log_block_rects"):
-		blocks.append_array(main._log_block_rects())
-	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(get_viewport_rect().size, sz, [below, above, right, left], blocks)
-	_kiss_tip.global_position = pos
-	_kiss_tip.size = sz
+				ink = raw_col
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 8)
+	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(gap)
+	col.add_child(_stage_ability(call_s, ink, medal))
+	var shown: String = body_s
+	if main != null and main.has_method("_paint_explainer"):
+		shown = str(main.call("_paint_explainer", body_s))
+	var b := RichTextLabel.new()
+	b.bbcode_enabled = true
+	b.fit_content = true
+	b.scroll_active = false
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.add_theme_font_size_override("normal_font_size", 22)
+	b.add_theme_font_size_override("bold_font_size", 22)
+	b.add_theme_color_override("default_color", Color("e8dcc8") if _on_dark else Color("2a1c14"))
+	b.text = shown
+	b.custom_minimum_size = Vector2(308, 0)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(b)
+	custom_minimum_size = Vector2(340, 0)
 
 
 func _on_gui(event: InputEvent) -> void:
@@ -657,7 +640,7 @@ func _apply_look(look: Dictionary) -> void:
 
 func _wipe() -> void:
 	for c in get_children():
-		if c == _kw_tip or c == _kiss_tip:
+		if c == _kw_tip:
 			continue
 		remove_child(c)
 		c.queue_free()

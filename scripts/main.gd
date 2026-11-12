@@ -40,7 +40,6 @@ const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
-const COLLECTION_QUIET_STRIP := preload("res://scripts/ui/collection_quiet_strip.gd")
 const COLLECTION_JOURNEY := preload("res://scripts/collection_journey.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
@@ -1627,11 +1626,8 @@ func _build_ui() -> void:
 	hot_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hotbar_wrap.clip_contents = false
 	hotbar_wrap.add_child(hot_col)
-	collection_quiet = COLLECTION_QUIET_STRIP.new()
-	collection_quiet.name = "CollectionQuietStrip"
-	collection_quiet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	collection_quiet.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hot_col.add_child(collection_quiet)
+	## Banked-progress line stays off this screen. The haul still saves; the strip does not.
+	collection_quiet = null
 	var hot_align := HBoxContainer.new()
 	hot_align.alignment = BoxContainer.ALIGNMENT_CENTER
 	hot_align.add_theme_constant_override("separation", 0)
@@ -1683,8 +1679,6 @@ func _build_ui() -> void:
 	btn_wrap.add_child(hub_cue)
 	if hub_cue.has_signal("finished"):
 		hub_cue.finished.connect(_sync_hub_cue)
-	## collection_quiet is parented under hotbar_wrap/HotbarColumn (above the cards).
-
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(0, 0)
 	right.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -25474,8 +25468,6 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 			return
 	fly_tip.global_position = pos
 	fly_tip.size = sz
-	if fly_tip.has_method("place_kiss_tip"):
-		fly_tip.place_kiss_tip()
 	if fly_tip.has_method("pin_always_def"):
 		fly_tip.pin_always_def()
 
@@ -28421,38 +28413,9 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 	)
 
 
-## Quiet provisional/banked strip during campaign runs. Hidden in tutorial / title / cabin.
+## The hotbar "Spin copy: banked" line is gone. Haul data still saves.
 func _sync_collection_quiet() -> void:
-	if collection_quiet == null:
-		return
-	var show: bool = (
-		_campaign_on
-		and _campaign != null
-		and not in_tutorial
-		and phase != "title"
-		and not (home_cabin != null and home_cabin.visible)
-		and not (_playtest_boot or (playtest_hub != null and playtest_hub.visible))
-	)
-	if not show:
-		collection_quiet.apply_summary({}, false)
-		return
-	var held: Array = []
-	for raw in hotbar:
-		if typeof(raw) != TYPE_DICTIONARY:
-			continue
-		var hid := str(raw.get("card_id", ""))
-		if hid != "":
-			held.append(hid)
-	var pools := {}
-	for hid2 in held:
-		pools[str(hid2)] = _campaign_pool_of_item(str(hid2))
-	## Include focus pool name for Spin placeholder; biome display name preferred.
-	var pool_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-	var summary: Dictionary = COLLECTION_JOURNEY.quiet_run_summary(
-		_campaign.rules, _campaign.state, held, pools, pool_id
-	)
-	summary["focus_pool"] = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool_id)
-	collection_quiet.apply_summary(summary, true)
+	return
 
 
 func _dim_hot_empty_slots() -> void:
