@@ -5728,7 +5728,7 @@ func _challenge_seat_dungeon(upgrade: bool) -> void:
 	if seq == _mill_seq and _phantom_has_any():
 		await _phantom_opening_show()
 	elif seq == _mill_seq:
-		await _phantom_release_enters(false)
+		await _phantom_release_enters()
 	_refresh()
 	_layout_play_field()
 
@@ -20611,7 +20611,7 @@ func _phantom_opening_show() -> void:
 	await _phantom_release_enters()
 
 
-func _phantom_release_enters(do_slash: bool = true) -> void:
+func _phantom_release_enters() -> void:
 	for i in range(wheel.size()):
 		if typeof(wheel[i]) != TYPE_DICTIONARY:
 			continue
@@ -20619,9 +20619,6 @@ func _phantom_release_enters(do_slash: bool = true) -> void:
 			continue
 		wheel[i].erase("enter_pending")
 		var hidden: bool = _monster_shrouded(wheel[i])
-		var is_ph: bool = str(wheel[i].get("card_id", "")) == "phantom"
-		if do_slash and not hidden and not is_ph:
-			await _phantom_slash_real(i)
 		await _maybe_enter_gains(i)
 		if not hidden and wheel_view:
 			wheel_view.pulse_arrive(i)

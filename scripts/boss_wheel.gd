@@ -3007,16 +3007,6 @@ func _draw_slice_contents(font: Font, c: Vector2, radius: float, a0: float, ang:
 		draw_line(port_pos + Vector2(arm, -arm), port_pos + Vector2(-arm, arm), xc, 4.0, true)
 
 
-func _draw_shroud_stat(font: Font, pos: Vector2) -> void:
-	var q := "?"
-	var fs := 22
-	var tsz: Vector2 = font.get_string_size(q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p := pos + Vector2(-tsz.x * 0.5, fs * 0.35)
-	var ci := _d()
-	ci.draw_string(font, p + Vector2(1, 1), q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("100e0c"))
-	ci.draw_string(font, p, q, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.62, 0.54, 0.66, 0.95))
-
-
 func _draw_shroud_wedge(sprite_rect: Rect2) -> void:
 	# Same box the monster sprite uses: feet at the bottom, art centered above them.
 	var center: Vector2 = sprite_rect.get_center()
@@ -4089,7 +4079,10 @@ func _draw_closed_empty(origin: Vector2, dir: Vector2, r: float) -> void:
 
 func _draw_atk_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	if bool(s.get("phantom_shroud", false)):
-		_draw_shroud_stat(font, pos)
+		var icon_sz: float = 36.0
+		_draw_stat_plate(pos, icon_sz)
+		_draw_atk_variant(pos, "single", 0.0, ATK_FILL)
+		_draw_stat_number(font, pos, icon_sz, "?", 0.0)
 		return
 	var atk: int = int(s.get("atk", 0))
 	if i >= 0 and _atk_disp.has(i):
@@ -4153,7 +4146,11 @@ func _fill_star(c: Vector2, outer: float, inner: float, col: Color, n: int = 8) 
 
 func _draw_heart_stat(font: Font, pos: Vector2, s: Dictionary, pv: Dictionary, big: bool, i: int = -1, is_hover: bool = false) -> void:
 	if bool(s.get("phantom_shroud", false)):
-		_draw_shroud_stat(font, pos)
+		var hs: float = 36.0
+		var heart_tex: Texture2D = tex_heart_full if tex_heart_full != null else tex_heart
+		_draw_stat_plate(pos, hs)
+		_draw_stat_icon(pos, heart_tex, hs, HP_FILL, true, true)
+		_draw_stat_number(font, pos, hs, "?", -0.08)
 		return
 	var hp: int = int(s.get("hp", 0))
 	if i >= 0 and _hp_disp.has(i):
