@@ -383,46 +383,44 @@ func _init() -> void:
 		_source_func_calls("res://scripts/main.gd", "_recycle_insert_copy", "duplicate(true)")
 	) or failed
 
-	## 19) Glass Asp — Bitter Blood Spin-me HP-set; poison-kill uses hp_pre_hit; no Attack Poison.
+	## 19) Glass Asp — Bitter Blood: +2 Poison each Spin, Attack equals HP actually lost.
 	failed = _check(failed, "runtime_has_glass_asp", _runtime_has_monster("glass_asp")) or failed
 	failed = _check(
 		failed,
-		"glass_asp_stats_9_2",
-		_catalog_monster_hp_atk("glass_asp", 9, 2)
+		"glass_asp_stats_12_2",
+		_catalog_monster_hp_atk("glass_asp", 12, 2)
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_ability_spin_me_set_hp",
+		"glass_asp_ability_poison_and_atk",
 		_catalog_monster_ability_contains("glass_asp", "On Spin")
-		and _catalog_monster_ability_contains("glass_asp", "Spin me")
-		and _catalog_monster_ability_contains("glass_asp", "set your HP")
+		and _catalog_monster_ability_contains("glass_asp", "2 Poison")
+		and _catalog_monster_ability_contains("glass_asp", "When I lose HP")
+		and _catalog_monster_ability_contains("glass_asp", "equal Attack")
+		and not _catalog_monster_ability_contains("glass_asp", "set your HP")
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_ability_no_attack_poison",
-		not _catalog_monster_ability_contains("glass_asp", "When I Attack")
-		and not _catalog_monster_ability_contains("glass_asp", "you gain Poison equal")
+		"glass_asp_spin_adds_two_no_slash",
+		_source_has_func("res://scripts/main.gd", "_apply_glass_asp_on_spin")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_add_monster_poison")
+		and not _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_announce_slice")
+		and not _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_chip_hp")
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_set_hp_hooks",
-		_source_has_func("res://scripts/main.gd", "_apply_glass_asp_set_hp")
-		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_spin_me_set")
-		and _source_has_func("res://scripts/main.gd", "_apply_glass_asp_on_spin")
-		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "lifelink_hp")
-		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_set_hp", "hp_pre_hit")
+		"glass_asp_hp_loss_gains_atk",
+		_source_has_func("res://scripts/main.gd", "_glass_asp_after_hp_loss")
+		and _source_func_calls("res://scripts/main.gd", "_chip_hp", "_glass_asp_after_hp_loss")
+		and _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_glass_asp_after_hp_loss")
+		and _source_func_calls("res://scripts/main.gd", "_glass_asp_after_hp_loss", "_announce_slice")
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_poison_kill_uses_pre_hit",
-		_source_func_calls("res://scripts/main.gd", "_tick_facing_monster_poison", "_apply_glass_asp_set_hp")
-	) or failed
-	failed = _check(
-		failed,
-		"glass_asp_no_attack_poison_transfer",
-		not _source_has_func("res://scripts/main.gd", "_glass_asp_on_attack")
-		and not _source_has_func("res://scripts/main.gd", "_glass_asp_dose")
-		and not _source_func_calls("res://scripts/main.gd", "_owner_attack", "_glass_asp_on_attack")
+		"glass_asp_no_spin_me_hp_set",
+		not _source_has_func("res://scripts/main.gd", "_apply_glass_asp_set_hp")
+		and not _source_has_func("res://scripts/main.gd", "_apply_glass_asp_spin_me_set")
+		and not _source_func_calls("res://scripts/main.gd", "_tick_facing_monster_poison", "_apply_glass_asp_set_hp")
 	) or failed
 
 	## 20) Captain's Wheel (id shardplate) — +2 stored Block per Move Left; cash on play.

@@ -202,6 +202,9 @@
       "gargoyle": {
         "ability": "mon.ability.gargoyle"
       },
+      "glass_asp": {
+        "ability": "mon.ability.glass_asp"
+      },
       "gelatinous_cube": {
         "ability": "mon.ability.gelatinous_cube"
       },
@@ -550,6 +553,9 @@
       "gargoyle": {
         "special": "status.petrify",
         "ability": "mon.ability.gargoyle"
+      },
+      "glass_asp": {
+        "ability": "mon.ability.glass_asp"
       },
       "harpy": {
         "special": "mon.ability.harpy",
@@ -5458,6 +5464,20 @@
     "mon.ability.needleback": {
       "files": [
         "mon_ability_needleback"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 2,
+      "priority": 2
+    },
+    "mon.ability.glass_asp": {
+      "files": [
+        "mon_ability_ogre"
       ],
       "bus": "SFX",
       "db": 0,

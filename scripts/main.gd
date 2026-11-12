@@ -261,7 +261,7 @@ const MONSTER_SPECIAL := {
 	"magicat": {"id": "cats_eye", "text": "When you Spin me, I turn two of your Atk or Blk Items into a Marble with the same value"},
 	"scorpion": {"id": "venom_sac", "text": "When you Spin me, I transform a random Attack or Block Item into a Poison Flask of equal value"},
 	"poison_frog": {"id": "toxic_skin", "text": "When you Spin me and when I take Atk damage from any source, you Gain 2 Poison"},
-	"glass_asp": {"id": "bitter_blood", "text": "On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine."},
+	"glass_asp": {"id": "bitter_blood", "text": "On Spin, I Gain 2 Poison. When I lose HP, I gain equal Attack."},
 	"imp": {"id": "imp_move", "text": "When you Spin me, I force you to Move to the highest Attack enemy."},
 	"rust_bucket": {"id": "rust", "text": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust."},
 	"fungal_colony": {"id": "cordyceps", "text": "When I deal any Atk damage to you, I replace the weakest monster in the dungeon with a Copy of myself, then I Flee."},
@@ -385,7 +385,7 @@ const MONSTER_REMINDER := {
 	"mouse": "On Spin: if your HP is higher, I lose 2 HP and Flee",
 	"magicat": "On Spin: 2 Atk or Blk Items become Marbles with that number",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
-	"glass_asp": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
+	"glass_asp": "On Spin: +2 Poison. It ticks when you face me. When I lose HP, I gain that much Attack.",
 	"plague_doctor": "Each Spin: you and every monster Gain 1 Poison",
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"oligarch": "On entry: Gain 2 Items. After each Spin's choices: one playable Item is used",
@@ -465,6 +465,7 @@ var _rug_secret_in_run: bool = false
 var hp: int = HP_MAX
 var player_poison: int = 0
 var _flushing_poison_sides: bool = false
+var _glass_asp_reacting: bool = false
 var blk: int = 0
 var phase: String = "title"
 var draft_action: String = "place"
@@ -9299,7 +9300,7 @@ func _on_spin() -> void:
 	_step_marbles()
 	_step_spinning_tops()
 	var facing_poison_ended: bool = await _tick_facing_monster_poison()
-	# Bitter Blood adds after the tick, so the new Poison stays until a later Spin.
+	# Bitter Blood adds 2 after the facing tick, so this Spin's new Poison does not tick yet.
 	await _apply_glass_asp_on_spin()
 	await _flush_poison_sides()
 	if facing_poison_ended:
@@ -9409,9 +9410,6 @@ func _on_spin() -> void:
 		await _begin_slay()
 		_undo_arm()
 		return
-	## Bitter Blood Spin-me: after all other on-spin (incl Poison tick + Asp +1), set player HP.
-	if phase == "fighting":
-		await _apply_glass_asp_spin_me_set()
 	_store_last_faced_hp()
 	await _echo_skeletons()
 	## Imp relocates after this Spin's own effects. The destination is a Move, not a new Spin.
@@ -13457,6 +13455,7 @@ func _chip_hp(index: int, n: int) -> bool:
 	if str(m.get("card_id", "")) == "slime_boss":
 		await _play_stat_delta(index, false, int(m.get("atk", 0)) - slime_atk_before, _slice_from(index))
 	if before > int(m["hp"]):
+		await _glass_asp_after_hp_loss(index, before)
 		if _defer_martyr_until_item_done(index, before, int(m["hp"])) and _queue_martyr_after_item(index):
 			pass
 		elif await _martyr_after_hp_loss(index, before, int(m["hp"])):
@@ -13741,9 +13740,6 @@ func _tick_facing_monster_poison() -> bool:
 	# Facing poison death (Martyr Noble Death zeros HP here) must Defeat.
 	# Returning "stopped" without slay left a 0 HP seat and skipped the wheel close.
 	if int(wheel[i].get("hp", 0)) <= 0 and not _wick_waiting(i):
-		## Glass Asp poison-kill on Spin-me: set player HP from hp_pre_hit before slay.
-		if str(m.get("card_id", "")) == "glass_asp" and not _is_silenced(m):
-			await _apply_glass_asp_set_hp(m)
 		await _maybe_slay_down(i)
 		return true
 	if i != facing_index and int(wheel[i].get("hp", 0)) <= 0:
@@ -17845,9 +17841,8 @@ func _apply_magicat_on_spin() -> void:
 
 
 func _apply_glass_asp_on_spin() -> void:
-	## Every living Asp, every Spin: tick the poison it already has (the one you
-	## are facing was just ticked), clear it, then gain 1. The new point stays
-	## until a later Spin.
+	## Every living Asp, every Spin: add 2 Poison and leave it. The facing tick
+	## already ran, so this 2 waits until a later Spin where you are facing it.
 	var i: int = 0
 	while i < wheel.size():
 		if i >= wheel.size():
@@ -17856,62 +17851,38 @@ func _apply_glass_asp_on_spin() -> void:
 		if str(s.get("card_id", "")) != "glass_asp" or int(s.get("hp", 0)) <= 0 or _is_silenced(s):
 			i += 1
 			continue
-		if i != facing_index:
-			var dose: int = _poison_of(wheel[i])
-			if dose > 0:
-				await _chip_hp(i, dose)
-				if i >= wheel.size():
-					break
-				_clear_monster_poison(i)
-				_log("on_spin", "poison  →  %s HP" % wheel[i].get("hp", 0))
-				if int(wheel[i].get("hp", 0)) <= 0:
-					wheel[i]["poison_down"] = true
-					i += 1
-					continue
-		if i >= wheel.size() or str(wheel[i].get("card_id", "")) != "glass_asp":
-			i += 1
-			continue
-		if int(wheel[i].get("hp", 0)) <= 0 or _is_silenced(wheel[i]):
-			i += 1
-			continue
-		_add_monster_poison(i, 1)
-		_sfx_ability("glass_asp")
-		_log_begin_monster(i)
+		_add_monster_poison(i, 2)
 		_log("on_spin", "Bitter Blood  →  Poison %s" % _poison_of(wheel[i]))
-		await _announce_slice(i, _slice_hp_pos(i))
 		i += 1
 	_sync_wheel_stats()
 	_refresh()
 
 
-## Surviving Spin-me: after all other on-spin, set player HP to Asp's current HP.
-func _apply_glass_asp_spin_me_set() -> void:
-	if facing_index < 0 or facing_index >= wheel.size():
+## HP that actually left the bar. One Ogre-style slash, then Attack rises by that much.
+## Poison gain does not call this. Quiet Bell skips it. Healing does not take the Attack back.
+func _glass_asp_after_hp_loss(index: int, before: int) -> void:
+	if _glass_asp_reacting:
 		return
-	var m: Dictionary = wheel[facing_index]
-	if str(m.get("card_id", "")) != "glass_asp":
+	if index < 0 or index >= wheel.size() or before <= 0:
 		return
-	if int(m.get("hp", 0)) <= 0 or _is_silenced(m):
+	var m: Dictionary = wheel[index]
+	if str(m.get("card_id", "")) != "glass_asp" or _is_silenced(m):
 		return
-	await _apply_glass_asp_set_hp(m)
-
-
-## Set player HP to Asp's — same Lifelink math / HP_MAX clamp as Wraith.
-## Poison-kill: pass the dead seat with hp_pre_hit so P1.lifelink_hp uses prior HP.
-func _apply_glass_asp_set_hp(m: Dictionary) -> void:
-	var cur: int = int(m.get("hp", 0))
-	var has_pre: bool = m.has("hp_pre_hit")
-	var died: bool = cur <= 0 and has_pre
-	var pre: int = int(m.get("hp_pre_hit", cur))
-	var source: int = P1.lifelink_hp(cur, pre, died)
-	var change: Dictionary = P1.lifelink_change(hp, source, HP_MAX)
-	_sfx_ability("glass_asp")
-	_log("on_resolve", "Bitter Blood  →  set HP %s" % source)
-	var kind: String = str(change.get("kind", "none"))
-	if kind == "heal":
-		await _heal(int(change.get("n", 0)))
-	elif kind == "bleed":
-		await _bleed(int(change.get("n", 0)))
+	var lost: int = before - int(m.get("hp", 0))
+	if lost <= 0:
+		return
+	_glass_asp_reacting = true
+	var atk_now: int = int(m.get("atk", 0)) + lost
+	m["atk"] = atk_now
+	m["atk_locked"] = true
+	m["atk_innate"] = atk_now
+	wheel[index] = m
+	_log("on_resolve", "Bitter Blood  →  ATK %s" % atk_now)
+	await _announce_slice(index, _slice_atk_pos(index))
+	if index >= 0 and index < wheel.size() and str(wheel[index].get("card_id", "")) == "glass_asp":
+		await _play_stat_delta(index, false, lost)
+	_glass_asp_reacting = false
+	_refresh()
 
 
 func _apply_poison_frog_on_spin() -> void:
@@ -20035,6 +20006,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			if await _player_take_atk(2):
 				return true
 	if before_hp > int(m["hp"]):
+		await _glass_asp_after_hp_loss(index, before_hp)
 		if await _martyr_after_hp_loss(index, before_hp, int(m["hp"])):
 			return true
 	if await _check_triclops_three(index):

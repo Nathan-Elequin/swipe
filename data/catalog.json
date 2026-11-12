@@ -8591,7 +8591,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "On Spin, I gain 1 Poison. When you Spin me, set your HP equal to mine.",
+			"ability": "On Spin, I Gain 2 Poison. When I lose HP, I gain equal Attack.",
 			"atk": {
 				"base": 2.0
 			},
@@ -8601,22 +8601,22 @@
 			"call_name": "Bitter Blood",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When you Spin me, after all other on-spin effects including that Poison tick and my +1 Poison, set your HP equal to my current HP (Quiet Bell turns this off; clamps to your max like Wraith Lifelink). If that Poison tick Defeats me, set your HP to my HP from before the lethal chip (hp_pre_hit / Lifelink snapshot).",
-			"exceptions": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Combat follow-up: self-Poison gain/tick/clear on Spin; on Attack transfer equal Poison to player. flags.dev until combat wired.",
-			"explainer": "On Spin +1 Poison. Spin me: set your HP to mine after Poison",
+			"defined": "While I am alive and not silenced: on every dungeon Spin I gain 2 Poison. It stacks. It ticks only when I am the monster you are facing, then that stack clears, the same as other monster Poison. When I lose HP, including that Poison tick, I gain Attack equal to the HP that actually left the bar. A hit bigger than my remaining HP adds only the HP I had left. That Attack stays if I am healed. One slash per HP loss, then the Attack number. Gaining Poison does not slash. Quiet Bell turns this off.",
+			"exceptions": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-12: 12 HP, +2 Poison each Spin, ticks only while facing, Attack gain equals HP actually lost, Ogre slash on that gain. Spin-me HP set removed.",
+			"explainer": "On Spin: +2 Poison. It ticks when you face me. When I lose HP, I gain that much Attack.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 1 Poison on myself. Each Spin, my Poison ticks (I lose that much HP — lose HP, not Attack) and then all my Poison clears; I can restack from later Spins. When you Spin me, after all other on-spin effects including that Poison tick and my +1 Poison, set your HP equal to my current HP (Quiet Bell turns this off; clamps to your max like Wraith Lifelink). If that Poison tick Defeats me, set your HP to my HP from before the lethal chip (hp_pre_hit / Lifelink snapshot).",
+			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 2 Poison. It stacks. It ticks only when I am the monster you are facing, then that stack clears, the same as other monster Poison. When I lose HP, including that Poison tick, I gain Attack equal to the HP that actually left the bar. A hit bigger than my remaining HP adds only the HP I had left. That Attack stays if I am healed. One slash per HP loss, then the Attack number. Gaining Poison does not slash. Quiet Bell turns this off.",
 			"hp": {
-				"base": 9.0
+				"base": 12.0
 			},
-			"hp_base": 9.0,
+			"hp_base": 12.0,
 			"hp_formula": "",
 			"id": "glass_asp",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -8638,10 +8638,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Spin: +1 Poison; Spin me: set your HP to mine after on-spin",
+			"log_hint": "Spin: +2 Poison. Lose HP: gain that Attack",
 			"mode_pool": "all",
 			"name": "Glass Asp",
-			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). Balance Slice J: Bitter Blood Spin-me HP-set after on-spin; poison-kill uses Lifelink hp_pre_hit; Attack Poison transfer removed; 9/2 kept.",
+			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-12 rework: 12 HP / 2 Attack. Every Spin gain 2 Poison and leave it. Poison ticks only while facing. HP actually lost, including that tick, adds that much Attack and plays one Ogre-style slash. Healing does not remove the Attack. Spin-me HP set is gone.",
 			"ops": {},
 			"pending_fields": {},
 			"poc": false,
