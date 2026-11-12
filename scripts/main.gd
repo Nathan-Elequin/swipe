@@ -88,6 +88,7 @@ const CASCADE_TICKER := preload("res://scripts/cascade_ticker.gd")
 const POISON_POP := preload("res://scripts/poison_pop.gd")
 const HOOK_FX := preload("res://scripts/hook_fx.gd")
 const STRAIGHT_SHOT_LINK := preload("res://scripts/fx/straight_shot_link.gd")
+const ABILITY_LINK := preload("res://scripts/fx/ability_link.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
@@ -7180,6 +7181,37 @@ func _slice_outward(index: int, hp_stat: bool, dist: float = 84.0) -> Vector2:
 	return pip + away.normalized() * dist
 
 
+func _tick_stat_heard(index: int, hp_stat: bool, leaving: bool = false) -> void:
+	## One counted step. No flying heart. The number punches, a tick plays, and
+	## a +1 or -1 pops off the pip so the change is readable.
+	_show_sync_slice(index, hp_stat)
+	_play_stat_pulse(hp_stat, leaving)
+	_pop_stat_step(index, hp_stat, leaving)
+	if get_tree():
+		await get_tree().create_timer(0.18).timeout
+
+
+func _pop_stat_step(index: int, hp_stat: bool, leaving: bool) -> void:
+	var at: Vector2 = _stat_pip_pos(index, hp_stat)
+	if at == Vector2.ZERO:
+		return
+	var lab := Label.new()
+	lab.text = "-1" if leaving else "+1"
+	lab.add_theme_font_size_override("font_size", 22)
+	lab.add_theme_color_override("font_color", Color("e8a0a0") if hp_stat else Color("e07040"))
+	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
+	lab.add_theme_constant_override("outline_size", 6)
+	lab.z_index = 48
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(lab)
+	lab.global_position = at + Vector2(-14, -30)
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(lab, "global_position", at + Vector2(-14, -58), 0.2)
+	tw.tween_property(lab, "modulate:a", 0.0, 0.2).set_delay(0.06)
+	tw.finished.connect(lab.queue_free, CONNECT_ONE_SHOT)
+
+
 func _play_stat_pulse(hp_stat: bool, leaving: bool = false) -> void:
 	if sfx == null:
 		return
@@ -12933,8 +12965,7 @@ func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 		if guard == 1:
 			await _radiate_line(_slice_from(src), _stat_pip_pos(low, hp_stat), _link_color("synchronize"))
 		_sync_grant_one(src, low, hp_stat)
-		if get_tree():
-			await get_tree().create_timer(0.08).timeout
+		await _tick_stat_heard(low, hp_stat, false)
 	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
 		return
 	var av2: int = int(wheel[a].get(key, 0))
@@ -12952,8 +12983,6 @@ func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 
 func _sync_grant_one(_src: int, low: int, hp_stat: bool) -> void:
 	_sync_grant_instant(low, hp_stat)
-	_show_sync_slice(low, hp_stat)
-	_play_stat_pulse(hp_stat, false)
 	var stat_name: String = "HP" if hp_stat else "Attack"
 	_log("on_resolve", "Synchronize +1 %s → %s" % [stat_name, str(wheel[low].get("name", "?"))])
 
@@ -16825,13 +16854,12 @@ func _leech_pulse(index: int) -> void:
 	if cands.is_empty():
 		return
 	var target: int = cands[rng.randi_range(0, cands.size() - 1)]
+	await _radiate_line(_slice_from(index), _stat_pip_pos(target, true), _link_color("leech_lowest"))
 	var steps: int = 0
 	while steps < 48:
 		steps += 1
-		await _radiate_line(_slice_from(index), _stat_pip_pos(target, true), _link_color("leech_lowest"))
 		_grant_leech_hp(target)
-		_show_sync_slice(target, true)
-		_play_stat_pulse(true, false)
+		await _tick_stat_heard(target, true, false)
 		_log("on_spin", "Leech +1 HP → %s" % str(wheel[target].get("name", "?")))
 		_refresh()
 		if _leech_hp_tied(target):
@@ -18736,17 +18764,26 @@ func _link_color(sid: String) -> Color:
 	return Color("c5cdd8")
 
 
-## One travel line. Grows from `from` to `to` in the capsule color, then fades.
-## Stone petrify keeps the grey wrapper below and does not play the travel whoosh.
-func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06, play_sound: bool = true) -> void:
+## One travel line. Adjacency uses the Straight Shot paint in the call-name color.
+## Stone petrify stays the thin grey beam and does not play the travel whoosh.
+func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06, play_sound: bool = true, stone: bool = false) -> void:
 	if _qa_instant():
 		return
 	if to == Vector2.ZERO:
 		return
 	if from == Vector2.ZERO:
 		from = to + Vector2(0, -80)
-	if play_sound and sfx:
-		sfx.play("whoosh", -12.0, 1.2)
+	if not stone:
+		if play_sound and sfx:
+			sfx.play("whoosh", -4.0, 0.88)
+		var link := ABILITY_LINK.new()
+		add_child(link)
+		await link.play(from, to, col)
+		if linger > 0.0 and get_tree():
+			await get_tree().create_timer(linger).timeout
+		if is_instance_valid(link):
+			link.queue_free()
+		return
 	var host: Node2D = _petrify_fx_host()
 	var beam := Line2D.new()
 	beam.name = "PetrifyBeam"
@@ -18818,7 +18855,7 @@ func _petrify_beam(to_card: Vector2, linger: float = 0.22, from_override: Vector
 		from = _petrify_beam_from()
 	if from == Vector2.ZERO:
 		from = to_card + Vector2(0, -80)
-	await _radiate_line(from, to_card, Color("c9b9a8"), linger, false)
+	await _radiate_line(from, to_card, Color("c9b9a8"), linger, false, true)
 	return []
 
 
@@ -22677,10 +22714,7 @@ func _martyr_gift_neighbors(index: int) -> int:
 			n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
 			n["hp_locked"] = true
 			wheel[j] = n
-			_show_sync_slice(j, true)
-			_play_stat_pulse(true, false)
-			if get_tree():
-				await get_tree().create_timer(0.08).timeout
+			await _tick_stat_heard(j, true, false)
 	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
 	_refresh()
 	return gift
