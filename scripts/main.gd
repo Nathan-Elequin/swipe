@@ -1722,7 +1722,7 @@ func _build_ui() -> void:
 	log_label = COMBAT_LOG.new()
 	log_label.setup()
 	log_label.visible = false
-	log_label.z_index = 4
+	log_label.z_index = 7
 	log_label.hover_changed.connect(_on_log_hover)
 	play_field.add_child(log_label)
 	_idle_inspect()
@@ -9362,10 +9362,7 @@ func _on_spin() -> void:
 	phase = "fighting"
 	_walker_busy = true
 	_sync_buttons()
-	if log_label and log_label.has_method("clear_all"):
-		log_label.clear_all()
 	_log_user_hid = false
-	_log_user_show = false
 	_sync_log_panel()
 	_log("on_spin", str(m["name"]))
 	_log("var", "enemy ATK %s   HP %s" % [m["atk"], m["hp"]])
@@ -24179,8 +24176,12 @@ func _place_log_overlay() -> void:
 	var log_y: float = 44.0
 	if trophy != null and trophy.visible:
 		log_y = maxf(log_y, trophy.position.y + trophy.size.y + 4.0)
-	log_label.position = Vector2(VIEW_FRAME.LOG_BTN_GAP, log_y)
-	log_label.size = Vector2(w, maxf(120.0, sz.y - log_y - 8.0))
+	var next_pos := Vector2(VIEW_FRAME.LOG_BTN_GAP, log_y)
+	var next_sz := Vector2(w, maxf(120.0, sz.y - log_y - 8.0))
+	if log_label.position != next_pos:
+		log_label.position = next_pos
+	if log_label.size != next_sz:
+		log_label.size = next_sz
 
 
 func _log_flush() -> void:

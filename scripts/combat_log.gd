@@ -29,6 +29,8 @@ var _hint_tip: PanelContainer
 var _hint_lab: Label
 var _fitting: bool = false
 var _plain: PackedStringArray = PackedStringArray()
+var _stick_bottom: bool = true
+var _scrolling_us: bool = false
 
 
 func setup() -> void:
@@ -36,7 +38,7 @@ func setup() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-	follow_focus = true
+	follow_focus = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_exited.connect(_on_leave)
 	var sb := StyleBoxFlat.new()
@@ -54,9 +56,14 @@ func setup() -> void:
 	add_theme_stylebox_override("panel", sb)
 	_col = VBoxContainer.new()
 	_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_col.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_col.mouse_filter = Control.MOUSE_FILTER_PASS
 	_col.add_theme_constant_override("separation", 6)
 	add_child(_col)
 	resized.connect(_fit_width, CONNECT_DEFERRED)
+	var bar: VScrollBar = get_v_scroll_bar()
+	if bar != null:
+		bar.value_changed.connect(_on_bar_moved)
 	_hint_tip = PanelContainer.new()
 	_hint_tip.visible = false
 	_hint_tip.z_index = 130
@@ -81,13 +88,15 @@ func setup() -> void:
 	_hint_lab.add_theme_constant_override("outline_size", 3)
 	_hint_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint_tip.add_child(_hint_lab)
-	add_child(_hint_tip)
+	call_deferred("_mount_hint")
+	tree_exiting.connect(_drop_hint)
 	set_process(false)
 
 
 func clear_all() -> void:
 	_stack.clear()
 	_plain.clear()
+	_stick_bottom = true
 	_hide_hint()
 	for c in _col.get_children():
 		_col.remove_child(c)
@@ -159,7 +168,7 @@ func _host() -> VBoxContainer:
 func _proc_capsule(data: Dictionary) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p.mouse_filter = Control.MOUSE_FILTER_STOP
+	p.mouse_filter = Control.MOUSE_FILTER_PASS
 	var tier: int = int(data.get("tier", 1))
 	var is_item: bool = str(data.get("kind", "")) == "item"
 	var item_used: bool = is_item and bool(data.get("used", false))
@@ -206,7 +215,7 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 		var chip := _item_chip(str(data.get("title", "")), tier)
 		var hint: String = str(data.get("hint", "")).strip_edges()
 		if hint != "":
-			chip.mouse_filter = Control.MOUSE_FILTER_STOP
+			chip.mouse_filter = Control.MOUSE_FILTER_PASS
 			chip.mouse_entered.connect(_on_hint.bind(chip, hint, hl))
 			chip.mouse_exited.connect(_hide_hint)
 		head.add_child(chip)
@@ -229,7 +238,7 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 		call.add_theme_color_override("font_color", Color("e8c36a"))
 		call.add_theme_color_override("font_outline_color", Color("100e0c"))
 		call.add_theme_constant_override("outline_size", 2)
-		call.mouse_filter = Control.MOUSE_FILTER_STOP
+		call.mouse_filter = Control.MOUSE_FILTER_PASS
 		var hint: String = str(data.get("hint", "")).strip_edges()
 		if hint != "":
 			call.mouse_entered.connect(_on_hint.bind(call, hint, hl))
@@ -325,7 +334,7 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 6)
-	row.mouse_filter = Control.MOUSE_FILTER_STOP
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.mouse_entered.connect(_on_row_in.bind(highlight))
 	if not _stack.is_empty():
 		var arrow := Label.new()
@@ -355,7 +364,7 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	body.text = _paint(msg)
 	body.meta_underlined = false
 	if str(body.text).find("[url=") >= 0:
-		body.mouse_filter = Control.MOUSE_FILTER_STOP
+		body.mouse_filter = Control.MOUSE_FILTER_PASS
 		body.meta_hover_started.connect(_on_kw_meta.bind(body))
 		body.meta_hover_ended.connect(_on_kw_meta_out)
 	else:
@@ -523,8 +532,53 @@ func _on_leave() -> void:
 	hover_changed.emit({})
 
 
+func _mount_hint() -> void:
+	if _hint_tip == null or not is_instance_valid(_hint_tip):
+		return
+	var host: Node = get_parent()
+	if host == null:
+		return
+	if _hint_tip.get_parent() != host:
+		if _hint_tip.get_parent() != null:
+			_hint_tip.get_parent().remove_child(_hint_tip)
+		host.add_child(_hint_tip)
+
+
+func _drop_hint() -> void:
+	if _hint_tip == null or not is_instance_valid(_hint_tip):
+		return
+	var p: Node = _hint_tip.get_parent()
+	if p != null and p != self:
+		p.remove_child(_hint_tip)
+		_hint_tip.queue_free()
+
+
+func _on_bar_moved(v: float) -> void:
+	if _scrolling_us:
+		return
+	var bar: VScrollBar = get_v_scroll_bar()
+	if bar == null:
+		return
+	_stick_bottom = v >= (bar.max_value - bar.page - 12.0)
+
+
+func _set_scroll(px: int) -> void:
+	var bar: VScrollBar = get_v_scroll_bar()
+	if bar == null:
+		return
+	_scrolling_us = true
+	scroll_vertical = clampi(px, 0, int(ceili(maxf(0.0, bar.max_value - bar.page))))
+	_scrolling_us = false
+	_stick_bottom = float(scroll_vertical) >= (bar.max_value - bar.page - 12.0)
+
+
 func _scroll_end() -> void:
+	if not _stick_bottom:
+		return
 	await get_tree().process_frame
+	if not is_inside_tree() or not _stick_bottom:
+		return
 	var bar := get_v_scroll_bar()
-	if bar:
-		scroll_vertical = int(bar.max_value)
+	if bar == null:
+		return
+	_set_scroll(int(ceili(maxf(0.0, bar.max_value - bar.page))))
