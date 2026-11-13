@@ -79,6 +79,10 @@ const COMBAT_ACTION_SLOT_H := 64.0
 ## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
 const HOTBAR_CARD_W := 172.0
 const HOTBAR_CARD_H := 148.0
+## Item-deal motion, ~30% faster than the first pass (0.46 / 0.32 / 0.34).
+const ITEM_OPEN_SHUFFLE_S := 0.32
+const ITEM_POOL_SHUFFLE_S := 0.22
+const ITEM_DEAL_FLY_S := 0.24
 
 const COMBAT_LOG := preload("res://scripts/combat_log.gd")
 const ABILITY_SLASH := preload("res://scripts/ability_slash.gd")
@@ -5638,6 +5642,56 @@ func _await_hotbar_insert_slide() -> void:
 	## Leave cards top-level at their new seats until `_sync_hotbar` re-parents them.
 
 
+func _free_loot_flyer(flyer: Control) -> void:
+	if flyer == null or not is_instance_valid(flyer):
+		return
+	flyer.queue_free()
+
+
+## Pick-two loot: the clicked draft card flies to its sorted seat. No deck shuffle.
+func _fly_loot_pick_into_hotbar(it: Dictionary, flyer: Control) -> void:
+	if flyer == null or not is_instance_valid(flyer) or it.is_empty():
+		_free_loot_flyer(flyer)
+		return
+	var full: bool = hotbar.size() >= _forced_hand_cap()
+	await _await_hotbar_layout()
+	if flyer == null or not is_instance_valid(flyer):
+		return
+	var seat_i: int = hotbar.size() if full else _hotbar_gain_index(it)
+	var dest_c: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_deal_slot_global(seat_i)
+	var dest_sz: Vector2 = _hotbar_deal_slot_size(seat_i)
+	var start_sz: Vector2 = flyer.size
+	if start_sz.x < 8.0:
+		start_sz = flyer.get_combined_minimum_size()
+	if start_sz.x < 8.0:
+		start_sz = Vector2(236.0, 340.0)
+	var from_c: Vector2 = flyer.global_position + start_sz * 0.5
+	var end_sc := Vector2(dest_sz.x / start_sz.x, dest_sz.y / start_sz.y)
+	flyer.pivot_offset = start_sz * 0.5
+	flyer.z_index = 80
+	if sfx:
+		sfx.play("whoosh", -12.0, 1.2)
+	if not full:
+		_begin_hotbar_insert_slide(seat_i, ITEM_DEAL_FLY_S)
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_CUBIC)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(
+		func(t: float) -> void:
+			if flyer == null or not is_instance_valid(flyer):
+				return
+			var sc: Vector2 = Vector2.ONE.lerp(end_sc, t)
+			flyer.scale = sc
+			flyer.global_position = from_c.lerp(dest_c, t) - flyer.pivot_offset * sc,
+		0.0,
+		1.0,
+		ITEM_DEAL_FLY_S
+	)
+	await tw.finished
+	_free_loot_flyer(flyer)
+	await _await_hotbar_insert_slide()
+
+
 ## Face-up toss from the item deck into the seat this card will occupy after the hand sorts.
 ## Occupied cards slide (and wrap to the next row) at the same time.
 func _fly_dealt_item(it: Dictionary) -> void:
@@ -5657,8 +5711,8 @@ func _fly_dealt_item(it: Dictionary) -> void:
 	_sync_item_deal_deck()
 	item_deal_ui.set_peek(_item_icon_tex(it, iid), str(it.get("name", "?")), _tier_of(it))
 	if not full:
-		_begin_hotbar_insert_slide(seat_i, 0.34)
-	await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
+		_begin_hotbar_insert_slide(seat_i, ITEM_DEAL_FLY_S)
+	await item_deal_ui.play_deal_to(dest, ITEM_DEAL_FLY_S, dest_sz)
 	item_deal_ui.set_peek(null, "")
 	if dim_pad and pad != null and is_instance_valid(pad):
 		pad.modulate.a = 1.0
@@ -5683,7 +5737,7 @@ func _present_pool_draw(it: Dictionary) -> void:
 	if sfx:
 		sfx.play("cloth", -10.0)
 		sfx.play("whoosh", -14.0, 1.2)
-	await item_deal_ui.play_shuffle(0.32)
+	await item_deal_ui.play_shuffle(ITEM_POOL_SHUFFLE_S)
 	if seq != _mill_seq or not is_instance_valid(self):
 		_abort_hotbar_insert_slide()
 		_hide_item_deal_deck()
@@ -5723,7 +5777,7 @@ func _deal_opening_hand(items: Array) -> void:
 	if sfx:
 		sfx.play("cloth", -10.0)
 		sfx.play("whoosh", -14.0, 1.2)
-	await item_deal_ui.play_shuffle(0.46)
+	await item_deal_ui.play_shuffle(ITEM_OPEN_SHUFFLE_S)
 	if seq != _mill_seq:
 		_abort_hotbar_insert_slide()
 		item_deal_ui.visible = false
@@ -5975,6 +6029,7 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 	if not replace_if_full and hotbar.size() >= CHALLENGE_HAND:
 		return
 	var picked: Dictionary = {}
+	var flyer: Control = null
 	while true:
 		var pair: Array = _campaign_draw_pair(tier) if allow_reroll else _challenge_draw_pair(tier)
 		if pair.is_empty():
@@ -6036,6 +6091,20 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			challenge_draft_ui.hide_draft()
 			continue
 		var uid: int = int(decision.get("uid", 0))
+		flyer = null
+		if challenge_draft_ui != null and challenge_draft_ui.has_method("take_card"):
+			flyer = challenge_draft_ui.take_card(uid)
+		if flyer != null:
+			var gp: Vector2 = flyer.get_meta("loot_from", flyer.global_position)
+			var sz: Vector2 = flyer.get_meta("loot_size", flyer.size)
+			if flyer.get_parent() != null:
+				flyer.get_parent().remove_child(flyer)
+			add_child(flyer)
+			flyer.z_index = 80
+			flyer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			flyer.set_as_top_level(true)
+			flyer.global_position = gp
+			flyer.size = sz
 		challenge_draft_ui.hide_draft()
 		_layout_play_field()
 		for it2 in pair_snap:
@@ -6046,13 +6115,14 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			picked = pair_snap[0]
 		break
 	FRAME_METRICS.span_begin("draft_to_hotbar")
-	await _challenge_commit_item(picked, replace_if_full)
+	await _challenge_commit_item(picked, replace_if_full, flyer)
 	FRAME_METRICS.span_end("draft_to_hotbar")
 
 
-func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
+func _challenge_commit_item(it: Dictionary, replace_if_full: bool, flyer: Control = null) -> void:
 	if it.is_empty():
 		FRAME_METRICS.span_cancel("draft_to_hotbar")
+		_free_loot_flyer(flyer)
 		return
 	var epoch: int = _loot_epoch
 	var token: int = _undo_gen
@@ -6060,12 +6130,20 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 	for held in hotbar:
 		if int(held.get("uid", 0)) == uid:
 			FRAME_METRICS.span_cancel("draft_to_hotbar")
+			_free_loot_flyer(flyer)
 			return
 	if hotbar.size() < CHALLENGE_HAND:
 		if epoch != _loot_epoch or _undo_stale(token):
 			FRAME_METRICS.span_cancel("draft_to_hotbar")
+			_free_loot_flyer(flyer)
 			return
-		if item_deal_ui != null and not _qa_busy():
+		if flyer != null and is_instance_valid(flyer) and not _qa_busy():
+			await _fly_loot_pick_into_hotbar(it, flyer)
+			flyer = null
+			if epoch != _loot_epoch or _undo_stale(token):
+				FRAME_METRICS.span_cancel("draft_to_hotbar")
+				return
+		elif item_deal_ui != null and not _qa_busy():
 			_sync_item_deal_deck()
 			item_deal_ui.z_index = 52
 			item_deal_ui.visible = true
@@ -6074,7 +6152,7 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 			if sfx:
 				sfx.play("cloth", -12.0)
 				sfx.play("whoosh", -16.0, 1.15)
-			await item_deal_ui.play_shuffle(0.28)
+			await item_deal_ui.play_shuffle(ITEM_POOL_SHUFFLE_S)
 			await _fly_dealt_item(it)
 			_hide_item_deal_deck()
 			if epoch != _loot_epoch or _undo_stale(token):
@@ -6091,7 +6169,9 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 		return
 	if not replace_if_full:
 		FRAME_METRICS.span_cancel("draft_to_hotbar")
+		_free_loot_flyer(flyer)
 		return
+	_free_loot_flyer(flyer)
 	if not _start_full_hand_replace(it):
 		FRAME_METRICS.span_cancel("draft_to_hotbar")
 		return
@@ -14665,14 +14745,14 @@ func _oligarch_deliver_item(id: String, from_i: int, after_line: String = "Here,
 	var gain_seat: int = _hotbar_gain_index(it)
 	var to: Vector2 = _hotbar_wait_slot_global() if hotbar.size() >= _forced_hand_cap() else _hotbar_deal_slot_global(gain_seat)
 	if hotbar.size() < _forced_hand_cap():
-		_begin_hotbar_insert_slide(gain_seat, 0.42)
+		_begin_hotbar_insert_slide(gain_seat, ITEM_DEAL_FLY_S)
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.item_tex(id)
 	if tex == null:
 		tex = tex_by_item.get(id, tex_sword)
 	if tex != null and from != Vector2.ZERO and to != Vector2.ZERO:
-		await _fly_courier(tex, from, to, 0.42)
+		await _fly_courier(tex, from, to, ITEM_DEAL_FLY_S)
 	await _await_hotbar_insert_slide()
 	if _hand_cannot_admit():
 		_abort_hotbar_insert_slide()
@@ -16303,7 +16383,7 @@ func _try_gain_item(id: String) -> void:
 		return
 	if not _qa_busy():
 		await _await_hotbar_layout()
-		_begin_hotbar_insert_slide(_hotbar_gain_index(it), 0.34)
+		_begin_hotbar_insert_slide(_hotbar_gain_index(it), ITEM_DEAL_FLY_S)
 		await _await_hotbar_insert_slide()
 	hotbar.append(it)
 	_note_incoming_gain(it)

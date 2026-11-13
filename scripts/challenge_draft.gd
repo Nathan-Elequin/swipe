@@ -268,6 +268,24 @@ func play_pick_stamps(chosen_uid: int) -> void:
 		await get_tree().create_timer(0.40).timeout
 
 
+func take_card(uid: int) -> Control:
+	if _row == null:
+		return null
+	for c in _row.get_children():
+		if c == null or not is_instance_valid(c):
+			continue
+		if not ("uid" in c):
+			continue
+		if int(c.uid) != uid:
+			continue
+		var card: Control = c as Control
+		card.set_meta("loot_from", card.global_position)
+		card.set_meta("loot_size", card.size)
+		_row.remove_child(card)
+		return card
+	return null
+
+
 func hide_draft() -> void:
 	visible = false
 	scale = Vector2.ONE
