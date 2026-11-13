@@ -1,6 +1,8 @@
 extends Control
 ## Comic balloon: sits up-right of the speaker, tail joins the oval and points at the sprite.
-## Keyword definitions (Always, Flee, …) stay on the hover inspect plate, not here.
+## Flee / Swap / Poison in the sentence use the same definition hover as the inspect plate.
+
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 
 var _mouth: Vector2 = Vector2.ZERO
 var _text: String = ""
@@ -10,6 +12,7 @@ var _paper: Color = Color("f7ecda")
 var _font_sz := 21
 var _rad := 28.0
 var _body: RichTextLabel
+var _kw_tip: Node = null
 
 
 func setup() -> void:
@@ -18,6 +21,10 @@ func setup() -> void:
 	top_level = true
 	visible = false
 	texture_filter = TEXTURE_FILTER_NEAREST
+	_kw_tip = KEYWORD_TIP.new()
+	add_child(_kw_tip)
+	if _kw_tip.has_method("setup"):
+		_kw_tip.setup()
 	_body = RichTextLabel.new()
 	_body.bbcode_enabled = true
 	_body.fit_content = true
@@ -29,6 +36,7 @@ func setup() -> void:
 	_body.add_theme_color_override("default_color", _ink)
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_body)
+	UxStyle.wire_def_hover(_body, _kw_tip, self)
 
 
 func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_left: bool = false, keep_left_of: float = -1.0) -> void:
@@ -49,12 +57,14 @@ func present(mouth_global: Vector2, text: String, look: Dictionary = {}, prefer_
 	if keep_left_of > 0.0:
 		global_position.x = minf(global_position.x, keep_left_of - size.x - 10.0)
 		global_position.x = maxf(8.0, global_position.x)
+	var has_kw: bool = _text.find("[url=kw:") >= 0
 	if _body:
 		_body.text = _text
 		_body.position = Vector2(22.0, 16.0)
 		_body.size = Vector2(size.x - 44.0, size.y - 28.0)
-		_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+		## STOP only on the sentence so Flee / Swap can hover. The oval still passes clicks.
+		_body.mouse_filter = Control.MOUSE_FILTER_STOP if has_kw else Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_PASS if has_kw else Control.MOUSE_FILTER_IGNORE
 	visible = true
 	queue_redraw()
 
@@ -63,6 +73,8 @@ func hide_speech() -> void:
 	visible = false
 	_text = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _body:
+		_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _plain_bb(raw: String) -> String:

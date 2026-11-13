@@ -595,9 +595,10 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-12",
 			"name": "Grappling Hook"
 		},
 		"item:grief_jar": {

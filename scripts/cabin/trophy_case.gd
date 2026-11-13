@@ -391,8 +391,19 @@ func _build_lamp(outer_n: Rect2) -> void:
 	_lamp_glow.size = Vector2(35, 37) * PX / 4.0 * 4.0  ## shipped size
 	if _lamp_glow.texture:
 		_lamp_glow.size = _lamp_glow.texture.get_size()
-	_lamp_glow.position = _lamp.position + Vector2(-_lamp_glow.size.x * 0.35, 8)
-	_lamp_glow.modulate = Color("f09a34", 0.5)
+	## The cabinets wall was flipped without moving these lamps. The old offset
+	## sat beside the lamp, above the glass, so the portrait top stayed dark.
+	## Scale the existing glow down over the upper glass.
+	var glass := BiomeCabinets.glass_rect(case_index)
+	var glass_local := (glass.position - outer_n.position) * PX
+	var glow_scale := Vector2(1.7, 1.55)
+	_lamp_glow.scale = glow_scale
+	var glow_size := _lamp_glow.size * glow_scale
+	_lamp_glow.position = glass_local + Vector2(
+		(glass.size.x * PX - glow_size.x) * 0.5,
+		-glow_size.y * 0.22
+	)
+	_lamp_glow.modulate = Color(1.55, 1.18, 0.62, 0.8)
 	_lamp_glow.visible = false
 	_lamp_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mat := CanvasItemMaterial.new()
@@ -740,7 +751,7 @@ func _build_peg(host: Control, pos: Vector2, card: Dictionary) -> void:
 	hit.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hit.gui_input.connect(_on_peg_input.bind(id, wrap, pst))
 	hit.mouse_entered.connect(_on_peg_enter.bind(id, wrap, pst))
-	hit.mouse_exited.connect(_on_peg_exit)
+	hit.mouse_exited.connect(_on_peg_exit.bind(wrap))
 	wrap.add_child(hit)
 	wrap.set_meta("peg_state", pst)
 	wrap.set_meta("hit", hit)
@@ -828,14 +839,15 @@ func _apply_state(_animate: bool) -> void:
 		else:
 			_door.play("shut")
 	if _lamp:
-		if opened:
-			_lamp.play("on")
-			if _lamp_glow:
-				_lamp_glow.visible = true
-		else:
+		if locked:
 			_lamp.play("off")
 			if _lamp_glow:
 				_lamp_glow.visible = false
+		else:
+			_lamp.play("on" if opened else "off")
+			if _lamp_glow:
+				_lamp_glow.visible = true
+				_lamp_glow.modulate = Color(1.55, 1.18, 0.62, 0.8) if opened else Color(1.25, 1.0, 0.55, 0.42)
 	if _gild:
 		_gild.visible = complete
 	if _crest:
@@ -992,8 +1004,9 @@ func _try_wheel(dir: int) -> void:
 func _on_peg_enter(item_id: String, peg: Control, pst: int) -> void:
 	if not zoomed or not input_enabled:
 		return
-	## Amber frame
-	if peg.get_node_or_null("HoverFrame") == null:
+	## Unseen pegs stay the dark silhouette. An amber frame stuck after hover
+	## and read as "this one is claimed".
+	if pst != BiomeCabinets.PegState.UNSEEN and peg.get_node_or_null("HoverFrame") == null:
 		var frame := Panel.new()
 		frame.name = "HoverFrame"
 		frame.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -1004,11 +1017,16 @@ func _on_peg_enter(item_id: String, peg: Control, pst: int) -> void:
 		sb.set_border_width_all(4)
 		frame.add_theme_stylebox_override("panel", sb)
 		peg.add_child(frame)
-	KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
+	if pst != BiomeCabinets.PegState.UNSEEN:
+		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
 	peg_hovered.emit(item_id, peg, pst)
 
 
-func _on_peg_exit() -> void:
+func _on_peg_exit(peg: Control) -> void:
+	if peg != null and is_instance_valid(peg):
+		var frame := peg.get_node_or_null("HoverFrame")
+		if frame != null:
+			frame.queue_free()
 	peg_unhovered.emit()
 
 

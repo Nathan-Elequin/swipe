@@ -266,6 +266,16 @@ static func tutorial_lines() -> Array:
 	for row in found:
 		var allow_raw: Variant = row.get("allow", [])
 		var allow: Array = allow_raw if typeof(allow_raw) == TYPE_ARRAY else []
+		var note_teach := ""
+		var note_deny := ""
+		var notes_raw: Variant = row.get("desk_notes", {})
+		if typeof(notes_raw) == TYPE_DICTIONARY:
+			var notes: Dictionary = notes_raw
+			note_teach = "%s\n%s" % [str(notes.get("highlight", "")), str(notes.get("click", ""))]
+			var deny_bits: PackedStringArray = PackedStringArray()
+			for nk in notes.keys():
+				deny_bits.append(str(notes[nk]))
+			note_deny = "\n".join(deny_bits)
 		out.append({
 			"key": str(row.get("key", "")),
 			"beat": str(row.get("beat", "")),
@@ -283,6 +293,8 @@ static func tutorial_lines() -> Array:
 			"rig": str(row.get("rig", "")),
 			"allow": allow,
 			"trigger": str(row.get("trigger", "")),
+			"note_teach": note_teach,
+			"note_deny": note_deny,
 		})
 	return out
 

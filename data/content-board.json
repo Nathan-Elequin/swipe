@@ -1147,14 +1147,14 @@
 			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
-			"count": 1.0,
-			"explainer": "Walk the short way to that monster. Draw 1 Item. Does not spend a Move.",
+			"count": 1,
+			"explainer": "Move (the shortest path) to Any monster, then Draw 1 Item.",
 			"flow": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "grappling_hook",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1172,7 +1172,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Swap in a neighbor",
 			"mode_pool": "all",
@@ -1181,14 +1182,15 @@
 			"ops": {
 				"kind": "hook_swap"
 			},
-			"pool": 5.0,
-			"priority": 2.0,
+			"pending_fields": {},
+			"pool": 5,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1.0
+			"tier": 1
 		},
 		{
 			"ability": "3 Attack or 3 Block. Alternates on Item Use",
@@ -5903,20 +5905,20 @@
 		},
 		{
 			"ability": "On Spin, I Attack one of my Neighbors. If I Defeat them, I gain an extra Attack",
-			"atk_base": 3,
+			"atk_base": 3.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Hungry Heads",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "On every Spin, Attack one random Neighbor. If that Defeats them, gain an extra Take swing.",
 			"flags": {
 				"art": true,
 				"dev": false
 			},
-			"flow": "Every Spin while I live unsilenced on the wheel: Attack one random living Neighbor (including the monster you just landed on). One Attack at my printed Attack (3), not my extra Take swings. Goblin and other immune seats still get the swing; 0 damage; no extra Attack. If that Neighbor is Defeated (dead, fled, Egg), I gain +1 Take swing (hydra_heads). Extra swings count immediately, including Take this landing if you face me. Bodyguard: extra swing only if the Neighbor I chose is Defeated. Prism: I chose Prism, so no extra swing. Quiet Bell: I do not bite; swings I already gained stay. No living Neighbor: skip. Replaces the old Neighbor-survives-at-3 devour. Printed Attack 3. Printed HP 10.",
-			"hp_base": 10,
+			"flow": "Every Spin while I live unsilenced on the wheel: Attack one random living Neighbor (including the monster you just landed on). That bite uses every current swing (1 + hydra_heads), and so does every other time I Attack, including Take while you face me. Goblin and other immune seats still get each swing; 0 damage; no extra head. If that Neighbor is Defeated (dead, fled, Egg), I gain +1 swing (hydra_heads) for later Attacks. A head gained on this bite is included in Take this landing if you face me, and in the next Spin. Bodyguard: extra swing only if the Neighbor I chose is Defeated. Prism: I chose Prism, so no extra swing. Quiet Bell: I do not bite; swings I already gained stay. No living Neighbor: skip. Replaces the old Neighbor-survives-at-3 devour. Printed Attack 3. Printed HP 10.",
+			"hp_base": 10.0,
 			"hp_formula": "",
 			"id": "hydra",
 			"kind": "monster",
@@ -5945,16 +5947,16 @@
 			"log_hint": "On Spin: Attack a random Neighbor. Defeat: +1 Take swing",
 			"mode_pool": "all",
 			"name": "Hydra",
-			"notes": "Pool 5. Hungry Heads 2026-11-12. Every Spin. Random Neighbor. Extra Take swing on Defeat. Art existing.",
+			"notes": "Pool 5. Hungry Heads 2026-11-12. Every Spin. Random Neighbor. Every Attack uses 1 + hydra_heads. Defeat adds a head for later Attacks. Art existing.",
 			"ops": {},
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "On Spin, Attack one Neighbor. Defeat them: extra Take swing.",
 			"review": "rough",
-			"review_note": "Buff this to 10 Base HP. Also, the intent when it 'Attacks' is that it uses ALL of its attacks. So if it has already 'devoured' someone, then the next spin it attacks twice, and so on.",
-			"status": "todo",
-			"tier": 2
+			"review_note": "",
+			"status": "live",
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",
@@ -7391,16 +7393,16 @@
 		},
 		{
 			"ability": "When you Defeat any other enemy, I Bag it for you, lose 3 HP, and lose 2 Attack.",
-			"atk_base": 10,
+			"atk_base": 10.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "New Specimen",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "Defeat other: Bag at pre-lethal HP; I lose 3 HP and 2 Attack",
 			"flow": "Bag any other defeated enemy at pre-lethal HP (Bag of Holding–style into hotbar); Defeat still resolves; never Bags self. After Bagging, I lose 3 HP and 2 Attack (Attack stops at 0). Quiet Bell turns this off. Discard without Use no longer harms me.",
-			"hp_base": 15,
+			"hp_base": 15.0,
 			"hp_formula": "",
 			"id": "collector",
 			"kind": "monster",
@@ -7431,14 +7433,14 @@
 			"name": "Collector",
 			"notes": "Monster4 2026-11-06 Pixel art (still C + facing A 64×64; idle = facing plate duplicated f0–f3, gens deferred). Combat live 2026-11-06 — New Specimen Bag-on-Defeat (pre-lethal). Balance Nov8 — Bag costs Collector −3 HP; discard tax removed. 2026-11-12 — base Attack 10; each Bag also costs 2 Attack.",
 			"ops": {},
-			"pool": 5,
-			"priority": 3,
+			"pool": 5.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		}
 	],
 	"updated": "2026-11-12"

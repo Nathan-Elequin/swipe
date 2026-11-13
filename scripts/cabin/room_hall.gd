@@ -17,6 +17,7 @@ func _build_special() -> void:
 		if f is Array and f.size() >= 2:
 			_candle(Vector2(float(f[0]), float(f[1])))
 	_hide_retired_chrome()
+	_fit_hall_light()
 
 
 func _apply_bg() -> void:
@@ -25,10 +26,21 @@ func _apply_bg() -> void:
 		bg.texture = plate
 		_bg_rel = CABINETS_WALL
 		_loaded_bg = true
+		_fit_hall_light()
 		return
 	bg.texture = KIT.load_tex("rooms/room_hall.png")
 	_bg_rel = "rooms/room_hall.png"
 	_loaded_bg = bg.texture != null
+	_fit_hall_light()
+
+
+func _fit_hall_light() -> void:
+	## room_hall_glow is the old round-window plate. On the cabinets wall it
+	## lands on the left and covers the top of the first case. Case lamps
+	## light the glass instead.
+	var g = spots.get("room_hall_glow", null)
+	if g is CanvasItem and _bg_rel == CABINETS_WALL:
+		(g as CanvasItem).visible = false
 
 
 func _hide_retired_chrome() -> void:

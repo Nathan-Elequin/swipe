@@ -816,6 +816,8 @@ var _flee_random_spin: bool = false
 var _spin_land_uid: int = -1
 ## Ball & Chain: after Flee+Spin lands on the selected Neighbor, Draw one Item once.
 var _chain_flee_draw_pending: bool = false
+## A seat was removed. Next refresh rebuilds hover / poison rings on the living wheel.
+var _aim_dirty: bool = false
 var _pending_item_flee: bool = false
 var _chakram_halves_busy: bool = false
 var _fungal_stop_fight: bool = false
@@ -5574,23 +5576,26 @@ func _hide_item_deal_deck() -> void:
 	item_deal_ui.set_peek(null, "")
 
 
-## Face-up toss from the item deck into the next hotbar seat. Same flight as the opening six.
+## Face-up toss from the item deck into the seat this card will occupy after the hand sorts.
 func _fly_dealt_item(it: Dictionary) -> void:
 	if item_deal_ui == null or it.is_empty():
 		return
 	var full: bool = hotbar.size() >= _forced_hand_cap()
-	var seat_i: int = hotbar.size()
+	await _await_hotbar_layout()
+	var seat_i: int = hotbar.size() if full else _hotbar_gain_index(it)
 	var dest: Vector2 = _hotbar_wait_slot_global() if full else _hotbar_deal_slot_global(seat_i)
 	var dest_sz: Vector2 = _hotbar_deal_slot_size(seat_i)
 	var pad: Control = null if full else _hotbar_deal_slot_control(seat_i)
-	if pad != null:
+	## Only dim an empty socket. A card already sitting in that seat stays readable.
+	var dim_pad: bool = pad != null and not pad.has_method("set_live")
+	if dim_pad:
 		pad.modulate.a = 0.12
 	var iid: String = str(it.get("card_id", ""))
 	_sync_item_deal_deck()
 	item_deal_ui.set_peek(_item_icon_tex(it, iid), str(it.get("name", "?")), _tier_of(it))
 	await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
 	item_deal_ui.set_peek(null, "")
-	if pad != null and is_instance_valid(pad):
+	if dim_pad and pad != null and is_instance_valid(pad):
 		pad.modulate.a = 1.0
 
 
@@ -5677,6 +5682,9 @@ func _deal_opening_hand(items: Array) -> void:
 				sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
 			continue
 		hotbar.append(it)
+		## Land it in the seat the flight just used. A sort after the whole deal
+		## made every card pop out of the slot it flew into.
+		_sort_hotbar()
 		_log("on_draft", "gain %s" % it.get("name", "?"))
 		if sfx:
 			sfx.play_event(&"hand.gain", {"card_id": iid, "pitch_mul": 1.0 + float(i) * 0.045})
@@ -5984,6 +5992,16 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 		if epoch != _loot_epoch or _undo_stale(token):
 			FRAME_METRICS.span_cancel("draft_to_hotbar")
 			return
+		if item_deal_ui != null and not _qa_busy():
+			_sync_item_deal_deck()
+			item_deal_ui.z_index = 52
+			item_deal_ui.visible = true
+			item_deal_ui.set_count(1)
+			await _fly_dealt_item(it)
+			_hide_item_deal_deck()
+			if epoch != _loot_epoch or _undo_stale(token):
+				FRAME_METRICS.span_cancel("draft_to_hotbar")
+				return
 		hotbar.append(it.duplicate(true))
 		_sort_hotbar()
 		_log("on_draft", "gain %s" % it.get("name", "?"))
@@ -6422,6 +6440,7 @@ func _challenge_refill_or_collapse(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
 	wheel.remove_at(index)
+	_note_seat_removed(index)
 	if challenge_aim == index:
 		challenge_aim = -1
 	elif challenge_aim > index:
@@ -9266,6 +9285,7 @@ func _on_spin() -> void:
 		_undo_wall()
 		_unspin_armed = false
 	_await_first_spin = false
+	_cancel_spent_item_vfx()
 	phase = "spinning"
 	FRAME_METRICS.span_begin("spin_to_callout")
 	# Drop cached gutter layout — next place after land must run full work.
@@ -9303,6 +9323,11 @@ func _on_spin() -> void:
 		_stone_saved = 0
 	else:
 		blk = 0
+	# A killing or fleeing use can land the next Spin before the click's
+	# follow-ons. Commit first so Sai, Spiked Shield, Toll, and Beads carry.
+	# Do not drop the arm flag without that commit.
+	if _after_item_use_armed:
+		await _commit_after_item_use()
 	items_used_this_combat = 0
 	if _item_resolve_depth <= 0:
 		_after_item_use_armed = false
@@ -9655,9 +9680,6 @@ func _begin_slay(banner: String = "slay") -> void:
 		if facing_index < 0 or facing_index >= wheel.size():
 			_slay_busy = false
 			return
-		if await _try_petty_king_flee(facing_index):
-			_slay_busy = false
-			return
 	await _on_owner_defeated(facing_index)
 	if _undo_stale(token) or hp <= 0:
 		if owned_slay:
@@ -9819,6 +9841,9 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 	if hp <= 0:
 		_player_down()
 		return
+	# Mockery already fled. Do not turn that Attack into a Defeat.
+	if phase != "fighting" and phase != "slaying":
+		return
 	var still_up: bool = facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) > 0
 	var banner := "slay"
 	if still_up:
@@ -9855,14 +9880,14 @@ func _apply_resolve_hits() -> int:
 		if facing_index >= 0 and facing_index < wheel.size():
 			m = wheel[facing_index]
 		total += incoming
-		if _fungal_stop_fight or hp <= 0:
+		if _fungal_stop_fight or hp <= 0 or phase != "fighting":
 			break
 		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			break
 		if hits > 1 and h < hits - 1:
 			# Ability oneshot replaces mon.hornet_buzz between swings.
 			await get_tree().create_timer(0.04).timeout
-	if hp > 0 and not _fungal_stop_fight:
+	if hp > 0 and not _fungal_stop_fight and phase == "fighting":
 		await _straight_shot_after(attacker)
 	return total
 
@@ -9870,6 +9895,7 @@ func _apply_resolve_hits() -> int:
 ## Owner Attacks you. Always lunges. Blocked vs unblocked only changes the tell.
 ## Returns HP lost on this swing.
 func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int = -1) -> int:
+	_cancel_spent_item_vfx()
 	enemy_attacked = true
 	# Buckler snapshot: buffed ATK at this Attack event (once per swing value, not hit-sum).
 	# Commanded swings (Fangs, Damsel neighbors) come through here too.
@@ -9954,6 +9980,11 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		await _heal(incoming * 2)
 	if incoming > 0 and str(m.get("card_id", "")) == "fungal_colony":
 		await _fungal_on_damage(at, m)
+	# Mockery: only an Attack that just resolved while you face him.
+	# Defeat items never come through here, so they do not gift or Flee.
+	# A blocked swing still counts. A hit that drops you to 0 does not.
+	if hp > 0 and str(m.get("card_id", "")) == "cowardly_king" and at == facing_index:
+		await _try_petty_king_flee(at, true)
 	return incoming
 
 
@@ -10232,8 +10263,10 @@ func _maybe_auto_spin() -> void:
 func _remove_facing() -> void:
 	var m: Dictionary = wheel[facing_index]
 	_log("on_remove_slice", str(m["name"]))
+	var removed_face: int = facing_index
 	wheel.remove_at(facing_index)
 	facing_index = -1
+	_note_seat_removed(removed_face)
 	_reseat_slots()
 
 
@@ -10926,8 +10959,10 @@ func _use_item(uid: int) -> void:
 		_undo_finish_item()
 		return
 	if _undo_stale(token):
+		# Flee bumps the undo generation. Still flip Sai / Shield and tick Toll.
 		FRAME_METRICS.span_cancel("use_item_resolve")
 		_beggar_hold = false
+		await _commit_after_item_use()
 		await _unlock_after_item_body()
 		return
 	await _after_item_resolved(it)
@@ -10996,10 +11031,12 @@ func _choose_option(opt: Dictionary) -> void:
 	await _end_item_resolve()
 	if phase == "rest" or phase == "victory" or phase == "defeat" or hp <= 0:
 		FRAME_METRICS.span_cancel("use_item_resolve")
+		await _commit_after_item_use()
 		_undo_finish_item()
 		return
 	if _undo_stale(token):
 		FRAME_METRICS.span_cancel("use_item_resolve")
+		await _commit_after_item_use()
 		await _unlock_if_fighting()
 		return
 	await _after_item_resolved(it)
@@ -11615,6 +11652,12 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				await _count_item_use()
 				_toss_item(int(it["uid"]), false)
 				_player_down()
+				return
+			# His Attack resolved (Mockery). Do not also Defeat him.
+			if phase != "fighting":
+				it["spent"] = true
+				await _count_item_use()
+				_toss_item(int(it["uid"]), false)
 				return
 			it["spent"] = true
 			await _count_item_use()
@@ -14556,7 +14599,9 @@ func _oligarch_deliver_item(id: String, from_i: int, after_line: String = "Here,
 	var from: Vector2 = Vector2.ZERO
 	if wheel_view and from_i >= 0:
 		from = wheel_view.slice_portrait_global(from_i)
-	var to: Vector2 = _hotbar_empty_slot_global()
+	await _await_hotbar_layout()
+	var gain_seat: int = _hotbar_gain_index(it)
+	var to: Vector2 = _hotbar_wait_slot_global() if hotbar.size() >= _forced_hand_cap() else _hotbar_deal_slot_global(gain_seat)
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.item_tex(id)
@@ -15328,8 +15373,6 @@ func _maybe_slay_down(index: int) -> void:
 		return
 	if await _try_commander_flee(index):
 		return
-	if await _try_petty_king_flee(index):
-		return
 	if index == facing_index:
 		await _begin_slay()
 	else:
@@ -15902,6 +15945,7 @@ func _slay_ogre_at(index: int) -> void:
 		facing_index -= 1
 	wheel.remove_at(index)
 	mobs_defeated += 1
+	_note_seat_removed(index)
 	_reseat_slots()
 	_refresh()
 
@@ -16351,7 +16395,11 @@ func _tyrant_next_line() -> String:
 	return str(_tyrant_line_bag.pop_back())
 
 
-func _try_petty_king_flee(index: int) -> bool:
+func _try_petty_king_flee(index: int, from_attack: bool = false) -> bool:
+	# Defeat, Poison, and other skips must not gift or Flee.
+	# `from_attack` is set only at the end of `_owner_attack`.
+	if not from_attack:
+		return false
 	if hp <= 0:
 		return false
 	if index < 0 or index >= wheel.size():
@@ -16364,7 +16412,7 @@ func _try_petty_king_flee(index: int) -> bool:
 	if int(s.get("hp", 0)) <= 0:
 		return false
 	## Only the Attack he makes while you are facing him.
-	if index != facing_index or not bool(s.get("has_attacked", false)):
+	if index != facing_index:
 		return false
 	var line: String = _tyrant_next_line()
 	_speech_from_index = index
@@ -17682,8 +17730,8 @@ func _lay_spider_egg(index: int) -> void:
 		from = wheel_view.slice_portrait_global(index)
 	if _hand_full():
 		to = _hotbar_overflow_anchor_global()
-	elif hotbar_box:
-		to = hotbar_box.global_position + hotbar_box.size * 0.5
+	else:
+		to = await _hotbar_future_seat_global("spider_egg")
 	if sfx:
 		sfx.play_event(&"egg.lay")
 	await _announce_slice(index, to if to != Vector2.ZERO else _hub_hp_pos())
@@ -17734,8 +17782,7 @@ func _grant_blood_pact(index: int) -> void:
 	var to: Vector2 = Vector2.ZERO
 	if wheel_view:
 		from = wheel_view.slice_portrait_global(index)
-	if hotbar_box:
-		to = hotbar_box.global_position + hotbar_box.size * 0.5
+	to = await _hotbar_future_seat_global("blood_pact")
 	await _announce_slice(index, to if to != Vector2.ZERO else _hub_hp_pos())
 	await _radiate_line(from, to, _link_color("blood_pact"))
 	if tex != null and from != Vector2.ZERO:
@@ -17781,11 +17828,21 @@ func _hotbar_deal_slot_control(slot_i: int) -> Control:
 	return null
 
 
+## A later seat still sitting on the grid origin has not been given a cell yet.
+## Reading it would send every flight to slot 1.
+func _hotbar_slot_placed(slot_i: int, seated: Control) -> bool:
+	if seated == null or seated.size.x <= 4.0:
+		return false
+	if slot_i <= 0:
+		return true
+	return seated.position.x > 1.0 or seated.position.y > 1.0
+
+
 ## Center of hotbar seat `slot_i` (0 = first seat). Uses the empty pad already
 ## in the 2×5 grid when it exists, so a deal never aims past the last placeholder.
 func _hotbar_deal_slot_global(slot_i: int) -> Vector2:
 	var seated: Control = _hotbar_deal_slot_control(slot_i)
-	if seated != null and seated.size.x > 4.0:
+	if _hotbar_slot_placed(slot_i, seated):
 		return seated.global_position + seated.size * 0.5
 	if _hotbar_park_overflow() and hotbar_overflow != null and slot_i >= _forced_hand_cap():
 		var parked: Array = hotbar_overflow.get_children()
@@ -17813,13 +17870,13 @@ func _hotbar_deal_slot_global(slot_i: int) -> Vector2:
 
 func _hotbar_deal_slot_size(slot_i: int) -> Vector2:
 	var seated: Control = _hotbar_deal_slot_control(slot_i)
-	if seated != null and seated.size.x > 4.0:
+	if _hotbar_slot_placed(slot_i, seated):
 		return seated.size
 	return Vector2(172.0, 148.0)
 
 
 func _juggernaut_hand_shield() -> void:
-	var to: Vector2 = _hotbar_empty_slot_global()
+	var to: Vector2 = await _hotbar_future_seat_global("shield")
 	await _announce_slice(facing_index, to)
 	var home: Vector2 = await _monster_walk_to(facing_index, "juggernaut", to)
 	if phase != "fighting":
@@ -19287,8 +19344,6 @@ func _hydra_defeat_as_item(index: int) -> void:
 		return
 	if await _try_commander_flee(index):
 		return
-	if await _try_petty_king_flee(index):
-		return
 	if index < 0 or index >= wheel.size():
 		return
 	if int(wheel[index].get("hp", 0)) > 0:
@@ -19304,7 +19359,7 @@ func _flush_hydra_devour() -> void:
 
 
 func _apply_hydra_on_spin() -> bool:
-	## Hungry Heads: every Spin, one random Neighbor Attack. Defeat → +1 Take swing.
+	## Hungry Heads: every Spin, one random Neighbor. Every Attack (this bite and Take) uses 1 + hydra_heads. Defeat → +1 head for later Attacks.
 	if phase != "fighting" or hp <= 0:
 		return false
 	var hydra_uids: Array[int] = _hydra_listener_uids()
@@ -19340,6 +19395,7 @@ func _apply_hydra_on_spin() -> bool:
 		dest = _index_of_seat(dest_uid)
 		if h_i < 0 or dest < 0:
 			continue
+		var bite_swings: int = _hit_count(h_i)
 		var from: Vector2 = _slice_from(h_i)
 		var to: Vector2 = _slice_from(dest)
 		if wheel_view != null and wheel_view.has_method("slice_portrait_global"):
@@ -19348,7 +19404,7 @@ func _apply_hydra_on_spin() -> bool:
 		await _radiate_line(from, to, _link_color("hungry_heads"), 0.12, true, false, 0, "hydra")
 		_log("on_spin", "Hungry Heads  →  %s" % wheel[dest].get("name", "?"))
 		_watch_thorns_seat = h_i
-		await _watch_attack(h_i, dest, snap, 1, {})
+		await _watch_attack(h_i, dest, snap, bite_swings, {})
 		_watch_thorns_seat = -1
 		_hide_hypno()
 		if hp <= 0:
@@ -19758,14 +19814,16 @@ func _commit_after_item_use() -> void:
 	_flip_shuriken_dirs()
 	_flip_shield_faces()
 	_tick_tolls()
+	_hotbar_sig = ""
+	_apply_sai_static()
+	if hotbar_box != null:
+		_sync_hotbar()
 	if _toll_death_armed and not _bell_kill_this_use():
 		if await _resolve_toll_death():
 			return
 	_amalgam_after_use()
 	_sync_wheel_stats()
 	_sync_intent_plate()
-	_hotbar_sig = ""
-	_apply_sai_static()
 
 
 func _deal_atk(n: int) -> bool:
@@ -21720,6 +21778,8 @@ func _can_mark(index: int, kind: String) -> bool:
 	if not _neighbor_indices().has(index):
 		return false
 	if kind == "mark_poison":
+		if int(wheel[index].get("hp", 0)) <= 0:
+			return false
 		return not bool(wheel[index].get("crossbowed", false))
 	if kind == "kiss_of_death":
 		return int(wheel[index].get("hp", 0)) > 0
@@ -22664,6 +22724,7 @@ func _kill_neighbor(index: int) -> void:
 	mobs_defeated += 1
 	if index < pin:
 		facing_index -= 1
+	_note_seat_removed(index)
 	_reseat_slots()
 	_sync_wheel_stats()
 	if wheel_view:
@@ -22694,6 +22755,7 @@ func _remove_crossbowed() -> void:
 				mobs_defeated += 1
 				if i < facing_index:
 					facing_index -= 1
+				_note_seat_removed(i)
 		i -= 1
 	_reseat_slots()
 
@@ -22741,9 +22803,9 @@ func _draw_unseen_item(force_over: bool = false, present: bool = true) -> void:
 		return
 	hotbar.append(it)
 	_note_incoming_gain(it)
-	## Leave it in the seat the card just flew into. Sorting here snaps it sideways.
-	if not present:
-		_sort_hotbar()
+	## The flight aimed at this card's sorted seat. Sort before the card is shown
+	## so it appears where it landed.
+	_sort_hotbar()
 	_log("on_draft", "gain %s" % it.get("name", id))
 	if sfx:
 		if present:
@@ -22756,9 +22818,6 @@ func _draw_unseen_item(force_over: bool = false, present: bool = true) -> void:
 
 
 func _grant_mimic_gift(from_index: int = -1) -> void:
-	var dest: Vector2 = _hotbar_empty_slot_global()
-	if from_index >= 0:
-		await _announce_slice(from_index, dest)
 	var from: Vector2 = Vector2.ZERO
 	if wheel_view and from_index >= 0:
 		from = wheel_view.slice_portrait_global(from_index)
@@ -22777,6 +22836,11 @@ func _grant_mimic_gift(from_index: int = -1) -> void:
 			break
 	if gained.is_empty():
 		return
+	_refresh()
+	await _await_hotbar_layout()
+	var dest: Vector2 = _hotbar_card_global(int(gained.get("uid", -1)))
+	if from_index >= 0 and dest != Vector2.ZERO:
+		await _announce_slice(from_index, dest)
 	var gid: String = str(gained.get("card_id", ""))
 	var tex: Texture2D = null
 	if art != null:
@@ -23482,8 +23546,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["note"] = ""
 			out["can_use"] = fighting
 		"atk_alt_24":
-			var alt: int = int(it.get("alt_n", 0))
-			out["n"] = alt if alt == 2 or alt == 4 else (2 if items_used_this_combat % 2 == 0 else 4)
+			# Stored face only. items-this-combat resets on the next Spin, so it
+			# must not be the number the player sees between fights.
+			var alt: int = int(it.get("alt_n", 2))
+			if alt != 2 and alt != 4:
+				alt = 2
+			out["n"] = alt
 			out["number"] = str(out["n"])
 			out["note"] = ""
 		"blk_from_hp":
@@ -24235,10 +24303,63 @@ func _sort_hotbar() -> void:
 	if hotbar.size() > _forced_hand_cap():
 		_hotbar_sig = ""
 		return
-	hotbar.sort_custom(func(a, b) -> bool:
-		return _item_rank(a) < _item_rank(b)
-	)
+	hotbar.sort_custom(_item_before)
 	_hotbar_sig = ""
+
+
+## Same order `_sort_hotbar` uses, including a uid tie-break so a predicted seat
+## does not move again when the hand is sorted.
+func _item_before(a: Variant, b: Variant) -> bool:
+	var da: Dictionary = a if typeof(a) == TYPE_DICTIONARY else {}
+	var db: Dictionary = b if typeof(b) == TYPE_DICTIONARY else {}
+	var ra: int = _item_rank(da)
+	var rb: int = _item_rank(db)
+	if ra != rb:
+		return ra < rb
+	return int(da.get("uid", 0)) < int(db.get("uid", 0))
+
+
+## Index `it` will have once it is in the hand and the hand is sorted.
+func _hotbar_gain_index(it: Dictionary) -> int:
+	var uid: int = int(it.get("uid", -1))
+	var probe: Array = hotbar.duplicate()
+	probe.append(it)
+	probe.sort_custom(_item_before)
+	for i in probe.size():
+		if typeof(probe[i]) != TYPE_DICTIONARY:
+			continue
+		if int((probe[i] as Dictionary).get("uid", -2)) == uid:
+			return i
+	return hotbar.size()
+
+
+## Where a card that is about to be created will sit. Does not mark it seen.
+func _hotbar_future_seat_global(card_id: String) -> Vector2:
+	await _await_hotbar_layout()
+	if hotbar.size() >= _forced_hand_cap():
+		return _hotbar_wait_slot_global()
+	var card: Dictionary = items_by_id.get(card_id, {})
+	var ops: Dictionary = {}
+	if card.has("ops") and typeof(card["ops"]) == TYPE_DICTIONARY:
+		ops = (card["ops"] as Dictionary).duplicate(true)
+	elif ITEM_OPS.has(card_id):
+		ops = (ITEM_OPS[card_id] as Dictionary).duplicate(true)
+	var probe := {
+		"card_id": card_id,
+		"uid": uid_seq + 1,
+		"spent": false,
+		"ops": ops,
+	}
+	return _hotbar_deal_slot_global(_hotbar_gain_index(probe))
+
+
+func _await_hotbar_layout() -> void:
+	if hotbar_box:
+		hotbar_box.queue_sort()
+	if hotbar_panel:
+		hotbar_panel.queue_sort()
+	if is_inside_tree():
+		await get_tree().process_frame
 
 
 func _item_rank(it: Dictionary) -> int:
@@ -24267,6 +24388,46 @@ func _apply_preview(p: Dictionary) -> void:
 	if wheel_view:
 		wheel_view.set_preview(p)
 	_refresh_blk(false)
+
+
+## Poison (and any other auto-remove) shifts seat indexes. Rings and poison
+## badge pops must follow the monsters that are still alive.
+func _note_seat_removed(index: int) -> void:
+	_aim_dirty = true
+	if wheel_view != null and wheel_view.has_method("shift_seat_fx"):
+		wheel_view.shift_seat_fx(index)
+	_retarget_after_seat_change()
+
+
+func _retarget_after_seat_change() -> void:
+	if not pending_mark.is_empty() and phase == "fighting":
+		_apply_preview(_preview_mark_aim(str(pending_mark.get("kind", "")), _hover_slice))
+		return
+	if phase == "fighting" and _fly_card != null and is_instance_valid(_fly_card):
+		var hovered: Dictionary = _find_item(_control_uid(_fly_card))
+		if not hovered.is_empty() and not bool(hovered.get("spent", false)) and not bool(hovered.get("shrouded", false)):
+			_apply_preview(_preview_from_item(hovered))
+			return
+	_apply_preview({})
+
+
+## A spent card's slash, toss flyer, or courier must not still be on screen
+## when the monster attacks or the wheel spins.
+func _cancel_spent_item_vfx() -> void:
+	_hero_swipe_armed = false
+	if ability_slash != null and ability_slash.has_method("cancel_item_vfx"):
+		ability_slash.cancel_item_vfx()
+	if _courier != null:
+		_courier.visible = false
+		_courier.texture = null
+		_clear_courier_gear()
+	if get_tree() == null:
+		return
+	for child in get_tree().root.get_children():
+		if child == self:
+			continue
+		if bool(child.get_meta("tossing", false)):
+			child.queue_free()
 
 
 func _on_spin_hover(on: bool) -> void:
@@ -24482,6 +24643,16 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if _twins_double_blk(sg):
 					sg *= 2
 				_ghost_blk = blk + sg
+				for sg_i in _mark_targets("signpost"):
+					var sg_slot: Dictionary = p.get(sg_i, {})
+					sg_slot["mark"] = true
+					p[sg_i] = sg_slot
+		"chain_flee", "hook_swap", "polymorph":
+			if bool(view.get("can_use", false)):
+				for ring_i in _mark_targets(kind):
+					var ring_slot: Dictionary = p.get(ring_i, {})
+					ring_slot["mark"] = true
+					p[ring_i] = ring_slot
 		"shield_alt":
 			if bool(view.get("can_use", false)) and _shield_face(it) == "blk":
 				var shg: int = 3
@@ -24700,7 +24871,7 @@ func _inspect_item(it: Dictionary, force: bool = false) -> void:
 
 
 func _bb(hex: String, text: String) -> String:
-	return "[color=%s][b]%s[/b][/color]" % [hex, text]
+	return UxStyle.chip(text, hex)
 
 
 func _paint_explainer(raw: String, num_hex: String = "#E07A7A") -> String:
@@ -27403,6 +27574,7 @@ func _refresh() -> void:
 			else:
 				wheel[i]["across"] = -1
 		## Keep neighbor aim ghosts on while picking (never the facing kill ghost).
+		_aim_dirty = false
 		if mk == "atk_neighbor" or mk == "mark_crossbow" or mk == "mark_poison" or mk == "hook_swap" or mk == "polymorph" or mk == "signpost" or mk == "sling_any" or mk == "chain_flee" or mk == "love_potion" or mk == "kiss_of_death":
 			_apply_preview(_preview_mark_aim(mk, _hover_slice))
 	else:
@@ -27411,13 +27583,19 @@ func _refresh() -> void:
 			wheel[i2]["across"] = -1
 		if (phase == "draft" and draft_action == "seat") or phase == "devtest":
 			mode = "place"
+		var choose_who := false
 		if not pending_choice.is_empty() and phase == "fighting" and facing_index >= 0:
 			var chooser: Dictionary = _find_item(int(pending_choice.get("uid", -1)))
 			if str(_ops_of(chooser).get("kind", "")) == "choose":
+				choose_who = true
 				var who_p: Dictionary = {}
 				var who_slot: Dictionary = {"who": true}
 				who_p[facing_index] = who_slot
 				_apply_preview(who_p)
+		if _aim_dirty:
+			_aim_dirty = false
+			if not choose_who:
+				_retarget_after_seat_change()
 	_trapper_mark_newcomers()
 	if wheel_view:
 		_stamp_atk_variants()

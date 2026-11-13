@@ -626,18 +626,30 @@ func _show_loot(loot: Array) -> void:
 		cell.size = Vector2(64, 92)
 		_loot_host.add_child(cell)
 		if is_new:
+			## Bottom-left of this icon. Two lines so the words stay on the icon
+			## (haul columns are 72px apart). Larger type and a dark plate.
+			var chip_w := 76.0
+			var chip_h := 36.0
+			var chip_at := Vector2(origin.x - 6.0, origin.y + 64.0 - chip_h)
+			var plate := ColorRect.new()
+			plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			plate.color = Color("100e0cf0")
+			plate.position = chip_at
+			plate.size = Vector2(chip_w, chip_h)
+			plate.z_index = 14
+			_loot_host.add_child(plate)
 			var nu: FitLabelBox = KIT.fit_label(
 				"extract.new_unique",
-				Rect2(origin.x - 12.0, origin.y - 18.0, 88, 16),
+				Rect2(chip_at, Vector2(chip_w, chip_h)),
+				18,
 				14,
-				10,
-				1,
+				2,
 				Color("ffd84a"),
 				HORIZONTAL_ALIGNMENT_CENTER,
 				VERTICAL_ALIGNMENT_CENTER,
-				13
+				15
 			)
-			nu.set_outline(Color("100e0c"), 3)
+			nu.set_outline(Color("100e0c"), 5)
 			_loot_host.add_child(nu)
 		var spr := TextureRect.new()
 		spr.texture = tex

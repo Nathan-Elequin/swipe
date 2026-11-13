@@ -212,6 +212,8 @@ var _hall_zoom_dim: ColorRect = null
 var _hall_pre_zoom_pos: Vector2 = Vector2.ZERO
 var _hall_pre_zoom_scale: Vector2 = Vector2.ONE
 var _hall_zooming: bool = false
+var _hall_zoom_closing: bool = false
+var _hall_zoom_tw: Tween = null
 var _lore_panel: Control = null
 const ROOM_WALK := 1.5
 const ROOM_WIPE_AT := 1.0
@@ -3013,7 +3015,10 @@ func _open_hall_zoom(pool_id: String) -> void:
 		tc.set_zoomed(true)
 	if _dumbwaiter and _dumbwaiter.has_method("set_input_enabled"):
 		_dumbwaiter.set_input_enabled(false)
+	if _hall_zoom_tw:
+		_hall_zoom_tw.kill()
 	var tw := create_tween()
+	_hall_zoom_tw = tw
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_trans(Tween.TRANS_QUAD)
 	tw.set_ease(Tween.EASE_OUT)
@@ -3022,18 +3027,26 @@ func _open_hall_zoom(pool_id: String) -> void:
 	if _hall_zoom_dim:
 		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.25, 0.35)
 	await tw.finished
+	if _hall_zoom_tw == tw:
+		_hall_zoom_tw = null
 
 
 func _close_hall_zoom() -> void:
-	if not _hall_zooming:
+	if not _hall_zooming or _hall_zoom_closing:
 		return
 	var hall = _rooms.get("hall")
 	if hall == null:
-		_hall_zooming = false
+		_finish_hall_zoom_closed()
 		return
+	_hall_zoom_closing = true
 	_hide_lore_panel()
+	if _hall_zoom_tw:
+		var opening := _hall_zoom_tw
+		_hall_zoom_tw = null
+		opening.kill()
 	var tc = _trophy_cases.get(_hall_zoom_pool, null)
 	var tw := create_tween()
+	_hall_zoom_tw = tw
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_trans(Tween.TRANS_QUAD)
 	tw.set_ease(Tween.EASE_OUT)
@@ -3042,7 +3055,30 @@ func _close_hall_zoom() -> void:
 	if _hall_zoom_dim:
 		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.0, 0.25)
 	await tw.finished
+	if _hall_zoom_tw != tw:
+		return
+	_finish_hall_zoom_closed(tc)
+
+
+func _snap_hall_zoom_closed() -> void:
+	if not _hall_zooming and not _hall_zoom_closing:
+		return
+	if _hall_zoom_tw:
+		var tw := _hall_zoom_tw
+		_hall_zoom_tw = null
+		tw.kill()
+	var hall = _rooms.get("hall")
+	if hall:
+		hall.scale = _hall_pre_zoom_scale
+		hall.position = _hall_pre_zoom_pos
+	_finish_hall_zoom_closed(_trophy_cases.get(_hall_zoom_pool, null))
+
+
+func _finish_hall_zoom_closed(tc = null) -> void:
+	if tc == null:
+		tc = _trophy_cases.get(_hall_zoom_pool, null)
 	if _hall_zoom_dim:
+		_hall_zoom_dim.color.a = 0.0
 		_hall_zoom_dim.visible = false
 		_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if tc:
@@ -3053,6 +3089,9 @@ func _close_hall_zoom() -> void:
 		_dumbwaiter.set_input_enabled(true)
 	_hall_zoom_pool = ""
 	_hall_zooming = false
+	_hall_zoom_closing = false
+	_hall_zoom_tw = null
+	_hide_lore_panel()
 
 
 func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
@@ -4729,7 +4768,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _hall_zooming:
+		if _hall_zooming or _hall_zoom_closing:
 			_close_hall_zoom()
 			get_viewport().set_input_as_handled()
 			return
@@ -4741,8 +4780,22 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
+			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT \
+			and (_hall_zooming or _hall_zoom_closing):
+		## A click that is not on the zoomed case only zooms out. The next click
+		## can leave the hall. This runs before door/map controls, including a
+		## neighbor room showing at the edge of the 2× frame.
+		var on_case := false
+		var tc = _trophy_cases.get(_hall_zoom_pool, null)
+		if tc is Control:
+			on_case = (tc as Control).get_global_rect().grow(12.0).has_point(get_global_mouse_position())
+		if not on_case:
+			_close_hall_zoom()
+			get_viewport().set_input_as_handled()
+			return
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
 			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_RIGHT \
-			and _hall_zooming:
+			and (_hall_zooming or _hall_zoom_closing):
 		_close_hall_zoom()
 		get_viewport().set_input_as_handled()
 		return
@@ -5240,6 +5293,8 @@ func _snap_to(room: String) -> void:
 
 
 func pan_to(room: String) -> void:
+	if _hall_zooming or _hall_zoom_closing:
+		_snap_hall_zoom_closed()
 	_sync_progress_doors()
 	if _pan_busy or not is_room_unlocked(room):
 		if not is_room_unlocked(room):
@@ -5597,6 +5652,9 @@ func _busy() -> bool:
 
 
 func _on_hotspot(node_name: String, room: String = "main") -> void:
+	if _hall_zooming or _hall_zoom_closing:
+		_close_hall_zoom()
+		return
 	if _arriving and _int_root.visible:
 		if node_name == "Hero":
 			_arrive_skip = maxi(_arrive_skip, 2)

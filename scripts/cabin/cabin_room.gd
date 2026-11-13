@@ -19,6 +19,7 @@ var bg: TextureRect
 var glow: TextureRect
 var _loaded_bg: bool = false
 var _bg_rel: String = ""
+var _flip_x: bool = false
 
 
 func setup(p_cabin, p_id: String, p_layout: Array, p_extra: Dictionary) -> void:
@@ -27,6 +28,7 @@ func setup(p_cabin, p_id: String, p_layout: Array, p_extra: Dictionary) -> void:
 	## Study + workshop sit on the LEFT of main after the cabin flip — H-flip art
 	## so doorways / ladder face the correct neighbor without new PNGs.
 	var flip_x: bool = p_id == "study" or p_id == "workshop"
+	_flip_x = flip_x
 	layout = _mirror_layout(p_layout) if flip_x else p_layout
 	extra = p_extra
 	custom_minimum_size = Vector2(KIT.ROOM_W, KIT.ROOM_H)
@@ -131,6 +133,11 @@ func _build_entries() -> void:
 			var sz: Array = entry.get("size", [1, 1])
 			var tr: TextureRect = KIT.tex_rect(rel, Vector2(float(origin[0]), float(origin[1])), Vector2(float(sz[0]), float(sz[1])), int(entry.get("z", 1)))
 			tr.name = node_name
+			## Glow plates were painted for the unflipped room. Position is
+			## already mirrored; the pixels have to flip too or the light sits
+			## on the wrong side of the portrait and the drawer.
+			if _flip_x and "glow" in node_name.to_lower():
+				tr.flip_h = true
 			add_child(tr)
 			spots[node_name] = tr
 			if vis != "":

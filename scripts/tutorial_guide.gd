@@ -74,6 +74,10 @@ var _typing: bool = false
 var _type_acc: float = 0.0
 var _body_lock_h: float = 48.0
 var _body_lock_key: String = ""
+var _note_teach: String = ""
+var _note_deny: String = ""
+var _desk_visuals: Dictionary = {}
+var _ack_frame: int = -1
 var _saved_step: int = -1
 var _on_trigger: bool = false
 const TYPE_CPS := 48.0
@@ -448,7 +452,7 @@ func _sync_talk_layer() -> void:
 	if _talk:
 		_talk.z_as_relative = false
 		_talk.z_index = z
-		_talk.mouse_filter = Control.MOUSE_FILTER_IGNORE if modal else Control.MOUSE_FILTER_STOP
+		_talk.mouse_filter = Control.MOUSE_FILTER_IGNORE if modal or _tip_passes_clicks() else Control.MOUSE_FILTER_STOP
 	if _skip:
 		_skip.z_as_relative = false
 		_skip.z_index = z + 1
@@ -458,19 +462,36 @@ func _sync_talk_layer() -> void:
 			_skip.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
+func _tip_passes_clicks() -> bool:
+	## Action beats (Take, Spin, an item): the parchment must not cover that control.
+	## Continue beats keep the click — that is the "click anywhere" acknowledge.
+	return not _wait_shows_next(wait)
+
+
 func _on_talk_gui(event: InputEvent) -> void:
 	## Click anywhere on the parchment while letters are still appearing:
 	## finish the line and show Next. That click does not advance.
+	## After the line is up, a continue beat treats the parchment click as Next.
+	if _tip_passes_clicks():
+		return
 	if not (event is InputEventMouseButton):
 		return
 	var mb := event as InputEventMouseButton
 	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
 		return
-	if not _typing:
+	var frame: int = Engine.get_process_frames()
+	if frame == _ack_frame:
 		return
-	_finish_type()
-	if _talk:
-		_talk.accept_event()
+	_ack_frame = frame
+	if _typing:
+		_finish_type()
+		if _talk:
+			_talk.accept_event()
+		return
+	if _wait_shows_next(wait):
+		continued.emit()
+		if _talk:
+			_talk.accept_event()
 
 
 func _notification(what: int) -> void:
@@ -525,6 +546,8 @@ func _apply_beat(b: Dictionary) -> void:
 	then_focus = str(b.get("then_focus", ""))
 	beat_id = str(b.get("beat", ""))
 	line_n = int(b.get("line", 0))
+	_note_teach = str(b.get("note_teach", ""))
+	_note_deny = str(b.get("note_deny", ""))
 	rig = str(b.get("rig", ""))
 	var allow_raw: Variant = b.get("allow", [])
 	allow = allow_raw if typeof(allow_raw) == TYPE_ARRAY else []
@@ -734,6 +757,30 @@ func _sync_next_slot() -> void:
 	_back.mouse_filter = Control.MOUSE_FILTER_STOP if back_show else Control.MOUSE_FILTER_IGNORE
 	_back.modulate = Color(1, 1, 1, 1) if back_show else Color(1, 1, 1, 0)
 	_back.z_index = 20
+	_apply_tip_tree_filter()
+
+
+func _apply_tip_tree_filter() -> void:
+	## The row under the parchment is PASS, so it still catches Take when the
+	## panel itself is IGNORE. Push IGNORE through the whole bubble on action beats.
+	if _talk == null:
+		return
+	var through: bool = _modal_covering() or _tip_passes_clicks()
+	_walk_tip_filter(_talk, through)
+
+
+func _walk_tip_filter(n: Node, through: bool) -> void:
+	if n is Control and n != _talk:
+		var ctl := n as Control
+		if ctl == _go or ctl == _back or ctl == _skip:
+			if through:
+				ctl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		elif through or ctl.gui_input.get_connections().is_empty():
+			ctl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		else:
+			ctl.mouse_filter = Control.MOUSE_FILTER_STOP
+	for c in n.get_children():
+		_walk_tip_filter(c, through)
 
 
 func _input(event: InputEvent) -> void:
@@ -759,16 +806,89 @@ func _input(event: InputEvent) -> void:
 
 func _paint_on_paper(spoken: String) -> String:
 	## Tutorial prose: keyword highlights only — never Mad-Libs chrome on "this one".
-	var bb: String = UxStyle.paint(spoken, true, "#7a2408", "", false, true)
-	bb = bb.replace("#E07A7A", "#8d1414")
-	bb = bb.replace("#E8A0A0", "#7a1212")
-	bb = bb.replace("#6BB3D9", "#0a456e")
-	bb = bb.replace("#C9A0FF", "#4e1c86")
-	bb = bb.replace("#E8C36A", "#6a3c00")
-	bb = bb.replace("#c45c26", "#7a2408")
-	bb = bb.replace("[color=", "[outline_size=6][outline_color=#100e0c][color=")
-	bb = bb.replace("[/color]", "[/color][/outline_color][/outline_size]")
-	return bb
+	## Only stems this beat is teaching. "always" in ordinary English stays plain.
+	var bb: String = UxStyle.paint(spoken, true, "#7a2408", "", false, true, true, _taught_keyword_ids(), _denied_keyword_ids(_note_deny))
+	return UxStyle.outline_loose_colors(bb)
+
+
+func _taught_keyword_ids() -> PackedStringArray:
+	var allow: Dictionary = {}
+	_add_focus_keywords(allow)
+	_add_short_keywords(_note_teach, allow)
+	_add_short_keywords(_visual_for_beat(beat_id), allow)
+	for denied in _denied_keyword_ids(_note_deny):
+		allow.erase(denied)
+	var out := PackedStringArray()
+	for id in allow.keys():
+		out.append(str(id))
+	return out
+
+
+func _add_focus_keywords(allow: Dictionary) -> void:
+	var fam := ""
+	match focus_tag:
+		"block", "block_done":
+			fam = "block"
+		"spin":
+			fam = "spin"
+		"atk":
+			fam = "attack"
+		"hp", "hp_math", "hearts":
+			fam = "hp"
+		_:
+			fam = ""
+	if fam != "":
+		allow[fam] = true
+
+
+func _add_short_keywords(blob: String, allow: Dictionary) -> void:
+	## Long stage directions ("it should always be fully visible") are not a lesson.
+	for line in blob.split("\n"):
+		var bit: String = line.strip_edges()
+		if bit == "":
+			continue
+		var low: String = bit.to_lower()
+		var scan: String = bit
+		var on_at: int = low.find(" on:")
+		if on_at >= 0:
+			scan = bit.substr(on_at + 4)
+		elif bit.split(" ").size() > 16:
+			continue
+		for raw_w in scan.replace(",", " ").replace(".", " ").replace(":", " ").split(" "):
+			var w: String = raw_w.strip_edges().trim_prefix("'").trim_suffix("'").trim_prefix("\"").trim_suffix("\"").to_lower()
+			var fam: String = UxStyle.keyword_family(w)
+			if fam != "":
+				allow[fam] = true
+
+
+func _denied_keyword_ids(blob: String) -> PackedStringArray:
+	var low: String = blob.to_lower()
+	var denies: bool = low.find("don't format") >= 0 or low.find("do not format") >= 0 or low.find("remove formatting") >= 0 or low.find("don't color") >= 0 or low.find("do not color") >= 0
+	if not denies:
+		return PackedStringArray()
+	var rx := RegEx.new()
+	if rx.compile("['\"]([A-Za-z]+)['\"]") != OK:
+		return PackedStringArray()
+	var out := PackedStringArray()
+	for m in rx.search_all(blob):
+		var fam: String = UxStyle.keyword_family(str(m.get_string(1)).to_lower())
+		if fam != "" and not out.has(fam):
+			out.append(fam)
+	return out
+
+
+func _visual_for_beat(id: String) -> String:
+	if id == "":
+		return ""
+	if _desk_visuals.is_empty():
+		_desk_visuals["_loaded"] = true
+		if FileAccess.file_exists("res://data/tutorial-desk.json"):
+			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/tutorial-desk.json"))
+			if typeof(parsed) == TYPE_DICTIONARY:
+				var beats: Variant = (parsed as Dictionary).get("beats", {})
+				if typeof(beats) == TYPE_DICTIONARY:
+					_desk_visuals = beats
+	return str(_desk_visuals.get(id, ""))
 
 
 func _branch_shows(br: String) -> bool:

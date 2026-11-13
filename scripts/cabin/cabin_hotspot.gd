@@ -25,6 +25,10 @@ var _hit: Control
 var _pressing: bool = false
 var _hovering: bool = false
 var _pulse: Tween
+## Gold hover frames are transparent in the middle. Swapping them in as the
+## only texture revealed the chained door/ladder painted on the room plate.
+var _rim: TextureRect
+var _frame_cache: Dictionary = {}
 
 
 func setup(entry: Dictionary, p_cabin, p_tag: String) -> void:
@@ -99,31 +103,73 @@ func set_locked(on: bool, p_locked_tex: Texture2D = null) -> void:
 
 func set_idle_tex(tex: Texture2D) -> void:
 	idle_tex = tex
-	if not _hovering and not _pressing:
-		texture = idle_tex
-		_place_idle()
+	_refresh_tex()
 
 
 func set_hover_tex(tex: Texture2D) -> void:
 	hover_tex = tex
-	if _hovering and not locked and not _pressing:
-		_refresh_tex()
+	_refresh_tex()
+
+
+func _ensure_rim() -> void:
+	if _rim != null:
+		return
+	_rim = TextureRect.new()
+	_rim.name = "HoverRim"
+	_rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_rim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_rim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_rim.stretch_mode = TextureRect.STRETCH_KEEP
+	_rim.visible = false
+	_rim.z_index = 1
+	add_child(_rim)
 
 
 func _refresh_tex() -> void:
+	_ensure_rim()
+	var plate: Texture2D = idle_tex
+	var over: Texture2D = null
 	if locked and locked_tex:
-		texture = locked_tex
-		_place_idle()
-		return
-	if _pressing and press_tex:
-		texture = press_tex
-		_place_hover()
+		plate = locked_tex
+	elif _pressing and press_tex:
+		over = press_tex
 	elif _hovering and hover_tex and not locked:
-		texture = hover_tex
-		_place_hover()
-	else:
-		texture = idle_tex
+		over = hover_tex
+	var as_frame := over != null and _is_clear_frame(over)
+	if as_frame:
+		texture = plate
 		_place_idle()
+		_rim.texture = over
+		_rim.flip_h = flip_h
+		_rim.visible = true
+		var rim_size := over.get_size()
+		_rim.size = rim_size
+		_rim.position = (size - rim_size) * 0.5
+		return
+	_rim.visible = false
+	if over:
+		texture = over
+		_place_hover()
+		return
+	texture = plate
+	_place_idle()
+
+
+func _is_clear_frame(tex: Texture2D) -> bool:
+	var key := tex.resource_path
+	if key == "":
+		key = str(tex.get_rid())
+	if _frame_cache.has(key):
+		return bool(_frame_cache[key])
+	var clear := false
+	var img := tex.get_image()
+	if img != null and not img.is_empty():
+		if img.is_compressed():
+			img.decompress()
+		var c := img.get_pixel(int(img.get_width() / 2), int(img.get_height() / 2))
+		clear = c.a < 0.08
+	_frame_cache[key] = clear
+	return clear
 
 
 func _on_enter() -> void:
@@ -148,8 +194,7 @@ func _on_gui(event: InputEvent) -> void:
 			_pressing = true
 			if not locked:
 				if press_tex:
-					texture = press_tex
-					_place_hover()
+					_refresh_tex()
 				elif hover_tex:
 					modulate = Color(0.85, 0.85, 0.85)
 			return

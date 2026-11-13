@@ -430,7 +430,7 @@ func _link_kws(t: String) -> String:
 		elif id == "unplayable":
 			shown_word = "Unplayable"
 		var hex: String = "#A8A29A" if id == "unplayable" else "#E8C36A"
-		var shown: String = "[url=kw:%s][color=%s][b]%s[/b][/color][/url]" % [id, hex, shown_word]
+		var shown: String = "[url=kw:%s]%s[/url]" % [id, UX.chip(shown_word, hex)]
 		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 
@@ -447,9 +447,9 @@ func _color_word(t: String, word: String, hex: String) -> String:
 		out += t.substr(i, at - i)
 		var shown: String = t.substr(at, needle.length())
 		if word == "ATK":
-			out += "[color=%s][b][img=18x18]res://assets/ui/icons/atk_burst_18.png[/img] %s[/b][/color]" % [hex, shown]
+			out += UX.outline_wrap(hex, "[color=%s][b][img=18x18]res://assets/ui/icons/atk_burst_18.png[/img] %s[/b][/color]" % [hex, shown])
 		else:
-			out += "[color=%s][b]%s[/b][/color]" % [hex, shown]
+			out += UX.chip(shown, hex)
 		i = at + needle.length()
 	return out
 

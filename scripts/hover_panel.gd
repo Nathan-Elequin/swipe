@@ -163,6 +163,7 @@ func show_rule(
 		custom_minimum_size = Vector2(340, 0)
 		reset_size()
 		size.x = 340
+		_release_plate_for_keywords()
 		return
 	var center_copy: bool = p_kind == "monster"
 	var drop: float = float(look.get("title_drop", 0.0))
@@ -343,6 +344,27 @@ func show_rule(
 		_append_kiss_lifelink(col)
 	visible = true
 	reset_size()
+	_release_plate_for_keywords()
+
+
+func _release_plate_for_keywords() -> void:
+	## IGNORE on the plate skips the ability sentence, so Flee / Swap never hover.
+	## PASS keeps the click falling through to Take while the keyword can still hover.
+	if accept_clicks:
+		return
+	if _subtree_has_kw_url(self):
+		mouse_filter = Control.MOUSE_FILTER_PASS
+
+
+func _subtree_has_kw_url(n: Node) -> bool:
+	if n is RichTextLabel and str((n as RichTextLabel).text).find("[url=kw:") >= 0:
+		return true
+	for c in n.get_children():
+		if c == _kw_tip:
+			continue
+		if _subtree_has_kw_url(c):
+			return true
+	return false
 
 
 ## Same heart and sword the wheel draws, with the number on the icon. Centered as a pair.
@@ -570,7 +592,7 @@ func _append_kiss_lifelink(col: VBoxContainer) -> void:
 	b.text = shown
 	b.custom_minimum_size = Vector2(308, 0)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_wire_kw(b)
 	col.add_child(b)
 	custom_minimum_size = Vector2(340, 0)
 

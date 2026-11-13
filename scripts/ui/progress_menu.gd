@@ -807,8 +807,28 @@ func _make_item_cell(id: String) -> Control:
 			_inspect_cell(id)
 			get_viewport().set_input_as_handled()
 	)
+	box.mouse_entered.connect(func() -> void:
+		_on_cell_hover(id)
+	)
+	box.mouse_exited.connect(func() -> void:
+		if is_instance_valid(box):
+			_refresh_cell_visual(box, id, false)
+	)
 	_refresh_cell_visual(box, id, false)
 	return box
+
+
+## Hover may reveal a unique just banked this return. It must not promote an
+## unseen / uncollected cell into the collected or seen look.
+func _on_cell_hover(id: String) -> void:
+	var sid := str(id)
+	var kind: String = JOURNEY.catalogue_cell_kind(sid, _seen, _swiped, _new_ids)
+	if kind == "new" and not bool(_revealed_new.get(sid, false)):
+		_land_new(sid, true)
+		return
+	var cell: Control = _cell_by_id.get(sid, null)
+	if cell != null:
+		_refresh_cell_visual(cell, sid, false)
 
 
 func _inspect_cell(id: String) -> void:
@@ -864,10 +884,15 @@ func _refresh_cell_visual(box: Control, id: String, animate_in: bool) -> void:
 		sb.border_color = Color("4a4034")
 		sb.set_border_width_all(2)
 	box.add_theme_stylebox_override("panel", sb)
+	## Unseen / not-yet-revealed stays the locked plate under the pointer and under focus.
+	## A cream focus ring read as "this one is collected".
+	var locked_look := (not collected) or (is_new and not revealed)
 	var focus_sb := sb.duplicate()
-	focus_sb.border_color = Color("f0e6d8")
-	focus_sb.set_border_width_all(3)
+	if not locked_look:
+		focus_sb.border_color = Color("f0e6d8")
+		focus_sb.set_border_width_all(3)
 	box.add_theme_stylebox_override("focus", focus_sb)
+	box.add_theme_stylebox_override("hover", sb.duplicate())
 	## Kill any in-flight arrival tween for this cell so settle never inherits mid-fade dim.
 	if _cell_tweens.has(id):
 		var old_tw: Tween = _cell_tweens[id]

@@ -32,6 +32,14 @@ func _initialize() -> void:
 		"fresh.b1.emits_start",
 		got_fresh.size() == 3 and int(got_fresh[0]) == 0 and bool(got_fresh[1]) == true and bool(got_fresh[2]) == false
 	) or failed
+	map.show_map(rules, fresh, _stub_monsters(), {})
+	failed = _check(failed, "fresh.start_banner", _has_start_banner(map)) or failed
+	var got_banner: Array = await _press_start_banner(map)
+	failed = _check(
+		failed,
+		"fresh.banner.emits_first",
+		got_banner.size() == 3 and int(got_banner[0]) == 0 and bool(got_banner[1]) == true and bool(got_banner[2]) == false
+	) or failed
 	failed = _check(failed, "fresh.b2.no_hit", (await _press_launch(map, "b2")).is_empty()) or failed
 
 	# --- D2 unlocked destination, still not startable (design C) ---
@@ -147,6 +155,33 @@ func _monster_count(map: Control, monster_id: String) -> int:
 		if child.name == want:
 			n += 1
 	return n
+
+
+func _has_start_banner(map: Control) -> bool:
+	var held := _held(map)
+	if held == null:
+		return false
+	var pins: Node = held.get_node_or_null("Sheet/Pins")
+	if pins == null:
+		return false
+	return pins.get_node_or_null("LaunchHit_start") != null
+
+
+func _press_start_banner(map: Control) -> Array:
+	var held := _held(map)
+	if held == null:
+		return []
+	held.set("_going", false)
+	if not _has_start_banner(map):
+		return []
+	var box: Dictionary = {"got": []}
+	var cb := func(i: int, shortcut: bool, end: bool) -> void:
+		box["got"] = [i, shortcut, end]
+	map.start_asked.connect(cb, CONNECT_ONE_SHOT)
+	await held._launch_first_available()
+	if map.start_asked.is_connected(cb):
+		map.start_asked.disconnect(cb)
+	return box["got"] as Array
 
 
 func _press_launch(map: Control, pool: String) -> Array:

@@ -66,6 +66,8 @@ var _slash_dirty: bool = false
 var _slash_wait: float = 0.0
 ## Crabwalk plays its cue after the portrait, not at snap-in.
 var _mute_snap_sfx: bool = false
+## Set when a spent item's banner must leave before the hold/fade finishes.
+var _drop_item_show: bool = false
 
 var _dim: ColorRect
 var _band_host: Node2D
@@ -134,14 +136,48 @@ func set_fast_holds(on: bool) -> void:
 	_ff_holds = on
 
 
+func _blank_banner() -> void:
+	visible = false
+	_life = 0.0
+	_tex = null
+	_title = ""
+	_call = ""
+	_line = ""
+	_is_item = false
+	card_id = ""
+	_cutin_active = false
+	_set_cutin_visible(false)
+	_frame_texs.clear()
+	queue_redraw()
+
+
 func abort_all() -> void:
 	_aborted = true
+	_drop_item_show = false
 	_q.clear()
 	_draining = false
 	if _tw != null and is_instance_valid(_tw):
 		_tw.kill()
 	_tw = null
-	visible = false
+	_blank_banner()
+
+
+## Drop a spent item's banner. A monster cut-in that is already playing stays.
+func cancel_item_vfx() -> void:
+	var kept: Array = []
+	for t in _q:
+		var payload: Variant = t.get("payload", {})
+		if typeof(payload) == TYPE_DICTIONARY and bool((payload as Dictionary).get("is_item", false)):
+			t["done"] = true
+			continue
+		kept.append(t)
+	_q = kept
+	if not _is_item:
+		return
+	_drop_item_show = true
+	if _tw != null and is_instance_valid(_tw) and _tw.is_valid():
+		_tw.kill()
+	_blank_banner()
 
 
 func play(payload: Dictionary) -> void:
@@ -248,17 +284,21 @@ func _show_item(fast: bool, release_early: bool = false, ticket: Dictionary = {}
 	# while the banner still holds/fades (use→resolve wall-clock).
 	_tw = create_tween()
 	_tw.tween_property(self, "_life", 1.0, snap).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
+	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted and not _drop_item_show:
 		await get_tree().process_frame
-	if _aborted:
+	if _aborted or _drop_item_show:
+		_drop_item_show = false
 		return
 	if release_early and not ticket.is_empty():
 		ticket["done"] = true
 	_tw = create_tween()
 	_tw.tween_interval(hold)
 	_tw.tween_property(self, "_life", 0.0, fade).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted:
+	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted and not _drop_item_show:
 		await get_tree().process_frame
+	if _drop_item_show:
+		_drop_item_show = false
+		return
 
 
 func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {}) -> void:

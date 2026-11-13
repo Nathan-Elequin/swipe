@@ -3782,9 +3782,31 @@ func _who_ring_from_preview(i: int) -> bool:
 	var mark: String = str(pv.get("mark", ""))
 	if mark == "spin" or mark == "log":
 		return false
-	if bool(pv.get("who", false)) or bool(pv.get("kill", false)) or bool(pv.get("aim", false)):
+	## Hover and click-to-pick both store mark=true on every legal living seat.
+	## A kill ghost is not required — Poison must ring Vampire as well as Hornet.
+	if mark == "true" or bool(pv.get("who", false)) or bool(pv.get("kill", false)) or bool(pv.get("aim", false)):
 		return true
 	return int(pv.get("hp", 0)) != 0
+
+
+## A seat left the wheel. Poison badge pops are stored by index, so shift them
+## with the survivors or the drip stays on the wrong monster.
+func shift_seat_fx(removed: int) -> void:
+	_poison_badge_scale = _shift_index_dict(_poison_badge_scale, removed)
+	_poison_clear_t = _shift_index_dict(_poison_clear_t, removed)
+	queue_redraw()
+
+
+func _shift_index_dict(src: Dictionary, removed: int) -> Dictionary:
+	var out: Dictionary = {}
+	for k in src.keys():
+		var i: int = int(k)
+		if i == removed:
+			continue
+		if i > removed:
+			i -= 1
+		out[i] = src[k]
+	return out
 
 
 func _who_ring_damsel_neighbor(i: int) -> bool:

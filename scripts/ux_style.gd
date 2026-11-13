@@ -307,7 +307,73 @@ static func chip(text: String, ink_hex: String) -> String:
 	if hex == "":
 		hex = "#E8C36A"
 	## Colored word on the same baseline. No box, no padding — those overflow the line.
-	return "[color=%s][b]%s[/b][/color]" % [hex, shown]
+	## Dark edge on light keyword ink (parchment and green). Cream edge on dark ink.
+	return outline_wrap(hex, "[color=%s][b]%s[/b][/color]" % [hex, shown])
+
+
+## 2px edge. Width matches design/visual tokens outline "call". Does not change the ink role.
+static func keyword_outline_for(hex: String) -> String:
+	var c := Color(hex if hex.begins_with("#") else "#E8C36A")
+	var luma: float = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+	if luma < 0.45:
+		return "#f4ede3"
+	return "#100e0c"
+
+
+static func outline_wrap(hex: String, inner: String) -> String:
+	var edge: String = keyword_outline_for(hex)
+	return "[outline_size=2][outline_color=%s]%s[/outline_color][/outline_size]" % [edge, inner]
+
+
+## Baked [color] tags (tutorial lines Jam already colored) get the same edge.
+## Skip text that chip() already outlined.
+static func outline_loose_colors(bb: String) -> String:
+	if bb.find("[color=") < 0 or bb.find("[outline_size") >= 0:
+		return bb
+	var rx := RegEx.new()
+	if rx.compile("\\[color=(#[0-9A-Fa-f]{3,8})\\]") != OK:
+		return bb
+	var hits: Array = rx.search_all(bb)
+	var out := bb
+	for i in range(hits.size() - 1, -1, -1):
+		var m: RegExMatch = hits[i]
+		var hex: String = m.get_string(1)
+		var open: String = "[outline_size=2][outline_color=%s][color=%s]" % [keyword_outline_for(hex), hex]
+		out = out.substr(0, m.get_start()) + open + out.substr(m.get_end())
+	return out.replace("[/color]", "[/color][/outline_color][/outline_size]")
+
+
+## Family id for tutorial allow-lists. Empty means not a keyword stem.
+static func keyword_family(low: String) -> String:
+	var piece: String = low.strip_edges().to_lower()
+	if piece == "":
+		return ""
+	var id: String = def_id_of(piece)
+	if id != "":
+		return id
+	if piece.begins_with("attack") or piece == "atk":
+		return "attack"
+	if piece.begins_with("block") or piece.begins_with("defend") or piece == "blk":
+		return "block"
+	if piece.begins_with("heal"):
+		return "heal"
+	if piece == "hp":
+		return "hp"
+	if piece == "keep":
+		return "keep"
+	if piece.begins_with("lose") or piece == "lost" or piece == "losing":
+		return "lose"
+	if piece == "facing":
+		return "facing"
+	if piece == "immediately":
+		return "immediately"
+	if piece.begins_with("thorn"):
+		return "thorn"
+	if piece.begins_with("bleed") or piece == "bled":
+		return "bleed"
+	if piece == "safe":
+		return "safe"
+	return ""
 
 
 static func def_id_of(piece: String) -> String:
@@ -669,7 +735,7 @@ static func legend_bb() -> String:
 	return "%s  %s  %s  %s" % [chip("Attack", ATK), chip("Block", BLK), chip("HP", HP), chip("Defeat", VAR)]
 
 
-static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false, prose: bool = false) -> String:
+static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false, prose: bool = false, keyword_limit: bool = false, keyword_ids: PackedStringArray = PackedStringArray(), keyword_deny: PackedStringArray = PackedStringArray()) -> String:
 	var t: String = raw.strip_edges()
 	if t == "" or t.find("[color") >= 0 or t.find("[bgcolor") >= 0:
 		return raw
@@ -790,6 +856,13 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		## Nib's lines: "lose" / "lost" stay plain. Keyword color is for the card, not this sentence.
 		if prose and (plow == "lose" or plow == "loses" or plow == "lost" or plow == "losing"):
 			continue
+		## Tutorial: lowercase English ("always") stays plain unless this beat teaches it.
+		## A capital keyword (Spin, Defeat, Keep) is the word Jam marked. Desk "don't format" wins.
+		if keyword_limit and not _token_has_digit(plow) and not _is_word_num(plow):
+			var fam: String = keyword_family(plow)
+			var marked: bool = piece != piece.to_lower()
+			if fam == "" or keyword_deny.has(fam) or not (keyword_ids.has(fam) or marked):
+				continue
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)

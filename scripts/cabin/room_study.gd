@@ -21,6 +21,14 @@ func _build_special() -> void:
 	add_child(drawer_glint)
 	drawer_glint.visible = false
 	drawer_glint.animation_finished.connect(_glint_wait)
+	## Portrait sits above the desk glow. Lift it so the top of the frame
+	## reads after the room flip; the sentence on the plate is unchanged.
+	var portrait = spots.get("PortraitBig", null)
+	if portrait is CanvasItem:
+		(portrait as CanvasItem).modulate = Color(1.55, 1.38, 1.12)
+	var drawer = spots.get("Drawer", null)
+	if drawer is CanvasItem:
+		(drawer as CanvasItem).modulate = Color(1.28, 1.18, 1.05)
 
 
 func _glint_wait() -> void:

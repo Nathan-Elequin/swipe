@@ -518,9 +518,12 @@ func _draw_take_side(press: Vector2) -> void:
 	var word_off: float = -total * 0.5 + text_w * 0.5
 	var burst_off: float = total * 0.5 - icon_w * 0.5
 	if font != null and word != "":
-		var ink := Color("6a1212") if mystery_take or take_n > 0 else Color("1c120c")
+		## Safe is dark-on-tan and disappears into the band and the green behind it.
+		## Cream letters, dark edge. Take keeps the red ink and gets a cream edge.
+		var ink := Color("6a1212") if mystery_take or take_n > 0 else Color("f7f1e4")
+		var edge := Color("f4ede3") if mystery_take or take_n > 0 else Color("100e0c")
 		var word_ang: float = mid_ang - word_off / r
-		_draw_arc_text(font, word, fs, word_ang, r, ink, Color("100e0c"))
+		_draw_arc_text(font, word, fs, word_ang, r, ink, edge)
 	if show_burst and burst_tex != null:
 		var burst_ang: float = mid_ang - burst_off / r
 		var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r

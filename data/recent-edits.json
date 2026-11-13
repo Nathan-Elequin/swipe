@@ -21,7 +21,7 @@
 		"item:echo_bell": 1792136735.68746,
 		"item:fangs": 1792282200.0,
 		"item:flying_saucer": 1793342400.0,
-		"item:grappling_hook": 1793411200.0,
+		"item:grappling_hook": 1794539638,
 		"item:grief_jar": 1794126874.6542,
 		"item:grimoire": 1792282200.0,
 		"item:healing_potion": 1794127312.60001,
@@ -78,7 +78,7 @@
 		"monster:bushido": 1793238694.0,
 		"monster:cleric": 1791944780.0,
 		"monster:clockwork_knight": 1793651427.0,
-		"monster:collector": 1794475653,
+		"monster:collector": 1794475653.0,
 		"monster:commander": 1792136735.68746,
 		"monster:cowardly_king": 1794500000.0,
 		"monster:cultist": 1792438800.0,
@@ -96,7 +96,7 @@
 		"monster:hired_hand": 1792400000.0,
 		"monster:hollow": 1792136735.68746,
 		"monster:huntsman": 1793940000.0,
-		"monster:hydra": 1794500000.0,
+		"monster:hydra": 1794530000.0,
 		"monster:imp": 1794005101.0,
 		"monster:juggernaut": 1792507200.0,
 		"monster:kobold_trapper": 1793418000.0,
@@ -135,5 +135,5 @@
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.34569,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-12T09:27:33"
+	"updated": "2026-11-13T03:13:58"
 }

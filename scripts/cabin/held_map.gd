@@ -63,6 +63,8 @@ const POOL_SLUG := {
 ## Spin COPY-FINALS map chrome (verbatim stubs until Jam keys land).
 const TIP_CLICK := "click to set off"
 const TIP_START := "START HERE"
+## Bright-red banner measured on map_in_hands_living.png (1680×1040).
+const START_BANNER := Rect2(805, 163, 280, 54)
 const TIP_ENDLESS_SEALED := "ENDLESS · SEALED"
 const TIP_ENDLESS_SEALED_SUB := "Opens when all five cabinets are full"
 const LABEL_UNMAPPED := "%s · unmapped"
@@ -289,6 +291,54 @@ func _rebuild() -> void:
 		var sealed_sub: String = KIT.copy_text("map.endless.sealed_sub")
 		if sealed_sub.strip_edges() != "" and not _plate_paints_names:
 			_add_name(ENDLESS_AT + Vector2(-110, 28), sealed_sub, false)
+	## Painted red "START HERE" banner (living plate). Not a dungeon stamp.
+	_add_start_banner()
+
+
+## Earliest biome the shell will actually start (Dungeon 1, then earned shortcuts).
+func _first_launchable_index() -> int:
+	var biomes: Array = SHELL.biomes_of(_rules)
+	for i in mini(5, biomes.size()):
+		if SHELL.can_start(_rules, _state, i):
+			return i
+	return -1
+
+
+## Same launch as the first playable stamp. The painted banner had no hit of its own.
+func _add_start_banner() -> void:
+	if _read_only or _pins == null:
+		return
+	var idx := _first_launchable_index()
+	if idx < 0:
+		return
+	var hit := _hit_button(START_BANNER)
+	hit.name = "LaunchHit_start"
+	hit.z_index = 8
+	hit.mouse_entered.connect(func() -> void:
+		_show_tip_at(START_BANNER.position + Vector2(START_BANNER.size.x * 0.5, -8), TIP_START)
+	)
+	hit.mouse_exited.connect(func() -> void:
+		_hide_tip()
+	)
+	hit.pressed.connect(func() -> void:
+		await _launch_first_available()
+	)
+	_pins.add_child(hit)
+
+
+func _launch_first_available() -> void:
+	var idx := _first_launchable_index()
+	if idx < 0 or _pins == null:
+		return
+	var biomes: Array = SHELL.biomes_of(_rules)
+	if idx >= biomes.size():
+		return
+	var pool := str((biomes[idx] as Dictionary).get("id", ""))
+	var seal := _pins.get_node_or_null("Stamp_%s" % pool) as WaxStamp
+	if seal != null:
+		await _start_from_stamp(seal, idx, false)
+		return
+	_start_from_pin(idx, true, false)
 
 
 func _add_start(spot: Vector2, biome_name: String, open: bool) -> void:
@@ -1006,37 +1056,10 @@ class MapMonster extends Control:
 		_body.position.y = _body_base_y + (-3.0 if _bob_on else 0.0)
 
 
-	func _on_hover(on: bool) -> void:
-		if _body == null:
-			return
-		_hovered = on
-		if _patrol:
-			if on:
-				_patrol.pause()
-			else:
-				_patrol.play()
-		if _lift:
-			_lift.kill()
-		_lift = create_tween()
-		_lift.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		_lift.set_trans(Tween.TRANS_QUAD)
-		_lift.set_ease(Tween.EASE_OUT)
-		if on:
-			_bob_on = false
-			_bob_acc = 0.0
-			_lift.tween_property(_body, "position:y", _body_base_y - 14.0, 0.12)
-			_lift.parallel().tween_property(_body, "scale", Vector2(0.85, 0.85), 0.12)
-			_shadow.size = SHADOW_HOVER
-			_shadow.position = Vector2((HIT.x - SHADOW_HOVER.x) * 0.5, HIT.y - 10.0)
-			_shadow.color.a = 0.45
-			_place_tag()
-			_tag.visible = true
-		else:
-			_lift.tween_property(_body, "position:y", _body_base_y, 0.10)
-			_lift.parallel().tween_property(_body, "scale", Vector2(0.75, 0.75), 0.10)
-			_shadow.size = SHADOW_IDLE
-			_shadow.position = Vector2((HIT.x - SHADOW_IDLE.x) * 0.5, HIT.y - 10.0)
-			_shadow.color.a = 0.32
+	func _on_hover(_on: bool) -> void:
+		## Next-run mill monsters are unfought. Do not lift them or open the
+		## name / HP / ability plaque — that read as collected / unlocked.
+		if _tag:
 			_tag.visible = false
 
 
