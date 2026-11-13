@@ -1,7 +1,7 @@
 extends Button
 ## H3-B2 cream Take arc under the wheel exterior.
 ## One click target for end-combat / Take net damage.
-## Split ~1/3 | divider | ~2/3. Left = Block pip only (blank when 0).
+## Split ~1/3 | divider | ~2/3. Left = Block shield (always, including 0).
 ## Right = locked player-copy Take / Safe + damage burst.
 ##
 ## Sweep is LEFT → RIGHT in screen space. Godot angles grow counterclockwise
@@ -9,25 +9,29 @@ extends Button
 ## Parameter t=0 is the visual left tip; t=1 is the visual right tip.
 ##
 ## Ends are square radial cuts (no oval disk caps).
-## Take word + burst follow the arc curvature (not flat horizontal).
-## Band hugs the Block pip and take-damage burst; icons scale to ICON_MAX.
+## Take word stays arced (per-glyph along the curve). Burst + Block icons sit at
+## their arc-mid centers upright at native 1× (no fractional scale).
 ## Outer ink + inner highlight bevel; short engraved ticks at the square corners.
-## Take letters use the same dark ink as Spin (no cream halo).
-## Burst gets a thick ink + gold rim so it reads on the cream band.
+## Take letters: dark ink fill, no dark outline, 1px cream letterpress.
+## Burst: crisp 2px Manhattan ink outline (no scaled ink/gold halos).
 
-const BODY_W := 53.0
-## Max native draw size for Block pip and take-damage burst (fits inside BODY_W).
-const ICON_MAX := 40.0
-## Extra scale for the ink silhouette behind the take-damage burst (wheel-rim weight).
-const BURST_INK_SCALE := 1.24
-## Gold ring just inside that silhouette, matching boss_wheel RING.
-const BURST_GOLD_SCALE := 1.12
-const BURST_GOLD := Color("c4a574")
+## Double burst is 56 tall; +2px clearance each side of the mid-band.
+const BODY_W := 60.0
+## Largest native icon edge we draw at 1× (double burst is 64×56).
+const ICON_MAX := 64.0
 ## Spin button ink / hover / press.
 const WORD_INK := Color("1c120c")
 const WORD_HOVER := Color("100e0c")
 const WORD_PRESS := Color("4a0808")
-const WORD_EDGE := Color("100e0c")
+## 1px letterpress under each arced glyph (radially outward in local +Y).
+const WORD_LETTERPRESS := Color("f0e6d0")
+const WORD_FS := 26
+## Match ItemFace.make_number (FONT_HOTBAR / OUTLINE / OUTLINE_SIZE).
+const NUM_FS := 22
+const NUM_OUTLINE := 4
+const NUM_FILL := Color("f0e6d8")
+const NUM_OUTLINE_COL := Color("100e0c")
+const BURST_INK := Color("100e0c")
 ## Extra outer radius on hover so the rim reads as a thicker / slightly larger band.
 const HOVER_GROW := 3.0
 ## Bevel stroke widths (px). Outer ink sits on the rim; highlight sits just inside.
@@ -40,8 +44,13 @@ const SPLIT_T := 0.34
 const SWEEP := 0.792
 ## Gap from gold rim to the inner edge of this arc.
 const RIM_GAP_DEFAULT := 10.0
-## Content sits on the band midline. Keep at 0 so scaled icons do not spill.
+## Content sits on the band midline. Keep at 0 so native icons do not spill.
 const CONTENT_OUTWARD := 0.0
+## Icons (burst + shield) draw upright; Take word stays arced.
+const ICONS_UPRIGHT := true
+## Same path as ItemFace.SHIELD — keep as a string so headless selftest can load
+## this script without relying on global class_name registration.
+const SHIELD_PATH := "res://assets/ui/icons/pips/pip_block_s24_2x.png"
 
 var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
@@ -176,16 +185,17 @@ func take_burst_global() -> Vector2:
 	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
 	var text_w := 0.0
 	if font != null and take_word != "":
-		text_w = font.get_string_size(take_word, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x
+		text_w = font.get_string_size(take_word, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_FS).x
 	var icon_w := 0.0
 	if show_burst and burst_tex != null:
-		icon_w = _fitted_icon_size(burst_tex).x
+		icon_w = _icon_draw_size(burst_tex).x
 	var total: float = text_w + (6.0 + icon_w if icon_w > 0.0 else 0.0)
 	var burst_off: float = total * 0.5 - icon_w * 0.5
 	var burst_ang: float = mid_ang - burst_off / r
 	if icon_w <= 0.0:
 		burst_ang = mid_ang
 	var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
+	bp = Vector2(floor(bp.x), floor(bp.y))
 	return get_global_transform() * bp
 
 
@@ -193,8 +203,23 @@ func block_pip_global() -> Vector2:
 	var span: Vector2 = _arc_span()
 	var ang: float = span.x + span.y * (SPLIT_T * 0.5)
 	var mid: Vector2 = guide_c + Vector2.from_angle(ang) * _content_radius()
+	mid = Vector2(floor(mid.x), floor(mid.y))
 	var xf: Transform2D = get_global_transform()
 	return xf * mid
+
+
+## Block shield draws every combat frame, including block_n == 0.
+func should_draw_block() -> bool:
+	return _block_texture() != null
+
+
+## Always 1.0 — icons draw at native size, never a fractional resample.
+func icon_draw_scale(_tex: Texture2D) -> float:
+	return 1.0
+
+
+func icons_upright() -> bool:
+	return ICONS_UPRIGHT
 
 
 func arc_global_rect() -> Rect2:
@@ -273,15 +298,24 @@ func _band_outline() -> PackedVector2Array:
 	return pts
 
 
-func _fitted_icon_size(tex: Texture2D) -> Vector2:
+## Native 1× size. Never scale by a fraction (ICON_MAX is a fit guard only).
+func _icon_draw_size(tex: Texture2D) -> Vector2:
 	if tex == null:
 		return Vector2.ZERO
-	var sz := Vector2(float(tex.get_width()), float(tex.get_height()))
-	var longest: float = maxf(sz.x, sz.y)
-	if longest <= 0.001:
-		return sz
-	var s: float = minf(1.0, ICON_MAX / longest)
-	return sz * s
+	return Vector2(float(tex.get_width()), float(tex.get_height()))
+
+
+func _fitted_icon_size(tex: Texture2D) -> Vector2:
+	## Kept name for callers; always native 1× now.
+	return _icon_draw_size(tex)
+
+
+func _block_texture() -> Texture2D:
+	if block_tex != null:
+		return block_tex
+	if ResourceLoader.exists(SHIELD_PATH):
+		return load(SHIELD_PATH) as Texture2D
+	return null
 
 
 func _palette(live: bool, hot: bool) -> Dictionary:
@@ -342,8 +376,8 @@ func _draw() -> void:
 	_draw_bevel(pal, press, grow)
 	_draw_corner_ticks(pal, press, grow)
 	_draw_divider(pal, press, grow)
-	if block_n > 0:
-		_draw_block_pip(press)
+	## Always-on Block shield (item-card pip), including at 0.
+	_draw_block_pip(press)
 	_draw_take_side(press)
 
 
@@ -474,7 +508,9 @@ func _draw_divider(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	draw_line(a - toward_take * 1.2, b - toward_take * 1.2, pal["lip"], 1.0, aa)
 
 
-func _draw_arc_text(font: Font, txt: String, fs: int, center_ang: float, r: float, fill: Color, outline: Color) -> void:
+## Per-glyph along the arc. No dark outline (fill is already dark ink).
+## Letterpress: same glyph in WORD_LETTERPRESS at +1px local Y (radially out).
+func _draw_arc_text(font: Font, txt: String, fs: int, center_ang: float, r: float, fill: Color, letterpress: Color) -> void:
 	if font == null or txt == "":
 		return
 	var advances: PackedFloat32Array = PackedFloat32Array()
@@ -491,14 +527,12 @@ func _draw_arc_text(font: Font, txt: String, fs: int, center_ang: float, r: floa
 		var w: float = advances[i]
 		var a: float = center_ang - (s + w * 0.5) / r
 		var p: Vector2 = guide_c + Vector2.from_angle(a) * r
+		p = Vector2(floor(p.x), floor(p.y))
 		draw_set_transform(p, a - PI * 0.5, Vector2.ONE)
 		var ch: String = txt.substr(i, 1)
-		var local := Vector2(-w * 0.5, float(fs) * 0.32)
-		for ox in range(-2, 3):
-			for oy in range(-2, 3):
-				if ox == 0 and oy == 0:
-					continue
-				draw_char(font, local + Vector2(ox, oy), ch, fs, outline)
+		var local := Vector2(floor(-w * 0.5), floor(float(fs) * 0.32))
+		## Cream letterpress first, 1px radially outward (local +Y after arc rotate).
+		draw_char(font, local + Vector2(0, 1), ch, fs, letterpress)
 		draw_char(font, local, ch, fs, fill)
 		s += w
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -510,35 +544,24 @@ func _content_radius() -> float:
 
 
 func _draw_block_pip(press: Vector2) -> void:
-	## Center of the left third (t = SPLIT_T * 0.5), rotated to the arc.
+	## Center of the left third (t = SPLIT_T * 0.5). Upright ItemFace.SHIELD at 1×.
+	var tex: Texture2D = _block_texture()
+	if tex == null:
+		return
 	var span: Vector2 = _arc_span()
 	var t_mid: float = SPLIT_T * 0.5
 	var ang: float = span.x + span.y * t_mid
 	var rad: float = _content_radius()
 	var at: Vector2 = guide_c + Vector2.from_angle(ang) * rad + press
-	var tex: Texture2D = block_tex
-	if tex == null:
-		return
-	var sz: Vector2 = _fitted_icon_size(tex)
-	draw_set_transform(at, ang - PI * 0.5, Vector2.ONE)
-	draw_texture_rect(tex, Rect2(-sz * 0.5, sz), false)
+	at = Vector2(floor(at.x), floor(at.y))
+	var sz: Vector2 = _icon_draw_size(tex)
+	var origin := Vector2(floor(-sz.x * 0.5), floor(-sz.y * 0.5))
+	## Shield already has its own outline — no extra rim, no tint at 0.
+	draw_texture_rect(tex, Rect2(at + origin, sz), false)
 	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
 	if font == null:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
-	var txt: String = str(block_n)
-	var fs := 18
-	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p: Vector2 = Vector2(-tsz.x * 0.5, fs * 0.36)
-	var ink := Color("100e0c")
-	var col := Color("f0e6d8")
-	for ox in range(-2, 3):
-		for oy in range(-2, 3):
-			if ox == 0 and oy == 0:
-				continue
-			draw_string(font, p + Vector2(ox, oy), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
-	draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_pip_num(font, at, str(block_n))
 
 
 func _draw_take_side(press: Vector2) -> void:
@@ -552,7 +575,7 @@ func _draw_take_side(press: Vector2) -> void:
 	var font: Font = word_font if word_font != null else ThemeDB.fallback_font
 	if font == null:
 		font = ThemeDB.fallback_font
-	var fs := 24
+	var fs: int = WORD_FS
 	var word: String = take_word
 	var text_w := 0.0
 	if font != null and word != "":
@@ -560,7 +583,7 @@ func _draw_take_side(press: Vector2) -> void:
 	var icon_w := 0.0
 	var icon_h := 0.0
 	if show_burst and burst_tex != null:
-		var isz: Vector2 = _fitted_icon_size(burst_tex)
+		var isz: Vector2 = _icon_draw_size(burst_tex)
 		icon_w = isz.x
 		icon_h = isz.y
 	var gap := 6.0
@@ -569,51 +592,54 @@ func _draw_take_side(press: Vector2) -> void:
 	var word_off: float = -total * 0.5 + text_w * 0.5
 	var burst_off: float = total * 0.5 - icon_w * 0.5
 	if font != null and word != "":
-		## Same dark ink as Spin on the beige pill — cream halo made Take unreadable.
-		var ink := WORD_PRESS if _down else (WORD_HOVER if is_hovered() and not disabled else WORD_INK)
+		var ink: Color
+		var press_hi: Color = WORD_LETTERPRESS
+		if disabled:
+			ink = Color("4a4640")
+			press_hi = Color("9a9286")
+		elif _down:
+			ink = WORD_PRESS
+		elif is_hovered():
+			ink = WORD_HOVER
+		else:
+			ink = WORD_INK
 		var word_ang: float = mid_ang - word_off / r
-		_draw_arc_text(font, word, fs, word_ang, r, ink, WORD_EDGE)
+		_draw_arc_text(font, word, fs, word_ang, r, ink, press_hi)
 	if show_burst and burst_tex != null:
 		var burst_ang: float = mid_ang - burst_off / r
 		var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
-		draw_set_transform(bp, burst_ang - PI * 0.5, Vector2.ONE)
-		_draw_burst_rim(Vector2(icon_w, icon_h))
-		draw_texture_rect(burst_tex, Rect2(Vector2(-icon_w * 0.5, -icon_h * 0.5), Vector2(icon_w, icon_h)), false)
-		_draw_hit_num(font, Vector2.ZERO, "?" if mystery_take else str(take_n))
+		bp = Vector2(floor(bp.x), floor(bp.y))
+		var origin := Vector2(floor(-icon_w * 0.5), floor(-icon_h * 0.5))
+		## Upright at native 1×; crisp 2px Manhattan ink outline, no gold/halo.
+		_draw_burst_ink_outline(burst_tex, bp + origin, Vector2(icon_w, icon_h))
+		draw_texture_rect(burst_tex, Rect2(bp + origin, Vector2(icon_w, icon_h)), false)
+		_draw_pip_num(font, bp, "?" if mystery_take else str(take_n))
 		if burst_pip != "" and font != null:
 			var pip_fs := 13
-			var origin := Vector2(-icon_w * 0.5, -icon_h * 0.5)
-			draw_string(font, origin + Vector2(icon_w - 2.0, 12.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("100e0c"))
-			draw_string(font, origin + Vector2(icon_w, 10.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("f0e6d8"))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			draw_string(font, bp + origin + Vector2(icon_w - 2.0, 12.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, NUM_OUTLINE_COL)
+			draw_string(font, bp + origin + Vector2(icon_w, 10.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, NUM_FILL)
 	guide_c = saved_c
 
 
-func _draw_burst_rim(icon_sz: Vector2) -> void:
-	## Ink silhouette + gold ring so the jagged 1px burst edge reads on cream.
-	if burst_tex == null:
+## Crisp 2px pixel outline: solid ink copies at integer (dx, dy) with |dx|+|dy| ≤ 2.
+func _draw_burst_ink_outline(tex: Texture2D, top_left: Vector2, sz: Vector2) -> void:
+	if tex == null:
 		return
-	var ink_sz: Vector2 = icon_sz * BURST_INK_SCALE
-	draw_texture_rect(burst_tex, Rect2(-ink_sz * 0.5, ink_sz), false, Color("100e0c"))
-	var gold_sz: Vector2 = icon_sz * BURST_GOLD_SCALE
-	draw_texture_rect(burst_tex, Rect2(-gold_sz * 0.5, gold_sz), false, BURST_GOLD)
-	var rr: float = maxf(icon_sz.x, icon_sz.y) * 0.48
-	var aa: bool = not OS.has_feature("web")
-	draw_arc(Vector2.ZERO, rr, 0.0, TAU, 28, Color("100e0c"), 3.5, aa)
-	draw_arc(Vector2.ZERO, rr - 1.4, 0.0, TAU, 28, BURST_GOLD, 2.2, aa)
+	for dx in range(-2, 3):
+		for dy in range(-2, 3):
+			if dx == 0 and dy == 0:
+				continue
+			if absi(dx) + absi(dy) > 2:
+				continue
+			draw_texture_rect(tex, Rect2(top_left + Vector2(dx, dy), sz), false, BURST_INK)
 
 
-func _draw_hit_num(font: Font, pos: Vector2, txt: String) -> void:
+## Numbers match ItemFace.make_number: outline size 4 in #100e0c, fill #f0e6d8 at 22.
+func _draw_pip_num(font: Font, center: Vector2, txt: String) -> void:
 	if font == null or txt == "":
 		return
-	var fs := 18
-	var tsz := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var p := pos + Vector2(-tsz.x * 0.5, fs * 0.36)
-	var ink := Color("100e0c")
-	var col := Color("f0e6d8")
-	for ox in [-2, 0, 2]:
-		for oy in [-2, 0, 2]:
-			if ox == 0 and oy == 0:
-				continue
-			draw_string(font, p + Vector2(ox, oy), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
-	draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+	var fs: int = NUM_FS
+	var tsz: Vector2 = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var p := Vector2(floor(center.x - tsz.x * 0.5), floor(center.y + float(fs) * 0.36))
+	draw_string_outline(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, NUM_OUTLINE, NUM_OUTLINE_COL)
+	draw_string(font, p, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, NUM_FILL)
