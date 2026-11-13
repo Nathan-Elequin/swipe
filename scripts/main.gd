@@ -12187,6 +12187,7 @@ func _gain_marked_poison_flask(dose: int) -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
+	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -12207,6 +12208,7 @@ func _gain_token_item(id: String) -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
+	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -14728,6 +14730,7 @@ func _force_gain_rust() -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
+	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -16235,6 +16238,10 @@ func _try_gain_item(id: String) -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
+	if not _qa_busy():
+		await _await_hotbar_layout()
+		_begin_hotbar_insert_slide(_hotbar_gain_index(it), 0.34)
+		await _await_hotbar_insert_slide()
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -28259,6 +28266,7 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: b
 		return
 	if move_box != null:
 		move_box.visible = true
+	var fresh: bool = not take_arc.visible
 	take_arc.visible = true
 	take_arc.disabled = busy or (btn_done != null and btn_done.disabled)
 	var word: String
@@ -28288,6 +28296,8 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: b
 		font = ThemeDB.fallback_font
 	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font, mystery)
 	_place_take_arc()
+	if fresh and take_arc.has_method("play_pop"):
+		take_arc.play_pop()
 	_sync_huntsman_threat_link()
 	## Re-place arrows after the arc is visible so pad snaps to the arc top.
 	if btn_move_left != null and btn_move_left.visible:
@@ -28319,11 +28329,15 @@ func _place_take_arc() -> void:
 		take_arc.position = local_pos
 		take_arc.size = gr.size
 		take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
+	if take_arc.has_method("sync_pop_pivot"):
+		take_arc.sync_pop_pivot()
 	_clear_undo_under_take_arc()
 
 
 func _hide_take_arc() -> void:
 	if take_arc != null and is_instance_valid(take_arc):
+		if take_arc.has_method("reset_pop"):
+			take_arc.reset_pop()
 		take_arc.visible = false
 	_clear_huntsman_threat_link()
 	_clear_undo_under_take_arc()

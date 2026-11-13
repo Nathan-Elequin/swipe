@@ -16,6 +16,8 @@ func _init() -> void:
 	failed = _check("bevel_ink", TAKE.BEVEL_INK >= 2.0 and TAKE.BEVEL_HI >= 1.0) or failed
 	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
 	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 0.0 and TAKE.CONTENT_OUTWARD <= 2.0) or failed
+	failed = _check("burst_ink_scale", TAKE.BURST_INK_SCALE > 1.0 and TAKE.BURST_INK_SCALE <= 1.3) or failed
+	failed = _check("word_ink_dark", TAKE.WORD_INK.r < 0.2) or failed
 	failed = _check("b2_pad_lt_pre", UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
 	failed = _check("b2_pad_clears_flare", UX.move_arrow_b2_pad() >= ARROW.BODY_W * 0.78 + 6.0) or failed
 	failed = _check("b2_start_past_arc", UX.move_arrow_b2_start_offset() > TAKE.SWEEP * 0.5) or failed
@@ -24,6 +26,8 @@ func _init() -> void:
 	root.add_child(arc)
 	arc.set_guide(Vector2(400, 300), 200.0, TAKE.RIM_GAP_DEFAULT)
 	arc.set_combat(4, 2, "Take", null, "", null, ThemeDB.fallback_font)
+	failed = _check("has_play_pop", arc.has_method("play_pop")) or failed
+	failed = _check("has_burst_rim", arc.has_method("_draw_burst_rim")) or failed
 
 	var span: Vector2 = arc._arc_span()
 	failed = _check("span_sweeps_rightward", span.y < 0.0) or failed

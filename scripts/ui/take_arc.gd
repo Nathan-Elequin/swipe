@@ -12,10 +12,22 @@ extends Button
 ## Take word + burst follow the arc curvature (not flat horizontal).
 ## Band hugs the Block pip and take-damage burst; icons scale to ICON_MAX.
 ## Outer ink + inner highlight bevel; short engraved ticks at the square corners.
+## Take letters use the same dark ink as Spin (no cream halo).
+## Burst gets a thick ink + gold rim so it reads on the cream band.
 
 const BODY_W := 53.0
 ## Max native draw size for Block pip and take-damage burst (fits inside BODY_W).
 const ICON_MAX := 40.0
+## Extra scale for the ink silhouette behind the take-damage burst (wheel-rim weight).
+const BURST_INK_SCALE := 1.24
+## Gold ring just inside that silhouette, matching boss_wheel RING.
+const BURST_GOLD_SCALE := 1.12
+const BURST_GOLD := Color("c4a574")
+## Spin button ink / hover / press.
+const WORD_INK := Color("1c120c")
+const WORD_HOVER := Color("100e0c")
+const WORD_PRESS := Color("4a0808")
+const WORD_EDGE := Color("100e0c")
 ## Extra outer radius on hover so the rim reads as a thicker / slightly larger band.
 const HOVER_GROW := 3.0
 ## Bevel stroke widths (px). Outer ink sits on the rim; highlight sits just inside.
@@ -45,6 +57,8 @@ var block_tex: Texture2D
 var word_font: Font
 var mystery_take: bool = false
 var _down: bool = false
+var _pop_tw: Tween
+var _pop_armed: bool = false
 
 
 func _ready() -> void:
@@ -78,6 +92,43 @@ func set_guide(c_local: Vector2, radius: float, gap: float = -1.0) -> void:
 	if gap >= 0.0:
 		rim_gap = gap
 	queue_redraw()
+
+
+## Visual center of the cream band (for the land pop).
+func band_center_local() -> Vector2:
+	return _chord_point(0.5)
+
+
+func sync_pop_pivot() -> void:
+	pivot_offset = band_center_local()
+
+
+func reset_pop() -> void:
+	if _pop_tw != null and is_instance_valid(_pop_tw):
+		_pop_tw.kill()
+	_pop_tw = null
+	_pop_armed = false
+	scale = Vector2.ONE
+	self_modulate = Color.WHITE
+	sync_pop_pivot()
+
+
+## Bubble pop after Spin (or any hide→show). TRANS_BACK overshoots like a drop landing.
+func play_pop() -> void:
+	if not is_inside_tree():
+		return
+	if _pop_tw != null and is_instance_valid(_pop_tw):
+		_pop_tw.kill()
+	sync_pop_pivot()
+	_pop_armed = true
+	scale = Vector2(0.62, 0.62)
+	self_modulate = Color(1, 1, 1, 0)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_BOUND)
+	tw.set_parallel(true)
+	tw.tween_property(self, "self_modulate:a", 1.0, 0.10).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "scale", Vector2.ONE, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.04)
+	_pop_tw = tw
 
 
 func set_combat(block_amt: int, net_take: int, word: String, burst: Texture2D, pip: String, blk_tex: Texture2D, font: Font, mystery: bool = false) -> void:
@@ -518,16 +569,15 @@ func _draw_take_side(press: Vector2) -> void:
 	var word_off: float = -total * 0.5 + text_w * 0.5
 	var burst_off: float = total * 0.5 - icon_w * 0.5
 	if font != null and word != "":
-		## Safe is dark-on-tan and disappears into the band and the green behind it.
-		## Cream letters, dark edge. Take keeps the red ink and gets a cream edge.
-		var ink := Color("6a1212") if mystery_take or take_n > 0 else Color("f7f1e4")
-		var edge := Color("f4ede3") if mystery_take or take_n > 0 else Color("100e0c")
+		## Same dark ink as Spin on the beige pill — cream halo made Take unreadable.
+		var ink := WORD_PRESS if _down else (WORD_HOVER if is_hovered() and not disabled else WORD_INK)
 		var word_ang: float = mid_ang - word_off / r
-		_draw_arc_text(font, word, fs, word_ang, r, ink, edge)
+		_draw_arc_text(font, word, fs, word_ang, r, ink, WORD_EDGE)
 	if show_burst and burst_tex != null:
 		var burst_ang: float = mid_ang - burst_off / r
 		var bp: Vector2 = guide_c + Vector2.from_angle(burst_ang) * r
 		draw_set_transform(bp, burst_ang - PI * 0.5, Vector2.ONE)
+		_draw_burst_rim(Vector2(icon_w, icon_h))
 		draw_texture_rect(burst_tex, Rect2(Vector2(-icon_w * 0.5, -icon_h * 0.5), Vector2(icon_w, icon_h)), false)
 		_draw_hit_num(font, Vector2.ZERO, "?" if mystery_take else str(take_n))
 		if burst_pip != "" and font != null:
@@ -537,6 +587,20 @@ func _draw_take_side(press: Vector2) -> void:
 			draw_string(font, origin + Vector2(icon_w, 10.0), burst_pip, HORIZONTAL_ALIGNMENT_LEFT, -1, pip_fs, Color("f0e6d8"))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	guide_c = saved_c
+
+
+func _draw_burst_rim(icon_sz: Vector2) -> void:
+	## Ink silhouette + gold ring so the jagged 1px burst edge reads on cream.
+	if burst_tex == null:
+		return
+	var ink_sz: Vector2 = icon_sz * BURST_INK_SCALE
+	draw_texture_rect(burst_tex, Rect2(-ink_sz * 0.5, ink_sz), false, Color("100e0c"))
+	var gold_sz: Vector2 = icon_sz * BURST_GOLD_SCALE
+	draw_texture_rect(burst_tex, Rect2(-gold_sz * 0.5, gold_sz), false, BURST_GOLD)
+	var rr: float = maxf(icon_sz.x, icon_sz.y) * 0.48
+	var aa: bool = not OS.has_feature("web")
+	draw_arc(Vector2.ZERO, rr, 0.0, TAU, 28, Color("100e0c"), 3.5, aa)
+	draw_arc(Vector2.ZERO, rr - 1.4, 0.0, TAU, 28, BURST_GOLD, 2.2, aa)
 
 
 func _draw_hit_num(font: Font, pos: Vector2, txt: String) -> void:
