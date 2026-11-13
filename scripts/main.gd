@@ -827,6 +827,8 @@ var _phantom_skip_dark_matter: bool = false
 var _phantom_hold_enter: bool = false
 ## True while the shuffle animation covers every seat.
 var _phantom_veil_all: bool = false
+## After the enter veil, skip uncover cues for seats that were only visually hidden.
+var _shroud_sfx_after_veil: bool = false
 ## Top of the Dungeon Deck is covered while a Phantom is active.
 var _phantom_deck_cover: bool = false
 ## Set when this click peeled a Shroud. The reveal is random, so Undo cannot put the veil back.
@@ -9629,6 +9631,8 @@ func _on_done() -> void:
 
 
 func _begin_slay(banner: String = "slay") -> void:
+	if facing_index >= 0 and facing_index < wheel.size():
+		await _shroud_reveal_before_defeat(facing_index)
 	if _defer_slay > 0:
 		return
 	_spin_inflight = false
@@ -11313,7 +11317,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_toss_item(int(it["uid"]), false)
 				return
 			_log("on_item_use", str(it["name"]))
-			_log("atk", last_atk_line if last_atk_line != "" else "%s  →  %s HP %s" % [n4, wheel[opp].get("name", "?"), wheel[opp].get("hp", 0)])
+			if last_atk_line != "":
+				_log("atk", last_atk_line)
 			it["spent"] = true
 			await _count_item_use()
 			_toss_item(int(it["uid"]), false)
@@ -11489,7 +11494,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			var qid: String = str(m.get("card_id", ""))
 			# Kiss already replaced the printed ability with Lifelink. The bell can still turn that off.
 			var kiss_live: bool = bool(m.get("kiss_lifelink", false))
-			if _is_quiet_belled(m) or (not _has_unique_ability(qid) and not kiss_live):
+			if _monster_shrouded(m) or _is_quiet_belled(m) or (not _has_unique_ability(qid) and not kiss_live):
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
@@ -11579,6 +11584,8 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					sfx.play("error", -10.0)
 					sfx.play("metal_latch", -14.0)
 				return
+			await _shroud_reveal_before_defeat(facing_index)
+			m = wheel[facing_index]
 			var stored: int = int(m.get("hp", 0))
 			_log("on_item_use", str(it["name"]))
 			if _undying(m):
@@ -11612,7 +11619,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_maybe_auto_spin()
 			return
 		"defeat_hp":
-			if _defeat_blocked(m):
+			if _monster_shrouded(m) or _defeat_blocked(m):
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
@@ -11673,7 +11680,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			await _use_bag_hold(it)
 			return
 		"defeat_atk":
-			if _defeat_blocked(m):
+			if _monster_shrouded(m) or _defeat_blocked(m):
 				_log("on_item_use", "cannot")
 				if sfx:
 					sfx.play("error", -10.0)
@@ -12647,7 +12654,7 @@ func _use_orb(it: Dictionary) -> void:
 			sfx.play("error", -10.0)
 		return
 	var m: Dictionary = wheel[facing_index]
-	if _defeat_blocked(m) or _incoming_hit() > 0:
+	if _monster_shrouded(m) or _defeat_blocked(m) or _incoming_hit() > 0:
 		_log("on_item_use", "cannot")
 		if sfx:
 			sfx.play("error", -10.0)
@@ -12698,7 +12705,7 @@ func _use_bag_hold(it: Dictionary) -> void:
 			sfx.play("error", -10.0)
 		return
 	var m: Dictionary = wheel[facing_index]
-	if str(m.get("kind", "")) != "monster":
+	if str(m.get("kind", "")) != "monster" or _monster_shrouded(m):
 		_log("on_item_use", "cannot")
 		if sfx:
 			sfx.play("error", -10.0)
@@ -13162,14 +13169,19 @@ func _love_has_hp_match(index: int) -> bool:
 		return false
 	if int(wheel[index].get("hp", 0)) <= 0:
 		return false
+	if _monster_shrouded(wheel[index]):
+		return false
 	var need: int = int(wheel[index].get("hp", 0))
 	for j in range(wheel.size()):
 		if j == index:
 			continue
 		if str(wheel[j].get("kind", "")) != "monster":
 			continue
-		if int(wheel[j].get("hp", 0)) == need:
-			return true
+		if int(wheel[j].get("hp", 0)) != need:
+			continue
+		if _monster_shrouded(wheel[j]):
+			continue
+		return true
 	return false
 
 
@@ -13502,8 +13514,8 @@ func _chip_hp(index: int, n: int) -> bool:
 	var drop: int = _anvil_floor(m, n)
 	var before: int = int(m.get("hp", 0))
 	if before - drop <= 0 and _monster_shrouded(m):
-		_shroud_mark_seen(index)
-		_phantom_paint_covers()
+		await _shroud_reveal_before_defeat(index)
+		m = wheel[index]
 	_stamp_flee_before(m, drop)
 	m["hp_pre_hit"] = before
 	if _undying(m):
@@ -13712,6 +13724,8 @@ func _miasma_min_hp() -> int:
 		if str(s.get("card_id", "")).strip_edges() == "":
 			continue
 		if str(s.get("kind", "monster")) == "item":
+			continue
+		if _monster_shrouded(s):
 			continue
 		var h: int = int(s.get("hp", 0))
 		if h <= 0:
@@ -15303,6 +15317,7 @@ func _maybe_slay_down(index: int) -> void:
 		return
 	if int(wheel[index].get("hp", 0)) > 0:
 		return
+	await _shroud_reveal_before_defeat(index)
 	if _wick_waiting(index):
 		return
 	if await _try_commander_flee(index):
@@ -15729,6 +15744,8 @@ func _directed_neighbor_atk(ccw: bool) -> int:
 	var off: int = n - 1 if ccw else 1
 	var j: int = (facing_index + off) % n
 	if str(wheel[j].get("kind", "")) != "monster":
+		return -1
+	if _monster_shrouded(wheel[j]):
 		return -1
 	return int(wheel[j].get("atk", 0))
 
@@ -16704,6 +16721,7 @@ func _apply_polymorph(index: int, it: Dictionary) -> void:
 func _apply_catapult() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
+	await _shroud_reveal_before_defeat(facing_index)
 	var s: Dictionary = wheel[facing_index]
 	var hole: int = facing_index
 	var ejected := {
@@ -17227,6 +17245,8 @@ func _tesla_can_play() -> bool:
 		return false
 	var m: Dictionary = wheel[across]
 	if str(m.get("kind", "")) != "monster" or int(m.get("hp", 0)) <= 0:
+		return false
+	if _monster_shrouded(m):
 		return false
 	if _defeat_blocked(m):
 		return false
@@ -19815,8 +19835,16 @@ func _armed_magnet_mode() -> String:
 func _magnet_pick(pool: Array[int], want_high: bool) -> int:
 	if pool.is_empty():
 		return 0
-	var best: int = int(wheel[pool[0]].get("atk", 0))
+	var visible: Array[int] = []
 	for i in pool:
+		if i < 0 or i >= wheel.size():
+			continue
+		if _monster_shrouded(wheel[i]):
+			continue
+		visible.append(i)
+	var use: Array[int] = visible if not visible.is_empty() else pool
+	var best: int = int(wheel[use[0]].get("atk", 0))
+	for i in use:
 		var a: int = int(wheel[i].get("atk", 0))
 		if want_high:
 			if a > best:
@@ -19824,11 +19852,11 @@ func _magnet_pick(pool: Array[int], want_high: bool) -> int:
 		elif a < best:
 			best = a
 	var tied: Array[int] = []
-	for j in pool:
+	for j in use:
 		if int(wheel[j].get("atk", 0)) == best:
 			tied.append(j)
 	if tied.is_empty():
-		return pool[0]
+		return use[0]
 	return tied[rng.randi_range(0, tied.size() - 1)]
 
 
@@ -20124,6 +20152,9 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	var immune: bool = immune_goblin or immune_lich
 	last_atk_index = index
 	if immune or hit_n <= 0:
+		if _monster_shrouded(m):
+			last_atk_line = ""
+			return false
 		if immune:
 			_log("var", "no HP loss" if immune_lich else "no ATK dmg")
 			await _announce_slice(index, _slice_hp_pos(index))
@@ -20143,8 +20174,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
 	if before_hp - hit_n <= 0 and _monster_shrouded(m):
-		_shroud_mark_seen(index)
-		_phantom_paint_covers()
+		await _shroud_reveal_before_defeat(index)
 		m = wheel[index]
 	_stamp_flee_before(m, hit_n)
 	m["hp_pre_hit"] = before_hp
@@ -20749,7 +20779,61 @@ func _phantom_has_any() -> bool:
 	return false
 
 
+func _play_shroud_event(cue: StringName) -> void:
+	if sfx == null or not sfx.has_method("play_event"):
+		return
+	sfx.play_event(cue)
+
+
+func _shroud_emit_cover_cues(prev_logical: Dictionary, prev_deck: bool) -> void:
+	if _phantom_deck_cover and not prev_deck:
+		_play_shroud_event(&"shroud.deck")
+	if _phantom_veil_all:
+		_shroud_sfx_after_veil = true
+		return
+	var covers: int = 0
+	var uncovers: int = 0
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) != TYPE_DICTIONARY:
+			continue
+		var now: bool = _monster_shrouded(wheel[i])
+		var was: bool = bool(prev_logical.get(i, false))
+		if now and not was:
+			covers += 1
+		if was and not now:
+			uncovers += 1
+	if _shroud_sfx_after_veil:
+		_shroud_sfx_after_veil = false
+		uncovers = 0
+	if covers > 0:
+		_play_shroud_event(&"shroud.cover")
+	if uncovers > 0:
+		_play_shroud_event(&"shroud.uncover")
+
+
+func _shroud_reveal_before_defeat(index: int) -> void:
+	if index < 0 or index >= wheel.size():
+		return
+	if not _monster_shrouded(wheel[index]):
+		return
+	_shroud_mark_seen(index)
+	_phantom_paint_covers()
+	if wheel_view != null:
+		_refresh()
+	var frame_s: float = 0.15
+	if wheel_view != null:
+		frame_s = float(wheel_view.SHROUD_FRAME_S)
+	var beat: float = maxf(0.5, frame_s * 4.0)
+	if is_inside_tree() and get_tree() != null:
+		await get_tree().create_timer(beat).timeout
+
+
 func _phantom_paint_covers() -> void:
+	var prev_logical: Dictionary = {}
+	var prev_deck: bool = _phantom_deck_cover
+	for i in range(wheel.size()):
+		if typeof(wheel[i]) == TYPE_DICTIONARY:
+			prev_logical[i] = _monster_shrouded(wheel[i])
 	var active_idx: Array[int] = _phantom_active_indices()
 	var live: Dictionary = {}
 	for i in active_idx:
@@ -20784,14 +20868,18 @@ func _phantom_paint_covers() -> void:
 	_phantom_deck_cover = not active_idx.is_empty()
 	if wheel_view != null:
 		wheel_view.phantom_veil_all = _phantom_veil_all
+	_shroud_emit_cover_cues(prev_logical, prev_deck)
 
 
 func _shroud_mark_seen(index: int) -> void:
 	if index < 0 or index >= wheel.size():
 		return
+	var was: bool = _monster_shrouded(wheel[index])
 	wheel[index]["shroud_seen"] = true
 	wheel[index]["shroud_from"] = []
 	wheel[index]["phantom_shroud"] = false
+	if was:
+		_play_shroud_event(&"shroud.uncover")
 
 
 func _phantom_slash_real(index: int) -> void:
@@ -20844,6 +20932,7 @@ func _phantom_shuffle_seats() -> void:
 		_undo_wall()
 		return
 	_phantom_veil_all = true
+	_play_shroud_event(&"shroud.shuffle")
 	for body in bodies:
 		if typeof(body) == TYPE_DICTIONARY:
 			body["shroud_from"] = []
@@ -21486,7 +21575,8 @@ func _apply_cleave(n: int, from_pos: Vector2 = Vector2.ZERO) -> bool:
 			if hp <= 0:
 				_end_simul()
 				return await _hit_tree_leave()
-		_log("atk", last_atk_line)
+		if last_atk_line != "":
+			_log("atk", last_atk_line)
 	_end_simul()
 	last_atk_index = -1
 	return await _hit_tree_leave()
@@ -21520,8 +21610,11 @@ func _strongest_neighbor_atk() -> int:
 	var vals: Array[int] = []
 	for off in [n - 1, 1]:
 		var j: int = (facing_index + off) % n
-		if str(wheel[j].get("kind", "")) == "monster":
-			vals.append(int(wheel[j].get("atk", 0)))
+		if str(wheel[j].get("kind", "")) != "monster":
+			continue
+		if _monster_shrouded(wheel[j]):
+			continue
+		vals.append(int(wheel[j].get("atk", 0)))
 	if vals.is_empty():
 		return -1
 	var best: int = vals[0]
@@ -21561,10 +21654,16 @@ func _mark_targets(kind: String) -> Array[int]:
 	return out
 
 
+func _shroud_mark_needs_visible(kind: String) -> bool:
+	return kind == "love_potion" or kind == "defeat_double_hp" or kind == "defeat_spins" or kind == "polymorph"
+
+
 func _can_mark(index: int, kind: String) -> bool:
 	if index < 0 or index >= wheel.size():
 		return false
 	if str(wheel[index].get("kind", "")) != "monster":
+		return false
+	if _shroud_mark_needs_visible(kind) and _monster_shrouded(wheel[index]):
 		return false
 	if kind == "hypnotize":
 		if int(wheel[index].get("hp", 0)) <= 0:
@@ -22495,6 +22594,7 @@ func _kill_neighbor(index: int) -> void:
 		return
 	if index == facing_index:
 		return
+	await _shroud_reveal_before_defeat(index)
 	await _await_slash_idle()
 	if index < 0 or index >= wheel.size() or index == facing_index:
 		return
@@ -23217,11 +23317,12 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"miasma":
 			return [[_fg("drop", n if n != "" else "0")]]
 		"fangs":
-			var hit := _incoming_hit()
-			var ehp := 0
-			if facing_index >= 0 and facing_index < wheel.size():
-				ehp = int(wheel[facing_index].get("hp", 0))
-			return [[_fg("impact", str(hit), "", "self"), _fg("skull"), _fg("heart", str(ehp))]]
+			var hide_face: bool = facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index])
+			var hit_s: String = "?" if hide_face else str(_incoming_hit())
+			var ehp_s: String = "?"
+			if not hide_face and facing_index >= 0 and facing_index < wheel.size():
+				ehp_s = str(int(wheel[facing_index].get("hp", 0)))
+			return [[_fg("impact", hit_s, "", "self"), _fg("skull"), _fg("heart", ehp_s)]]
 		"smoke_bomb":
 			return [[_fg("icon", "", "", "", "", "spin"), _fg("icon", "", "", "", "", "draw")]]
 		"mute_stone":
@@ -23324,6 +23425,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 				for top_i in range(wheel.size()):
 					if str(wheel[top_i].get("kind", "")) != "monster":
 						continue
+					if _monster_shrouded(wheel[top_i]):
+						continue
 					if int(wheel[top_i].get("hp", 0)) <= 0 or _defeat_blocked(wheel[top_i]):
 						continue
 					if int(wheel[top_i].get("hp", 0)) == int(out["n"]):
@@ -23422,24 +23525,34 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = fighting and not _mark_targets("polymorph").is_empty()
 		"blk_min_hp":
 			out["kind"] = "BLK"
-			out["n"] = mini(hp, int(m.get("hp", hp))) if fighting else hp
-			out["number"] = str(out["n"])
+			if fighting and _monster_shrouded(m):
+				out["n"] = 0
+				out["number"] = "—"
+				out["can_use"] = false
+			else:
+				out["n"] = mini(hp, int(m.get("hp", hp))) if fighting else hp
+				out["number"] = str(out["n"])
+				out["can_use"] = fighting
 			out["note"] = ""
 		"defeat_hp":
 			out["kind"] = "DEFEAT"
 			out["number"] = "Defeat"
 			out["note"] = ""
-			out["can_use"] = fighting and (not _defeat_blocked(m)) and int(m.get("hp", 99)) < hp
+			out["can_use"] = fighting and (not _monster_shrouded(m)) and (not _defeat_blocked(m)) and int(m.get("hp", 99)) < hp
 		"orb":
 			out["kind"] = "DEFEAT"
 			out["number"] = "Defeat"
 			out["note"] = ""
-			out["can_use"] = fighting and (not _defeat_blocked(m)) and _incoming_hit() == 0
+			out["can_use"] = fighting and (not _monster_shrouded(m)) and (not _defeat_blocked(m)) and _incoming_hit() == 0
 		"bag_hold":
 			out["kind"] = "BAG"
 			out["fill"] = Color("4a3d14")
 			var cap: int = int(it.get("bagged_hp", 0))
-			if cap > 0:
+			if fighting and _monster_shrouded(m):
+				out["number"] = "Bag" if cap <= 0 else str(cap)
+				out["n"] = cap
+				out["can_use"] = false
+			elif cap > 0:
 				out["n"] = cap
 				out["number"] = str(cap)
 				out["can_use"] = fighting and int(m.get("hp", 99)) < cap
@@ -23480,7 +23593,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["kind"] = "DEFEAT"
 			out["number"] = "Defeat"
 			out["note"] = ""
-			out["can_use"] = fighting and (not _defeat_blocked(m)) and int(m.get("atk", 0)) >= 6
+			out["can_use"] = fighting and (not _monster_shrouded(m)) and (not _defeat_blocked(m)) and int(m.get("atk", 0)) >= 6
 		"atk_last":
 			out["n"] = last_mob_atk
 			out["number"] = str(out["n"])
@@ -23546,8 +23659,12 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = fighting
 		"blk_from_atk":
 			out["kind"] = "BLK"
-			out["n"] = int(m.get("atk", 0)) if fighting else 0
-			out["number"] = str(out["n"])
+			if fighting and _monster_shrouded(m):
+				out["n"] = 0
+				out["number"] = "—"
+			else:
+				out["n"] = int(m.get("atk", 0)) if fighting else 0
+				out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting
 		"atk_zero":
@@ -23598,7 +23715,7 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["kind"] = "SKIP"
 			out["number"] = ""
 			out["note"] = ""
-			out["can_use"] = fighting and _has_unique_ability(str(m.get("card_id", ""))) and not _is_silenced(m)
+			out["can_use"] = fighting and (not _monster_shrouded(m)) and _has_unique_ability(str(m.get("card_id", ""))) and not _is_silenced(m)
 		"player_flee_keep":
 			out["kind"] = "HP"
 			out["number"] = "−1"
@@ -27765,6 +27882,8 @@ func _imp_highest_targets() -> Array[int]:
 		if str(wheel[i].get("kind", "")) != "monster":
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
+			continue
+		if _monster_shrouded(wheel[i]):
 			continue
 		var atk: int = int(wheel[i].get("atk", 0))
 		if ties.is_empty() or atk > best:

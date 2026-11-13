@@ -6818,6 +6818,62 @@
       "cooldown_ms": 40,
       "max_voices": 2,
       "priority": 2
+    },
+    "shroud.cover": {
+      "files": [
+        "shroud_cover"
+      ],
+      "bus": "SFX",
+      "db": -8,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 80,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "shroud.uncover": {
+      "files": [
+        "shroud_uncover"
+      ],
+      "bus": "SFX",
+      "db": -7,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 40,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "shroud.shuffle": {
+      "files": [
+        "shroud_shuffle"
+      ],
+      "bus": "SFX",
+      "db": -6,
+      "pitch": [
+        0.98,
+        1.02
+      ],
+      "cooldown_ms": 200,
+      "max_voices": 1,
+      "priority": 2
+    },
+    "shroud.deck": {
+      "files": [
+        "shroud_deck"
+      ],
+      "bus": "SFX",
+      "db": -12,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 80,
+      "max_voices": 1,
+      "priority": 1
     }
   },
   "radio": {

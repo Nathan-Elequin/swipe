@@ -532,3 +532,15 @@ Ability + item activate oneshots (2026-11-04)
 ---------------------------------------------
 mon_ability_<card_id>.ogg / item_use_<item_id>.ogg — unique CC0/Kenney oneshots per named ability activate and item use (Nathan locked 2026-11-04). Cue ids mon.ability.<card_id> / item.use.<item_id>. HOLD: leech_league / Blood Rise unwired until playtest #347. Skip golem/wizard (no named ability). Drop-ins; not rebuilt by build_audio.py.
 Scale kick A (2026-11-06): mon_ability_huntsman / quicksand_crab(+_claw) / phantom(+_sting) / collector(+_tax).ogg — Nathan locked all-A combat oneshots; cues mon.ability.* (db 0).
+
+Phantom shroud (2026-11-12)
+---------------------------
+shroud_cover.ogg (0.42 s)
+    <- original synth for Spinheritance Phantom shroud (2026-11-12) — CC0 1.0
+shroud_uncover.ogg (0.48 s)
+    <- original synth for Spinheritance Phantom shroud (2026-11-12) — CC0 1.0
+shroud_shuffle.ogg (0.55 s)
+    <- original synth for Spinheritance Phantom shroud (2026-11-12) — CC0 1.0
+shroud_deck.ogg (0.30 s)
+    <- original synth for Spinheritance Phantom shroud (2026-11-12) — CC0 1.0
+
