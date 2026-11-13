@@ -363,7 +363,7 @@ const MONSTER_REMINDER := {
 	"bear_trap": "Spin or Move onto me: I Attack you, then I am Defeated",
 	"clockwork_knight": "Defeated: neighbors match HP, then Attack",
 	"basilisk": "Enter: Gaze 3 items. Use 1: the other Gazed items Petrify until Basilisk is Defeated",
-	"zombie": "Decayed Items are linked. When you use one, Keep it and discard the other.",
+	"zombie": "If you Use this, Keep it and Discard all other Items with Decay.",
 	"hollow": "even Attack or Block twice",
 	"beggar": "Marks your lowest-tier Item. Spinning this Beggar discards it.",
 	"wick": "-2 HP per Neighbor Defeated.",
@@ -898,6 +898,10 @@ var _wheel_nest_offset: float = 0.0
 var _biome_wipe: ColorRect
 var dungeon_deck_ui
 var item_deal_ui
+## Occupied hotbar cards tweening aside while a new card flies into its sorted seat.
+var _hotbar_inserting: bool = false
+var _hotbar_slide_tw: Tween
+var _hotbar_sliding: Array = []
 var challenge_draft_ui
 var btn_challenge_begin: Button
 var hotbar_wrap: MarginContainer
@@ -5576,7 +5580,66 @@ func _hide_item_deal_deck() -> void:
 	item_deal_ui.set_peek(null, "")
 
 
+func _abort_hotbar_insert_slide() -> void:
+	if _hotbar_slide_tw != null and is_instance_valid(_hotbar_slide_tw):
+		_hotbar_slide_tw.kill()
+	_hotbar_slide_tw = null
+	for raw in _hotbar_sliding:
+		if raw == null or not is_instance_valid(raw):
+			continue
+		var c: Control = raw as Control
+		if c == null:
+			continue
+		c.set_as_top_level(false)
+		c.z_index = 0
+	_hotbar_sliding.clear()
+	_hotbar_inserting = false
+
+
+## Occupied seats at `dest_i` and after move one cell (wraps to the next row).
+func _begin_hotbar_insert_slide(dest_i: int, dur: float) -> void:
+	_abort_hotbar_insert_slide()
+	if _qa_busy() or hotbar_box == null or dest_i < 0:
+		return
+	var kids: Array = hotbar_box.get_children()
+	if dest_i >= kids.size():
+		return
+	var tw: Tween = create_tween()
+	tw.set_parallel(true)
+	var moved: bool = false
+	for i in range(dest_i, kids.size()):
+		var c: Control = kids[i] as Control
+		if c == null or not c.has_method("set_live"):
+			continue
+		var to_c: Vector2 = _hotbar_deal_slot_global(i + 1)
+		var sz: Vector2 = c.size
+		if sz.x < 4.0:
+			sz = Vector2(HOTBAR_CARD_W, HOTBAR_CARD_H)
+		var to_tl: Vector2 = to_c - sz * 0.5
+		var start: Vector2 = c.global_position
+		c.z_index = 45
+		c.set_as_top_level(true)
+		c.global_position = start
+		_hotbar_sliding.append(c)
+		tw.tween_property(c, "global_position", to_tl, maxf(0.18, dur)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		moved = true
+	if not moved:
+		tw.kill()
+		return
+	_hotbar_inserting = true
+	_hotbar_slide_tw = tw
+
+
+func _await_hotbar_insert_slide() -> void:
+	if _hotbar_slide_tw != null and is_instance_valid(_hotbar_slide_tw) and _hotbar_slide_tw.is_running():
+		await _hotbar_slide_tw.finished
+	_hotbar_slide_tw = null
+	_hotbar_inserting = false
+	## Leave cards top-level at their new seats until `_sync_hotbar` re-parents them.
+
+
 ## Face-up toss from the item deck into the seat this card will occupy after the hand sorts.
+## Occupied cards slide (and wrap to the next row) at the same time.
 func _fly_dealt_item(it: Dictionary) -> void:
 	if item_deal_ui == null or it.is_empty():
 		return
@@ -5593,10 +5656,13 @@ func _fly_dealt_item(it: Dictionary) -> void:
 	var iid: String = str(it.get("card_id", ""))
 	_sync_item_deal_deck()
 	item_deal_ui.set_peek(_item_icon_tex(it, iid), str(it.get("name", "?")), _tier_of(it))
+	if not full:
+		_begin_hotbar_insert_slide(seat_i, 0.34)
 	await item_deal_ui.play_deal_to(dest, 0.34, dest_sz)
 	item_deal_ui.set_peek(null, "")
 	if dim_pad and pad != null and is_instance_valid(pad):
 		pad.modulate.a = 1.0
+	await _await_hotbar_insert_slide()
 
 
 ## One card from the loot pool, after an item's own effect. Same deck, flight, and sounds as the opening deal.
@@ -5619,6 +5685,7 @@ func _present_pool_draw(it: Dictionary) -> void:
 		sfx.play("whoosh", -14.0, 1.2)
 	await item_deal_ui.play_shuffle(0.32)
 	if seq != _mill_seq or not is_instance_valid(self):
+		_abort_hotbar_insert_slide()
 		_hide_item_deal_deck()
 		return
 	await _fly_dealt_item(it)
@@ -5627,8 +5694,12 @@ func _present_pool_draw(it: Dictionary) -> void:
 
 func _deal_opening_hand(items: Array) -> void:
 	var seq: int = _mill_seq
+	## Deal in the order the hotbar will sort, so each flight fills the next
+	## empty seat left-to-right, top-to-bottom instead of landing then popping.
+	var queue: Array = items.duplicate()
+	queue.sort_custom(_item_before)
 	if item_deal_ui == null:
-		for it_raw in items:
+		for it_raw in queue:
 			if hotbar.size() >= _forced_hand_cap():
 				if not _start_full_hand_replace(it_raw):
 					continue
@@ -5647,25 +5718,27 @@ func _deal_opening_hand(items: Array) -> void:
 	await get_tree().process_frame
 	_sync_item_deal_deck()
 	item_deal_ui.visible = true
-	item_deal_ui.set_count(items.size())
+	item_deal_ui.set_count(queue.size())
 	item_deal_ui.set_peek(null, "")
 	if sfx:
 		sfx.play("cloth", -10.0)
 		sfx.play("whoosh", -14.0, 1.2)
 	await item_deal_ui.play_shuffle(0.46)
 	if seq != _mill_seq:
+		_abort_hotbar_insert_slide()
 		item_deal_ui.visible = false
 		return
-	for i in items.size():
+	for i in queue.size():
 		if seq != _mill_seq:
 			break
-		var it: Dictionary = items[i]
+		var it: Dictionary = queue[i]
 		if typeof(it) != TYPE_DICTIONARY or it.is_empty():
 			continue
 		var full: bool = hotbar.size() >= _forced_hand_cap()
 		var iid: String = str(it.get("card_id", ""))
 		await _fly_dealt_item(it)
 		if seq != _mill_seq:
+			_abort_hotbar_insert_slide()
 			break
 		if full:
 			if not _start_full_hand_replace(it):
@@ -5997,6 +6070,11 @@ func _challenge_commit_item(it: Dictionary, replace_if_full: bool) -> void:
 			item_deal_ui.z_index = 52
 			item_deal_ui.visible = true
 			item_deal_ui.set_count(1)
+			item_deal_ui.set_peek(null, "")
+			if sfx:
+				sfx.play("cloth", -12.0)
+				sfx.play("whoosh", -16.0, 1.15)
+			await item_deal_ui.play_shuffle(0.28)
 			await _fly_dealt_item(it)
 			_hide_item_deal_deck()
 			if epoch != _loot_epoch or _undo_stale(token):
@@ -10268,7 +10346,6 @@ func _remove_facing() -> void:
 
 
 func _discard_spent_items() -> void:
-	_discard_unused_decay()
 	var kept: Array = []
 	var recycled: Array = []
 	for it in hotbar:
@@ -12184,7 +12261,6 @@ func _gain_marked_poison_flask(dose: int) -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
-	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -12205,7 +12281,6 @@ func _gain_token_item(id: String) -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
-	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -12232,6 +12307,8 @@ func _item_has_keep(it: Dictionary) -> bool:
 
 func _decay_item_eligible(it: Dictionary) -> bool:
 	if bool(it.get("spent", false)):
+		return false
+	if bool(it.get("decay_marked", false)):
 		return false
 	if _item_stoned(it) or _item_has_keep(it):
 		return false
@@ -14601,6 +14678,8 @@ func _oligarch_deliver_item(id: String, from_i: int, after_line: String = "Here,
 	await _await_hotbar_layout()
 	var gain_seat: int = _hotbar_gain_index(it)
 	var to: Vector2 = _hotbar_wait_slot_global() if hotbar.size() >= _forced_hand_cap() else _hotbar_deal_slot_global(gain_seat)
+	if hotbar.size() < _forced_hand_cap():
+		_begin_hotbar_insert_slide(gain_seat, 0.42)
 	var tex: Texture2D = null
 	if art != null:
 		tex = art.item_tex(id)
@@ -14608,7 +14687,9 @@ func _oligarch_deliver_item(id: String, from_i: int, after_line: String = "Here,
 		tex = tex_by_item.get(id, tex_sword)
 	if tex != null and from != Vector2.ZERO and to != Vector2.ZERO:
 		await _fly_courier(tex, from, to, 0.42)
+	await _await_hotbar_insert_slide()
 	if _hand_cannot_admit():
+		_abort_hotbar_insert_slide()
 		_abort_full_hand_gain(it)
 		return
 	hotbar.append(it)
@@ -14727,7 +14808,6 @@ func _force_gain_rust() -> void:
 	if _hand_cannot_admit():
 		_abort_full_hand_gain(it)
 		return
-	await _present_pool_draw(it)
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -28870,7 +28950,7 @@ func _sync_hotbar() -> void:
 	var empties: int = (cap_n - seated_n) if adventure else 0
 	var pending_uid: int = int(_challenge_pending_gain.get("uid", 0)) if _challenge_loot_wait and not _challenge_pending_gain.is_empty() else 0
 	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
-	if joined != _hotbar_sig:
+	if joined != _hotbar_sig and not _hotbar_inserting:
 		_hotbar_sig = joined
 		var keep: Dictionary = _take_hotbar_cards_by_uid()
 		for i in range(seated_n):
@@ -29173,6 +29253,7 @@ func _reuse_or_spawn_item_card(keep: Dictionary, it: Dictionary) -> Control:
 		var reused: Control = keep[u]
 		keep.erase(u)
 		if reused != null and is_instance_valid(reused):
+			reused.set_as_top_level(false)
 			reused.scale = Vector2.ONE
 			var stoned_reuse: bool = bool(it.get("petrified", false)) or int(it.get("petrify_n", 0)) > 0 or bool(it.get("basilisk_stone", false))
 			if not stoned_reuse:
