@@ -279,6 +279,8 @@ func take_card(uid: int) -> Control:
 		if int(c.uid) != uid:
 			continue
 		var card: Control = c as Control
+		if card.has_method("lock_flight_look"):
+			card.lock_flight_look()
 		card.set_meta("loot_from", card.global_position)
 		card.set_meta("loot_size", card.size)
 		_row.remove_child(card)

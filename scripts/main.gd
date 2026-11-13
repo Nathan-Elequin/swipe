@@ -5667,6 +5667,9 @@ func _fly_loot_pick_into_hotbar(it: Dictionary, flyer: Control) -> void:
 		start_sz = Vector2(236.0, 340.0)
 	var from_c: Vector2 = flyer.global_position + start_sz * 0.5
 	var end_sc := Vector2(dest_sz.x / start_sz.x, dest_sz.y / start_sz.y)
+	if flyer.has_method("lock_flight_look"):
+		flyer.lock_flight_look()
+	_on_item_unhovered()
 	flyer.pivot_offset = start_sz * 0.5
 	flyer.z_index = 80
 	if sfx:
@@ -6095,6 +6098,9 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 		if challenge_draft_ui != null and challenge_draft_ui.has_method("take_card"):
 			flyer = challenge_draft_ui.take_card(uid)
 		if flyer != null:
+			if flyer.has_method("lock_flight_look"):
+				flyer.lock_flight_look()
+			_on_item_unhovered()
 			var gp: Vector2 = flyer.get_meta("loot_from", flyer.global_position)
 			var sz: Vector2 = flyer.get_meta("loot_size", flyer.size)
 			if flyer.get_parent() != null:

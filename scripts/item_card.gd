@@ -1150,6 +1150,34 @@ func set_pass_swipe(on: bool) -> void:
 	_pass_swipe = on
 
 
+## Frozen picture for a loot-pick flight. No hover lift, inspect, or clicks.
+func lock_flight_look() -> void:
+	_hot = false
+	_holding = false
+	if _lift != null:
+		_lift.kill()
+		_lift = null
+	scale = Vector2.ONE
+	_apply_style(false)
+	mouse_default_cursor_shape = Control.CURSOR_ARROW
+	if _steal_tex != null:
+		Input.set_custom_mouse_cursor(null)
+	if mouse_entered.is_connected(_on_in):
+		mouse_entered.disconnect(_on_in)
+	if mouse_exited.is_connected(_on_out):
+		mouse_exited.disconnect(_on_out)
+	if gui_input.is_connected(_on_gui):
+		gui_input.disconnect(_on_gui)
+	_ignore_mouse_tree(self)
+
+
+func _ignore_mouse_tree(n: Node) -> void:
+	if n is Control:
+		(n as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for c in n.get_children():
+		_ignore_mouse_tree(c)
+
+
 func set_showcase(on: bool) -> void:
 	_showcase = on
 	_pass_swipe = on
