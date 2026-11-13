@@ -1,22 +1,29 @@
 extends SceneTree
 ## Headless proof for H3-B2 Take arc geometry (split L/R, rim clearance).
+## Also asserts Take-arc readability: always-on Block shield, native 1× upright icons.
 ## Does not boot main.gd.
 
 const UX := preload("res://scripts/playtest_ux.gd")
 const TAKE := preload("res://scripts/ui/take_arc.gd")
 const ARROW := preload("res://scripts/ui/move_arrow.gd")
+const ITEM_FACE := preload("res://scripts/item_face.gd")
+const SHIELD_PATH := "res://assets/ui/icons/pips/pip_block_s24_2x.png"
 
 
 func _init() -> void:
 	var failed := false
 	failed = _check("sweep_positive", TAKE.SWEEP > 0.74 and TAKE.SWEEP < 0.86) or failed
 	failed = _check("split_left_third", TAKE.SPLIT_T > 0.25 and TAKE.SPLIT_T < 0.4) or failed
-	failed = _check("body_w", TAKE.BODY_W >= 50.0 and TAKE.BODY_W <= 56.0) or failed
-	failed = _check("icon_fits", TAKE.ICON_MAX > 0.0 and TAKE.ICON_MAX <= TAKE.BODY_W - 10.0) or failed
+	## BODY_W 60: double burst is 56 tall + 2px clearance each side.
+	failed = _check("body_w", TAKE.BODY_W >= 58.0 and TAKE.BODY_W <= 64.0) or failed
+	## ICON_MAX 64: double burst is 64 wide; draw at native 1× (no fractional scale).
+	failed = _check("icon_max_native", TAKE.ICON_MAX >= 64.0) or failed
+	failed = _check("double_fits_band", TAKE.BODY_W >= 56.0 + 4.0) or failed
 	failed = _check("bevel_ink", TAKE.BEVEL_INK >= 2.0 and TAKE.BEVEL_HI >= 1.0) or failed
 	failed = _check("rim_gap", TAKE.RIM_GAP_DEFAULT >= 8.0) or failed
 	failed = _check("content_outward", TAKE.CONTENT_OUTWARD >= 0.0 and TAKE.CONTENT_OUTWARD <= 2.0) or failed
-	failed = _check("burst_ink_scale", TAKE.BURST_INK_SCALE > 1.0 and TAKE.BURST_INK_SCALE <= 1.3) or failed
+	failed = _check("word_fs_26", TAKE.WORD_FS == 26) or failed
+	failed = _check("num_matches_itemface", TAKE.NUM_FS == 22 and TAKE.NUM_OUTLINE == 4) or failed
 	failed = _check("word_ink_dark", TAKE.WORD_INK.r < 0.2) or failed
 	failed = _check("b2_pad_lt_pre", UX.move_arrow_b2_pad() < UX.move_arrow_outer_pad()) or failed
 	failed = _check("b2_pad_clears_flare", UX.move_arrow_b2_pad() >= ARROW.BODY_W * 0.78 + 6.0) or failed
@@ -25,9 +32,21 @@ func _init() -> void:
 	var arc: Button = TAKE.new()
 	root.add_child(arc)
 	arc.set_guide(Vector2(400, 300), 200.0, TAKE.RIM_GAP_DEFAULT)
-	arc.set_combat(4, 2, "Take", null, "", null, ThemeDB.fallback_font)
+	var shield: Texture2D = null
+	if ResourceLoader.exists(SHIELD_PATH):
+		shield = load(SHIELD_PATH) as Texture2D
+	## Headless CI may lack .ctex until --import; keep a native 48×48 stand-in.
+	if shield == null:
+		var img := Image.create(48, 48, false, Image.FORMAT_RGBA8)
+		img.fill(Color(0.4, 0.6, 0.8, 1.0))
+		shield = ImageTexture.create_from_image(img)
+	failed = _check("itemface_shield_const", str(ITEM_FACE.SHIELD) == SHIELD_PATH) or failed
+	failed = _check("take_shield_path", TAKE.SHIELD_PATH == SHIELD_PATH) or failed
+	arc.set_combat(4, 2, "Take", null, "", shield, ThemeDB.fallback_font)
 	failed = _check("has_play_pop", arc.has_method("play_pop")) or failed
-	failed = _check("has_burst_rim", arc.has_method("_draw_burst_rim")) or failed
+	failed = _check("has_burst_ink_outline_fn", arc.has_method("_draw_burst_ink_outline")) or failed
+	failed = _check("no_burst_rim_fn", not arc.has_method("_draw_burst_rim")) or failed
+	failed = _check("keeps_arc_text", arc.has_method("_draw_arc_text")) or failed
 
 	var span: Vector2 = arc._arc_span()
 	failed = _check("span_sweeps_rightward", span.y < 0.0) or failed
@@ -47,11 +66,22 @@ func _init() -> void:
 	failed = _check("inner_outside_rim", inn >= 200.0 + TAKE.RIM_GAP_DEFAULT - 0.01) or failed
 	failed = _check("outer_thick", out >= inn + TAKE.BODY_W - 0.01) or failed
 
-	## Safe state still keeps split chrome (divider + blank left).
-	arc.set_combat(0, 0, "Safe", null, "", null, ThemeDB.fallback_font)
+	## Safe / block_n 0: shield still draws (always-on Block pip).
+	arc.set_combat(0, 0, "Safe", null, "", shield, ThemeDB.fallback_font)
 	failed = _check("safe_keeps_guide", arc.guide_r >= 8.0) or failed
-	failed = _check("safe_block_blank", arc.block_n == 0) or failed
+	failed = _check("safe_block_zero", arc.block_n == 0) or failed
 	failed = _check("safe_take_zero", arc.take_n == 0) or failed
+	failed = _check("shield_draws_at_block_zero", arc.should_draw_block() and arc.block_n == 0) or failed
+	failed = _check("uses_itemface_shield_path", TAKE.SHIELD_PATH == ITEM_FACE.SHIELD) or failed
+	## Passed block_tex is what draws; size must stay native 48×48 (item-card pip).
+	failed = _check("block_tex_assigned", arc.block_tex == shield) or failed
+
+	## Icons: native 1× scale, upright (no rotation).
+	failed = _check("icons_upright", arc.icons_upright()) or failed
+	failed = _check("icons_integer_scale_1x", is_equal_approx(arc.icon_draw_scale(shield), 1.0)) or failed
+	var native: Vector2 = arc._icon_draw_size(shield)
+	failed = _check("shield_native_48", native.x == 48.0 and native.y == 48.0) or failed
+	failed = _check("no_fractional_fit", arc._fitted_icon_size(shield) == native) or failed
 
 	## Hit test: a point on the left third of the band must register.
 	var hit_left: Vector2 = arc._chord_point(0.15)

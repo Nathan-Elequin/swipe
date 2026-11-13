@@ -28438,7 +28438,8 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: b
 	var font: Font = btn_done.get_theme_font("font") if btn_done != null else null
 	if font == null:
 		font = ThemeDB.fallback_font
-	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_block_arc, font, mystery)
+	## Item-card Block pip (ItemFace.SHIELD), not the arc-only variant.
+	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_shield, font, mystery)
 	_place_take_arc()
 	if fresh and take_arc.has_method("play_pop"):
 		take_arc.play_pop()
