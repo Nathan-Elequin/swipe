@@ -570,8 +570,8 @@ func _init() -> void:
 	failed = _check(failed, "runtime_has_hydra", _runtime_has_monster("hydra")) or failed
 	failed = _check(
 		failed,
-		"hydra_stats_7_3",
-		_catalog_monster_hp_atk("hydra", 7, 3)
+		"hydra_stats_10_3",
+		_catalog_monster_hp_atk("hydra", 10, 3)
 	) or failed
 	failed = _check(
 		failed,

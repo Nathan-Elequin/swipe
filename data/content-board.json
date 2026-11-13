@@ -5903,22 +5903,23 @@
 		},
 		{
 			"ability": "On Spin, I Attack one of my Neighbors. If I Defeat them, I gain an extra Attack",
-			"atk_base": 3.0,
+			"atk_base": 3,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Hungry Heads",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "On every Spin, Attack one random Neighbor. If that Defeats them, gain an extra Take swing.",
 			"flags": {
 				"art": true,
 				"dev": false
 			},
-			"flow": "Every Spin while I live unsilenced on the wheel: Attack one random living Neighbor (including the monster you just landed on). One Attack at my printed Attack (3), not my extra Take swings. Goblin and other immune seats still get the swing; 0 damage; no extra Attack. If that Neighbor is Defeated (dead, fled, Egg), I gain +1 Take swing (hydra_heads). Extra swings count immediately, including Take this landing if you face me. Bodyguard: extra swing only if the Neighbor I chose is Defeated. Prism: I chose Prism, so no extra swing. Quiet Bell: I do not bite; swings I already gained stay. No living Neighbor: skip. Replaces the old Neighbor-survives-at-3 devour. Printed Attack 3. Printed HP 7.",
-			"hp_base": 7.0,
+			"flow": "Every Spin while I live unsilenced on the wheel: Attack one random living Neighbor (including the monster you just landed on). One Attack at my printed Attack (3), not my extra Take swings. Goblin and other immune seats still get the swing; 0 damage; no extra Attack. If that Neighbor is Defeated (dead, fled, Egg), I gain +1 Take swing (hydra_heads). Extra swings count immediately, including Take this landing if you face me. Bodyguard: extra swing only if the Neighbor I chose is Defeated. Prism: I chose Prism, so no extra swing. Quiet Bell: I do not bite; swings I already gained stay. No living Neighbor: skip. Replaces the old Neighbor-survives-at-3 devour. Printed Attack 3. Printed HP 10.",
+			"hp_base": 10,
 			"hp_formula": "",
 			"id": "hydra",
+			"kind": "monster",
 			"locked_at": "2026-11-12",
 			"locked_fields": [
 				"name",
@@ -5946,14 +5947,14 @@
 			"name": "Hydra",
 			"notes": "Pool 5. Hungry Heads 2026-11-12. Every Spin. Random Neighbor. Extra Take swing on Defeat. Art existing.",
 			"ops": {},
-			"pool": 5.0,
-			"priority": 3.0,
+			"pool": 5,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "On Spin, Attack one Neighbor. Defeat them: extra Take swing.",
-			"review": "change",
-			"review_note": "",
-			"status": "live",
-			"tier": 2.0
+			"review": "rough",
+			"review_note": "Buff this to 10 Base HP. Also, the intent when it 'Attacks' is that it uses ALL of its attacks. So if it has already 'devoured' someone, then the next spin it attacks twice, and so on.",
+			"status": "todo",
+			"tier": 2
 		},
 		{
 			"ability": "When you Spin me, I Decay two of your Items.",

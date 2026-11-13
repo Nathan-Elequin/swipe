@@ -9304,7 +9304,8 @@ func _on_spin() -> void:
 	else:
 		blk = 0
 	items_used_this_combat = 0
-	_after_item_use_armed = false
+	if _item_resolve_depth <= 0:
+		_after_item_use_armed = false
 	last_item_atk = 0
 	skip_swing_this_fight = false
 	keep_blocked_this_fight = false
@@ -10035,7 +10036,7 @@ func _play_attack_blocked(src: int = -1) -> void:
 func _player_down(skip_pose: bool = false) -> void:
 	_spin_inflight = false
 	if not in_tutorial:
-		_close_fight_item_use()
+		await _close_fight_item_use()
 	hp = 0
 	if in_tutorial and _tut_free:
 		## Practice death: T5, no real defeat screen.
@@ -10157,6 +10158,10 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 
 
 func _close_fight_item_use() -> void:
+	# Kill / flee / Smoke still count as a use. Auto-spin used to wipe
+	# `_after_item_use_armed` first, so Psi, Spike Shield, Toll, Beads, and
+	# Shuriken froze on the face they had when the fight ended.
+	await _commit_after_item_use()
 	_fight_epoch += 1
 	_beggar_hold = false
 	_release_item_hold()
@@ -10167,7 +10172,8 @@ func _maybe_auto_spin() -> void:
 		return
 	# The killing item is still on the stack. Drop its lock before this Spin
 	# so Oligarch can force a use, and so Spin is not waiting on that click.
-	_close_fight_item_use()
+	# Commit first so on-use flips land before this Spin zeros combat counts.
+	await _close_fight_item_use()
 	if phase == "devtest":
 		return
 	if _qa_busy() and not _is_adventure_mode():
@@ -19758,6 +19764,8 @@ func _commit_after_item_use() -> void:
 	_amalgam_after_use()
 	_sync_wheel_stats()
 	_sync_intent_plate()
+	_hotbar_sig = ""
+	_apply_sai_static()
 
 
 func _deal_atk(n: int) -> bool:
