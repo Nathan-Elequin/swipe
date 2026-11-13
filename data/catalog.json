@@ -4593,7 +4593,7 @@
 		"bear_trap": "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it",
 		"beggar": "Marks a random Item. Spinning this Beggar discards it.",
 		"curse": "A harmful Item forced into your hand.",
-		"decay": "Decayed Items are linked. When you use one, Keep it and discard the other.",
+		"decay": "If you Use this, Keep it and Discard all other Items with Decay.",
 		"defeat": "Remove the enemy without that ATK-to-0 path (Da Boot, Sledgehammer, Fangs, Poison Flask).",
 		"eject": "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck",
 		"enemy_attacks": "Sheet: always, no exceptions among monsters. Items can prevent the attack by killing/defeating first (not by blocking).",
@@ -7208,14 +7208,14 @@
 			"call_name": "Life and Death",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off.",
-			"exceptions": "SP-25. Keyword Decay. Unused Decayed Items are discarded.",
+			"defined": "When you Spin me, I Decay up to two random Items that do not already have Keep or Decay. If you Use a Decayed Item, Keep it and Discard all other Items with Decay. Marks stay if you Spin or Use other Items. Quiet Bell turns this off.",
+			"exceptions": "Keyword Decay. Unused Decay is not discarded. Using other Items does not discard Decay Items.",
 			"explainer": "Decay two of your Items",
 			"flags": {
 				"art": true,
 				"dev": true
 			},
-			"flow": "SP-25 (2026-10-25). When you Spin me, I Decay up to two random Items that do not already have Keep. Decayed Items are linked. When you use one, Keep it and discard the other. The discarded Item counts as a discard (Recycler and the same discard path as Hired Hand). If only one eligible Item, Decay that one: using it Keeps it, and there is no partner. If a Decayed Item is not used this combat, discard it. Other Items work normally. Quiet Bell turns this off.",
+			"flow": "When you Spin me, I Decay up to two random Items that do not already have Keep or Decay. If you Use a Decayed Item, Keep it and Discard all other Items with Decay. Marks stay if you Spin or Use other Items. Quiet Bell turns this off.",
 			"hp": {
 				"base": 5.0
 			},
@@ -7245,13 +7245,13 @@
 			"log_hint": "Decay two Items",
 			"mode_pool": "all",
 			"name": "Zombie",
-			"notes": "SP-25. Keyword Decay. Unused Decayed Items are discarded.",
+			"notes": "Keyword Decay. Unused Decay is not discarded. Using other Items does not discard Decay Items.",
 			"ops": {},
 			"poc": false,
 			"pool": 3.0,
 			"priority": 3.0,
 			"rarity": "uncommon",
-			"reminder": "Decayed Items are linked. When you use one, Keep it and discard the other.",
+			"reminder": "If you Use this, Keep it and Discard all other Items with Decay.",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
@@ -9201,9 +9201,9 @@
 			"rule": "Fairy is 1 HP / 4 Attack. Defeated without losing HP (still has HP) grants Fairy in a Bottle, a normal use item that Heals 2. No new call name was specified; Fairy Dust was cleared. Author-lock override: fairy ability, call_name, explainer, defined, log_hint, notes, atk base."
 		},
 		{
-			"chat": "2026-10-25",
+			"chat": "2026-11-13",
 			"id": "SP-25",
-			"rule": "Zombie Decay links up to two Items that do not already have Keep. Using one Keeps it and discards the other immediately. Unused Decayed Items are discarded at the end of the combat. Fewer than two eligible Items: Decay what is there. Keyword name is Decay. Author-lock override: zombie ability, explainer, defined, reminder, log_hint, notes."
+			"rule": "Zombie Decay marks up to two Items that do not already have Keep or Decay. If you Use a Decayed Item, Keep it and Discard all other Items with Decay. Unused marks stay through Spin and using other Items. Quiet Bell turns this off. Keyword name is Decay."
 		},
 		{
 			"chat": "2026-10-25",

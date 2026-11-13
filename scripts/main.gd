@@ -12329,39 +12329,30 @@ func _decay_clear_all() -> void:
 			_decay_clear_mark(it)
 
 
-func _discard_unused_decay() -> void:
-	var unused: Array = []
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		if bool(it.get("decay_marked", false)) and not bool(it.get("spent", false)):
-			unused.append(int(it.get("uid", -1)))
-	if unused.is_empty():
-		return
-	for it2 in hotbar:
-		if typeof(it2) == TYPE_DICTIONARY and int(it2.get("uid", -1)) in unused:
-			_decay_clear_mark(it2)
-			_log("discard", "Decay %s" % it2.get("name", "?"))
-	_decay_busy = true
-	for uid in unused:
-		_discard_from_hand(int(uid))
-	_decay_busy = false
-
-
 func _decay_claim_use(uid: int) -> bool:
 	var it: Dictionary = _find_item(uid)
 	if it.is_empty() or not bool(it.get("decay_marked", false)):
 		return false
-	var partner: int = int(it.get("decay_partner", -1))
 	_decay_clear_mark(it)
 	it["keep_after"] = true
-	if partner >= 0:
-		var other: Dictionary = _find_item(partner)
-		if not other.is_empty():
-			_decay_clear_mark(other)
-		_decay_busy = true
-		_discard_from_hand(partner)
-		_decay_busy = false
+	var others: Array = []
+	for other in hotbar:
+		if typeof(other) != TYPE_DICTIONARY:
+			continue
+		if not bool(other.get("decay_marked", false)):
+			continue
+		var oid: int = int(other.get("uid", -1))
+		if oid < 0 or oid == uid:
+			continue
+		others.append(oid)
+		_decay_clear_mark(other)
+		_log("discard", "Decay %s" % other.get("name", "?"))
+	if others.is_empty():
+		return true
+	_decay_busy = true
+	for oid in others:
+		_discard_from_hand(int(oid))
+	_decay_busy = false
 	return true
 
 
@@ -14381,12 +14372,7 @@ func _beggar_force_discard(index: int) -> void:
 	if not _item_uid_in_hand(uid):
 		return
 	var it: Dictionary = _find_item(uid)
-	var partner: int = int(it.get("decay_partner", -1))
 	_decay_clear_mark(it)
-	if partner >= 0:
-		var other: Dictionary = _find_item(partner)
-		if not other.is_empty():
-			_decay_clear_mark(other)
 	it["keep_after"] = false
 	_log("discard", "Beggar %s" % it.get("name", "?"))
 	var grab: Vector2 = _hotbar_card_global(uid)
@@ -25780,10 +25766,7 @@ func _item_rule(it: Dictionary) -> Dictionary:
 	elif _item_is_gazed(it):
 		out["warn"] = "Gazed. Using this Petrifies the others."
 	elif bool(it.get("decay_marked", false)):
-		if bool(it.get("decay_solo", false)):
-			out["warn"] = "Unused — discarded at end of combat."
-		else:
-			out["warn"] = "Linked by Decay. Use one to Keep it — discard the other."
+		out["warn"] = "If you Use this, Keep it and Discard all other Items with Decay."
 	var ab: String = str(it.get("ability", ""))
 	if str(it.get("card_id", "")) == "echo_bell":
 		var face: Dictionary = _echo_face(it)
@@ -29509,7 +29492,7 @@ func _on_item_hovered(it: Dictionary, card: Control = null) -> void:
 		_tutorial_on_item_hover(str(it.get("card_id", "")))
 		_queue_hover_preview(it, card)
 	_set_gaze_use_warn(int(it.get("uid", -1)) if (not shrouded) and _item_is_gazed(it) and not bool(it.get("basilisk_stone", false)) else -1)
-	_set_decay_partner_warn(int(it.get("uid", -1)) if (not shrouded) and bool(it.get("decay_marked", false)) and not bool(it.get("decay_solo", false)) else -1)
+	_set_decay_partner_warn(int(it.get("uid", -1)) if (not shrouded) and bool(it.get("decay_marked", false)) else -1)
 
 
 func _set_gaze_use_warn(from_uid: int) -> void:
@@ -29530,10 +29513,6 @@ func _set_gaze_use_warn(from_uid: int) -> void:
 func _set_decay_partner_warn(from_uid: int) -> void:
 	if hotbar_box == null:
 		return
-	var partner_uid: int = -1
-	if from_uid >= 0:
-		var src: Dictionary = _find_item(from_uid)
-		partner_uid = int(src.get("decay_partner", -1))
 	for node in hotbar_box.get_children():
 		if not (node is Control):
 			continue
@@ -29541,7 +29520,8 @@ func _set_decay_partner_warn(from_uid: int) -> void:
 		if not card.has_method("set_decay_warn"):
 			continue
 		var uid_n: int = _control_uid(card)
-		var warn: bool = partner_uid >= 0 and uid_n == partner_uid
+		var other: Dictionary = _find_item(uid_n)
+		var warn: bool = from_uid >= 0 and uid_n != from_uid and bool(other.get("decay_marked", false))
 		card.set_decay_warn(warn)
 
 

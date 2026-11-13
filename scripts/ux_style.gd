@@ -465,7 +465,7 @@ static func def_of(id: String) -> String:
 		"rust":
 			return "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust."
 		"decay":
-			return "Decayed Items are linked. When you use one, Keep it and discard the other."
+			return "If you Use this, Keep it and Discard all other Items with Decay."
 		"gaze":
 			return "Marks up to three Items. Using one Petrifies the others while the Basilisk remains."
 		"petrify":

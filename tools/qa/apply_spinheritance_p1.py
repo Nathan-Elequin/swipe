@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "data" / "catalog.json"
 BOARD = ROOT / "data" / "content-board.json"
 
-DECAY_DEF = "Decayed Items are linked. When you use one, Keep it and discard the other."
+DECAY_DEF = "If you Use this, Keep it and Discard all other Items with Decay."
 
 PHOENIX_ABILITY = "If I am Defeated before I Attack, add a Phoenix Egg to the Dungeon Deck."
 BERSERKER_ABILITY = "On Spin, 50%: gain +4 Attack. Otherwise: lose 3 Attack."

@@ -91,7 +91,7 @@ def main() -> int:
     expect(zombie["ability"] == "When you Spin me, I Decay two of your Items.", "zombie ability", fails)
     expect(zombie["call_name"] == "Decay", "zombie call", fails)
     expect(
-        zombie["reminder"] == "Decayed Items are linked. When you use one, Keep it and discard the other.",
+        zombie["reminder"] == "If you Use this, Keep it and Discard all other Items with Decay.",
         "zombie reminder",
         fails,
     )
