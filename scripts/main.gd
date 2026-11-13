@@ -28374,6 +28374,8 @@ func _place_take_arc() -> void:
 	var parent: Control = take_arc.get_parent() as Control
 	if parent == null:
 		return
+	take_arc.scale = Vector2.ONE
+	take_arc.pivot_offset = Vector2.ZERO
 	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
 	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
 	## Size the Button to the painted arc. A full-window rect eats hotbar clicks
@@ -28393,8 +28395,6 @@ func _place_take_arc() -> void:
 		take_arc.position = local_pos
 		take_arc.size = gr.size
 		take_arc.set_guide(take_arc.get_global_transform().affine_inverse() * c, rad, TAKE_ARC.RIM_GAP_DEFAULT)
-	if take_arc.has_method("sync_pop_pivot"):
-		take_arc.sync_pop_pivot()
 	_clear_undo_under_take_arc()
 
 

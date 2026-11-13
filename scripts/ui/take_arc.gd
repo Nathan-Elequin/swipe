@@ -58,7 +58,8 @@ var word_font: Font
 var mystery_take: bool = false
 var _down: bool = false
 var _pop_tw: Tween
-var _pop_armed: bool = false
+## Extra outer radius during the land pop. Layout/hit-test ignore this (inner rim stays put).
+var _pop_grow: float = 0.0
 
 
 func _ready() -> void:
@@ -94,40 +95,39 @@ func set_guide(c_local: Vector2, radius: float, gap: float = -1.0) -> void:
 	queue_redraw()
 
 
-## Visual center of the cream band (for the land pop).
-func band_center_local() -> Vector2:
-	return _chord_point(0.5)
-
-
-func sync_pop_pivot() -> void:
-	pivot_offset = band_center_local()
-
-
 func reset_pop() -> void:
 	if _pop_tw != null and is_instance_valid(_pop_tw):
 		_pop_tw.kill()
 	_pop_tw = null
-	_pop_armed = false
+	_pop_grow = 0.0
 	scale = Vector2.ONE
+	pivot_offset = Vector2.ZERO
 	self_modulate = Color.WHITE
-	sync_pop_pivot()
+	queue_redraw()
 
 
-## Bubble pop after Spin (or any hide→show). TRANS_BACK overshoots like a drop landing.
+func _set_pop_grow(v: float) -> void:
+	_pop_grow = v
+	queue_redraw()
+
+
+## Fade + inflate the outer edge after Spin. Does not scale the Control
+## (that was baking a higher seat into layout).
 func play_pop() -> void:
 	if not is_inside_tree():
 		return
 	if _pop_tw != null and is_instance_valid(_pop_tw):
 		_pop_tw.kill()
-	sync_pop_pivot()
-	_pop_armed = true
-	scale = Vector2(0.62, 0.62)
+	scale = Vector2.ONE
+	pivot_offset = Vector2.ZERO
+	_pop_grow = -16.0
 	self_modulate = Color(1, 1, 1, 0)
+	queue_redraw()
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_BOUND)
 	tw.set_parallel(true)
 	tw.tween_property(self, "self_modulate:a", 1.0, 0.10).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.04)
+	tw.tween_method(_set_pop_grow, -16.0, 0.0, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.04)
 	_pop_tw = tw
 
 
@@ -338,6 +338,7 @@ func _draw() -> void:
 		rim_extra = 0.05
 	elif live and _down:
 		rim_extra = 0.04
+	grow += _pop_grow
 	_draw_band(pal, press, grow, rim_extra)
 	_draw_bevel(pal, press, grow)
 	_draw_corner_ticks(pal, press, grow)
@@ -349,7 +350,7 @@ func _draw() -> void:
 
 func _draw_band(pal: Dictionary, press: Vector2, grow: float = 0.0, rim_extra: float = 0.0) -> void:
 	var span: Vector2 = _arc_span()
-	var inn: float = inner_radius() - grow * 0.35
+	var inn: float = _draw_inn(grow)
 	var out: float = outer_radius() + grow
 	var ink_in: float = 0.05 + rim_extra
 	var wood_in: float = 0.10 + rim_extra
@@ -410,10 +411,16 @@ func _end_inward_tang(t_end: float) -> Vector2:
 	return tang.normalized()
 
 
+func _draw_inn(grow: float) -> float:
+	if grow > 0.0:
+		return inner_radius() - grow * 0.35
+	return inner_radius()
+
+
 func _draw_bevel(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	## 2-tone metal rim: outer ink, gold just inside, inner cream highlight.
 	var aa: bool = not OS.has_feature("web")
-	var inn: float = inner_radius() - grow * 0.35
+	var inn: float = _draw_inn(grow)
 	var out: float = outer_radius() + grow
 	var outer_pts: PackedVector2Array = _rim_pts(out, press)
 	var gold_pts: PackedVector2Array = _rim_pts(out - BEVEL_INK - 0.4, press)
@@ -438,7 +445,7 @@ func _draw_bevel(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 func _draw_corner_ticks(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	## Short engraved L at each square corner. Stays on the rim, off the pip / Take word.
 	var aa: bool = not OS.has_feature("web")
-	var inn: float = inner_radius() - grow * 0.35
+	var inn: float = _draw_inn(grow)
 	var out: float = outer_radius() + grow
 	var span: Vector2 = _arc_span()
 	var tick := 4.5
@@ -459,7 +466,7 @@ func _draw_divider(pal: Dictionary, press: Vector2, grow: float = 0.0) -> void:
 	var span: Vector2 = _arc_span()
 	var ang: float = span.x + span.y * SPLIT_T
 	var dir: Vector2 = Vector2.from_angle(ang)
-	var inn: float = inner_radius() - grow * 0.35
+	var inn: float = _draw_inn(grow)
 	var out: float = outer_radius() + grow
 	var a: Vector2 = guide_c + dir * (inn + 5.0) + press
 	var b: Vector2 = guide_c + dir * (out - 5.0) + press
