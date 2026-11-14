@@ -1090,6 +1090,19 @@ func music_after_dungeon_clear() -> void:
 	_music_to_between_dungeons("dungeon_clear")
 
 
+func _bar_wait_to_line(pos: float, bar: float, phase_s: float) -> float:
+	# Seconds until the next bar line on a grid with period `bar` and phase offset
+	# `phase_s` (true downbeat = k*bar + phase_s). Used when the scheduler reads
+	# loop playback position; phase_s 0 keeps the old t=0 grid.
+	var mod: float = fmod(pos - phase_s, bar)
+	if mod < 0.0:
+		mod += bar
+	var wait: float = bar - mod
+	if wait < 0.05:
+		wait += bar
+	return wait
+
+
 func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> void:
 	var beds_cfg: Dictionary = _music_cfg.get("beds", {})
 	var biome_spec: Dictionary = beds_cfg.get(biome_key, {})
@@ -1097,22 +1110,45 @@ func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> voi
 	var bar: float = float(biome_spec.get("bar_period_s", 0.0))
 	if bar <= 0.0:
 		bar = 2.4
+	var bar_phase_s: float = float(biome_spec.get("bar_phase_s", 0.0))
 	var style: String = str(victory_spec.get("outro_style", "crossfade")).strip_edges().to_lower()
 	if style == "":
 		style = "crossfade"
 	var pos: float = music.get_playback_position()
 	var seq: int = _music_seq
 	if style == "splice":
-		var lead_frac: float = float(victory_spec.get("lead_in_frac", 0.5))
-		if lead_frac <= 0.0:
-			lead_frac = 0.5
-		var splice_out_s: float = float(victory_spec.get("splice_out_s", 0.04))
-		if splice_out_s <= 0.0:
-			splice_out_s = 0.04
-		var wait_to_t: float = bar - fmod(pos, bar)
-		if wait_to_t < 0.05:
-			wait_to_t += bar
-		var wait_to_lead: float = wait_to_t - bar * lead_frac
+		# Lead before bar line T: absolute outro_lead_s wins; else lead_in_frac×bar
+		# (Forge default 0.5). Loop out: loop_out_start "bar" + loop_out_frac×bar
+		# (Crypt: hold through lead, then 1.0×bar ramp from T); else Forge
+		# splice_out_s cut ending at T (default 0.04).
+		var lead_s: float = 0.0
+		if victory_spec.has("outro_lead_s"):
+			lead_s = float(victory_spec.get("outro_lead_s", 0.0))
+		else:
+			var lead_frac: float = float(victory_spec.get("lead_in_frac", 0.5))
+			if lead_frac <= 0.0:
+				lead_frac = 0.5
+			lead_s = bar * lead_frac
+		if lead_s < 0.0:
+			lead_s = 0.0
+		var out_dur: float = 0.0
+		var hold_s: float = 0.0
+		var loop_out_start: String = str(victory_spec.get("loop_out_start", "")).strip_edges().to_lower()
+		if victory_spec.has("loop_out_frac") or loop_out_start == "bar":
+			var loop_out_frac: float = float(victory_spec.get("loop_out_frac", 1.0))
+			if loop_out_frac <= 0.0:
+				loop_out_frac = 1.0
+			out_dur = bar * loop_out_frac
+			# Hold loop at full gain through the lead; ramp starts at T.
+			hold_s = lead_s
+		else:
+			out_dur = float(victory_spec.get("splice_out_s", 0.04))
+			if out_dur <= 0.0:
+				out_dur = 0.04
+			# Forge: ramp starts at T−out_dur, silent at T.
+			hold_s = maxf(lead_s - out_dur, 0.0)
+		var wait_to_t: float = _bar_wait_to_line(pos, bar, bar_phase_s)
+		var wait_to_lead: float = wait_to_t - lead_s
 		if wait_to_lead < 0.05:
 			wait_to_t += bar
 			wait_to_lead += bar
@@ -1124,13 +1160,16 @@ func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> voi
 			"wait": wait_to_lead,
 			"wait_to_t": wait_to_t,
 			"bar": bar,
+			"bar_phase_s": bar_phase_s,
 			"pos": pos,
-			"lead_frac": lead_frac,
-			"splice_out_s": splice_out_s,
+			"lead_s": lead_s,
+			"hold_s": hold_s,
+			"out_dur": out_dur,
+			"loop_out_start": loop_out_start,
 		})
 		_after_ms(wait_to_lead * 1000.0, func() -> void:
 			if _music_seq == seq and music_state == &"rest":
-				_splice_to_biome_victory(StringName(victory_id), bar, lead_frac, splice_out_s)
+				_splice_to_biome_victory(StringName(victory_id), hold_s, out_dur)
 		)
 		return
 	var out_frac: float = float(victory_spec.get("out_frac", 0.8))
@@ -1139,9 +1178,7 @@ func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> voi
 		out_frac = 0.8
 	if in_frac <= 0.0:
 		in_frac = 0.5
-	var wait: float = bar - fmod(pos, bar)
-	if wait < 0.05:
-		wait += bar
+	var wait: float = _bar_wait_to_line(pos, bar, bar_phase_s)
 	print("[music] victory_outro biome=%s style=crossfade wait_s=%.3f bar_period_s=%.3f" % [biome_key, wait, bar])
 	log_audio("start", "victory_outro_scheduled", {
 		"biome": biome_key,
@@ -1149,6 +1186,7 @@ func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> voi
 		"style": "crossfade",
 		"wait": wait,
 		"bar": bar,
+		"bar_phase_s": bar_phase_s,
 		"pos": pos,
 		"out_frac": out_frac,
 		"in_frac": in_frac,
@@ -1250,10 +1288,11 @@ func _crossfade_to_biome_victory(victory_bed: StringName, bar: float, out_frac: 
 	})
 
 
-func _splice_to_biome_victory(victory_bed: StringName, bar: float, lead_frac: float, splice_out_s: float) -> void:
-	# Splice: start victory at full gain at the half-bar lead-in (baked fade-in in the
-	# clip). Hold loop layers until T - splice_out_s, then 40 ms linear ramp to silent
-	# exactly at the bar line T. No engine fade-in on the victory clip.
+func _splice_to_biome_victory(victory_bed: StringName, hold_s: float, out_dur: float) -> void:
+	# Splice: start victory at full gain at the lead-in (baked fade-in in the clip).
+	# Hold loop layers for hold_s, then linear ramp to silent over out_dur.
+	# Forge: hold = lead − 0.04, out_dur = 0.04 (silent at bar line T).
+	# Crypt: hold = lead, out_dur = 1.0×bar (ramp starts at T). No engine fade-in.
 	var id: String = String(victory_bed)
 	if not _beds.has(id):
 		log_audio("skip", "missing_victory_bed", {"bed": id})
@@ -1278,17 +1317,17 @@ func _splice_to_biome_victory(victory_bed: StringName, bar: float, lead_frac: fl
 	incoming.bus = "Music"
 	incoming.volume_db = gain
 	incoming.play(0.0)
-	var hold_s: float = maxf(bar * lead_frac - splice_out_s, 0.0)
+	var hold: float = maxf(hold_s, 0.0)
 	var seq: int = _music_seq
 	log_audio("start", "victory_outro_splice_in", {
 		"bed": id,
 		"style": "splice",
 		"gain_db": gain,
-		"hold_s": hold_s,
-		"splice_out_s": splice_out_s,
+		"hold_s": hold,
+		"out_dur": out_dur,
 		"layers": out_players.size(),
 	})
-	_after_ms(hold_s * 1000.0, func() -> void:
+	_after_ms(hold * 1000.0, func() -> void:
 		if _music_seq != seq or music_state != &"rest":
 			return
 		# Re-read current volumes in case something nudged them during the hold.
@@ -1299,17 +1338,17 @@ func _splice_to_biome_victory(victory_bed: StringName, bar: float, lead_frac: fl
 		_xfade_tw = create_tween()
 		_xfade_tw.set_ignore_time_scale(true)
 		_xfade_tw.set_parallel(true)
-		var out_dur: float = maxf(splice_out_s, 0.01)
+		var ramp_s: float = maxf(out_dur, 0.01)
 		for i in range(out_players.size()):
 			var player: AudioStreamPlayer = out_players[i]
 			var start_db: float = float(out_start_db[i])
-			_xfade_tw.tween_method(_set_victory_out_lin.bind(player, start_db), 0.0, 1.0, out_dur)
+			_xfade_tw.tween_method(_set_victory_out_lin.bind(player, start_db), 0.0, 1.0, ramp_s)
 		_xfade_tw.chain().tween_callback(func() -> void:
 			_victory_stop_out_layers(out_players, incoming)
 		)
 		log_audio("start", "victory_outro_splice_out", {
 			"bed": id,
-			"out_dur": out_dur,
+			"out_dur": ramp_s,
 			"layers": out_players.size(),
 		})
 	)
