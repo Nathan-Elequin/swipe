@@ -488,7 +488,28 @@ static func with_def_link(shown: String, piece: String, ink_hex: String = "", pa
 	return chip_bbcode(word, id, ink, paper)
 
 
+static func collect_kw_ids(text: String) -> Array:
+	## Deduplicated keyword ids in order of appearance from [url=kw:…] chips.
+	var out: Array = []
+	var seen: Dictionary = {}
+	var raw: String = text
+	if raw == "":
+		return out
+	var rx := RegEx.new()
+	if rx.compile("\\[url=kw:([a-z0-9_]+)") != OK:
+		return out
+	for m in rx.search_all(raw):
+		var kid: String = str(m.get_string(1)).strip_edges().to_lower()
+		if kid == "" or seen.has(kid):
+			continue
+		seen[kid] = true
+		out.append(kid)
+	return out
+
+
 static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null) -> void:
+	## Legacy single-card hover (tutorial talk, speech, wheel pips, F1 editor).
+	## Inspect plates use wire_stack_highlight + KeywordStack autoshow instead.
 	if rtl == null or tip == null:
 		return
 	rtl.bbcode_enabled = true
@@ -501,8 +522,36 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 		rtl.meta_clicked.connect(_on_def_click.bind(tip, anchor))
 
 
+static func wire_stack_highlight(rtl: RichTextLabel, stack: Node) -> void:
+	## Optional: hovering a chip word highlights its matching card in the autoshow stack.
+	if rtl == null or stack == null:
+		return
+	rtl.bbcode_enabled = true
+	rtl.meta_underlined = false
+	if not rtl.meta_hover_started.is_connected(_on_stack_highlight.bind(stack)):
+		rtl.meta_hover_started.connect(_on_stack_highlight.bind(stack))
+	if not rtl.meta_hover_ended.is_connected(_on_stack_unhighlight.bind(stack)):
+		rtl.meta_hover_ended.connect(_on_stack_unhighlight.bind(stack))
+
+
+static func _on_stack_highlight(meta: Variant, stack: Node) -> void:
+	if stack == null or not stack.has_method("highlight_id"):
+		return
+	var id: String = str(meta).trim_prefix("kw:")
+	stack.highlight_id(id)
+
+
+static func _on_stack_unhighlight(_meta: Variant, stack: Node) -> void:
+	if stack != null and stack.has_method("clear_highlight"):
+		stack.clear_highlight()
+
+
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip == null:
+		return
+	## KeywordStack: highlight only (autoshow already open).
+	if tip.has_method("highlight_id") and tip.has_method("is_showing"):
+		_on_stack_highlight(meta, tip)
 		return
 	## Pinned card owns the surface — other chip hovers do nothing.
 	if bool(tip.get("_pinned")):
@@ -527,6 +576,9 @@ static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> v
 
 
 static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
+	if tip != null and tip.has_method("clear_highlight") and tip.has_method("is_showing"):
+		tip.clear_highlight()
+		return
 	if tip != null and bool(tip.get("_pinned")):
 		return
 	if tip != null and bool(tip.get("_teach_dismiss_pending")):
@@ -540,6 +592,10 @@ static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -
 
 static func _on_def_click(meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip == null:
+		return
+	## Stack autoshow: click is a no-op (pin removed for inspect plates).
+	if tip.has_method("highlight_id") and tip.has_method("is_showing"):
+		_on_stack_highlight(meta, tip)
 		return
 	var id: String = str(meta).trim_prefix("kw:")
 	if tip.has_method("pin_def"):
