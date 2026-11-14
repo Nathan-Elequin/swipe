@@ -309,14 +309,16 @@ func _build_shell() -> void:
 	_viewport.name = "FaceViewport"
 	_viewport.position = vp_local.position
 	_viewport.size = vp_local.size
-	_viewport.clip_contents = true
+	## False so the floor lever (and feet on HALL_FLOOR_Y in front of the dais) can draw
+	## below the oak face. Pyramid slabs still fit inside the 616 face height.
+	_viewport.clip_contents = false
 	_viewport.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_viewport)
-	## Painted placard (LINEAR, 1:1). Do not use _tex_or_box — that forces Nearest.
-	## Screen top at y 0, centred on x 840 → board-local y −40.
+	## Painted placard (Nearest, 1:1). New signs are 120 tall; widths even so centre is whole pixels.
+	## Screen top at y 0, centred on x 840 → board-local.
 	_plaque = TextureRect.new()
 	_plaque.name = "Plaque"
-	_plaque.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_plaque.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_plaque.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_plaque.stretch_mode = TextureRect.STRETCH_KEEP
 	_plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -658,10 +660,11 @@ func _build_item_tag() -> void:
 		nine.name = "Frame"
 		nine.texture = parch
 		nine.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		nine.patch_margin_left = 6
-		nine.patch_margin_top = 6
-		nine.patch_margin_right = 6
-		nine.patch_margin_bottom = 6
+		## Display margins 24 (6 native ×4). Centre/edges are flat and safe to stretch.
+		nine.patch_margin_left = 24
+		nine.patch_margin_top = 24
+		nine.patch_margin_right = 24
+		nine.patch_margin_bottom = 24
 		nine.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 		nine.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_item_tag.add_child(nine)
@@ -695,14 +698,14 @@ func _build_item_tag() -> void:
 	_item_tag_title = Label.new()
 	_item_tag_title.name = "Title"
 	_item_tag_title.add_theme_font_size_override("font_size", 18)
-	_item_tag_title.add_theme_color_override("font_color", Color("3a2414"))
+	_item_tag_title.add_theme_color_override("font_color", Color("4a2f1f"))
 	_item_tag_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_item_tag_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_item_tag_title)
 	_item_tag_body = Label.new()
 	_item_tag_body.name = "Body"
 	_item_tag_body.add_theme_font_size_override("font_size", 14)
-	_item_tag_body.add_theme_color_override("font_color", Color("4a3220"))
+	_item_tag_body.add_theme_color_override("font_color", Color("4a2f1f"))
 	_item_tag_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_item_tag_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_item_tag_body)
@@ -871,7 +874,7 @@ func _apply_placard_tex(pool_id: String, face_name: String) -> void:
 		_plaque_lab.visible = false
 	if _plaque is TextureRect:
 		var tr := _plaque as TextureRect
-		tr.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_KEEP
 		if ptex != null:
@@ -879,8 +882,9 @@ func _apply_placard_tex(pool_id: String, face_name: String) -> void:
 			var tw := float(ptex.get_width())
 			var th := float(ptex.get_height())
 			tr.size = Vector2(tw, th)
-			## Screen centre x 840, top y 0 → board-local.
-			tr.position = Vector2(840.0 - tw * 0.5, 0.0) - MODEL.BOARD_OUTER.position
+			## Screen centre x 840, top y 0 → board-local. Floor so subpixel blur never creeps in.
+			var cx := floorf(840.0 - tw * 0.5)
+			tr.position = Vector2(cx, 0.0) - MODEL.BOARD_OUTER.position
 		tr.tooltip_text = face_name
 
 

@@ -1,11 +1,14 @@
 class_name NibPointer
 extends Control
 ## Tutorial-style pointer from Nib's talk bar to a hall target, plus a pulsing ring.
-## Loads assets/ui/trophy/pulse_ring.png when present so Pixel can swap art later.
+## Prefers pulse_ring_sheet.png (4×160 frames) and falls back to pulse_ring.png.
 
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const PULSE_RING_PATH := "res://assets/ui/trophy/pulse_ring.png"
+const PULSE_RING_SHEET_PATH := "res://assets/ui/trophy/pulse_ring_sheet.png"
+const PULSE_FRAME := 160
+const PULSE_FPS := 8.0
 
 var _ink: Control = null
 var _ring: Control = null
@@ -38,8 +41,28 @@ func _ensure_pulse_ring() -> void:
 	_ring.name = "PulseRing"
 	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ring.z_index = 1
+	_ring.size = Vector2(PULSE_FRAME, PULSE_FRAME)
 	add_child(_ring)
-	if ResourceLoader.exists(PULSE_RING_PATH):
+	if ResourceLoader.exists(PULSE_RING_SHEET_PATH):
+		var sheet: Texture2D = load(PULSE_RING_SHEET_PATH) as Texture2D
+		var spr := AnimatedSprite2D.new()
+		spr.name = "PulseRingArt"
+		spr.centered = false
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var sf := SpriteFrames.new()
+		sf.add_animation("pulse")
+		sf.set_animation_speed("pulse", PULSE_FPS)
+		sf.set_animation_loop("pulse", true)
+		for i in 4:
+			var at := AtlasTexture.new()
+			at.atlas = sheet
+			at.region = Rect2(i * PULSE_FRAME, 0, PULSE_FRAME, PULSE_FRAME)
+			sf.add_frame("pulse", at)
+		spr.sprite_frames = sf
+		spr.position = Vector2.ZERO
+		_ring.add_child(spr)
+		_ring_art = spr
+	elif ResourceLoader.exists(PULSE_RING_PATH):
 		var tr := TextureRect.new()
 		tr.name = "PulseRingArt"
 		tr.texture = load(PULSE_RING_PATH) as Texture2D
@@ -73,9 +96,7 @@ func point_at(from_global: Vector2, target: Control, ring_pad: Vector2 = Vector2
 	else:
 		g = Rect2(from_global + Vector2(80, -120), Vector2(64, 64))
 	_to = g.position + g.size * 0.5
-	_ring.size = g.size + ring_pad * 2.0
-	_ring.global_position = g.position + g.size * 0.5 - _ring.size * 0.5
-	_ring.visible = true
+	_place_ring(_to)
 	_ink.queue_redraw()
 	_start_pulse()
 
@@ -86,11 +107,20 @@ func point_at_rect(from_global: Vector2, target_global: Rect2, ring_pad: Vector2
 	visible = true
 	_from = from_global
 	_to = target_global.position + target_global.size * 0.5
-	_ring.size = target_global.size + ring_pad * 2.0
-	_ring.global_position = target_global.position + target_global.size * 0.5 - _ring.size * 0.5
-	_ring.visible = true
+	_place_ring(_to)
 	_ink.queue_redraw()
 	_start_pulse()
+
+
+func _place_ring(center: Vector2) -> void:
+	## 160×160 ring centred on the target (encloses a 128 slot).
+	_ring.size = Vector2(PULSE_FRAME, PULSE_FRAME)
+	_ring.global_position = center - _ring.size * 0.5
+	_ring.visible = true
+	if _ring_art is AnimatedSprite2D:
+		var spr := _ring_art as AnimatedSprite2D
+		if spr.sprite_frames != null and spr.sprite_frames.has_animation("pulse"):
+			spr.play("pulse")
 
 
 func clear() -> void:
@@ -98,6 +128,8 @@ func clear() -> void:
 	visible = false
 	if _ring != null:
 		_ring.visible = false
+	if _ring_art is AnimatedSprite2D:
+		(_ring_art as AnimatedSprite2D).stop()
 	if _pulse_tw != null and is_instance_valid(_pulse_tw):
 		_pulse_tw.kill()
 		_pulse_tw = null
@@ -111,6 +143,9 @@ func _start_pulse() -> void:
 	if _pulse_tw != null and is_instance_valid(_pulse_tw):
 		_pulse_tw.kill()
 	_ring.modulate = Color(1, 1, 1, 1)
+	## Sheet animation carries the expand/fade; keep a soft opacity breathe as backup.
+	if _ring_art is AnimatedSprite2D:
+		return
 	_pulse_tw = create_tween()
 	_pulse_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_pulse_tw.set_loops()

@@ -28,17 +28,20 @@ const BOARD_OUTER := Rect2(176, 40.0 - BOARD_RAISE_PX, 1328, 776)
 const FACE_VIEWPORT := Rect2(224, 128.0 - BOARD_RAISE_PX, 1232, 616)
 const PYRAMID_AREA := Rect2(224, 272.0 - BOARD_RAISE_PX, 1232, 464)
 const FACE_CENTER_X := 840.0
-## Visible floor line under the board (Nib feet + lever feet land here).
-const HALL_FLOOR_Y := 848.0
+## Visible floor line in front of the board dais (Nib feet + lever feet land here).
+## Dais sits at y 812 height 96; front face ≈896, floor shadow ≈904. Feet walk 904–940.
+const HALL_FLOOR_Y := 920.0
 
 const SLOT_NORMAL := 128.0
 const HGAP_NORMAL := 24.0
-const VGAP_NORMAL := 24.0
+## 32 leaves air under each low plinth slab; 3×128 + 2×32 = 448 ≤ 464 pyramid area.
+const VGAP_NORMAL := 32.0
 const MAX_PER_LINE_NORMAL := 8
 
 const SLOT_COMPACT := 80.0
 const HGAP_COMPACT := 16.0
-const VGAP_COMPACT := 16.0
+## 20 leaves air under compact slabs; 4×80 + 3×20 = 380 ≤ 464.
+const VGAP_COMPACT := 20.0
 const MAX_PER_LINE_COMPACT := 14
 const MAX_COMPACT_LINES := 4
 
@@ -193,8 +196,9 @@ static func slot_state(_cabin_seen: Dictionary, state: Dictionary, id: String, _
 
 
 ## Floor spill grid for Rope Exit open-satchel haul (rows of up to max_cols).
+## Default cell 60 + gap 16 = 76 px pitch (floor_grid_cell.png).
 ## Returns local top-left positions for n cells of size cell_px.
-static func satchel_grid_positions(n: int, cell_px: float = 56.0, max_cols: int = 5, gap: float = 8.0) -> Array:
+static func satchel_grid_positions(n: int, cell_px: float = 60.0, max_cols: int = 5, gap: float = 16.0) -> Array:
 	var out: Array = []
 	var count := maxi(0, n)
 	if count <= 0:
@@ -347,8 +351,8 @@ static func _layout_normal(tiers: Array) -> Dictionary:
 		PYRAMID_AREA.position - FACE_VIEWPORT.position,
 		PYRAMID_AREA.size
 	)
-	## Top-align the pyramid in PYRAMID_AREA (screen y 272). With VGAP_NORMAL 24,
-	## block_h is 432 and the leftover 32 px sits under the bottom row (oak/lip clearance).
+	## Top-align the pyramid in PYRAMID_AREA (screen y 192 after #512 raise).
+	## With VGAP_NORMAL 32, block_h is 448 and leftover air sits under the bottom row.
 	var y0: float = area_local.position.y
 	if tiers.size() != 3:
 		y0 = area_local.position.y + (area_local.size.y - block_h) * 0.5

@@ -8,6 +8,8 @@ const ROOM_HALL := "rooms/room_hall.png"
 const NIB_HOST := preload("res://scripts/cabin/nib_host.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 const BOARD_DAIS_PATH := "res://assets/ui/trophy/board_dais.png"
+## Wired dais art: 1376×96 at screen (152, 812). Replaces depth/bench_stand when present.
+const BOARD_DAIS_RECT := Rect2(152, 812, 1376, 96)
 ## SCREEN §2 / §9 — idle spot right of the board (native). Prefer NIB_HOST.hall_idle_native().
 const NIB_IDLE_NATIVE := Vector2(386, 164)
 
@@ -53,7 +55,7 @@ func _build_special() -> void:
 
 
 func _ensure_board_dais() -> void:
-	## Named host for future dais art. Dark wood placeholder until Pixel drops the PNG.
+	## Wooden dais under the board. Art is 1376×96 at (152, 812); z below the board.
 	board_dais = get_node_or_null("BoardDais") as Control
 	if board_dais == null:
 		board_dais = Control.new()
@@ -61,14 +63,13 @@ func _ensure_board_dais() -> void:
 		add_child(board_dais)
 	board_dais.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	board_dais.z_index = 3
-	var outer: Rect2 = MODEL.BOARD_OUTER
-	var floor_y: float = MODEL.HALL_FLOOR_Y
-	board_dais.position = Vector2(outer.position.x, outer.end.y)
-	board_dais.size = Vector2(outer.size.x, maxf(24.0, floor_y - outer.end.y))
+	board_dais.position = BOARD_DAIS_RECT.position
+	board_dais.size = BOARD_DAIS_RECT.size
 	## Clear prior children then load art or placeholder.
 	for c in board_dais.get_children():
 		c.queue_free()
-	if ResourceLoader.exists(BOARD_DAIS_PATH):
+	var has_art := ResourceLoader.exists(BOARD_DAIS_PATH)
+	if has_art:
 		var tr := TextureRect.new()
 		tr.name = "BoardDaisArt"
 		tr.texture = load(BOARD_DAIS_PATH) as Texture2D
@@ -78,6 +79,10 @@ func _ensure_board_dais() -> void:
 		tr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		board_dais.add_child(tr)
+		## Dais replaces the old bench_stand depth plate.
+		var stand := get_node_or_null("BenchStand") as CanvasItem
+		if stand != null:
+			stand.visible = false
 	else:
 		var wood := ColorRect.new()
 		wood.name = "BoardDaisPlaceholder"

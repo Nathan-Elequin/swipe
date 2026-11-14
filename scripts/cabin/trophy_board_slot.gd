@@ -1,6 +1,6 @@
 class_name TrophyBoardSlot
 extends Control
-## One pyramid slot: plinth + item sprite + claimed glow. No nameplates.
+## One pyramid slot: low plinth slab + item sprite + claimed glow. No nameplates.
 
 
 signal hovered(card_id: String, state: StringName)
@@ -10,9 +10,14 @@ signal clicked(card_id: String, state: StringName)
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 
-## Pixel drop paths (Nearest). Fall back to legacy recess frames when missing.
+## Pixel drop paths (Nearest). Low slabs under each cell — never the old square recess.
 const PLINTH_CLAIMED := "trophy/plinth_claimed"
 const PLINTH_EMPTY := "trophy/plinth_empty"
+const PLINTH_CLAIMED_S := "trophy/plinth_claimed_s"
+const PLINTH_EMPTY_S := "trophy/plinth_empty_s"
+## Slab local rects (slot-local). Overlaps cell bottom; extends into the row gap.
+const PLINTH_RECT := Rect2(0, 116, 128, 32)
+const PLINTH_RECT_S := Rect2(0, 68, 80, 24)
 
 var card_id: String = ""
 var slot_state: StringName = &"unclaimed"
@@ -27,6 +32,7 @@ var _shine: ColorRect
 var _compact: bool = false
 var _gentle_pulse: bool = false
 var _pulse_tw: Tween = null
+var _rest_pad: float = 0.0
 
 
 func setup(p_id: String, rect: Rect2, compact: bool) -> void:
@@ -36,6 +42,8 @@ func setup(p_id: String, rect: Rect2, compact: bool) -> void:
 	position = rect.position
 	size = rect.size
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	## Slab draws below the cell into the row gap.
+	clip_contents = false
 	_build()
 
 
@@ -68,12 +76,13 @@ func _build() -> void:
 	add_child(_aura)
 	_sprite = TextureRect.new()
 	_sprite.name = "Sprite"
-	_sprite.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sprite.z_index = 1
+	_sprite.position = Vector2.ZERO
+	_sprite.size = size
 	add_child(_sprite)
 	_shine = ColorRect.new()
 	_shine.name = "ClickShine"
@@ -87,28 +96,38 @@ func _build() -> void:
 	_load_aura_frame(0)
 
 
+func _plinth_stem(claimed: bool) -> String:
+	if _compact:
+		return PLINTH_CLAIMED_S if claimed else PLINTH_EMPTY_S
+	return PLINTH_CLAIMED if claimed else PLINTH_EMPTY
+
+
+func _plinth_rect() -> Rect2:
+	return PLINTH_RECT_S if _compact else PLINTH_RECT
+
+
 func _make_plinth(claimed: bool) -> Control:
-	var plinth_stem := PLINTH_CLAIMED if claimed else PLINTH_EMPTY
-	var tex: Texture2D = KIT.ui_tex(plinth_stem)
-	if tex == null:
-		var tex_name := "trophy_board/slot_recess_lit" if claimed else "trophy_board/slot_recess_dark"
-		if _compact:
-			tex_name += "_s"
-		tex = KIT.ui_tex(tex_name)
+	var tex: Texture2D = KIT.ui_tex(_plinth_stem(claimed))
+	var pr: Rect2 = _plinth_rect()
 	if tex != null:
 		var tr := TextureRect.new()
 		tr.name = "Plinth"
-		tr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		tr.position = pr.position
+		tr.size = pr.size
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_SCALE
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		tr.texture = tex
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tr.z_index = -1
 		return tr
+	## Missing art only — never the old square recess on the board.
 	var box := Panel.new()
 	box.name = "Plinth"
-	box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	box.position = pr.position
+	box.size = pr.size
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.z_index = -1
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("5c3a22") if claimed else Color("1e120c")
 	sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
@@ -119,8 +138,35 @@ func _make_plinth(claimed: bool) -> Control:
 
 func set_item_texture(tex: Texture2D) -> void:
 	item_tex = tex
+	_rest_pad = _bottom_pad_px(tex)
 	if _sprite:
 		_sprite.texture = tex
+		_apply_sprite_rest()
+
+
+## Transparent bottom rows × display scale so the icon rests on the slab top face (y=128 / y=80).
+func _bottom_pad_px(tex: Texture2D) -> float:
+	if tex == null:
+		return 0.0
+	var img: Image = tex.get_image()
+	if img == null and tex.resource_path != "":
+		img = Image.new()
+		if img.load(tex.resource_path) != OK:
+			return 0.0
+	if img == null:
+		return 0.0
+	var used: Rect2i = img.get_used_rect()
+	var bottom_pad: float = float(img.get_height()) - float(used.end.y)
+	## Icons are 64 native; board shows them at 2× (128) or 1.25× (80 compact).
+	var scale: float = 1.25 if _compact else 2.0
+	return maxf(0.0, bottom_pad * scale)
+
+
+func _apply_sprite_rest() -> void:
+	if _sprite == null:
+		return
+	_sprite.position = Vector2(0.0, _rest_pad)
+	_sprite.size = size
 
 
 func apply_state(st: StringName, force_silhouette := false) -> void:
@@ -141,6 +187,7 @@ func apply_state(st: StringName, force_silhouette := false) -> void:
 		_sprite.visible = true
 		if item_tex != null:
 			_sprite.texture = item_tex
+		_apply_sprite_rest()
 		if claimed:
 			_sprite.modulate = Color(1.08, 1.06, 1.02, 1.0)
 		else:
@@ -211,24 +258,24 @@ func set_gentle_pulse(on: bool) -> void:
 func _apply_plinth_art(claimed: bool) -> void:
 	if _recess == null:
 		return
-	var plinth_stem := PLINTH_CLAIMED if claimed else PLINTH_EMPTY
-	var tex: Texture2D = KIT.ui_tex(plinth_stem)
-	if tex == null:
-		var stem := "trophy_board/slot_recess_lit" if claimed else "trophy_board/slot_recess_dark"
-		if _compact:
-			stem += "_s"
-		tex = KIT.ui_tex(stem)
+	var tex: Texture2D = KIT.ui_tex(_plinth_stem(claimed))
+	var pr: Rect2 = _plinth_rect()
 	if _recess is TextureRect:
+		var tr := _recess as TextureRect
+		tr.position = pr.position
+		tr.size = pr.size
 		if tex != null:
-			(_recess as TextureRect).texture = tex
-		## Claimed plinth reads brighter even on the legacy recess fallback.
-		(_recess as TextureRect).modulate = Color(1.15, 1.08, 0.95, 1.0) if claimed else Color.WHITE
+			tr.texture = tex
+		tr.modulate = Color.WHITE
 	elif _recess is Panel:
+		var box := _recess as Panel
+		box.position = pr.position
+		box.size = pr.size
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color("6a4228") if claimed else Color("1e120c")
 		sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
 		sb.set_border_width_all(3 if claimed else 2)
-		(_recess as Panel).add_theme_stylebox_override("panel", sb)
+		box.add_theme_stylebox_override("panel", sb)
 
 
 func _load_aura_frame(i: int) -> void:
