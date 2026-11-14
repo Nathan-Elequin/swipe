@@ -292,13 +292,13 @@ function bump(map, key, field) {
   map[key][field] = (map[key][field] || 0) + 1;
 }
 
-async function telemetrySummary(env) {
+async function telemetrySummary(env, includeTest) {
   await ensureTelemetry(env);
   const rows = await env.TIER_DB.prepare(
     `SELECT received_at, anon_id, session_id, source, is_test, name, payload
      FROM telemetry_events ORDER BY id DESC LIMIT 4000`
   ).all();
-  const live = (rows.results || []).filter((r) => !r.is_test);
+  const live = (rows.results || []).filter((r) => includeTest || !r.is_test);
   const counts = {};
   const drafts = {};
   const items = {};
@@ -351,7 +351,9 @@ async function telemetrySummary(env) {
       })
       .sort((a, b) => (b.offered || b.used || b.fights) - (a.offered || a.used || a.fights));
   return {
-    counted: "live itch Sends only (not F5 / editor)",
+    counted: includeTest
+      ? "itch + F5 / editor (test rows included)"
+      : "live itch Sends only (not F5 / editor)",
     sessions: Object.keys(sessions).length,
     events: live.length,
     counts,
@@ -419,7 +421,8 @@ export default {
         return json(await summary(env), 200, request);
       }
       if (view === "telemetry") {
-        return json(await telemetrySummary(env), 200, request);
+        const includeTest = url.searchParams.get("test") === "1";
+        return json(await telemetrySummary(env, includeTest), 200, request);
       }
       return json({ error: "view" }, 400, request);
     }

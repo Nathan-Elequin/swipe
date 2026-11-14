@@ -27,11 +27,13 @@
 <body>
 <header>
   <h1>Playtest telemetry</h1>
-  <p>Silent events from the itch playtest (and F5, marked test and left out of these tables). Same Worker as F2. Open this file in Zen.</p>
+  <p>Silent events from the itch playtest. F5 Sends are marked test. Open this file in Zen.</p>
   <div class="cfg">
     <input id="url" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
     <input id="token" placeholder="shared Send token" type="password">
+    <label style="color:var(--muted);display:flex;align-items:center;gap:6px"><input id="test" type="checkbox" style="min-width:auto"> Include F5</label>
     <button id="load">Load live</button>
+    <button id="example">Show worked example</button>
   </div>
   <p class="status" id="status"></p>
 </header>
@@ -41,6 +43,51 @@ const $ = (id) => document.getElementById(id);
 $("url").value = localStorage.getItem("swipe_pt_url") || "https://swipe-playtest-inbox.vaelequin.workers.dev";
 $("token").value = localStorage.getItem("swipe_pt_token") || "";
 $("load").onclick = loadLive;
+$("example").onclick = showExample;
+
+const EXAMPLE = {
+  counted: "made-up teaching set — not real players",
+  sessions: 12,
+  events: 184,
+  counts: {
+    session_start: 12,
+    funnel: 18,
+    mode: 10,
+    run_start: 10,
+    draft_offered: 42,
+    draft_picked: 38,
+    item_used: 31,
+    fight_start: 28,
+    fight_end: 22,
+    dungeon_cleared: 6,
+    run_end: 10,
+  },
+  runs: { win: 3, dead: 5, leave: 2 },
+  funnel: { hub_brand_new: 4, hub_middle: 3, hub_continue: 5, cabin: 8, adventure: 7, challenge: 3, dungeon_enter: 9 },
+  drafts: [
+    { id: "healing_potion", offered: 18, picked: 15, pick_rate: 83.3 },
+    { id: "net", offered: 14, picked: 9, pick_rate: 64.3 },
+    { id: "da_boot", offered: 12, picked: 4, pick_rate: 33.3 },
+    { id: "sledgehammer", offered: 8, picked: 7, pick_rate: 87.5 },
+    { id: "goblin", offered: 11, picked: 2, pick_rate: 18.2 },
+  ],
+  items: [
+    { id: "healing_potion", used: 11 },
+    { id: "shield", used: 8 },
+    { id: "throwing_knife", used: 6 },
+    { id: "smoke_bomb", used: 4 },
+  ],
+  monsters: [
+    { id: "goblin", fights: 9, wins: 8 },
+    { id: "hornet", fights: 6, wins: 3 },
+    { id: "dragon", fights: 2, wins: 0 },
+  ],
+};
+
+function showExample() {
+  render(EXAMPLE);
+  $("status").textContent = "Worked example. This is invented so you can read the tables. Load live for the real database.";
+}
 
 function esc(s) {
   return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -67,7 +114,8 @@ async function loadLive() {
   localStorage.setItem("swipe_pt_token", token);
   $("status").textContent = "Loading…";
   try {
-    const res = await fetch(url + "?view=telemetry", {
+    const test = $("test").checked ? "&test=1" : "";
+    const res = await fetch(url + "?view=telemetry" + test, {
       headers: { "X-Swipe-Playtest": token },
     });
     const data = await res.json();
@@ -113,6 +161,8 @@ function render(data) {
     ])}
   `;
 }
+
+showExample();
 </script>
 </body>
 </html>
