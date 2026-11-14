@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-board-package-a
-status: open
+status: done
 branch: cursor/trophy-board-package-a-ca3c
 tip_sha: 654e6678
 priority: high

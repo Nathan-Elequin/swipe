@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-board-package-e
-status: open
+status: done
 priority: high
 branch: cursor/trophy-board-package-e-3afb
 base: playtest/latest

@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-package-d-board-gates
-status: open
+status: done
 priority: high
 tip_sha: 027132f2
 branch: cursor/trophy-board-package-d-9a30

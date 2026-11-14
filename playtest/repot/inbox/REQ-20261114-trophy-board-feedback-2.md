@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-board-feedback-2
-status: open
+status: done
 priority: high
 tip_sha: da66c5ab
 branch: cursor/trophy-board-feedback-2-1592

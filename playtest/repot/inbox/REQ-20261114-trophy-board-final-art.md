@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-board-final-art
-status: open
+status: done
 priority: high
 branch: cursor/trophy-board-final-art-35b7
 created: 2026-11-14T02:35:00Z
