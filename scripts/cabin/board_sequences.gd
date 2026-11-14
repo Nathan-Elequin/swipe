@@ -366,11 +366,12 @@ func _start_splash_music(biome_id: String) -> void:
 func _restore_cabin_music() -> void:
 	if sfx == null:
 		return
-	## Back in the hall: crossfade to cabin over ~1s.
-	if sfx.has_method("music_to"):
-		sfx.music_to(&"cabin", 1.0)
-	elif sfx.has_method("music_cabin"):
+	## Back in the hall: intentional cabin bed (clears biome delve lock).
+	## Do not music_to(cabin) while locked — that path is refused after map/portal splash.
+	if sfx.has_method("music_cabin"):
 		sfx.music_cabin()
+	elif sfx.has_method("music_to"):
+		sfx.music_to(&"cabin", 1.0)
 
 
 func _present_map(opts: Dictionary, nib_keys: Array, vars: Dictionary) -> void:
