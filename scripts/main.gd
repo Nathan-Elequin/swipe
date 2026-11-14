@@ -2884,7 +2884,12 @@ func _reset_run() -> void:
 		sfx.play("confirm_big", -8.0)
 		# Map→biome already started dungeon music in `_on_campaign_start`.
 		# `start_music()` is `music_title()` and would wipe that one shot.
-		if not _splash_busy:
+		# Climb / leave homecoming must keep cabin music, not title or the
+		# leftover between_dungeons / biome "cave" bed from Rope Exit.
+		if _cabin_from_leave:
+			if sfx.has_method("music_cabin"):
+				sfx.music_cabin()
+		elif not _splash_busy:
 			sfx.start_music()
 	rng.randomize()
 	hp = HP_MAX
@@ -3231,16 +3236,26 @@ func _adventure_leave() -> void:
 	var news: Array = []
 	if home_cabin:
 		news = home_cabin.swipe_ids(ids)
+	## Climb wipe already covers. Take over with a solid biome wipe BEFORE
+	## hiding Rope Exit so Developer Test / dungeon / HUD never flash.
+	var cover := _ensure_biome_wipe()
+	cover.visible = true
+	cover.mouse_filter = Control.MOUSE_FILTER_STOP
+	cover.modulate.a = 1.0
 	if overlay:
 		overlay.visible = false
+	if overlay_tools_row:
+		overlay_tools_row.visible = false
+	if overlay_dev:
+		overlay_dev.visible = false
+	_sync_biome_ambient("", true)
 	if rope_exit:
 		rope_exit.hide_exit()
 	_log("end", "leave")
 	_telem("run_end", {"outcome": "leave", "dungeons": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
-	# Soft dissolve out matching enter. No splash. Music calls unchanged.
-	await _biome_dissolve_out()
+	## Already fully covered by the climb wipe handoff — do not dissolve from 0.
 	if _campaign_on:
 		## Leave awards deferred map scrap (idempotent) — Push may have crossed without stamp.
 		await _campaign_bank_from_hand(true)
@@ -4052,13 +4067,20 @@ func _go_home(kind: String, new_ids: Array, held_ids: Array, _push_block: bool =
 	_sync_biome_ambient("", true)
 	if _campaign != null:
 		_sync_dungeon_biome()
-	await _biome_dissolve_reveal()
+	## Open the empty exterior UNDER the black wipe, then reveal. Opening after
+	## the reveal used to flash dungeon / title chrome before the cabin painted.
 	_telem("funnel", {"step": "cabin", "kind": kind, "walk_in": true})
 	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, true, kind, new_ids, held_ids)
 	if overlay:
 		overlay.visible = false
+	if overlay_tools_row:
+		overlay_tools_row.visible = false
 	if rope_exit:
 		rope_exit.hide_exit()
+	## Let exterior plant at x=0 with Sprout hidden before the wipe lifts.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await _biome_dissolve_reveal()
 	get_tree().paused = true
 	_hide_fight_hover()
 

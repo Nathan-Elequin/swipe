@@ -860,6 +860,11 @@ func music_cabin() -> void:
 	music_to(&"cabin", float(fades.get("to_cabin", 1.5)))
 
 
+## Active music bed id (cabin / title / between_dungeons / biome…). For selftests.
+func current_bed() -> StringName:
+	return _current_bed
+
+
 func _clear_dungeon_bed() -> void:
 	_dungeon_bed = &""
 
