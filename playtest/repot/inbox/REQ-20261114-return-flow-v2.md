@@ -3,7 +3,7 @@ id: REQ-20261114-return-flow-v2
 status: open
 priority: high
 branch: cursor/return-flow-v2-1368
-tip_sha: 7bb92836
+tip_sha: b58a5596
 created: 2026-11-14T10:10:00Z
 created_by: cloud-agent
 viewport: 1680x1040
