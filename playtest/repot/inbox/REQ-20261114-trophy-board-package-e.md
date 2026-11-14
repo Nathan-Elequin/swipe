@@ -4,7 +4,7 @@ status: open
 priority: high
 branch: cursor/trophy-board-package-e-3afb
 base: playtest/latest
-tip_sha: 32ab5308
+tip_sha: 7e3e4d7e
 created: 2026-11-14T03:50:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
