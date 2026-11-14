@@ -80,21 +80,38 @@ func _build_chrome() -> void:
 		light.mouse_entered.connect(func() -> void: lights_hovered.emit())
 		add_child(light)
 		_lights.append(light)
-	## Lever absolute (1344,160) → local (1120, 32)
-	_lever = _tex_or_box("Lever", Rect2(1120, 32, 64, 128), "trophy_board/lever_locked", Color("8a6a2e"))
+	## Floor lever beside the board (right side, on the floor — away from sconces/lights).
+	## Art paths stay data-driven (lever_locked / lever_ready / lever_pulled); new art drop keeps names.
+	## Integer ×2 of 64×128 native → 128×256 "big brass" placeholder.
+	## Face-local: near bottom-right of the face viewport (floor line).
+	var lever_art := Vector2(128, 256)
+	var lever_hit := Vector2(160, 288)
+	var lever_pos := Vector2(size.x - lever_hit.x - 8.0, size.y - lever_hit.y - 24.0)
+	_lever = _tex_or_box("Lever", Rect2(lever_pos, lever_hit), "trophy_board/lever_locked", Color("8a6a2e"))
 	_lever.mouse_filter = Control.MOUSE_FILTER_STOP
-	## Hit rect 96×160 centred on lever
-	_lever.position = Vector2(1120 - 16, 32 - 16)
-	_lever.size = Vector2(96, 160)
+	_lever.position = lever_pos
+	_lever.size = lever_hit
+	_lever.z_index = 6
 	_lever.gui_input.connect(_on_lever_gui)
 	_lever.mouse_entered.connect(func() -> void:
 		lever_hovered.emit(_lever.get_meta("lever_state", &"locked"))
 	)
 	add_child(_lever)
-	_lever_glow = _tex_or_box("LeverGlow", Rect2(1088, 0, 128, 192), "trophy_board/lever_glow", Color(1, 0.85, 0.3, 0.0))
+	## Ensure Art child is ×2 of the 64×128 source.
+	var art_n = _lever.get_node_or_null("Art")
+	if art_n == null and _lever.get_child_count() == 0:
+		pass
+	_lever_glow = _tex_or_box(
+		"LeverGlow",
+		Rect2(lever_pos - Vector2(32, 32), lever_hit + Vector2(64, 64)),
+		"trophy_board/lever_glow",
+		Color(1, 0.85, 0.3, 0.0)
+	)
 	_lever_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lever_glow.visible = false
+	_lever_glow.z_index = 5
 	add_child(_lever_glow)
+	_lever.set_meta("art_size", lever_art)
 	_padlock = _tex_or_box("Padlock", Rect2((size.x - 160) * 0.5, 144 + (464 - 192) * 0.5, 160, 192), "trophy_board/padlock", Color("3a3a3e"))
 	_padlock.mouse_filter = Control.MOUSE_FILTER_STOP
 	_padlock.visible = false
@@ -141,6 +158,9 @@ func apply_states(
 		_set_light(i, i < lit)
 	var ls: StringName = &"locked" if locked else MODEL.lever_state(rules, state, face)
 	_set_lever(ls, locked)
+	## Re-apply faint glow after state refresh (locked + at least one light).
+	if bool(get_meta("faint_glow", false)) and not locked and ls == &"locked" and lit > 0:
+		set_lever_faint_glow(true)
 
 
 func set_plaque_host(plaque: Control, lab: Label) -> void:
@@ -151,6 +171,13 @@ func set_plaque_host(plaque: Control, lab: Label) -> void:
 
 func slot_node(card_id: String) -> TrophyBoardSlot:
 	return _slots.get(str(card_id), null)
+
+
+func clear_all_pulses() -> void:
+	for id in _slots.keys():
+		var slot = _slots[id]
+		if slot != null and slot.has_method("set_gentle_pulse"):
+			slot.set_gentle_pulse(false)
 
 
 func flash_light(light_index: int) -> void:
@@ -178,17 +205,51 @@ func _play_light_flash(light_index: int) -> void:
 func set_lever_ready_fx(on: bool) -> void:
 	if _lever_glow == null:
 		return
+	_kill_lever_glow_tw()
 	_lever_glow.visible = on
 	if on and not reduce_motion:
 		_lever_glow.modulate = Color(1, 1, 1, 0.85)
-		var tw := create_tween().set_loops()
+		var tw := create_tween().set_loops(24)
 		tw.tween_property(_lever_glow, "modulate:a", 0.35, 0.6 / maxf(Engine.time_scale, 0.001))
 		tw.tween_property(_lever_glow, "modulate:a", 0.85, 0.6 / maxf(Engine.time_scale, 0.001))
 		_lever_glow.set_meta("pulse_tw", tw)
-	else:
-		var old = _lever_glow.get_meta("pulse_tw", null)
-		if old is Tween:
+	elif on and reduce_motion:
+		## Static highlight — no pulse.
+		_lever_glow.modulate = Color(1, 1, 1, 0.7)
+
+
+func _kill_lever_glow_tw() -> void:
+	if _lever_glow == null:
+		return
+	if _lever_glow.has_meta("pulse_tw"):
+		var old = _lever_glow.get_meta("pulse_tw")
+		if old is Tween and (old as Tween).is_valid():
 			(old as Tween).kill()
+		_lever_glow.remove_meta("pulse_tw")
+
+
+## Faint glow after the first light turns on, until the board hits READY (5).
+func set_lever_faint_glow(on: bool) -> void:
+	if _lever_glow == null:
+		return
+	var st: StringName = &"locked"
+	if _lever != null and _lever.has_meta("lever_state"):
+		st = _lever.get_meta("lever_state")
+	if st == &"ready" or st == &"spent":
+		return
+	_kill_lever_glow_tw()
+	_lever_glow.visible = on
+	_lever_glow.modulate = Color(1, 1, 1, 0.28 if on else 0.0)
+	if on and not reduce_motion:
+		## Very soft breathe — not the bright ready chase.
+		var tw := create_tween().set_loops(24)
+		tw.tween_property(_lever_glow, "modulate:a", 0.12, 1.0 / maxf(Engine.time_scale, 0.001))
+		tw.tween_property(_lever_glow, "modulate:a", 0.32, 1.0 / maxf(Engine.time_scale, 0.001))
+		_lever_glow.set_meta("pulse_tw", tw)
+
+
+func lever_control() -> Control:
+	return _lever
 
 
 func play_gild(_instant := false) -> void:
@@ -222,12 +283,14 @@ func _set_lever(st: StringName, hidden: bool) -> void:
 	elif st == &"spent":
 		stem = "trophy_board/lever_pulled"
 	var tex: Texture2D = KIT.ui_tex(stem)
-	## Inner art sits centred in the larger hit rect.
-	if _lever.get_child_count() == 0:
+	## Inner art: 128×256 (×2 of 64×128 source), centred in the hit rect.
+	var art_sz: Vector2 = _lever.get_meta("art_size", Vector2(128, 256))
+	var pad := (_lever.size - art_sz) * 0.5
+	if _lever.get_node_or_null("Art") == null:
 		var art := TextureRect.new()
 		art.name = "Art"
-		art.position = Vector2(16, 16)
-		art.size = Vector2(64, 128)
+		art.position = pad
+		art.size = art_sz
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_SCALE
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -235,11 +298,16 @@ func _set_lever(st: StringName, hidden: bool) -> void:
 		_lever.add_child(art)
 	var art_n = _lever.get_node_or_null("Art")
 	if art_n is TextureRect:
+		(art_n as TextureRect).position = pad
+		(art_n as TextureRect).size = art_sz
 		if tex != null:
 			(art_n as TextureRect).texture = tex
 		(art_n as TextureRect).visible = true
 	elif _lever is TextureRect and tex != null:
 		(_lever as TextureRect).texture = tex
+	## Faint glow after first light (locked only) — bright READY glow handled above.
+	if st == &"locked" and not hidden and bool(get_meta("faint_glow", false)):
+		set_lever_faint_glow(true)
 
 
 func _plaque_modulate(a: float) -> void:

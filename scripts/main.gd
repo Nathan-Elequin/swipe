@@ -29011,13 +29011,22 @@ func _sync_overlay() -> void:
 					var projected: int = CAMPAIGN_SHELL.project_cabinet_count(
 						_campaign.state, pool, haul_ids, haul_pools
 					)
-					## Portal spiral always reads the next biome id when one exists
-					## (even if Push is blocked by cabinet quota). Display chip name
-					## still only shows when can_push — same as before.
+					## Portal swirl only when alive (lever pulled / can_push). Arch lights
+					## show how many uniques are already placed on this biome's board.
 					var next_id := CAMPAIGN_SHELL.next_biome_id(_campaign.rules, _campaign.state)
 					var next_name := ""
 					if can_push and next_id != "":
 						next_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, next_id)
+					var lights_lit: int = n
+					var faces: Array = preload("res://scripts/cabin/trophy_board_model.gd").faces(
+						_campaign.rules, items_by_id
+					)
+					for face in faces:
+						if str((face as Dictionary).get("pool_id", "")) == pool:
+							lights_lit = preload("res://scripts/cabin/trophy_board_model.gd").lights_lit(
+								_campaign.rules, _campaign.state, face, []
+							)
+							break
 					chip = {
 						"biome": biome,
 						"n": n,
@@ -29028,7 +29037,10 @@ func _sync_overlay() -> void:
 						"next_id": next_id,
 						"show_next": can_push and next_name != "",
 						"push_block_key": CAMPAIGN_SHELL.push_block_key(_campaign.rules, _campaign.state),
+						"portal_alive": can_push,
+						"lights_lit": lights_lit,
 					}
+					## Kept for API compat; rope_exit no longer blocks on this.
 					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)
 				var endless_run := _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))
 				rope_exit.apply_exit_mode(_campaign_on, can_push, push_interrupt, chip, endless_run)

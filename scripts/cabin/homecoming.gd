@@ -5,6 +5,8 @@ extends Node
 
 
 const HOMECOMING_STEP := 2.0
+## First-return unpack pace (Nathan lock 2026-11-14). Normal returns stay at 2.0s.
+const FIRST_RETURN_STEP := 1.2
 ## Satchel / skip chrome from SCREEN §2. Slot fly targets come from TrophyBoard at runtime.
 const SATCHEL_RECT := Rect2(744, 872, 192, 160)
 const SATCHEL_OFF_Y := 1040.0
@@ -22,17 +24,22 @@ signal finished
 signal item_placed(card_id: String)
 signal light_flashed(face_index: int, light_index: int)
 signal skipped
+signal first_light_paused
+signal first_light_resumed
 
 ## Observability for selftests (filled during run).
 var placed_order: Array = []
 var face_change_count: int = 0
 var light_flash_count: int = 0
 var skipped_mid: bool = false
+var first_return_branch: String = ""  ## "" | "empty" | "unpack"
+var first_light_did_pause: bool = false
 
 var board = null
 var cabin = null
 var sfx = null
 var reduce_motion: bool = false
+var is_first_return: bool = false
 
 var _ceremony_gen: int = -1
 var _skip_requested: bool = false
@@ -42,6 +49,8 @@ var _host: Control = null
 var _active_tweens: Array = []
 var _fx_nodes: Array = []
 var _running: bool = false
+var _step_s: float = HOMECOMING_STEP
+var _lever_ring: Control = null
 
 
 ## Entry. Adds self under cabin (or board), runs the timeline, then frees.
@@ -80,6 +89,8 @@ func _run() -> void:
 	light_flash_count = 0
 	_skip_requested = false
 	skipped_mid = false
+	first_return_branch = ""
+	first_light_did_pause = false
 	if board == null or cabin == null:
 		_finish()
 		return
@@ -89,6 +100,8 @@ func _run() -> void:
 	_ceremony_gen = -1
 	if cabin.has_method("_begin_bank_ceremony"):
 		_ceremony_gen = int(cabin.call("_begin_bank_ceremony"))
+	is_first_return = _detect_first_return()
+	_step_s = FIRST_RETURN_STEP if is_first_return else HOMECOMING_STEP
 	var pending: Array = _ordered_pending()
 	## Open on first pending face (instant — satchel rise is the first motion).
 	if not pending.is_empty():
@@ -97,8 +110,19 @@ func _run() -> void:
 	elif board.has_method("current_face"):
 		## Nothing pending — leave board on saved face (board already snapped).
 		pass
-	## Empty pending → Nib line, no satchel.
-	if pending.is_empty():
+	## First return: Nib intro, then empty vs unpack branch. Never during key tour.
+	if is_first_return:
+		await _say_keys(["nib.board.first_look"], {})
+		if pending.is_empty():
+			first_return_branch = "empty"
+			await _say_keys(["nib.board.first_empty"], {})
+			_mark_first_return_done()
+			_finish()
+			return
+		first_return_branch = "unpack"
+		await _say_keys(["nib.board.first_unpack"], {})
+	## Empty pending (later returns) → Nib line, no satchel.
+	elif pending.is_empty():
 		await _say_empty_or_loss()
 		_finish()
 		return
@@ -115,14 +139,71 @@ func _run() -> void:
 		await _play_one_item(id)
 		if _stale():
 			break
+		## First return: short Nib comment after the first item lands.
+		if is_first_return and i == 0 and not _skip_requested:
+			await _say_keys(["nib.board.first_placed"], {})
 		i += 1
 	if _skip_requested and not _stale():
 		await _skip_rest(pending)
 	if not _stale():
 		await _drop_satchel()
+	if not _stale() and is_first_return and not placed_order.is_empty():
+		await _say_keys(["nib.board.first_hover_hint"], {})
+		_start_first_pulse(str(placed_order[0]))
+		_mark_first_return_done()
+	elif not _stale() and is_first_return:
+		_mark_first_return_done()
 	if not _stale():
 		await _after_items()
 	_finish()
+
+
+func _detect_first_return() -> bool:
+	if cabin == null:
+		return false
+	if _cabin_flag("first_return_homecoming_done"):
+		return false
+	var kind := _cabin_str("_homecoming_kind", "win")
+	## First successful dungeon return only (after key-ring / Nib relocate).
+	return kind == "win" and _cabin_flag("key_ring_seen")
+
+
+func _cabin_flag(prop: String) -> bool:
+	if cabin == null:
+		return false
+	if prop in cabin:
+		return bool(cabin.get(prop))
+	return false
+
+
+func _cabin_str(prop: String, fallback: String) -> String:
+	if cabin == null:
+		return fallback
+	if prop in cabin:
+		return str(cabin.get(prop))
+	return fallback
+
+
+func _mark_first_return_done() -> void:
+	if cabin == null:
+		return
+	if "first_return_homecoming_done" in cabin:
+		cabin.first_return_homecoming_done = true
+	if cabin.has_method("_save"):
+		cabin.call("_save")
+
+
+func _start_first_pulse(card_id: String) -> void:
+	if cabin == null or card_id == "":
+		return
+	if _cabin_flag("first_board_hover_done"):
+		return
+	if "board_pulse_id" in cabin:
+		cabin.board_pulse_id = card_id
+	if board != null and board.has_method("set_pulse_id"):
+		board.set_pulse_id(card_id)
+	if cabin.has_method("_save"):
+		cabin.call("_save")
 
 
 func _ordered_pending() -> Array:
@@ -270,11 +351,13 @@ func _play_one_item(card_id: String) -> void:
 	var lights_after: int = _lights_lit_now(face_i)
 	if lights_after > lights_before and lights_after <= 5:
 		await _flash_light(face_i, lights_after - 1, lights_after)
-	## Hold until step end (2.00)
+	## Hold until step end (2.00 normal / 1.2 first return)
 	var spent: float = 1.45
 	if lights_after > lights_before:
 		spent = 1.70
-	var remain: float = maxf(0.0, HOMECOMING_STEP - spent)
+	## Scale spent into the active step so first-return stays ~1.2s.
+	var scale: float = _step_s / HOMECOMING_STEP
+	var remain: float = maxf(0.0, _step_s - spent * scale)
 	if remain > 0.0:
 		await _wait_step(remain)
 
@@ -308,7 +391,10 @@ func _place_reduce_motion(card_id: String, face_i: int, lights_before: int) -> v
 		_chime_light(lights_after)
 		light_flash_count += 1
 		light_flashed.emit(face_i, lights_after - 1)
-		_maybe_light_bubble(lights_after)
+		if lights_after == 1 and cabin != null and not _cabin_flag("first_light_seen"):
+			await _play_first_light_scene(face_i)
+		else:
+			_maybe_light_bubble(lights_after)
 	await _wait_step(0.6)
 
 
@@ -369,9 +455,75 @@ func _flash_light(face_i: int, light_index: int, light_n: int) -> void:
 	## Package E: Nib reacts on every light.
 	if cabin != null and cabin.has_method("nib_react"):
 		cabin.nib_react()
-	_maybe_light_bubble(light_n)
+	## First-ever board light: pause the unpack for the discovery scene.
+	if light_n == 1 and cabin != null and not _cabin_flag("first_light_seen"):
+		await _play_first_light_scene(face_i)
+	else:
+		_maybe_light_bubble(light_n)
 	## Flash frames ~0.25s; pad a bit before next item.
 	await _wait_step(0.25)
+
+
+## Pause unpack: Nib reacts, gestures at lever with a glowing ring, then resume.
+func _play_first_light_scene(face_i: int) -> void:
+	first_light_did_pause = true
+	first_light_paused.emit()
+	if cabin != null and "first_light_seen" in cabin:
+		cabin.first_light_seen = true
+		if cabin.has_method("_save"):
+			cabin.call("_save")
+	await _say_keys(["nib.board.first_light.1"], {})
+	_show_lever_ring(true)
+	await _say_keys(["nib.board.first_light.2"], {})
+	## Keep a faint lever glow from now until READY (5 lights).
+	if board != null and board.has_method("set_lever_faint_glow"):
+		board.set_lever_faint_glow(true)
+	_show_lever_ring(false)
+	first_light_resumed.emit()
+	## Refresh so faint glow applies on the current face.
+	if board != null and board.has_method("refresh"):
+		board.refresh()
+	if face_i >= 0 and board != null and board.has_method("slide_to"):
+		## Stay on this face.
+		pass
+
+
+func _show_lever_ring(on: bool) -> void:
+	if not on:
+		if _lever_ring != null and is_instance_valid(_lever_ring):
+			_free_fx(_lever_ring)
+		_lever_ring = null
+		return
+	var anchor: Control = null
+	if board != null and board.has_method("lever_node"):
+		anchor = board.lever_node()
+	_lever_ring = Control.new()
+	_lever_ring.name = "LeverAuraRing"
+	_lever_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lever_ring.z_index = 50
+	var sz := Vector2(160, 200)
+	_lever_ring.size = sz
+	if anchor != null and is_instance_valid(anchor):
+		var g: Rect2 = anchor.get_global_rect()
+		_lever_ring.global_position = g.position + g.size * 0.5 - sz * 0.5
+	else:
+		_lever_ring.position = Vector2(1360, 560)
+	var ring := ColorRect.new()
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.color = Color(1.0, 0.85, 0.3, 0.35)
+	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_lever_ring.add_child(ring)
+	_host.add_child(_lever_ring)
+	_track_fx(_lever_ring)
+	if reduce_motion:
+		## Static highlight — no orbit.
+		ring.color = Color(1.0, 0.85, 0.3, 0.55)
+		return
+	## Gentle pulse / orbit substitute: alpha breathe.
+	var tw := _tween()
+	tw.set_loops(12)
+	tw.tween_property(ring, "modulate:a", 0.25, _dur(0.45))
+	tw.tween_property(ring, "modulate:a", 0.85, _dur(0.45))
 
 
 func _chime_light(light_n: int) -> void:

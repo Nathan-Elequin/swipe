@@ -2478,8 +2478,8 @@
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.portal.1",
-			"text": "Did you feel that? Something just opened up in {the_grumble}.",
-			"where": "Portal splash line 1"
+			"text": "So THAT's what it does!",
+			"where": "After lever rumble — discovery, not foresight"
 		},
 		{
 			"cat": "Nib",
@@ -7256,6 +7256,62 @@
 			"key": "board.light.say.5",
 			"text": "Five! That's all five!",
 			"where": "Bubble, 5th board light"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cold",
+			"text": "That arch is stone cold. I wonder what it'd take to wake it up.",
+			"where": "First visit near a dead between-dungeons portal (once)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_look",
+			"text": "Okay, let's see what you brought back from your first dungeon.",
+			"where": "First return — before unpack branch"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_empty",
+			"text": "Empty-handed? That's all right. You'll get them next time. Try to make it out with as many as you can carry, and we'll fill these boards together.",
+			"where": "First return — 0 items banked"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_unpack",
+			"text": "Well then, let's take it out and put it in its rightful spot. Bartleby would've loved seeing this come home.",
+			"where": "First return — 1+ items before unpack"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_placed",
+			"text": "There. Right where it belongs.",
+			"where": "First return — after first item lands"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_hover_hint",
+			"text": "Hover over anything on the board to hear its story, and what it did for Bartleby on his travels.",
+			"where": "First return — after unpack"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_light.1",
+			"text": "Oh! Well, that's peculiar. That light up top just came on.",
+			"where": "First-ever board light"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.first_light.2",
+			"text": "Looks like if you bring home five different things from this place... that lever over there will wake up. I wonder what it does.",
+			"where": "First-ever board light — lever gesture"
 		}
 	],
 	"updated": "2026-11-08"

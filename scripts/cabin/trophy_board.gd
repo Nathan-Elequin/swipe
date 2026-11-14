@@ -223,6 +223,30 @@ func set_lever_ready_fx(on: bool) -> void:
 	(_face_nodes[_current] as TrophyBoardFace).set_lever_ready_fx(on)
 
 
+func set_lever_faint_glow(on: bool) -> void:
+	for face_n in _face_nodes:
+		(face_n as TrophyBoardFace).set_meta("faint_glow", on)
+		(face_n as TrophyBoardFace).set_lever_faint_glow(on)
+
+
+func lever_node() -> Control:
+	if _current < 0 or _current >= _face_nodes.size():
+		return null
+	return (_face_nodes[_current] as TrophyBoardFace).lever_control()
+
+
+## Gentle pulse on one claimed slot until the player hovers it (first return).
+func set_pulse_id(card_id: String) -> void:
+	for face_n in _face_nodes:
+		var face: TrophyBoardFace = face_n
+		## Clear pulse on every slot; enable only the matching id.
+		if face.has_method("clear_all_pulses"):
+			face.clear_all_pulses()
+		var slot = face.slot_node(str(card_id)) if card_id != "" else null
+		if slot != null and slot.has_method("set_gentle_pulse"):
+			slot.set_gentle_pulse(true)
+
+
 func play_gild(face_index: int, instant := false) -> void:
 	if face_index < 0 or face_index >= _face_nodes.size():
 		return

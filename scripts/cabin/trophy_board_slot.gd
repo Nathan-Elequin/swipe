@@ -23,6 +23,8 @@ var _twinkle_t: float = 0.0
 var _aura_i: int = 0
 var _aura_t: float = 0.0
 var _compact: bool = false
+var _gentle_pulse: bool = false
+var _pulse_tw: Tween = null
 
 
 func setup(p_id: String, rect: Rect2, compact: bool) -> void:
@@ -136,6 +138,25 @@ func play_claim_pop() -> void:
 	tw.set_parallel(true)
 	tw.tween_property(_sprite, "scale", Vector2.ONE, 0.18 / maxf(Engine.time_scale, 0.001))
 	tw.tween_property(_sprite, "modulate", Color.WHITE, 0.5 / maxf(Engine.time_scale, 0.001))
+
+
+## First-return: pulse gently until hovered once. Reduce motion → static brighten.
+func set_gentle_pulse(on: bool) -> void:
+	_gentle_pulse = on
+	if _pulse_tw != null and _pulse_tw.is_valid():
+		_pulse_tw.kill()
+	_pulse_tw = null
+	if _sprite == null:
+		return
+	if not on:
+		_sprite.modulate = Color.WHITE if slot_state != &"unseen" else MODEL.SILHOUETTE
+		return
+	if reduce_motion:
+		_sprite.modulate = Color(1.35, 1.25, 0.9, 1.0)
+		return
+	_pulse_tw = create_tween().set_loops(24)
+	_pulse_tw.tween_property(_sprite, "modulate", Color(1.45, 1.35, 0.95, 1.0), 0.55 / maxf(Engine.time_scale, 0.001))
+	_pulse_tw.tween_property(_sprite, "modulate", Color.WHITE, 0.55 / maxf(Engine.time_scale, 0.001))
 
 
 func _apply_recess_art(lit: bool) -> void:

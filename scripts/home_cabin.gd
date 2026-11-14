@@ -62,6 +62,14 @@ var nib_in_hall: bool = false
 var invert_scroll: bool = false
 ## Package E wires the settings toggle. Package C/D read this defensively.
 var reduce_motion: bool = false
+## Flow overhaul (2026-11-14): first-return / first-light / dead-portal oneshots.
+var first_return_homecoming_done: bool = false
+var first_light_seen: bool = false
+var first_board_hover_done: bool = false
+## Card id that gently pulses until the player hovers it once (first return).
+var board_pulse_id: String = ""
+## Dead portal cold-arch Nib line (once per save).
+var portal_cold_said: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
 ## Lifetime dungeon clears across runs (Nathan lock). Drives Rope Exit wall tallies.
@@ -2403,6 +2411,8 @@ func rebuild_board() -> void:
 		)
 		_trophy_board.slot_clicked.connect(func(cid: String) -> void:
 			inspect_wanted.emit(cid)
+			if board_pulse_id != "" and str(cid) == board_pulse_id:
+				_clear_board_pulse()
 		)
 		_trophy_board.inspect_wanted.connect(func(cid: String) -> void:
 			inspect_wanted.emit(cid)
@@ -2418,6 +2428,9 @@ func rebuild_board() -> void:
 					maxi(16.0, g.y - 12.0 * PX - _hover_tag.size.y)
 				)
 			_hover_tag.visible = true
+			## First-return pulse clears on first hover of the pulsed card.
+			if board_pulse_id != "" and anchor != null and str(anchor.get("card_id")) == board_pulse_id:
+				_clear_board_pulse()
 		)
 		_trophy_board.hover_clear.connect(hide_hover_tag)
 		_trophy_board.lever_pulled.connect(func(fi: int) -> void:
@@ -2434,6 +2447,10 @@ func rebuild_board() -> void:
 	_trophy_board.set_board_viewed(board_viewed)
 	_trophy_board.setup(rules, items_by_id, state, _hall_seen_dict(), held)
 	_trophy_board.slide_to(board_face, true)
+	if first_light_seen and _trophy_board.has_method("set_lever_faint_glow"):
+		_trophy_board.set_lever_faint_glow(true)
+	if board_pulse_id != "" and not first_board_hover_done and _trophy_board.has_method("set_pulse_id"):
+		_trophy_board.set_pulse_id(board_pulse_id)
 	_ensure_board_sequences()
 
 
@@ -2595,6 +2612,7 @@ func _play_bank_sequence(_ceremony_gen: int = -1) -> void:
 	## Package C: TrophyBoard homecoming owns the timeline (and ceremony gen).
 	## After items, Homecoming prompts lever READY then hands off to BoardSequences
 	## via _maybe_run_board_complete_sequences (Package D — do not duplicate).
+	## Gated: never starts until key-ring / Nib relocate have finished (_room_busy clear).
 	rebuild_board()
 	_ensure_board_sequences()
 	if _trophy_board == null or not is_instance_valid(_trophy_board):
@@ -2609,6 +2627,16 @@ func _play_bank_sequence(_ceremony_gen: int = -1) -> void:
 	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("board_viewed"):
 		## Do not mark fresh claims viewed during the ceremony — pips stay until dwell.
 		board_viewed = _trophy_board.board_viewed()
+	if board_pulse_id != "" and _trophy_board.has_method("set_pulse_id"):
+		_trophy_board.set_pulse_id(board_pulse_id)
+	_save()
+
+
+func _clear_board_pulse() -> void:
+	board_pulse_id = ""
+	first_board_hover_done = true
+	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("set_pulse_id"):
+		_trophy_board.set_pulse_id("")
 	_save()
 
 
@@ -3008,6 +3036,11 @@ func _apply_defaults() -> void:
 	nib_in_hall = false
 	invert_scroll = false
 	reduce_motion = false
+	first_return_homecoming_done = false
+	first_light_seen = false
+	first_board_hover_done = false
+	board_pulse_id = ""
+	portal_cold_said = false
 	ending_seen = false
 	deepest_belly = 0
 	lifetime_dungeons_cleared = 0
@@ -3082,6 +3115,11 @@ func _read_v2(parsed: Dictionary) -> void:
 	nib_in_hall = bool(parsed.get("nib_in_hall", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	reduce_motion = bool(parsed.get("reduce_motion", false))
+	first_return_homecoming_done = bool(parsed.get("first_return_homecoming_done", false))
+	first_light_seen = bool(parsed.get("first_light_seen", false))
+	first_board_hover_done = bool(parsed.get("first_board_hover_done", false))
+	board_pulse_id = str(parsed.get("board_pulse_id", ""))
+	portal_cold_said = bool(parsed.get("portal_cold_said", false))
 	board_face = int(parsed.get("board_face", 0))
 	board_viewed.clear()
 	var bv: Variant = parsed.get("board_viewed", {})
@@ -3159,6 +3197,11 @@ func _save() -> void:
 	data["nib_in_hall"] = nib_in_hall
 	data["invert_scroll"] = invert_scroll
 	data["reduce_motion"] = reduce_motion
+	data["first_return_homecoming_done"] = first_return_homecoming_done
+	data["first_light_seen"] = first_light_seen
+	data["first_board_hover_done"] = first_board_hover_done
+	data["board_pulse_id"] = board_pulse_id
+	data["portal_cold_said"] = portal_cold_said
 	data["board_face"] = board_face
 	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("board_viewed"):
 		board_viewed = _trophy_board.board_viewed()
