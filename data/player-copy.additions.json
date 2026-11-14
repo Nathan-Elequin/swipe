@@ -167,13 +167,6 @@
   },
   {
    "cat": "Cabin",
-   "key": "cabin.hot.run_door",
-   "where": "Hover label for the painted main-room run door (hall path)",
-   "text": "Toward the Outpost",
-   "draft": true
-  },
-  {
-   "cat": "Cabin",
    "key": "cabin.hot.map",
    "where": "Hover label for the map hotspot",
    "text": "Grandpa's Map",
@@ -321,23 +314,9 @@
   },
   {
    "cat": "Cabin",
-   "key": "cabin.hot.gauge",
-   "where": "Hover label for the gauge hotspot",
-   "text": "Cabinet progress",
-   "draft": true
-  },
-  {
-   "cat": "Cabin",
    "key": "cabin.hot.door_hall",
    "where": "Hover label on an unlocked door",
    "text": "To the Trophy Hall",
-   "draft": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hot.door_outpost",
-   "where": "Hover label for Hall → Outpost right door",
-   "text": "Outpost",
    "draft": true
   },
   {
@@ -409,52 +388,6 @@
    "where": "Gear hover sub-line",
    "text": "Just for looks. Grandpa would approve.",
    "draft": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.gauge",
-   "where": "Trophy hall gauge tooltip",
-   "text": "{n} of {total} curiosities home",
-   "draft": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.full",
-   "where": "Trophy hall gauge tooltip when complete",
-   "text": "Every shelf full!",
-   "draft": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.past_gate",
-   "where": "Biome case crown sub-line after the 5/5 gate",
-   "text": "{n} of {total} found",
-   "owner": "Spin",
-   "stub": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.locked",
-   "where": "Biome case when the pool is still locked",
-   "text": "pool locked",
-   "owner": "Spin",
-   "stub": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.next_piece",
-   "where": "Biome case hover while under the 5/5 map-piece gate",
-   "text": "{n} more for the next map piece",
-   "owner": "Spin",
-   "stub": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.sign_outpost",
-   "where": "Hall Outpost door sign (replaces hidden SignStudy art)",
-   "text": "To the Outpost",
-   "author_lock": true,
-   "locked_at": "2026-10-28"
   },
   {
    "cat": "Cabin",
@@ -1516,78 +1449,6 @@
    "where": "Nib, clicking the mantel geode (rotating line 2) ADDED AFTER JAM REVIEW (Pixel, Nathan decision 6, 2026-10-17)",
    "text": "He'd be insufferable about this. Good.",
    "draft": true
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.plaque",
-   "where": "Trophy Hall brass plaque + lore sub-line",
-   "text": "Wares of the {ordinal} Depth and below",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.ordinal_1",
-   "where": "Trophy Hall plaque ordinal",
-   "text": "1st",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.ordinal_2",
-   "where": "Trophy Hall plaque ordinal",
-   "text": "2nd",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.ordinal_3",
-   "where": "Trophy Hall plaque ordinal",
-   "text": "3rd",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.ordinal_4",
-   "where": "Trophy Hall plaque ordinal",
-   "text": "4th",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.ordinal_5",
-   "where": "Trophy Hall plaque ordinal",
-   "text": "5th",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.lift_sign",
-   "where": "Dumbwaiter header",
-   "text": "LIFT",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
-  },
-  {
-   "cat": "Cabin",
-   "key": "cabin.hall.lift_lever",
-   "where": "Dumbwaiter lever hover",
-   "text": "Pull",
-   "status": "STUB",
-   "note": "Trophy Hall - Pixel owns for now",
-   "owner": "Pixel"
   },
   {
    "cat": "Cabin",

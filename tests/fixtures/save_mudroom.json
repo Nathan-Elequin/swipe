@@ -1,0 +1,16 @@
+{
+	"version": 2,
+	"rooms_unlocked": ["main", "hall", "mudroom"],
+	"return_room": "mudroom",
+	"mudroom_loadout": ["boot", "net"],
+	"seen": [],
+	"swiped": [],
+	"bank_pending": [],
+	"key_ring_seen": true,
+	"counters": {
+		"delves": 1,
+		"homecomings": 1,
+		"hauls": 1,
+		"losses": 0
+	}
+}

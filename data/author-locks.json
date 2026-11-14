@@ -3322,30 +3322,6 @@
 			"text": "{lucky} Cap",
 			"where": "Gear rack piece hover label"
 		},
-		"cabin.hall.sign_outpost": {
-			"cat": "Cabin",
-			"locked_at": "2026-11-05",
-			"text": "To the Outpost",
-			"where": "Hall Outpost door sign (replaces hidden SignStudy art)"
-		},
-		"cabin.hot.back_hall": {
-			"cat": "Playtest",
-			"locked_at": "2026-11-05",
-			"text": "Trophy Hall",
-			"where": "Outpost back door hover → Trophy Hall"
-		},
-		"cabin.hot.door_outpost": {
-			"cat": "Cabin",
-			"locked_at": "2026-11-05",
-			"text": "Outpost",
-			"where": "Hover label for Hall → Outpost right door"
-		},
-		"cabin.hot.run_door": {
-			"cat": "Cabin",
-			"locked_at": "2026-11-05",
-			"text": "Toward the Outpost",
-			"where": "Hover label for the painted main-room run door (hall path)"
-		},
 		"challenge.begin": {
 			"cat": "Title",
 			"locked_at": "2026-11-05",
@@ -3927,18 +3903,6 @@
 			"locked_at": "2026-11-05",
 			"text": "{grandpa|poss} Map of {mountain}",
 			"where": "Held map title (Spin lock)"
-		},
-		"mudroom.jar.sub": {
-			"cat": "Campaign",
-			"locked_at": "2026-11-05",
-			"text": "+1 each time {nib} stamps a new biome",
-			"where": "Mudroom reroll jar sub"
-		},
-		"nib.piece.grandpa": {
-			"cat": "Nib",
-			"locked_at": "2026-11-05",
-			"text": "That's {grandpa|poss}! Next belly of the mountain — onto the map with you.",
-			"where": "Map-piece ceremony beat 3"
 		},
 		"pause.give_up_ask": {
 			"cat": "Pause",

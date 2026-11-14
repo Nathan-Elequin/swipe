@@ -1,91 +1,5 @@
 {
  "rooms": {
-  "mudroom": [
-   {
-    "node": "BackDoor",
-    "file": "doors/side_door_closed.png",
-    "origin": [
-     6,
-     132
-    ],
-    "size": [
-     32,
-     63
-    ],
-    "hotspot": [
-     2,
-     126,
-     40,
-     69
-    ],
-    "hover": "doors/doorway_hover.png",
-    "z": 2,
-    "note": "back to Trophy Hall"
-   },
-   {
-    "node": "OutDoor",
-    "file": "props/map_wall.png",
-    "origin": [
-     176,
-     72
-    ],
-    "size": [
-     68,
-     52
-    ],
-    "hotspot": [
-     176,
-     72,
-     68,
-     52
-    ],
-    "hover": "props/map_wall_hover.png",
-    "z": 3,
-    "note": "Outpost wall map — click opens held map (same path as Space). LeaveDoor on right is the physical exit."
-   },
-   {
-    "node": "RerollJar",
-    "file": "props/lucky_geode.png",
-    "origin": [
-     352,
-     150
-    ],
-    "size": [
-     16,
-     13
-    ],
-    "hotspot": [
-     348,
-     144,
-     24,
-     24
-    ],
-    "hover": "props/lucky_geode_hover.png",
-    "z": 4,
-    "note": "reroll jar stand-in (shows delve reroll count; click reshuffles pegs)"
-   },
-   {
-    "node": "LeaveDoor",
-    "file": "doors/run_door_closed.png",
-    "origin": [
-     370,
-     130
-    ],
-    "size": [
-     44,
-     66
-    ],
-    "hotspot": [
-     366,
-     122,
-     52,
-     74
-    ],
-    "hover": "doors/run_door_hover.png",
-    "z": 2,
-    "note": "rightmost leave-cabin exit toward dungeon (map-in-hands / delve)"
-   }
-  ],
   "main": [
    {
     "node": "room_main_fire_glow",
@@ -139,27 +53,6 @@
     "hover": null,
     "z": 2,
     "note": "study sign by left door"
-   },
-   {
-    "node": "RunDoor",
-    "file": "doors/run_door_closed.png",
-    "origin": [
-     250,
-     130
-    ],
-    "size": [
-     44,
-     66
-    ],
-    "hotspot": [
-     246,
-     122,
-     52,
-     74
-    ],
-    "hover": "doors/run_door_hover.png",
-    "z": 2,
-    "note": "painted run door — starts rightward path into Trophy Hall (does not skip to Outpost)"
    },
    {
     "node": "SideDoor",
@@ -520,149 +413,7 @@
     ],
     "hover": "doors/doorway_hover.png",
     "z": 8,
-    "note": "back to main (left). Hit matches the painted doorway on cabinets_wall."
-   },
-   {
-    "node": "SideDoor",
-    "file": "doors/side_door_locked.png",
-    "origin": [
-     378,
-     132
-    ],
-    "size": [
-     32,
-     63
-    ],
-    "hotspot": [
-     368,
-     108,
-     46,
-     90
-    ],
-    "hover": "doors/side_door_hover.png",
-    "z": 8,
-    "note": "to Outpost (mudroom). Hit matches the painted right cabinet on cabinets_wall."
-   },
-   {
-    "node": "SignOutpost",
-    "file": "doors/door_sign_outpost.png",
-    "origin": [
-     385,
-     110
-    ],
-    "size": [
-     18,
-     14
-    ],
-    "hotspot": [
-     383,
-     108,
-     22,
-     18
-    ],
-    "hover": null,
-    "z": 2,
-    "note": "hall right door → Outpost; hover key cabin.hall.sign_outpost"
-   },
-   {
-    "node": "Gauge",
-    "file": "ui/gauge_under.png",
-    "origin": [
-     148,
-     188
-    ],
-    "size": [
-     164,
-     5
-    ],
-    "hotspot": [
-     148,
-     186,
-     164,
-     9
-    ],
-    "hover": null,
-    "z": 3,
-    "note": "cabinet completion (TextureProgressBar); hover = \"x of y\" tooltip (retired — five fixed plate cases)"
-   },
-   {
-    "node": "ShelfPrev",
-    "file": "ui/shelf_arrow_left.png",
-    "origin": [
-     124,
-     185
-    ],
-    "size": [
-     16,
-     12
-    ],
-    "hotspot": [
-     122,
-     183,
-     20,
-     16
-    ],
-    "hover": "ui/shelf_arrow_left_hover.png",
-    "z": 4,
-    "note": "shelf page prev (retired — five fixed plate cases)"
-   },
-   {
-    "node": "ShelfNext",
-    "file": "ui/shelf_arrow_right.png",
-    "origin": [
-     320,
-     185
-    ],
-    "size": [
-     16,
-     12
-    ],
-    "hotspot": [
-     318,
-     183,
-     20,
-     16
-    ],
-    "hover": "ui/shelf_arrow_right_hover.png",
-    "z": 4,
-    "note": "shelf page next (retired — five fixed plate cases)"
-   },
-   {
-    "node": "Shelf",
-    "file": null,
-    "origin": [
-     76,
-     56
-    ],
-    "size": [
-     298,
-     160
-    ],
-    "hotspot": [
-     76,
-     56,
-     298,
-     160
-    ],
-    "hover": null,
-    "z": 3,
-    "note": "_shelf_host / hole aligned to Doop plate case bounds"
-   },
-   {
-    "node": "TrophyBoard",
-    "file": null,
-    "origin": [
-     44,
-     10
-    ],
-    "size": [
-     332,
-     194
-    ],
-    "hotspot": null,
-    "hover": null,
-    "z": 4,
-    "note": "Package B carousel board (1328×776 px). Hosted by room_hall / TrophyBoard."
+    "note": "back to main (left). Hit matches the painted doorway on room_hall."
    }
   ],
   "study": [
@@ -936,7 +687,7 @@
     ],
     "hover": "doors/ladder_hover.png",
     "z": 2,
-    "note": "to loft — sits on LEFT after H-flip"
+    "note": "to loft \u2014 sits on LEFT after H-flip"
    },
    {
     "node": "SignLoft",
@@ -1272,8 +1023,7 @@
    "workshop",
    "study",
    "main",
-   "hall",
-   "mudroom"
+   "hall"
   ],
   "room_px": 1680,
   "map_pins": {
@@ -1563,12 +1313,6 @@
   ],
   "anchors": {
    "main": {
-    "run_door": [
-     250,
-     130,
-     44,
-     66
-    ],
     "side_door": [
      370,
      132,
@@ -1607,57 +1351,7 @@
      32,
      63
     ],
-    "side_door": [
-     378,
-     132,
-     32,
-     63
-    ],
-    "cases_bounds": [
-     0,
-     0,
-     420,
-     260
-    ],
-    "case_glass": [
-     [
-      82,
-      68,
-      48,
-      121
-     ],
-     [
-      138,
-      68,
-      48,
-      121
-     ],
-     [
-      202,
-      68,
-      48,
-      121
-     ],
-     [
-      262,
-      68,
-      48,
-      121
-     ],
-     [
-      322,
-      68,
-      48,
-      121
-     ]
-    ],
-    "flame": [],
-    "board": [
-     44,
-     10,
-     332,
-     194
-    ]
+    "flame": []
    },
    "study": {
     "back_door": [
@@ -1717,32 +1411,6 @@
      176,
      196
     ]
-   },
-   "mudroom": {
-    "back_door": [
-     6,
-     132,
-     32,
-     63
-    ],
-    "out_door": [
-     176,
-     72,
-     68,
-     52
-    ],
-    "leave_door": [
-     370,
-     130,
-     44,
-     66
-    ],
-    "jar": [
-     352,
-     150,
-     16,
-     13
-    ]
    }
   },
   "drawer_note": [
@@ -1768,7 +1436,6 @@
   "lucky_geode_mantel": [
    68,
    105
-  ],
-  "hall_plate": "rooms/room_trophy.png"
+  ]
  }
 }

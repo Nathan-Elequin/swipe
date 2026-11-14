@@ -94,10 +94,6 @@ func request_bg() -> void:
 
 func _apply_bg() -> void:
 	bg.texture = KIT.load_tex(_bg_rel)
-	if bg.texture == null and room_id == "mudroom":
-		bg.texture = KIT.load_tex("rooms/room_workshop.png")
-		if bg.texture == null:
-			bg.texture = KIT.load_tex("rooms/room_main.png")
 	_loaded_bg = bg.texture != null
 
 
@@ -174,10 +170,8 @@ func _flicker(tr: TextureRect, node_name: String) -> void:
 
 func _tag_for(node_name: String) -> String:
 	var table := {
-		"RunDoor": "cabin.hot.run_door",
 		"SideDoor": "cabin.hot.door_hall",
 		"LeftDoor": "cabin.hot.door_study",
-		"LeaveDoor": "mudroom.exit.out",
 		"Map": "cabin.hot.map",
 		"Radio": "cabin.hot.radio",
 		"RadioFirefly": "radio.gloria",
@@ -195,7 +189,6 @@ func _tag_for(node_name: String) -> String:
 		"ShelfPrev": "cabin.hot.cabinet",
 		"ShelfNext": "cabin.hot.cabinet",
 		"Gauge": "cabin.hot.gauge",
-		"SignOutpost": "cabin.hall.sign_outpost",
 		"PortraitBig": "cabin.hot.portrait_big",
 		"Journal": "cabin.hot.journal",
 		"Will": "cabin.hot.will",
@@ -210,11 +203,7 @@ func _tag_for(node_name: String) -> String:
 		"Trunk": "cabin.hot.trunk",
 		"Cat": "cabin.hot.cat",
 		"Hatch": "cabin.hot.hatch",
-		"OutDoor": "mudroom.exit.out",
-		"RerollJar": "mudroom.jar",
 	}
-	if room_id == "mudroom" and node_name == "BackDoor":
-		return "mudroom.exit.cabin"
 	return str(table.get(node_name, "cabin.hot." + node_name.to_snake_case()))
 
 

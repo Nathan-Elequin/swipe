@@ -5,7 +5,6 @@ extends "res://scripts/cabin/cabin_room.gd"
 
 const ROOM_TROPHY := "rooms/room_trophy.png"
 const ROOM_HALL := "rooms/room_hall.png"
-const CABINETS_WALL := "rooms/cabinets_wall.png"
 
 var trophy_board: Control = null
 
@@ -14,9 +13,6 @@ func _build_special() -> void:
 	## Prefer new trophy plate when present; else hall / cabinets wall.
 	if ResourceLoader.exists(KIT.HOME + ROOM_TROPHY):
 		_bg_rel = ROOM_TROPHY
-		_loaded_bg = false
-	elif ResourceLoader.exists(KIT.HOME + CABINETS_WALL):
-		_bg_rel = CABINETS_WALL
 		_loaded_bg = false
 	var flames: Array = extra.get("anchors", {}).get("hall", {}).get("flame", [])
 	for f in flames:
@@ -42,13 +38,6 @@ func _apply_bg() -> void:
 		_loaded_bg = true
 		_fit_hall_light()
 		return
-	plate = KIT.load_tex(CABINETS_WALL)
-	if plate:
-		bg.texture = plate
-		_bg_rel = CABINETS_WALL
-		_loaded_bg = true
-		_fit_hall_light()
-		return
 	bg.texture = KIT.load_tex(ROOM_HALL)
 	_bg_rel = ROOM_HALL
 	_loaded_bg = bg.texture != null
@@ -57,13 +46,13 @@ func _apply_bg() -> void:
 
 func _fit_hall_light() -> void:
 	var g = spots.get("room_hall_glow", null)
-	if g is CanvasItem and (_bg_rel == CABINETS_WALL or _bg_rel == ROOM_TROPHY):
+	if g is CanvasItem and _bg_rel == ROOM_TROPHY:
 		(g as CanvasItem).visible = false
 
 
 func _hide_retired_chrome() -> void:
-	## Shelf arrows + gauge retired. SideDoor stays until Package A removes Outpost.
-	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge", "Shelf"]:
+	## Shelf chrome + Outpost right door retired (Package A).
+	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge", "Shelf", "SideDoor", "SignOutpost"]:
 		var n = spots.get(hide_name, null)
 		if n is CanvasItem:
 			(n as CanvasItem).visible = false
@@ -89,31 +78,17 @@ func attach_trophy_board(board: Control) -> void:
 
 
 func _refresh_doors() -> void:
-	var mud_open: bool = cabin != null and cabin.is_room_unlocked("hall")
-	var side = spots.get("SideDoor", null)
-	if side is CabinHotspot:
-		side.tag_key = "cabin.hot.door_outpost" if mud_open else "cabin.hot.door_locked"
-		side.set_locked(not mud_open, KIT.load_tex("doors/side_door_locked.png"))
-		if mud_open:
-			side.locked_tex = null
-			side.hover_tex = KIT.load_tex("doors/side_door_hover.png")
-			var closed: Texture2D = KIT.load_tex("doors/side_door_closed.png")
-			if side.hover_tex == null:
-				side.hover_tex = closed
-			side.set_idle_tex(closed)
 	var back = spots.get("BackDoor", null)
 	if back is CabinHotspot:
 		back.tag_key = "cabin.hot.back_main"
 		back.set_locked(false)
-	for door_name in ["BackDoor", "SideDoor", "SignOutpost"]:
-		var door = spots.get(door_name, null)
-		if door is CanvasItem:
-			(door as CanvasItem).z_index = 8
-		if door is CabinHotspot:
-			(door as CabinHotspot).mouse_filter = Control.MOUSE_FILTER_IGNORE
-			if (door as CabinHotspot)._hit:
-				(door as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_STOP
-			move_child(door, -1)
+	_hide_retired_chrome()
+	if back is CanvasItem:
+		(back as CanvasItem).z_index = 8
+	if back is CabinHotspot:
+		(back as CabinHotspot).mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if (back as CabinHotspot)._hit:
+			(back as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_STOP
+		move_child(back, -1)
 	if trophy_board != null and is_instance_valid(trophy_board):
 		move_child(trophy_board, -1)
-	_hide_retired_chrome()
