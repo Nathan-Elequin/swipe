@@ -4610,7 +4610,10 @@
 		"kill": "Reduce HP to 0 with ATK damage.",
 		"petrify": "Makes an Item Unplayable until its source ends.",
 		"spin": "The wheel lands on a random living monster.",
-		"toll": "Unplayable. −1 on each Item Use. At 0, you Die."
+		"toll": "Unplayable. −1 on each Item Use. At 0, you Die.",
+		"neighbor": "The spaces right beside another on the wheel: one to its left, one to its right.",
+		"keep": "This item stays in your hand after you use it.",
+		"attack": "Damage from a strike. HP lost any other way doesn't count as Attack."
 	},
 	"monsters": [
 		{

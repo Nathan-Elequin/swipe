@@ -25351,7 +25351,9 @@ func _inspect_item(it: Dictionary, force: bool = false) -> void:
 
 
 func _bb(hex: String, text: String) -> String:
-	return UxStyle.chip(text, hex)
+	var shown: String = UxStyle.chip(text, hex)
+	## Keyword stems (Keep, Flee, Attack, …) become kw: chips for the autoshow stack.
+	return UxStyle.with_def_link(shown, text, hex)
 
 
 func _paint_explainer(raw: String, num_hex: String = "#E07A7A") -> String:
@@ -25631,12 +25633,23 @@ func _number_hex(full: String, start: int, end: int, fallback: String, gold: Str
 
 
 func _value_bb(word: String, n: String, hex: String) -> String:
-	var lead := ""
-	if word == "Attack":
-		lead = "[img=18x18]res://assets/ui/icons/atk_burst_18.png[/img] "
+	var kid: String = UxStyle.def_id_of(word)
+	var word_bit: String = word
+	if kid != "":
+		## Registered keywords: icon chip + url so inspect stacks pick them up.
+		word_bit = UxStyle.chip_bbcode(word, kid, hex, false)
+	else:
+		var lead := ""
+		if word == "Attack":
+			lead = "[img=18x18]res://assets/ui/icons/atk_burst_18.png[/img] "
+		word_bit = "%s%s" % [lead, word]
 	if n == "":
-		return "[b][color=%s]%s%s[/color][/b]" % [hex, lead, word]
-	return "[b][color=%s]%s%s %s[/color][/b]" % [hex, lead, word, n]
+		if kid != "":
+			return "[b]%s[/b]" % word_bit
+		return "[b][color=%s]%s[/color][/b]" % [hex, word_bit]
+	if kid != "":
+		return "[b]%s [color=%s]%s[/color][/b]" % [word_bit, hex, n]
+	return "[b][color=%s]%s %s[/color][/b]" % [hex, word_bit, n]
 
 
 func _kind_always_unplayable(kind: String) -> bool:

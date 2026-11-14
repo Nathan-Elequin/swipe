@@ -399,7 +399,7 @@ func _paint(raw: String) -> String:
 
 func _link_kws(t: String) -> String:
 	var rx := RegEx.new()
-	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spun|spin|always|unplayable|rust|poison|decay|shroud|toll|hex|beggar|marked|defeated|across|move|eject|gaze|petrify|curse|loaded|swap)\\b") != OK:
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spun|spin|always|unplayable|rust|poison|decay|shroud|toll|hex|beggar|marked|defeated|across|move|eject|gaze|petrify|curse|loaded|swap|neighbors|neighboring|neighbor|keep|attacks|attacking|attacked|attack)\\b") != OK:
 		return t
 	var hits: Array = rx.search_all(t)
 	var out := t
