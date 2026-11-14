@@ -54,6 +54,8 @@ func setup() -> void:
 	visible = false
 	z_index = 141
 	top_level = true
+	## Teach / pin tweens must keep running if the tree pauses.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	custom_minimum_size = Vector2(CARD_W, CARD_MIN_H)
 	_font_title = _load_font(FONT_SEMI)
@@ -181,12 +183,16 @@ func _build_chrome() -> void:
 
 
 func show_def_at_cursor(msg: String, id: String = "") -> void:
+	if _pinned_blocks(id):
+		return
 	_follow_mouse = true
 	_source = "cursor"
 	show_def(msg, null, id, "cursor")
 
 
 func show_def_at(rect: Rect2, msg: String = "", id: String = "", source: String = "") -> void:
+	if _pinned_blocks(id):
+		return
 	_follow_mouse = false
 	_anchor = null
 	_anchor_rect = rect
@@ -207,6 +213,11 @@ func show_def(msg: String, anchor: Control = null, id: String = "", source: Stri
 		return
 	var t: String = msg.strip_edges()
 	var kid: String = id.strip_edges().to_lower()
+	## While pinned, ignore every other keyword until unpin (click elsewhere / Esc).
+	if _pinned and kid != "" and kid != _kind:
+		return
+	if _pinned and kid == "":
+		return
 	if t == "" and kid != "":
 		t = KeywordDefs.def_of(kid)
 	if t == "":
@@ -255,6 +266,8 @@ func show_callout(pack: Dictionary, anchor: Control = null, id: String = "") -> 
 	## falling back to the callout body text when the id has no keyword-defs row.
 	if pack.is_empty():
 		hide_def()
+		return
+	if _pinned_blocks(id):
 		return
 	var kid: String = id.strip_edges().to_lower()
 	var body: String = KeywordDefs.def_of(kid)
@@ -314,6 +327,8 @@ func card_rect() -> Rect2:
 
 ## First-sighting teach entry point. Queues if another teach is running.
 func offer_teach(id: String, anchor: Control = null, source: String = "") -> void:
+	if _pinned or _is_other_pinned():
+		return
 	var kid: String = id.strip_edges().to_lower()
 	if kid == "" or _has_seen(kid):
 		return
@@ -375,24 +390,32 @@ func _reveal(msg: String, id: String, teach: bool) -> void:
 	_name_lab.text = KeywordDefs.title_of(id) if id != "" else ""
 	_name_lab.visible = id != ""
 	var icon_path: String = KeywordDefs.card_icon_path(id)
+	var icon_tex: Texture2D = null
 	if ResourceLoader.exists(icon_path):
-		_icon.texture = load(icon_path) as Texture2D
+		icon_tex = load(icon_path) as Texture2D
+	if icon_tex != null:
+		_icon.texture = icon_tex
 		_icon.visible = true
 	else:
 		var chip_path: String = KeywordDefs.icon_path(id)
+		var chip_tex: Texture2D = null
 		if ResourceLoader.exists(chip_path):
-			_icon.texture = load(chip_path) as Texture2D
+			chip_tex = load(chip_path) as Texture2D
+		if chip_tex != null:
+			_icon.texture = chip_tex
 			_icon.visible = true
 		else:
 			_icon.visible = false
 	## Nested keywords inside the card body: bold brown, not hoverable.
 	_def.clear()
 	_def.append_text(_bold_nested_keywords(msg))
-	_star.visible = teach or _first_sight
+	## Teach shows the star after pulses; hover first-sight keeps it if already open.
+	_star.visible = (not teach) and _first_sight
 	_seal.visible = _pinned
 	_layout_chrome()
 	visible = true
-	modulate.a = 1.0
+	## Teach starts hidden; pulses then fade the card in.
+	modulate.a = 0.0 if teach else 1.0
 	reset_size()
 	_place()
 	set_process(true)
@@ -448,16 +471,17 @@ func _process(delta: float) -> void:
 
 
 func _fade_open() -> void:
-	if _tween:
-		_tween.kill()
+	## Do not kill a teach tween mid-chain — use a separate open tween.
+	var open_tw: Tween = create_tween()
+	open_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	open_tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	modulate.a = 0.0
 	var from: Vector2 = global_position + Vector2(0, 6)
 	var to: Vector2 = global_position
 	global_position = from
-	_tween = create_tween()
-	_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_tween.tween_property(self, "modulate:a", 1.0, OPEN_FADE)
-	_tween.parallel().tween_property(self, "global_position", to, OPEN_FADE)
+	open_tw.tween_property(self, "modulate:a", 1.0, maxf(OPEN_FADE, 0.18))
+	open_tw.parallel().tween_property(self, "global_position", to, maxf(OPEN_FADE, 0.18))
+	_tween = open_tw
 
 
 func _place() -> void:
@@ -513,6 +537,9 @@ func _dock_candidates(anchor: Rect2, sz: Vector2, keep: Rect2, rail_x: float, vp
 			out.append(Vector2(anchor.position.x, anchor.position.y - 8.0 - sz.y))
 			out.append(Vector2(rail_x, 24.0))
 		"item":
+			## Prefer above the plate when it clears the wheel — avoids covering hotbar neighbors.
+			out.append(Vector2(anchor.position.x, anchor.position.y - 8.0 - sz.y))
+			out.append(Vector2(anchor.end.x - sz.x, anchor.position.y - 8.0 - sz.y))
 			out.append(Vector2(anchor.end.x + 12.0, anchor.position.y))
 			out.append(Vector2(anchor.position.x - 12.0 - sz.x, anchor.position.y))
 			out.append(Vector2(rail_x, clamp(anchor.position.y, 24.0, vp.y - 24.0 - sz.y)))
@@ -591,10 +618,24 @@ func _detect_source(anchor: Control) -> String:
 
 
 func _wheel() -> Node:
-	var main: Node = get_tree().root.get_node_or_null("Main") if is_inside_tree() else null
-	if main != null and main.get("wheel") != null:
-		return main.get("wheel")
-	return get_tree().root.find_child("BossWheel", true, false) if is_inside_tree() else null
+	## Main.wheel is the monster Array — keep-out needs the BossWheel Control (wheel_view).
+	if not is_inside_tree():
+		return null
+	var main: Node = get_tree().root.get_node_or_null("Main")
+	if main != null:
+		var wv: Variant = main.get("wheel_view")
+		if wv is Node:
+			return wv as Node
+	## Fallback: locate boss_wheel.gd by script path (node is often unnamed).
+	var stack: Array = [get_tree().root]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		var scr: Script = n.get_script()
+		if scr != null and str(scr.resource_path).ends_with("boss_wheel.gd"):
+			return n
+		for c in n.get_children():
+			stack.append(c)
+	return null
 
 
 func _hotbar_rect() -> Rect2:
@@ -648,16 +689,62 @@ func _pump_teach() -> void:
 
 
 func _pulse_then_open_star() -> void:
-	## Card opens at end of pulse 1 (t=0.45). Star pops after open.
+	## 3 gold pulses on the card chrome, then fade the parchment in + new_star.
+	## Tweens use TWEEN_PAUSE_PROCESS so they run while the tree is paused.
 	if _tween:
 		_tween.kill()
+	if not is_inside_tree():
+		call_deferred("_pulse_then_open_star")
+		return
 	modulate.a = 0.0
 	visible = true
 	_star.visible = false
+	var halo: TextureRect = _ensure_teach_halo()
+	halo.visible = true
+	halo.modulate = Color("E8C36A", 0.0)
 	_tween = create_tween()
-	_tween.tween_interval(TEACH_PULSE)
+	_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	## Three gold pulses (0→1→0 each TEACH_PULSE seconds).
+	for _i in TEACH_PULSES:
+		_tween.tween_property(halo, "modulate:a", 1.0, TEACH_PULSE * 0.45)
+		_tween.tween_property(halo, "modulate:a", 0.0, TEACH_PULSE * 0.55)
 	_tween.tween_callback(_fade_open)
 	_tween.tween_callback(_pop_star)
+	_tween.tween_callback(func() -> void:
+		if halo != null:
+			halo.visible = false
+	)
+
+
+func _ensure_teach_halo() -> TextureRect:
+	var existing: Node = get_node_or_null("TeachHalo")
+	if existing is TextureRect:
+		return existing as TextureRect
+	var halo := TextureRect.new()
+	halo.name = "TeachHalo"
+	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	halo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	halo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	halo.offset_left = -8
+	halo.offset_top = -8
+	halo.offset_right = 8
+	halo.offset_bottom = 8
+	halo.modulate = Color("E8C36A", 0.0)
+	halo.show_behind_parent = true
+	if ResourceLoader.exists("res://assets/ui/keyword/kw_chip_halo_9.png"):
+		halo.texture = load("res://assets/ui/keyword/kw_chip_halo_9.png") as Texture2D
+		halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		halo.stretch_mode = TextureRect.STRETCH_SCALE
+	else:
+		## Flat gold wash fallback when the nine-slice is missing.
+		var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+		img.fill(Color("E8C36A", 0.55))
+		halo.texture = ImageTexture.create_from_image(img)
+		halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		halo.stretch_mode = TextureRect.STRETCH_SCALE
+	add_child(halo)
+	move_child(halo, 0)
+	return halo
 
 
 func _pop_star() -> void:
@@ -667,6 +754,7 @@ func _pop_star() -> void:
 	_star.scale = Vector2.ZERO
 	_star.pivot_offset = Vector2(14, 14)
 	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_star, "scale", Vector2(1.2, 1.2), 0.15)
 	tw.tween_property(_star, "scale", Vector2.ONE, 0.10)
 
@@ -705,6 +793,13 @@ func _is_other_pinned() -> bool:
 	if cur != null and cur != self and bool(cur.get("_pinned")):
 		return true
 	return false
+
+
+func _pinned_blocks(id: String) -> bool:
+	if not _pinned:
+		return false
+	var kid: String = id.strip_edges().to_lower()
+	return kid != _kind
 
 
 func _on_card_hover() -> void:

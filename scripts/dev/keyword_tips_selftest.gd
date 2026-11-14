@@ -1,13 +1,22 @@
 extends SceneTree
-## Direction A keyword tips: defs round-trip + keep-out for 4- and 8-monster layouts.
+## Direction A keyword tips: defs, textures, editor, wheel node, pin, teach pulses.
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
 	var failed := false
 	failed = _check_defs_roundtrip() or failed
 	failed = _check_def_of_matches_json() or failed
 	failed = _check_keep_out_layouts() or failed
 	failed = _check_tip_api() or failed
+	failed = _check_keyword_textures_load() or failed
+	failed = await _check_defs_editor_compiles() or failed
+	failed = _check_wheel_returns_node() or failed
+	failed = _check_pin_ignores_other_show_def() or failed
+	failed = await _check_teach_three_pulses_then_alpha() or failed
 	if failed:
 		push_error("keyword_tips self-test failed")
 		quit(1)
@@ -104,4 +113,122 @@ func _check_tip_api() -> bool:
 	var chip: String = UxStyle.chip_bbcode("Flee", "flee", "#E8C36A", false)
 	failed = _check("chip_has_img", chip.find("kw_flee.png") >= 0) or failed
 	failed = _check("chip_has_url", chip.find("[url=kw:flee") >= 0) or failed
+	return failed
+
+
+func _check_keyword_textures_load() -> bool:
+	var failed := false
+	var dir := DirAccess.open("res://assets/ui/keyword")
+	failed = _check("keyword_dir", dir != null) or failed
+	if dir == null:
+		return failed
+	var paths: PackedStringArray = PackedStringArray()
+	dir.list_dir_begin()
+	var name: String = dir.get_next()
+	while name != "":
+		if not dir.current_is_dir() and name.ends_with(".png"):
+			paths.append("res://assets/ui/keyword/%s" % name)
+		name = dir.get_next()
+	dir.list_dir_end()
+	failed = _check("keyword_png_count", paths.size() >= 48) or failed
+	var load_fails: int = 0
+	for p in paths:
+		var tex: Texture2D = load(p) as Texture2D
+		if tex == null:
+			load_fails += 1
+			push_error("keyword texture failed: %s" % p)
+	failed = _check("keyword_textures_load", load_fails == 0) or failed
+	## Shared chrome used by the card / teach.
+	for extra in ["res://assets/ui/keyword/kw_card_seal.png", "res://assets/ui/keyword/kw_pip_ring.png", "res://assets/ui/keyword/kw_chip_halo_9.png"]:
+		failed = _check("load_%s" % extra.get_file(), (load(extra) as Texture2D) != null) or failed
+	return failed
+
+
+func _check_defs_editor_compiles() -> bool:
+	var failed := false
+	var scr: GDScript = load("res://scripts/keyword_defs_editor.gd") as GDScript
+	failed = _check("editor_script_loads", scr != null) or failed
+	if scr == null:
+		return failed
+	var ed: Node = scr.new()
+	failed = _check("editor_instantiates", ed != null) or failed
+	if ed == null:
+		return failed
+	root.add_child(ed)
+	## Force build path (show_editor → KeywordDefs preload must resolve).
+	if ed.has_method("show_editor"):
+		ed.call("show_editor")
+	await process_frame
+	failed = _check("editor_visible", bool(ed.visible)) or failed
+	var list: ItemList = ed.get("_list") as ItemList
+	failed = _check("editor_list", list != null and list.item_count == 23) or failed
+	if ed.has_method("hide_editor"):
+		ed.call("hide_editor")
+	ed.queue_free()
+	return failed
+
+
+func _check_wheel_returns_node() -> bool:
+	var failed := false
+	## Fake Main: wheel is an Array (the bug), wheel_view is the Control.
+	var main_scr := GDScript.new()
+	main_scr.source_code = "extends Node\nvar wheel: Array = []\nvar wheel_view: Node\n"
+	var err: Error = main_scr.reload()
+	failed = _check("main_stub_reload", err == OK) or failed
+	var main: Node = main_scr.new()
+	main.name = "Main"
+	root.add_child(main)
+	main.set("wheel", [{"kind": "monster"}])
+	var wv := Control.new()
+	wv.name = "WheelView"
+	main.add_child(wv)
+	main.set("wheel_view", wv)
+	var tip: PanelContainer = (load("res://scripts/keyword_tip.gd") as GDScript).new()
+	root.add_child(tip)
+	tip.setup()
+	var got: Variant = tip.call("_wheel")
+	failed = _check("wheel_is_node", got is Node) or failed
+	failed = _check("wheel_is_not_array", not (got is Array)) or failed
+	failed = _check("wheel_is_wheel_view", got == wv) or failed
+	tip.queue_free()
+	main.queue_free()
+	return failed
+
+
+func _check_pin_ignores_other_show_def() -> bool:
+	var failed := false
+	var tip: PanelContainer = (load("res://scripts/keyword_tip.gd") as GDScript).new()
+	root.add_child(tip)
+	tip.setup()
+	tip.pin_def(UxStyle.def_of("flee"), tip, "flee", "item")
+	failed = _check("pin_kind_flee", str(tip.get("_kind")) == "flee") or failed
+	tip.show_def(UxStyle.def_of("spin"), tip, "spin", "item")
+	failed = _check("pin_ignores_show_def_spin", str(tip.get("_kind")) == "flee") or failed
+	tip.show_def_at(Rect2(10, 10, 40, 40), UxStyle.def_of("poison"), "poison", "pip")
+	failed = _check("pin_ignores_show_def_at_poison", str(tip.get("_kind")) == "flee") or failed
+	failed = _check("still_pinned", bool(tip.get("_pinned"))) or failed
+	tip.unpin()
+	tip.queue_free()
+	return failed
+
+
+func _check_teach_three_pulses_then_alpha() -> bool:
+	var failed := false
+	var tip: PanelContainer = (load("res://scripts/keyword_tip.gd") as GDScript).new()
+	root.add_child(tip)
+	tip.setup()
+	failed = _check("teach_pulses_const", int(tip.get("TEACH_PULSES")) == 3) or failed
+	tip.preview_first_sighting("spin")
+	failed = _check("teach_starts_alpha0", float(tip.modulate.a) < 0.05) or failed
+	## 3 × 0.45s pulses + open fade (~0.18) + buffer.
+	var deadline_ms: int = Time.get_ticks_msec() + 2200
+	while Time.get_ticks_msec() < deadline_ms and float(tip.modulate.a) < 0.99:
+		await process_frame
+	failed = _check("teach_reaches_alpha1", float(tip.modulate.a) >= 0.99) or failed
+	var star: CanvasItem = tip.get("_star") as CanvasItem
+	failed = _check("teach_star_visible", star != null and star.visible) or failed
+	## Halo should have been created and pulsed.
+	var halo: Node = tip.get_node_or_null("TeachHalo")
+	failed = _check("teach_halo_created", halo != null) or failed
+	tip.queue_free()
 	return failed

@@ -461,7 +461,10 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 		ink = paper_ink_for(kid, ink)
 	var icon: String = KeywordDefs.icon_path(kid)
 	var word_shown: String = word.strip_edges()
-	if not ResourceLoader.exists(icon):
+	## ResourceLoader.exists can be true from a stale .import while .ctex failed —
+	## only emit [img] when load() actually returns a texture (broken imgs blank the row).
+	var tex_ok: bool = ResourceLoader.exists(icon) and (load(icon) as Texture2D) != null
+	if not tex_ok:
 		return "[url=kw:%s underline=never][u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, ink, ink, word_shown]
 	return "[url=kw:%s underline=never][img=24x24 valign=center,center]%s[/img] [u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, icon, ink, ink, word_shown]
 
@@ -501,7 +504,10 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip == null:
 		return
+	## Pinned card owns the surface — other chip hovers do nothing.
 	if bool(tip.get("_pinned")):
+		return
+	if tip.has_method("_is_other_pinned") and bool(tip.call("_is_other_pinned")):
 		return
 	var id: String = str(meta).trim_prefix("kw:")
 	## Phoenix still uses callout pack text on the parchment (no keyword-defs row).
