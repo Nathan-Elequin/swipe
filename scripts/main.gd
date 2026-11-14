@@ -8530,13 +8530,20 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("ambient_fx ", "on" if biome_ambient.is_enabled() else "off")
 		get_viewport().set_input_as_handled()
 		return
-	## F11: show/hide editor dummy chrome (branch tag, copy stamp, map cheats).
-	## Keeps BuildStamp SHA + Feedback. F1–F10 / F7 map / F8 metrics already taken.
-	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11:
-		var on: bool = DevChrome.toggle()
-		print("dev_chrome ", "on" if on else "off")
-		get_viewport().set_input_as_handled()
-		return
+	## Ctrl+Shift+D (and F11 alias): show/hide dummy chrome (branch tag, copy stamp,
+	## map cheats). Works in playtest F5 / Web playtest — not authoring-gated.
+	## Windows F11 is often eaten by the editor; Ctrl+Shift+D is the reliable key.
+	## Keeps BuildStamp SHA + Feedback. Default stays hidden (DevChrome.enabled=false).
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key := event as InputEventKey
+		var chord_d: bool = key.keycode == KEY_D and key.ctrl_pressed and key.shift_pressed \
+			and not key.alt_pressed
+		var f11: bool = key.keycode == KEY_F11
+		if chord_d or f11:
+			var on: bool = DevChrome.toggle()
+			print("dev_chrome ", "on" if on else "off")
+			get_viewport().set_input_as_handled()
+			return
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	## Look H: Esc dismisses the mode panel before opening Settings.

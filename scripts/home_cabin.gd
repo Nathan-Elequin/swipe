@@ -851,11 +851,24 @@ func _point_map_after_first_speech() -> void:
 
 func _point_map_continue_mission() -> void:
 	## After key unlock: tell the player to keep collecting uniques, gesture at the map.
+	## Stay in the entryway with a visible Nib + pointer — do NOT relocate to the hall yet
+	## (that used to leave main with Nib.visible=false and no map gesture).
 	if _current_room != "main":
+		## Leaving the hall: drop any leftover parchment tag from trophy clicks.
+		_clear_trophy_popups()
 		await pan_to("main")
+	## Force entryway Nib on for this beat (nib_in_hall may have been set by a stale save).
+	nib_in_hall = false
 	var main_room = _rooms.get("main")
 	if main_room != null and main_room.get("nib") != null:
 		(main_room.nib as CanvasItem).visible = true
+		var nib_hot = null
+		if typeof(main_room.get("spots")) == TYPE_DICTIONARY:
+			nib_hot = (main_room.spots as Dictionary).get("Nib", null)
+		if nib_hot is CanvasItem:
+			(nib_hot as CanvasItem).visible = true
+			if nib_hot is Control:
+				(nib_hot as Control).mouse_filter = Control.MOUSE_FILTER_STOP
 		if main_room.nib.sprite_frames and main_room.nib.sprite_frames.has_animation("point"):
 			main_room.nib.play("point")
 	## Prefer an existing mission line; placeholder key for a dedicated continue prompt.
@@ -868,12 +881,16 @@ func _point_map_continue_mission() -> void:
 			keys = ["nib.return.continue_mission"]
 		_dialog.say(keys)
 		await _dialog.finished
+	## Re-assert Nib + pointer after dialog (cabin_dialog clears the pointer on finish).
+	if main_room != null and main_room.get("nib") != null:
+		(main_room.nib as CanvasItem).visible = true
+		if main_room.nib.sprite_frames and main_room.nib.sprite_frames.has_animation("point"):
+			main_room.nib.play("point")
 	var map_hit := _map_hotspot()
 	if map_hit != null:
 		show_nib_pointer_at(map_hit)
-	## After the map gesture, Nib may walk to the hall (Package E idle).
-	if not nib_in_hall and key_ring_seen:
-		await _relocate_nib_to_hall(_key_ring_gen, false)
+	## Leave Nib in the entryway with the pointer up until the player opens the map.
+	## Hall relocate runs from _on_map / catch-up, not here.
 
 
 func _map_hotspot() -> Control:
@@ -976,6 +993,8 @@ func show_menu(room: String = "main") -> void:
 		await _say_first_speech()
 		await _point_map_after_first_speech()
 	_apply_gate()
+	## First-cabin / menu entry: player has control — unpause (main paused on open).
+	_release_cabin_tree_pause()
 	## Reload / free cabin entry: resume unfinished reveal without re-banking.
 	## Skip while Push-block owns the hall handoff (that path mounts after its dialog).
 	if not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
@@ -1150,10 +1169,14 @@ func play_key_ring() -> void:
 	_room_busy = true
 	_snap_to("main")
 	_start_interior_loops()
+	## Visible Nib must unlock the rooms — never an invisible key-runner.
+	nib_in_hall = false
 	var main_room = _rooms.get("main")
 	var nib = main_room.nib if main_room else null
-	if nib and nib.sprite_frames:
-		nib.play("gasp")
+	if nib != null:
+		nib.visible = true
+		if nib.sprite_frames:
+			nib.play("gasp")
 	KIT.cue(sfx, &"speech.nib_gasp")
 	await _wait(0.5)
 	if _key_ring_aborted(gen):
@@ -1636,6 +1659,23 @@ func _clear_stuck_cabin_fades() -> void:
 				cr.modulate.a = 0.0
 				cr.visible = false
 				cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Matching unpause for main.gd's get_tree().paused = true on cabin open.
+	_release_cabin_tree_pause()
+
+
+## Player has control in the cabin — SceneTree must not stay paused (QA P07 / return-flow).
+func _release_cabin_tree_pause() -> void:
+	if not is_inside_tree():
+		return
+	get_tree().paused = false
+
+
+## Drop trophy parchment / hover chrome when leaving the hall (or starting a new beat).
+func _clear_trophy_popups() -> void:
+	if _trophy_board != null and is_instance_valid(_trophy_board):
+		if _trophy_board.has_method("hide_item_tag"):
+			_trophy_board.hide_item_tag()
+	hide_hover_tag()
 
 
 func ensure_nib_pointer() -> Control:
@@ -1921,7 +1961,9 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		_beat = "idle"
 		_play_station()
 		_restore_arrive_dev_chrome()
+		_clear_stuck_cabin_fades()
 		_apply_gate()
+		_release_cabin_tree_pause()
 		_on_hotspot(pending_n, pending_r)
 		return
 	var want_key_ring: bool = _credit_homecoming_counters()
@@ -1931,9 +1973,11 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	if _first_speech_ready() and _current_room == "main":
 		await _say_first_speech()
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 		await _point_map_after_first_speech()
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 	## Tutorial clear → cabin with zero bank credit. Teach once; never fake a haul.
 	if _held_ids.is_empty() and _new_ids.is_empty() and tutorial_done and not tutorial_declined \
@@ -1942,6 +1986,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		_dialog.say(["nib.lesson.tutorial_return"])
 		await _dialog.finished
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 	var p: Vector2i = cabinet_progress()
 	if p.y > 0 and _homecoming_kind != "loss":
@@ -1954,6 +1999,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		if pct >= 100 and not ending_seen:
 			_save()
 			await play_ending()
+			_release_cabin_tree_pause()
 			return
 	## Nathan lock 2026-11-14: trophy explanations FIRST, then entryway key unlock.
 	_ensure_hall_unlocked()
@@ -1963,20 +2009,25 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			rebuild_board()
 		await _stage_homecoming_bank()
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 	## After the trophy beat on the first return: visible Nib unlocks other rooms, then map.
 	if want_key_ring:
 		_save()
 		## Back to the entryway for the key tour (hall already open — skip that door).
 		if _current_room != "main":
+			_clear_trophy_popups()
 			await pan_to("main")
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 		await play_key_ring()
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 		await _point_map_continue_mission()
 		if _arrive_aborted(gen):
+			_release_cabin_tree_pause()
 			return
 	_save()
 	_beat = "idle"
@@ -1984,6 +2035,8 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	_restore_arrive_dev_chrome()
 	_clear_stuck_cabin_fades()
 	_apply_gate()
+	## Limp-home / win return settled — player has control; tree must be unpaused.
+	_release_cabin_tree_pause()
 
 
 func _place_sack(origin: Vector2) -> void:
@@ -4205,6 +4258,10 @@ func pan_to(room: String) -> void:
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		return
+	## Leaving the trophy hall: clear any open parchment tag so it does not stick
+	## on the entryway (QA leftover-tag after keys beat).
+	if _current_room == "hall" and room != "hall":
+		_clear_trophy_popups()
 	## Capture session at async entry — required; no default-owner await.
 	var session: int = _begin_cabin_session()
 	_pan_busy = true
@@ -4776,7 +4833,20 @@ func _on_spot_unhover(_n: String) -> void:
 
 
 func _on_map() -> void:
+	## Opening the map ends the continue-mission / first-speech pointer beat.
+	clear_nib_pointer()
+	## After the keys beat, Nib may walk to the hall once the player commits to the map.
+	if key_ring_seen and not nib_in_hall and is_room_unlocked("hall"):
+		call_deferred("_relocate_nib_to_hall_after_map")
 	_ask_held_map()
+
+
+func _relocate_nib_to_hall_after_map() -> void:
+	if nib_in_hall or not key_ring_seen:
+		return
+	if _busy():
+		return
+	await _relocate_nib_to_hall(-1, false)
 
 
 func _open_map() -> void:

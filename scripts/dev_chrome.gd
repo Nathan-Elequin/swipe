@@ -1,7 +1,8 @@
 extends Object
 class_name DevChrome
-## Editor-only dummy chrome (branch tag, copy stamp, map cheats).
-## Off by default for normal play / playtest; F11 toggles. BuildStamp + Feedback stay.
+## Dummy chrome (branch tag, copy stamp, map cheats).
+## Off by default for normal play / playtest; Ctrl+Shift+D (F11 alias) toggles.
+## BuildStamp + Feedback stay visible either way.
 
 static var enabled: bool = false
 static var _listeners: Array = []

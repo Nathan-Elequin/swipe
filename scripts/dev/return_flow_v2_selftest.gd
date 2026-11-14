@@ -97,6 +97,35 @@ func _run() -> void:
 		and branch_src.find("DevChrome") >= 0, "") or failed
 	failed = _check(rows, failed, "src.main_f11_devchrome",
 		main_src.find("KEY_F11") >= 0 and main_src.find("DevChrome") >= 0, "") or failed
+	var f11_block_ok: bool = main_src.find("Works in playtest F5") >= 0 \
+		and main_src.find("ctrl_pressed") >= 0 \
+		and main_src.find("shift_pressed") >= 0 \
+		and main_src.find("KEY_D") >= 0 \
+		and main_src.find("KEY_F11") >= 0 \
+		and main_src.find("DevChrome.toggle") >= 0
+	## Old authoring-gated F11 line must be gone.
+	var f11_not_authoring_gated: bool = main_src.find(
+		"if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11"
+	) < 0
+	failed = _check(rows, failed, "src.main_ctrl_shift_d_devchrome",
+		f11_block_ok and f11_not_authoring_gated,
+		"playtest Ctrl+Shift+D / F11 must toggle DevChrome") or failed
+	failed = _check(rows, failed, "src.release_cabin_tree_pause",
+		cabin_src.find("func _release_cabin_tree_pause") >= 0
+		and cabin_src.find("get_tree().paused = false") >= 0, "") or failed
+	failed = _check(rows, failed, "src.continue_mission_no_relocate",
+		_func_contains(cabin_src, "_point_map_continue_mission", "nib.return.continue_mission")
+		and not _func_contains(cabin_src, "_point_map_continue_mission", "_relocate_nib_to_hall"),
+		"entryway Nib + pointer must stay; relocate is deferred to map open") or failed
+	failed = _check(rows, failed, "src.clear_trophy_popups",
+		cabin_src.find("func _clear_trophy_popups") >= 0
+		and cabin_src.find("hide_item_tag") >= 0, "") or failed
+	failed = _check(rows, failed, "src.plinth_z_not_negative",
+		slot_src.find("z_index = -1") < 0
+		and slot_src.find("z_index = 0") >= 0, "") or failed
+	failed = _check(rows, failed, "src.parchment_fixed_width",
+		board_src.find("ITEM_TAG_WIDTH") >= 0
+		and board_src.find("_measure_label_height") >= 0, "") or failed
 
 	## --- Runtime: fresh cabin defaults ---
 	var CabinScr = load("res://scripts/home_cabin.gd")
@@ -144,7 +173,7 @@ func _run() -> void:
 		wipe.modulate.a = 1.0
 		wipe.mouse_filter = Control.MOUSE_FILTER_STOP
 	cabin.call("_clear_stuck_cabin_fades")
-	paused = false
+	## _clear_stuck_cabin_fades / _release_cabin_tree_pause must unpause — do not set false by hand.
 	failed = _check(rows, failed, "pause.tree_unpaused",
 		paused == false, "paused=%s" % paused) or failed
 	if wipe != null:
@@ -152,6 +181,11 @@ func _run() -> void:
 			wipe.visible == false and wipe.modulate.a < 0.05
 			and wipe.mouse_filter == Control.MOUSE_FILTER_IGNORE,
 			"a=%s vis=%s mf=%s" % [wipe.modulate.a, wipe.visible, wipe.mouse_filter]) or failed
+	## Explicit release helper (player-has-control assert).
+	paused = true
+	cabin.call("_release_cabin_tree_pause")
+	failed = _check(rows, failed, "pause.release_helper",
+		paused == false, "paused=%s after _release_cabin_tree_pause" % paused) or failed
 
 	## Homecoming detects first return on loss.
 	var hc = HOMECOMING.new()
@@ -214,9 +248,16 @@ func _run() -> void:
 	var empty_ok := false
 	var recess_bad := false
 	var aura_checked := false
+	var plinth_z_ok := true
+	var plinth_mod_ok := true
 	for slot in _iter_slots(board):
 		var plinth = slot.get_node_or_null("Plinth")
 		var path := ""
+		if plinth != null:
+			if int(plinth.z_index) < 0:
+				plinth_z_ok = false
+			if plinth.modulate != Color.WHITE and plinth.modulate.a < 0.9:
+				plinth_mod_ok = false
 		if plinth is TextureRect and (plinth as TextureRect).texture != null:
 			path = str((plinth as TextureRect).texture.resource_path)
 		if path.find("slot_recess") >= 0:
@@ -229,15 +270,24 @@ func _run() -> void:
 				failed = _check(rows, failed, "board.claimed_aura_visible",
 					aura != null and aura.visible, "id=%s" % slot.card_id) or failed
 		if slot.slot_state == &"unclaimed" and path.find("plinth_empty") >= 0:
+			if not empty_ok and plinth != null:
+				## WIRING rect under the cell (once).
+				failed = _check(rows, failed, "board.empty_plinth_rect",
+					plinth.position == Vector2(0, 116) and plinth.size == Vector2(128, 32),
+					"pos=%s size=%s" % [plinth.position, plinth.size]) or failed
 			empty_ok = true
 	failed = _check(rows, failed, "board.claimed_plinth", claimed_ok, "") or failed
 	failed = _check(rows, failed, "board.held_empty_plinth", empty_ok, "unclaimed sits on plinth_empty") or failed
 	failed = _check(rows, failed, "board.no_recess_tex", not recess_bad, "") or failed
+	failed = _check(rows, failed, "board.plinth_z_nonneg", plinth_z_ok, "z=-1 hid slabs behind face bg") or failed
+	failed = _check(rows, failed, "board.plinth_modulate_white", plinth_mod_ok, "") or failed
 
-	## Parchment: readable size, beside item, Nearest ninepatch.
+	## Parchment: fixed width, height fits text, beside item, Nearest ninepatch.
 	if board.get("_item_tag") == null and board.has_method("_build_item_tag"):
 		board.call("_build_item_tag")
-	board.show_item_tag("boot", Vector2(500, 400))
+	## Use a long ability card so wrap height is exercised (Fangs-like).
+	var parch_id := "fangs" if items_by_id.has("fangs") else "boot"
+	board.show_item_tag(parch_id, Vector2(500, 400))
 	await process_frame
 	var tag: Control = board.get("_item_tag")
 	var title: Label = board.get("_item_tag_title")
@@ -249,6 +299,13 @@ func _run() -> void:
 		failed = _check(rows, failed, "parchment.dark_brown",
 			title.get_theme_color("font_color") == Color("4a2f1f"), "") or failed
 	if tag != null:
+		## Fixed sensible width — never a tall 1-col strip.
+		failed = _check(rows, failed, "parchment.width_band",
+			tag.size.x >= 280.0 and tag.size.x <= 340.0,
+			"w=%.1f" % tag.size.x) or failed
+		failed = _check(rows, failed, "parchment.height_fits",
+			tag.size.y >= 64.0 and tag.size.y <= 420.0,
+			"h=%.1f (was giant strip)" % tag.size.y) or failed
 		## Beside, not centered on the anchor (offset ≥ 40px in x).
 		var dx: float = absf(tag.global_position.x - 500.0)
 		failed = _check(rows, failed, "parchment.beside_item", dx >= 40.0, "dx=%.1f" % dx) or failed
@@ -258,6 +315,8 @@ func _run() -> void:
 			and (nine as NinePatchRect).patch_margin_left == 24
 			and (nine as NinePatchRect).texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
 			"frame=%s" % str(nine)) or failed
+		failed = _check(rows, failed, "parchment.process_always",
+			tag.process_mode == Node.PROCESS_MODE_ALWAYS, "") or failed
 	## Real Esc input closes the tag.
 	var esc := InputEventKey.new()
 	esc.pressed = true
@@ -265,11 +324,118 @@ func _run() -> void:
 	board._unhandled_input(esc)
 	failed = _check(rows, failed, "parchment.esc_closes",
 		bool(board.get("_item_tag_open")) == false, "") or failed
+	## Real mouse click-away (global_position) closes while "paused".
+	board.show_item_tag(parch_id, Vector2(500, 400))
+	await process_frame
+	paused = true
+	var click := InputEventMouseButton.new()
+	click.pressed = true
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = Vector2(50, 50)
+	click.global_position = Vector2(50, 50)
+	board._input(click)
+	failed = _check(rows, failed, "parchment.click_away_while_paused",
+		bool(board.get("_item_tag_open")) == false, "vis stayed true was the QA bug") or failed
+	paused = false
+	## Mouse-exit hide path.
+	board.show_item_tag(parch_id, Vector2(500, 400))
+	await process_frame
+	board.call("_on_item_tag_mouse_exited")
+	await process_frame
+	failed = _check(rows, failed, "parchment.mouse_exit_hides",
+		bool(board.get("_item_tag_open")) == false, "") or failed
 
 	## Placard Nearest.
 	var plaque: TextureRect = board.get_node_or_null("Plaque")
 	failed = _check(rows, failed, "placard.nearest",
 		plaque != null and plaque.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "") or failed
+
+	## --- With-loot extract path: swipe_ids (real credit) → Homecoming.run unpack ---
+	var loot_id := "shield" if items_by_id.has("shield") else parch_id
+	cabin.call("_apply_defaults")
+	cabin.set("_persist_writes", false)
+	cabin.items_by_id = items_by_id
+	cabin.tex_by_item = {}
+	cabin.set("lifetime_dungeons_cleared", 1)
+	cabin.set("_homecoming_kind", "win")
+	cabin.set("first_return_homecoming_done", false)
+	cabin.set("key_ring_seen", false)
+	cabin.set("bank_pending", [])
+	cabin.set("reduce_motion", true) ## keep timeline short under time_scale
+	## Block swipe_ids' deferred _offer_bank_sequence — we drive Homecoming ourselves
+	## (same credit helper main.gd calls before _go_home on extract).
+	cabin.set("_arriving", true)
+	var news: Array = cabin.swipe_ids([loot_id])
+	failed = _check(rows, failed, "extract.swipe_ids_queues",
+		news.has(loot_id) and (cabin.bank_pending as Array).has(loot_id),
+		"news=%s pending=%s" % [str(news), str(cabin.bank_pending)]) or failed
+	cabin.set("_arriving", false)
+	## Mount board under cabin for Homecoming FX host.
+	if board.get_parent() != cabin:
+		if board.get_parent() != null:
+			board.get_parent().remove_child(board)
+		cabin.add_child(board)
+	cabin.set("_trophy_board", board)
+	board.setup(rules, items_by_id, {"banked": {loot_id: "b1"}, "map_pieces": ["b1"]}, {}, cabin.bank_pending.duplicate())
+	board.set_hold(cabin.bank_pending.duplicate())
+	await process_frame
+	await process_frame
+	var hc_loot = await HOMECOMING.run(board, cabin, null)
+	failed = _check(rows, failed, "extract.unpack_branch",
+		hc_loot != null and str(hc_loot.first_return_branch) == "unpack",
+		"branch=%s" % (str(hc_loot.first_return_branch) if hc_loot else "?")) or failed
+	failed = _check(rows, failed, "extract.placed_after_poof",
+		hc_loot != null and (hc_loot.placed_order as Array).has(loot_id),
+		"placed=%s" % (str(hc_loot.placed_order) if hc_loot else "?")) or failed
+	failed = _check(rows, failed, "extract.pending_drained",
+		(cabin.bank_pending as Array).is_empty(),
+		"pending=%s" % str(cabin.bank_pending)) or failed
+	## Claimed plinth lit after unpack (not early silhouette-only).
+	var loot_slot = board.slot_node(loot_id) if board.has_method("slot_node") else null
+	if loot_slot == null:
+		for s2 in _iter_slots(board):
+			if str(s2.card_id) == loot_id:
+				loot_slot = s2
+				break
+	var loot_plinth_path := ""
+	if loot_slot != null:
+		var lp = loot_slot.get_node_or_null("Plinth")
+		if lp is TextureRect and (lp as TextureRect).texture != null:
+			loot_plinth_path = str((lp as TextureRect).texture.resource_path)
+	failed = _check(rows, failed, "extract.claimed_plinth_lit",
+		loot_slot != null and loot_slot.slot_state == &"claimed"
+		and loot_plinth_path.find("plinth_claimed") >= 0,
+		"state=%s path=%s" % [loot_slot.slot_state if loot_slot else "?", loot_plinth_path]) or failed
+	if hc_loot != null and is_instance_valid(hc_loot):
+		hc_loot.queue_free()
+
+	## Empty-handed first return still skips unpack (no fake haul).
+	cabin.call("_apply_defaults")
+	cabin.set("_persist_writes", false)
+	cabin.items_by_id = items_by_id
+	cabin.set("lifetime_dungeons_cleared", 1)
+	cabin.set("_homecoming_kind", "loss")
+	cabin.set("first_return_homecoming_done", false)
+	cabin.set("bank_pending", [])
+	cabin.set("reduce_motion", true)
+	board.setup(rules, items_by_id, {"banked": {}, "map_pieces": ["b1"]}, {}, [])
+	board.set_hold([])
+	await process_frame
+	var hc_empty = await HOMECOMING.run(board, cabin, null)
+	failed = _check(rows, failed, "empty.skip_unpack",
+		hc_empty != null and str(hc_empty.first_return_branch) == "empty",
+		"branch=%s" % (str(hc_empty.first_return_branch) if hc_empty else "?")) or failed
+	failed = _check(rows, failed, "empty.no_places",
+		hc_empty != null and (hc_empty.placed_order as Array).is_empty(),
+		"placed=%s" % (str(hc_empty.placed_order) if hc_empty else "?")) or failed
+	if hc_empty != null and is_instance_valid(hc_empty):
+		hc_empty.queue_free()
+
+	## Player-has-control: release helper leaves tree unpaused (arrive end contract).
+	paused = true
+	cabin.call("_release_cabin_tree_pause")
+	failed = _check(rows, failed, "pause.player_has_control",
+		paused == false, "paused=%s" % paused) or failed
 
 	## Headless Image composite (dummy renderer has no ViewportTexture).
 	var shot_ok := _composite_board_after(OUT_BOARD, ARTIFACT_BOARD)
