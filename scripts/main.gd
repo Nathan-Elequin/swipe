@@ -9056,11 +9056,21 @@ func _set_playtest_preset(preset: String) -> void:
 func _playtest_intro_seen() -> bool:
 	if OS.has_feature("editor"):
 		return false
-	return bool(_playtest_meta().get("intro_v2", false))
+	var meta: Dictionary = _playtest_meta()
+	if not bool(meta.get("intro_v2", false)):
+		return false
+	# F5 always shows the intro. A web export only hid it after the first view,
+	# including across new itch builds, because user://playtest_meta.json persists
+	# in the browser. Re-show Nathan's welcome when the baked build stamp changes.
+	var seen_build: String = str(meta.get("intro_build", "")).strip_edges()
+	var current: String = BUILD_STAMP.text().strip_edges()
+	if current != "" and current != "no-sha" and seen_build != current:
+		return false
+	return true
 
 
 func _mark_playtest_intro_seen() -> void:
-	_save_playtest_meta({"intro_v2": true})
+	_save_playtest_meta({"intro_v2": true, "intro_build": BUILD_STAMP.text()})
 
 
 func _sync_playtest_chrome() -> void:
