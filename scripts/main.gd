@@ -10207,13 +10207,17 @@ func _apply_resolve_hits() -> int:
 		if facing_index >= 0 and facing_index < wheel.size():
 			m = wheel[facing_index]
 		total += incoming
-		if _fungal_stop_fight or hp <= 0 or phase != "fighting":
+		if _fungal_stop_fight or hp <= 0:
+			break
+		# Done already set phase to slaying before this loop. Abort only if the
+		# fight actually left (Mockery Flee), not for remaining Hornet / Hydra / Mound swings.
+		if phase != "fighting" and phase != "slaying":
 			break
 		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			break
 		if hits > 1 and h < hits - 1:
 			await get_tree().create_timer(0.04).timeout
-	if hp > 0 and not _fungal_stop_fight and phase == "fighting":
+	if hp > 0 and not _fungal_stop_fight and (phase == "fighting" or phase == "slaying"):
 		await _straight_shot_after(attacker)
 	return total
 
