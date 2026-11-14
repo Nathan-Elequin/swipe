@@ -4909,6 +4909,9 @@ func _on_bucket_assignments_saved(items: Array, monsters: Array) -> void:
 	_on_roster_committed(items, monsters)
 	if roster_ed and roster_ed.visible and roster_ed.has_method("reload_from_disk"):
 		roster_ed.reload_from_disk()
+	## Package B: pool moves rebuild the trophy board without a restart.
+	if home_cabin != null and home_cabin.has_method("rebuild_board"):
+		home_cabin.rebuild_board()
 
 
 func _on_bucket_ed_closed() -> void:
@@ -29670,9 +29673,10 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 		var hid := str(raw.get("card_id", ""))
 		if hid != "":
 			held.append(hid)
-	var st: String = COLLECTION_JOURNEY.item_status(cid, seen_map, banked, held)
+	## Package B: item_status lives on TrophyBoardModel (absorbed from CollectionJourney).
+	var st: String = TrophyBoardModel.item_status(cid, seen_map, banked, held)
 	## Only unbanked held (or draft) gets New! — banked repeats stay ordinary.
-	var fresh: bool = st == COLLECTION_JOURNEY.STATUS_CARRIED
+	var fresh: bool = st == TrophyBoardModel.STATUS_CARRIED
 	card.set_cabinet_badge(
 		fresh,
 		PLAYER_COPY.text("cabin.tip.new", "New!"),

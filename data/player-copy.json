@@ -7484,7 +7484,77 @@
 			"key": "postrun.hand_note",
 			"text": "Each new run starts with 6 random items from unlocked pools.",
 			"where": "Verified: campaign starter_item_mix [3,2,1]=6 from unlocked pools"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.tip.unseen",
+			"text": "Yet to be seen.",
+			"where": "Hover, unseen trophy slot"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.tip.claimed_nolore",
+			"text": "Home where it belongs.",
+			"where": "Hover, claimed with no journal"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.lights.tip",
+			"text": "One light for each different find from {biome}. Five lights open the way deeper.",
+			"where": "Hover, lights"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.locked.tip",
+			"text": "Five different finds from {prev} open this one.",
+			"where": "Hover, padlock on locked face"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.lever.locked",
+			"text": "Light all five first.",
+			"where": "Hover, locked lever"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.lever.ready",
+			"text": "Pull it.",
+			"where": "Hover, ready lever"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.lever.spent",
+			"text": "The way to {next} is open.",
+			"where": "Hover, spent lever"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.dot.tip",
+			"text": "{biome}",
+			"where": "Hover, biome dot"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.skip",
+			"text": "Skip",
+			"where": "Homecoming skip button"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.continue",
+			"text": "Onward",
+			"where": "Map beat continue"
 		}
 	],
-	"updated": "2026-11-08"
+	"updated": "2026-11-14"
 }

@@ -10,6 +10,8 @@ signal closed
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const AUTHOR_LOCK := preload("res://scripts/author_lock.gd")
+const BOARD_MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
+const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const BOARD_PATH := "res://data/content-board.json"
 const PX := 4.0
 const SPRITE := 56.0
@@ -683,8 +685,30 @@ func _on_save() -> void:
 	if _sfx and _sfx.has_method("play"):
 		_sfx.play("book", -8.0)
 	assignments_saved.emit(_board.get("items", []), _board.get("monsters", []))
-	_status.text = "Saved pool moves."
+	## Flag compact overflow for the editor status line (Package B layout).
+	var overflow_note := _trophy_board_overflow_note()
+	_status.text = "Saved pool moves." + overflow_note
 	_status.add_theme_color_override("font_color", Color("8dcb8d"))
+
+
+func _trophy_board_overflow_note() -> String:
+	## Package B: warn when a pool needs more than compact capacity.
+	var rules: Dictionary = CAMPAIGN_SHELL.read_json("res://data/campaign.json")
+	var items := {}
+	for raw in _board.get("items", []):
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var card: Dictionary = raw
+		var id := str(card.get("id", ""))
+		if id != "":
+			items[id] = card
+	for face in BOARD_MODEL.faces(rules, items):
+		var lay: Dictionary = BOARD_MODEL.layout(face)
+		if bool(lay.get("overflow", false)):
+			return " Board layout overflow on %s — move items out." % str(face.get("name", ""))
+		if str(lay.get("mode", "")) == "compact":
+			return " %s uses compact board layout." % str(face.get("name", ""))
+	return ""
 
 
 func _on_revert() -> void:

@@ -206,6 +206,9 @@ var _case_clips: Dictionary = {}
 var _case_page: Dictionary = {}
 var _map_focus_pool: String = ""
 var _trophy_cases: Dictionary = {}
+var _trophy_board = null
+var board_face: int = 0
+var board_viewed: Dictionary = {}
 var _dumbwaiter = null
 var _hall_zoom_pool: String = ""
 var _hall_zoom_dim: ColorRect = null
@@ -995,25 +998,92 @@ func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Ar
 
 
 func focus_biome_case(pool_id: String) -> void:
+	## Package B: slide the trophy board to that biome face.
+	if _trophy_board != null and is_instance_valid(_trophy_board):
+		var want := str(pool_id)
+		var faces: Array = TrophyBoardModel.faces(_biome_rules(), items_by_id)
+		for i in faces.size():
+			if str((faces[i] as Dictionary).get("pool_id", "")) == want:
+				board_face = i
+				_trophy_board.slide_to(i, true)
+				return
 	if _shelf_host == null:
 		return
-	## Strong dim on siblings (Crystal art is otherwise brighter than Verdant wood).
 	for child in _shelf_host.get_children():
 		if child is CanvasItem:
 			var ci := child as CanvasItem
 			var is_focus := child.name == ("Case_%s" % pool_id)
-			if is_focus:
-				ci.modulate = Color(1.0, 1.0, 1.0, 1.0)
-			else:
-				ci.modulate = Color(0.42, 0.4, 0.38, 1.0)
+			ci.modulate = Color(1.0, 1.0, 1.0, 1.0) if is_focus else Color(0.42, 0.4, 0.38, 1.0)
 	var root := _shelf_host.get_node_or_null("Case_%s" % pool_id) as Control
 	if root == null:
 		return
-	## Warm lift on the played pool — settle holds above sibling dim.
 	root.modulate = Color(1.45, 1.28, 0.85, 1.0)
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(root, "modulate", Color(1.22, 1.14, 0.98, 1.0), 0.55)
+
+
+## Rebuild the Package B trophy board from live pool data (also after pool editor save).
+func rebuild_board() -> void:
+	var hall = _rooms.get("hall", null)
+	if hall == null:
+		return
+	var rules := _biome_rules()
+	var state := _campaign_shell_state()
+	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
+		state = _campaign_shell.state
+	var held: Array = []
+	for raw in _bank_hold.keys():
+		held.append(str(raw))
+	if _trophy_board == null or not is_instance_valid(_trophy_board):
+		_trophy_board = preload("res://scripts/cabin/trophy_board.gd").new()
+		_trophy_board.face_changed.connect(func(i: int) -> void:
+			board_face = i
+			_save()
+		)
+		_trophy_board.wants_pan_left.connect(func() -> void:
+			if not _busy():
+				_arrow(-1)
+		)
+		_trophy_board.slot_clicked.connect(func(cid: String) -> void:
+			inspect_wanted.emit(cid)
+		)
+		_trophy_board.inspect_wanted.connect(func(cid: String) -> void:
+			inspect_wanted.emit(cid)
+		)
+		_trophy_board.hover_tip.connect(func(text: String, anchor: Control) -> void:
+			if _hover_tag == null:
+				return
+			_hover_tag.set_plain(text)
+			if anchor:
+				var g: Vector2 = anchor.get_global_rect().position
+				_hover_tag.global_position = Vector2(
+					g.x,
+					maxi(16.0, g.y - 12.0 * PX - _hover_tag.size.y)
+				)
+			_hover_tag.visible = true
+		)
+		_trophy_board.hover_clear.connect(hide_hover_tag)
+		_trophy_board.lever_pulled.connect(func(fi: int) -> void:
+			## Package D wires portal sequence. Placeholder: emit only.
+			print("trophy_board lever_pulled face=", fi)
+		)
+		if hall.has_method("attach_trophy_board"):
+			hall.attach_trophy_board(_trophy_board)
+		else:
+			hall.add_child(_trophy_board)
+	_trophy_board.reduce_motion = false
+	_trophy_board.invert_scroll = invert_scroll
+	_trophy_board.set_sfx(sfx)
+	_trophy_board.set_item_textures(tex_by_item)
+	_trophy_board.set_board_viewed(board_viewed)
+	_trophy_board.setup(rules, items_by_id, state, _hall_seen_dict(), held)
+	_trophy_board.slide_to(board_face, true)
+	## Hide legacy case host so Package A / B do not stack.
+	if _shelf_host:
+		_shelf_host.visible = false
+	if _dumbwaiter:
+		_dumbwaiter.visible = false
 
 
 func play_intro(is_replay: bool = false) -> void:
@@ -2555,7 +2625,8 @@ func _rebuild_shelves() -> void:
 	_shelf_host.size = _hole.size if _hole else _pt(260, 160)
 	if _cordon:
 		_cordon.visible = false
-	_fill_biome_cases()
+	## Package B: carousel board replaces plate cases in the hall.
+	rebuild_board()
 	_rebuild_pips()
 	_place_nav()
 	if not _bank_busy:
@@ -3156,22 +3227,7 @@ func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
 		title.add_theme_color_override("font_color", Color("1e120c"))
 		title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(title)
-		var rules := _biome_rules()
-		var biome_name := ""
-		var pool := _live_pool(card)
-		for raw in BiomeCabinets.resolved_cases(rules):
-			if str((raw as Dictionary).get("id", "")) == pool:
-				biome_name = str((raw as Dictionary).get("name", ""))
-				break
-		var depth := BiomeCabinets.case_index(pool) + 1
-		var ordinal := COPY.fill("cabin.hall.ordinal_%d" % maxi(1, depth), {}, ["1st","2nd","3rd","4th","5th"][clampi(depth-1,0,4)])
-		var plaque := COPY.fill("cabin.hall.plaque", {"ordinal": ordinal}, "Wares of the %s Depth and below" % ordinal)
-		var sub := Label.new()
-		sub.text = "%s - %s" % [biome_name, plaque]
-		sub.add_theme_font_size_override("font_size", 12)
-		sub.add_theme_color_override("font_color", Color("6e5434"))
-		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(sub)
+		## Package B: no depth subline and no rank chip on the lore card.
 		if peg_state == BiomeCabinets.PegState.CLAIMED:
 			var journal := ""
 			var lore_items: Variant = COPY.lore_pack.get("items", {}) if COPY.lore_pack else {}
@@ -3180,6 +3236,12 @@ func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
 				if typeof(entry) == TYPE_DICTIONARY:
 					journal = str((entry as Dictionary).get("journal", ""))
 			if journal != "":
+				var heading := Label.new()
+				heading.text = COPY.text("cabin.tip.journal", "From Grandpa's journal:")
+				heading.add_theme_font_size_override("font_size", 16)
+				heading.add_theme_color_override("font_color", Color("6e5434"))
+				heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				vbox.add_child(heading)
 				var body := Label.new()
 				body.text = journal
 				body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -3187,41 +3249,13 @@ func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
 				body.add_theme_color_override("font_color", Color("4a3020"))
 				body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				vbox.add_child(body)
-		var foot := HBoxContainer.new()
-		foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(foot)
-		var state_lab := Label.new()
-		if peg_state == BiomeCabinets.PegState.CLAIMED:
-			state_lab.text = COPY.text("cabin.hall.lore_claimed", "Claimed")
-		else:
-			state_lab.text = COPY.text("cabin.tip.seen", "Seen")
-		state_lab.add_theme_font_size_override("font_size", 16)
-		state_lab.add_theme_color_override("font_color", Color("4a3020"))
-		state_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		foot.add_child(state_lab)
-		var spacer := Control.new()
-		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		foot.add_child(spacer)
-		var chip := Panel.new()
-		chip.custom_minimum_size = Vector2(80, 28)
-		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var tier := int(card.get("tier", 1))
-		var chip_sb := StyleBoxFlat.new()
-		chip_sb.bg_color = UxStyle.metal(tier)
-		chip_sb.border_color = Color("1a120e")
-		chip_sb.set_border_width_all(3)
-		chip.add_theme_stylebox_override("panel", chip_sb)
-		var chip_lab := Label.new()
-		chip_lab.text = COPY.tier_name(tier).to_upper()
-		chip_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		chip_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		chip_lab.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-		chip_lab.add_theme_font_size_override("font_size", 14)
-		chip_lab.add_theme_color_override("font_color", Color("1e120c"))
-		chip_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.add_child(chip_lab)
-		foot.add_child(chip)
+			else:
+				var nolore := Label.new()
+				nolore.text = COPY.text("board.tip.claimed_nolore", "Home where it belongs.")
+				nolore.add_theme_font_size_override("font_size", 18)
+				nolore.add_theme_color_override("font_color", Color("4a3020"))
+				nolore.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				vbox.add_child(nolore)
 	## Place right of focused case if fits.
 	var peg_c: Vector2 = peg.get_global_rect().get_center() if peg else Vector2(840, 520)
 	var tc = _trophy_cases.get(_hall_zoom_pool, null)
@@ -4408,6 +4442,15 @@ func _read_v2(parsed: Dictionary) -> void:
 			mudroom_loadout.append(lid)
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
+	board_face = int(parsed.get("board_face", 0))
+	board_viewed.clear()
+	var bv: Variant = parsed.get("board_viewed", {})
+	if typeof(bv) == TYPE_DICTIONARY:
+		for k in (bv as Dictionary).keys():
+			board_viewed[str(k)] = true
+	elif typeof(bv) == TYPE_ARRAY:
+		for k2 in bv as Array:
+			board_viewed[str(k2)] = true
 	ending_seen = bool(parsed.get("ending_seen", false))
 	deepest_belly = int(parsed.get("deepest_belly", 0))
 	lifetime_dungeons_cleared = int(parsed.get("lifetime_dungeons_cleared", 0))
@@ -4475,6 +4518,10 @@ func _save() -> void:
 	data["mudroom_loadout"] = mudroom_loadout
 	data["key_ring_seen"] = key_ring_seen
 	data["invert_scroll"] = invert_scroll
+	data["board_face"] = board_face
+	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("board_viewed"):
+		board_viewed = _trophy_board.board_viewed()
+	data["board_viewed"] = board_viewed.keys()
 	data["ending_seen"] = ending_seen
 	data["deepest_belly"] = deepest_belly
 	data["lifetime_dungeons_cleared"] = lifetime_dungeons_cleared
@@ -4810,6 +4857,23 @@ func _input(event: InputEvent) -> void:
 			tc.flip_to_page(int(tc.current_page()) + dir)
 		get_viewport().set_input_as_handled()
 		return
+	## Package B: hall board consumes ←/→ / 1–5 before room pan.
+	if _int_root.visible and _current_room == "hall" and _trophy_board != null \
+			and is_instance_valid(_trophy_board) and not _busy():
+		if event is InputEventKey and event.pressed and not event.echo:
+			var kc: int = (event as InputEventKey).keycode
+			if kc >= KEY_1 and kc <= KEY_5:
+				_trophy_board.slide_to(kc - KEY_1)
+				get_viewport().set_input_as_handled()
+				return
+		if event.is_action_pressed("ui_left"):
+			_trophy_board.handle_nav(-1)
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_right"):
+			_trophy_board.handle_nav(1)
+			get_viewport().set_input_as_handled()
+			return
 	## Same busy/story locks as hotspot nav: do not pan during keyring/dialog/arrive.
 	## Stealing cabin_session mid-tour orphans _room_busy when the tour aborts.
 	if event.is_action_pressed("ui_left") and _int_root.visible:
