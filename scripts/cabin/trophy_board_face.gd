@@ -70,27 +70,28 @@ func _build_chrome() -> void:
 		Color("c4a574")
 	)
 	add_child(_crest)
-	## Lights absolute y 140 → local 12; x 672+k*72 → local 448+k*72
+	## Lights absolute y 164 → local 36; x 672+k*72 → local 448+k*72
+	## (+24 face-local vs old y 140 so painted placards clear the row.)
 	for k in 5:
-		var lr := Rect2(448 + k * 72, 12, 48, 64)
+		var lr := Rect2(448 + k * 72, 36, 48, 64)
 		var light := _tex_or_box("Light%d" % k, lr, "trophy_board/light_off", Color("2b1a12"))
 		light.mouse_filter = Control.MOUSE_FILTER_STOP
 		light.gui_input.connect(_on_light_gui.bind(k))
 		light.mouse_entered.connect(func() -> void: lights_hovered.emit())
 		add_child(light)
 		_lights.append(light)
-	## Lever absolute (1344,136) → local (1120, 8)
-	_lever = _tex_or_box("Lever", Rect2(1120, 8, 64, 128), "trophy_board/lever_locked", Color("8a6a2e"))
+	## Lever absolute (1344,160) → local (1120, 32)
+	_lever = _tex_or_box("Lever", Rect2(1120, 32, 64, 128), "trophy_board/lever_locked", Color("8a6a2e"))
 	_lever.mouse_filter = Control.MOUSE_FILTER_STOP
 	## Hit rect 96×160 centred on lever
-	_lever.position = Vector2(1120 - 16, 8 - 16)
+	_lever.position = Vector2(1120 - 16, 32 - 16)
 	_lever.size = Vector2(96, 160)
 	_lever.gui_input.connect(_on_lever_gui)
 	_lever.mouse_entered.connect(func() -> void:
 		lever_hovered.emit(_lever.get_meta("lever_state", &"locked"))
 	)
 	add_child(_lever)
-	_lever_glow = _tex_or_box("LeverGlow", Rect2(1088, -24, 128, 192), "trophy_board/lever_glow", Color(1, 0.85, 0.3, 0.0))
+	_lever_glow = _tex_or_box("LeverGlow", Rect2(1088, 0, 128, 192), "trophy_board/lever_glow", Color(1, 0.85, 0.3, 0.0))
 	_lever_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lever_glow.visible = false
 	add_child(_lever_glow)

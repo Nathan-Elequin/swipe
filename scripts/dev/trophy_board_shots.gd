@@ -93,8 +93,8 @@ func _diagram(face: Dictionary, state: Dictionary, seen: Dictionary, scenario: S
 	var vp := MODEL.FACE_VIEWPORT
 	var slug := str(face.get("slug", "verdant"))
 	_fill_rect(img, Rect2i(int(vp.position.x), int(vp.position.y), int(vp.size.x), int(vp.size.y)), _slug_color(slug))
-	## Plaque
-	_fill_rect(img, Rect2i(600, 16, 480, 96), Color("c4a574"))
+	## Painted placard (approx; feedback-2 uses real placard PNGs in feedback2_shots)
+	_fill_rect(img, Rect2i(652, 0, 376, 160), Color("c4a574"))
 	## Crest
 	_fill_rect(img, Rect2i(240, 144, 96, 96), Color("e8c36a"))
 	var locked: bool = MODEL.is_face_locked(
@@ -110,8 +110,8 @@ func _diagram(face: Dictionary, state: Dictionary, seen: Dictionary, scenario: S
 	)
 	for k in 5:
 		var on := k < lit
-		_fill_rect(img, Rect2i(672 + k * 72, 140, 48, 64), Color("ffd84a") if on else Color("2b1a12"))
-	## Lever
+		_fill_rect(img, Rect2i(672 + k * 72, 164, 48, 64), Color("ffd84a") if on else Color("2b1a12"))
+	## Lever (+24 face-local vs pre-feedback-2)
 	if not locked:
 		var ls: StringName = MODEL.lever_state(SHELL.read_json("res://data/campaign.json"), state, face)
 		var lc := Color("8a6a2e")
@@ -119,7 +119,7 @@ func _diagram(face: Dictionary, state: Dictionary, seen: Dictionary, scenario: S
 			lc = Color("ffd84a")
 		elif ls == &"spent":
 			lc = Color("5c3a22")
-		_fill_rect(img, Rect2i(1344, 136, 64, 128), lc)
+		_fill_rect(img, Rect2i(1344, 160, 64, 128), lc)
 	else:
 		_fill_rect(img, Rect2i(760, 400, 160, 192), Color("3a3a3e"))
 	## Slots
