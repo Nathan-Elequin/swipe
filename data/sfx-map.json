@@ -7302,6 +7302,21 @@
       "max_voices": 1,
       "priority": 1,
       "doc": "Paper tag pinned (0.20 s). Replaces placeholder alias of cabin.map_pin."
+    },
+    "nib.react": {
+      "files": [
+        "nib_gasp"
+      ],
+      "bus": "UI",
+      "db": -12,
+      "pitch": [
+        0.98,
+        1.06
+      ],
+      "cooldown_ms": 80,
+      "max_voices": 2,
+      "priority": 1,
+      "doc": "Package E react cue; aliases speech.nib_gasp until Reel delivers dedicated variants."
     }
   },
   "radio": {

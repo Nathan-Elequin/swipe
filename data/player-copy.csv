@@ -1,4 +1,4 @@
-﻿category,key,where,text
+category,key,where,text
 Title,title.overlay,Title parchment headline,{game_title}
 Title,title.tagline,Title screen tagline,"Where there's a will, there's a slay."
 Title,title.how_to_play,Title + pause button,How to Play
@@ -332,7 +332,7 @@ Nib,nib.home.win.3,Win homecoming (random 3),He'd be insufferable about this. In
 Nib,nib.home.new,First NEW item flies to the hall,That one's new! Off to the hall with it.
 Nib,nib.home.give_home,Campaign win homecoming: before S7 bank flight into trophy slots,Let's give these a home.
 Nib,nib.lesson.new_mark,"First campaign ready beat with a real hotbar New! badge visible (not tutorial, not peg twinkle)","See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection."
-Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,See those? They go in the cabinet when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together.
+Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,"See those? They go on the board when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together."
 Nib,nib.lesson.five_finds,Post-return under-quota teaching if extract lesson not yet said; Verdant/b1 only,Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
 Nib,nib.lesson.five_threshold,After S7 celebration when b1 cabinet first crosses 5/5,Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.
 Nib,nib.lesson.tutorial_return,Tutorial clear cabin arrival; zero bank credit,"Back in one piece. Next time, let's bring something home for these shelves."
@@ -732,3 +732,5 @@ Cabin,board.light.say.1,Bubble 1st board light,There's a light!
 Cabin,board.light.say.5,Bubble 5th board light,Five! That's all five!
 Cabin,nib.board.lever_ready.1,Lever ready after homecoming,"Five lights, {hero}. Five different finds from {biome}."
 Cabin,nib.board.lever_ready.2,Lever ready after homecoming,"Give that lever a pull. Go on. He never let me touch it."
+Nib,nib.board.move.1,First move into trophy hall,"Right. Somebody has to mind his board, and the chair's taken."
+Nib,nib.board.move.2,First move into trophy hall,"I'll keep watch in here from now on. Bring things home and I'll find them a spot."

@@ -33,7 +33,10 @@ const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
 const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall"]
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const HOMECOMING_SCR := preload("res://scripts/cabin/homecoming.gd")
+const NIB_HOST := preload("res://scripts/cabin/nib_host.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
+## SCREEN §9 — hall idle x (native) after relocation.
+const NIB_HALL_IDLE_X := 386.0
 const RUG_SECRET_ID := "poison_flask"
 const RUG_COPY := {
 	"nib.rug.1": "Grandpa stuffed a Poison Flask under the rug. He said the mice had it coming.",
@@ -54,8 +57,10 @@ var tutorial_declined: bool = false
 ## Start at the fireplace.
 var rooms_unlocked: Array = ["main"]
 var key_ring_seen: bool = false
+## Package E: Nib lives in the trophy hall after the first successful return.
+var nib_in_hall: bool = false
 var invert_scroll: bool = false
-## Package E wires the settings toggle. Package C reads this defensively.
+## Package E wires the settings toggle. Package C/D read this defensively.
 var reduce_motion: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
@@ -1126,6 +1131,12 @@ func play_key_ring() -> void:
 	if gen != _key_ring_gen:
 		return
 	key_ring_seen = true
+	_save()
+	## Package E: after the tour, Nib walks into the trophy hall and stays there.
+	if not await _relocate_nib_to_hall(gen, false):
+		return
+	if gen != _key_ring_gen:
+		return
 	_room_busy = false
 	_beat = "idle"
 	_save()
@@ -1997,6 +2008,22 @@ func _start_interior_loops() -> void:
 			sfx.play("confirm", -12.0)
 		if sfx.has_method("loop_start"):
 			sfx.loop_start(&"amb.cat_purr", 1.2)
+	_sync_trophy_room_ambience()
+
+
+## Package E / Reel #503: trophy-room bed on hall enter; fade out on leave.
+## Volume rides the Ambience bus (settings); cue db is 0 (file already −26 LUFS).
+func _sync_trophy_room_ambience() -> void:
+	if sfx == null:
+		return
+	var in_hall: bool = _int_root != null and _int_root.visible and _current_room == "hall"
+	if in_hall:
+		if sfx.has_method("loop_start"):
+			## SCREEN/ASSETS: loop_start with fade; do not force a db override.
+			sfx.loop_start(&"amb.trophy_room", 0.8)
+	else:
+		if sfx.has_method("loop_stop"):
+			sfx.loop_stop(&"amb.trophy_room", 0.8)
 
 
 func _make_gallery_door(left: bool) -> Control:
@@ -2978,6 +3005,9 @@ func _apply_defaults() -> void:
 	tutorial_declined = false
 	rooms_unlocked = ["main"]
 	key_ring_seen = false
+	nib_in_hall = false
+	invert_scroll = false
+	reduce_motion = false
 	ending_seen = false
 	deepest_belly = 0
 	lifetime_dungeons_cleared = 0
@@ -3049,6 +3079,7 @@ func _read_v2(parsed: Dictionary) -> void:
 	if _current_room == "mudroom" or not is_room_unlocked(_current_room):
 		_current_room = return_room
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
+	nib_in_hall = bool(parsed.get("nib_in_hall", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	reduce_motion = bool(parsed.get("reduce_motion", false))
 	board_face = int(parsed.get("board_face", 0))
@@ -3125,6 +3156,7 @@ func _save() -> void:
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
 	data["key_ring_seen"] = key_ring_seen
+	data["nib_in_hall"] = nib_in_hall
 	data["invert_scroll"] = invert_scroll
 	data["reduce_motion"] = reduce_motion
 	data["board_face"] = board_face
@@ -3735,6 +3767,17 @@ func _build_rooms() -> void:
 	_chair_hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_chair_hit.gui_input.connect(_on_empty_chair_input)
 	main_room.add_child(_chair_hit)
+	## Package E: main vs hall Nib visibility from save flag.
+	NIB_HOST.apply_visibility(self)
+
+
+func set_reduce_motion(on: bool) -> void:
+	reduce_motion = on
+	if _trophy_board != null and is_instance_valid(_trophy_board):
+		_trophy_board.reduce_motion = on
+	if _board_sequences != null and is_instance_valid(_board_sequences):
+		_board_sequences.reduce_motion = on
+	_save()
 
 
 func _build_chrome() -> void:
@@ -3878,6 +3921,9 @@ func _snap_to(room: String) -> void:
 	var r = _rooms.get(room)
 	if r and r.has_method("ensure_bg"):
 		r.ensure_bg()
+	_sync_trophy_room_ambience()
+	if room == "hall":
+		call_deferred("_maybe_catchup_nib_hall")
 
 
 func pan_to(room: String) -> void:
@@ -3921,7 +3967,9 @@ func pan_to(room: String) -> void:
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_show_toast("cabin.room.%s" % room)
+	_sync_trophy_room_ambience()
 	if room == "hall":
+		call_deferred("_maybe_catchup_nib_hall")
 		call_deferred("_offer_bank_sequence")
 
 
@@ -3961,22 +4009,28 @@ func _pan_unlocked(room: String, owner_gen: int) -> bool:
 	_current_room = room
 	_pan_busy = false
 	_show_toast("cabin.room.%s" % room)
+	_sync_trophy_room_ambience()
 	if room == "hall":
 		call_deferred("_offer_bank_sequence")
 	return true
 
 
 ## Returns false when owner_gen/session is stale after the nib tween.
+## Resolves the live Nib host via Package E NibHost (main until relocation, then hall).
 func _move_nib_x(x_native: float, dur: float, owner_gen: int) -> bool:
 	var session: int = _cabin_session
 	if not _key_ring_owns(owner_gen) or not _owns_cabin_session(session):
 		_nested_mark("move_nib_x", "reject", owner_gen)
 		return false
-	var main_room = _rooms.get("main")
-	if main_room == null:
+	var room = NIB_HOST.room_node(self)
+	if room == null:
+		## During key-ring, host is still main even if flag is false.
+		room = _rooms.get("main")
+	if room == null:
 		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
-	var nib = main_room.nib
-	var hs = main_room.spots.get("Nib", null)
+	var nib = room.get("nib")
+	var spots = room.get("spots")
+	var hs = spots.get("Nib", null) if typeof(spots) == TYPE_DICTIONARY else null
 	var tw := create_tween()
 	_cabin_motion = tw
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -3992,6 +4046,120 @@ func _move_nib_x(x_native: float, dur: float, owner_gen: int) -> bool:
 		return false
 	_nested_mark("move_nib_x", "apply", owner_gen)
 	return true
+
+
+## Package E — one-time walk into the trophy hall (SCREEN §9).
+## `catchup` = old save already saw the key ring; short walk-in from the left doorway.
+## Returns false when the owning gen/session went stale. Flag is stamped only on success.
+func _relocate_nib_to_hall(owner_gen: int = -1, catchup: bool = false) -> bool:
+	if nib_in_hall:
+		NIB_HOST.apply_visibility(self)
+		return true
+	if not is_room_unlocked("hall"):
+		return true
+	var session: int = _cabin_session
+	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+		return false
+	if not _owns_cabin_session(session):
+		return false
+	_room_busy = true
+	## Walk main Nib to the side door (full path only — catch-up skips this).
+	if not catchup:
+		var main_room = _rooms.get("main")
+		var main_nib = main_room.nib if main_room else null
+		if main_nib and main_nib.sprite_frames:
+			main_nib.play("walk")
+		## SideDoor is near x ≈ 380 native on the right of main.
+		if owner_gen >= 0:
+			if not await _move_nib_x(380.0, 0.8, owner_gen):
+				_room_busy = false
+				return false
+		else:
+			await _tween_nib_in_room("main", 380.0, 0.8)
+		if main_nib and main_nib.sprite_frames:
+			main_nib.play("idle")
+	var hall = _rooms.get("hall")
+	## Place hall Nib at the left doorway, then walk to idle (1544 px / 386 native).
+	var hall_nib = hall.nib if hall else null
+	var hall_spots = hall.spots if hall else {}
+	var hall_hs = hall_spots.get("Nib", null) if typeof(hall_spots) == TYPE_DICTIONARY else null
+	if hall_nib:
+		hall_nib.position = Vector2(0.0, NIB_HOST.IDLE_NATIVE.y * PX)
+		hall_nib.visible = true
+		if hall_nib.sprite_frames:
+			hall_nib.play("walk")
+	if hall_hs is Control:
+		(hall_hs as Control).position = Vector2(0.0, NIB_HOST.IDLE_NATIVE.y * PX)
+		(hall_hs as Control).visible = true
+		(hall_hs as Control).mouse_filter = Control.MOUSE_FILTER_STOP
+	if _current_room != "hall":
+		if owner_gen >= 0:
+			if not await _pan_unlocked("hall", owner_gen):
+				_room_busy = false
+				return false
+		else:
+			await pan_to("hall")
+	_sync_trophy_room_ambience()
+	await _tween_nib_in_room("hall", NIB_HALL_IDLE_X, 1.6)
+	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+		_room_busy = false
+		return false
+	if hall_nib and hall_nib.sprite_frames:
+		hall_nib.play("idle")
+	## Turn and say the two SCREEN lines.
+	if _dialog:
+		_dialog.say(["nib.board.move.1", "nib.board.move.2"])
+		await _dialog.finished
+	if owner_gen >= 0 and not _key_ring_owns(owner_gen):
+		_room_busy = false
+		return false
+	## Commit only after the walk + lines succeed.
+	nib_in_hall = true
+	if hall != null and typeof(hall) == TYPE_OBJECT and hall.has_method("set_nib_in_hall"):
+		hall.set_nib_in_hall(true)
+	NIB_HOST.apply_visibility(self)
+	_save()
+	_room_busy = false
+	return true
+
+
+## Tween Nib (and hotspot) in a named room — used by hall relocation.
+func _tween_nib_in_room(room_id: String, x_native: float, dur: float) -> void:
+	var room = _rooms.get(room_id)
+	if room == null:
+		return
+	var nib = room.get("nib")
+	var spots = room.get("spots")
+	var hs = spots.get("Nib", null) if typeof(spots) == TYPE_DICTIONARY else null
+	var tw := create_tween()
+	_cabin_motion = tw
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_parallel(true)
+	var d: float = dur / maxf(Engine.time_scale, 0.001)
+	if nib:
+		tw.tween_property(nib, "position:x", x_native * PX, d)
+	if hs is Control:
+		tw.tween_property(hs, "position:x", x_native * PX, d)
+	await tw.finished
+
+
+## Old saves: key_ring_seen but never relocated — short walk-in on next hall entry.
+func _maybe_catchup_nib_hall() -> void:
+	if nib_in_hall or not key_ring_seen:
+		return
+	if not is_room_unlocked("hall"):
+		return
+	if _current_room != "hall":
+		return
+	await _relocate_nib_to_hall(-1, true)
+
+
+func nib_react() -> void:
+	NIB_HOST.react(self, sfx)
+
+
+func nib_gasp() -> void:
+	NIB_HOST.gasp(self, sfx)
 
 
 ## Returns false when owner_gen is stale — unlock/save/refresh/hotspot apply skipped.
@@ -4151,13 +4319,11 @@ func hide_hover_tag() -> void:
 
 func say_bubble(key: String, vars: Dictionary = {}) -> void:
 	if _dialog:
-		_dialog.say_bubble(key, Vector2(216, 150), vars)
+		_dialog.say_bubble(key, NIB_HOST.bubble_anchor_native(self), vars)
 
 
 func nib_talk(on: bool) -> void:
-	var main_room = _rooms.get("main")
-	if main_room and main_room.nib and main_room.nib.sprite_frames:
-		main_room.nib.play("talk" if on else ("psst" if _gate_on() else "idle"))
+	NIB_HOST.talk(self, on)
 
 
 func _gate_on() -> bool:
@@ -4403,12 +4569,16 @@ func _leave_for_run(route: String) -> void:
 
 func _on_nib() -> void:
 	## Road overlay owns the first-run tutorial ask. Dummy still offers tip replay.
+	## After Package E relocation, the hall hotspot also lands here.
 	var keys := ["nib.idle.1", "nib.idle.2", "nib.idle.3", "nib.idle.4", "nib.idle.5", "nib.idle.6"]
 	var k: String = str(keys[nib_idle_index % keys.size()])
 	nib_idle_index = (nib_idle_index + 1) % keys.size()
 	_save()
+	nib_talk(true)
 	if _dialog:
 		_dialog.say([k])
+		await _dialog.finished
+	nib_talk(false)
 	if nib_idle_index in [1, 4, 0]:
 		KIT.cue(sfx, &"speech.nib_chuckle")
 

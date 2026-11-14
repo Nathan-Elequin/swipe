@@ -686,6 +686,7 @@ func _play_reveal_fog(pool: String) -> void:
 	if fog == null:
 		return
 	if _reduce_motion:
+		KIT.cue(_find_sfx(), &"board.fog_clear")
 		var tw := create_tween()
 		tw.tween_property(fog, "modulate:a", 0.0, 0.3)
 		await tw.finished
@@ -698,7 +699,7 @@ func _play_reveal_fog(pool: String) -> void:
 				(fog as TextureRect).texture = tex
 		await get_tree().create_timer(0.1).timeout
 	fog.visible = false
-	KIT.cue(_find_sfx(), &"cabin.map_pin")
+	KIT.cue(_find_sfx(), &"board.fog_clear")
 
 
 func _play_shortcut_reveal(pool: String) -> void:
@@ -729,10 +730,14 @@ func _play_shortcut_reveal(pool: String) -> void:
 		tw.set_trans(Tween.TRANS_BOUNCE)
 		tw.tween_property(pointer, "scale", Vector2.ONE, 0.3)
 	if badge != null:
-		badge.scale = Vector2.ZERO
-		var tw2 := create_tween()
-		tw2.tween_property(badge, "scale", Vector2(1.1, 1.1), 0.15)
-		tw2.tween_property(badge, "scale", Vector2.ONE, 0.15)
+		KIT.cue(_find_sfx(), &"board.badge_pop")
+		if _reduce_motion:
+			badge.scale = Vector2.ONE
+		else:
+			badge.scale = Vector2.ZERO
+			var tw2 := create_tween()
+			tw2.tween_property(badge, "scale", Vector2(1.1, 1.1), 0.15)
+			tw2.tween_property(badge, "scale", Vector2.ONE, 0.15)
 
 
 func _find_sfx():
