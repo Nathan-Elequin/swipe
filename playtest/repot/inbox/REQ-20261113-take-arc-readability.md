@@ -1,6 +1,6 @@
 ---
 id: REQ-20261113-take-arc-readability
-status: open
+status: done
 priority: high
 branch: playtest/latest
 created: 2026-11-13T20:10:00Z

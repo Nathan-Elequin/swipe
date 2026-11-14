@@ -81,7 +81,7 @@ var _steal_tex: Texture2D
 var _press_from: Vector2 = Vector2.ZERO
 var _holding: bool = false
 var _echo_mark: TextureRect
-var _stone: TextureRect
+var _stone: ColorRect
 var _playable: bool = false
 var _guarding: bool = false
 var _hatch: Control
@@ -179,6 +179,7 @@ var _petrify_creep: float = 0.0:
 		queue_redraw()
 var _shatter: AnimatedSprite2D
 var _petrify_mat: ShaderMaterial
+var _petrify_tw: Tween
 var _pip_flash: float = 0.0
 var _waiting_entry: bool = false
 var _wait_base_y: float = 0.0
@@ -239,6 +240,7 @@ func setup(
 	_chrome = Control.new()
 	_chrome.name = "Chrome"
 	_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chrome.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	pad.add_child(_chrome)
 
 	_rank = Label.new()
@@ -498,9 +500,10 @@ func _draw_card_hatch() -> void:
 			drawer.draw_line(Vector2(ex, h), Vector2(ex + h * 0.65, 0.0), egg_ink, 1.0)
 			ex += 6.0
 		return
-	# Direction A Unplayable / Petrify: grey wash + 8px diagonal hatch.
-	drawer.draw_rect(Rect2(0, 0, w, h), Color(COL_UNPLAYABLE.r, COL_UNPLAYABLE.g, COL_UNPLAYABLE.b, 0.22))
-	var ink := Color(0.10, 0.08, 0.07, 0.36)
+	# Unplayable hatch. Petrify uses a lighter wash so the tiled stone grain still reads.
+	var wash_a: float = 0.12 if (_petrified and not _petrify_dummy) else 0.22
+	drawer.draw_rect(Rect2(0, 0, w, h), Color(COL_UNPLAYABLE.r, COL_UNPLAYABLE.g, COL_UNPLAYABLE.b, wash_a))
+	var ink := Color(0.10, 0.08, 0.07, 0.36 if not (_petrified and not _petrify_dummy) else 0.30)
 	var x: float = -h
 	while x < w + h:
 		drawer.draw_line(Vector2(x, h), Vector2(x + h * 0.58, 0.0), ink, 1.5)
@@ -859,20 +862,24 @@ func set_num_color(c: Color) -> void:
 func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: bool = true, source: String = "") -> void:
 	_ensure_stone()
 	_ensure_petrify_shader()
+	if _petrify_tw != null and is_instance_valid(_petrify_tw):
+		_petrify_tw.kill()
+		_petrify_tw = null
 	_petrified = on
 	_petrify_dummy = dummy
 	_petrify_spins = maxi(0, spins_left)
 	if not on:
-		_stone.visible = false
-		material = null
+		_show_stone_overlay(false)
 		if _icon != null:
 			_icon.material = null
 			_icon.modulate = Color.WHITE
 		_petrify_creep = 0.0
-		if not _petrify_dummy:
-			modulate = Color.WHITE
+		modulate = Color.WHITE
 		set_source_stamp("")
+		if _shimmer_mat != null:
+			material = _shimmer_mat
 		_sync_lock_shade()
+		_apply_style(_hot)
 		queue_redraw()
 		return
 	if dummy:
@@ -880,48 +887,41 @@ func set_petrified(on: bool, dummy: bool = false, spins_left: int = 0, animate: 
 		material = null
 		if _icon != null:
 			_icon.material = null
-		_stone.visible = true
-		_stone.modulate = Color(0.82, 0.78, 0.70, 0.55)
+		_show_stone_overlay(true)
+		if _stone != null:
+			_stone.modulate = Color(0.82, 0.78, 0.70, 0.42)
 		modulate = Color.WHITE
 		_petrify_creep = 1.0
 		set_source_stamp("")
 		_sync_lock_shade()
+		_apply_style(_hot)
 		queue_redraw()
 		return
-	# Real petrify: stone grain on the art + Unplayable hatch + grey. No letter stamp.
+	# Real petrify: tiled stone grain over the plate, litho on the art, hatch. Holds until shatter.
 	material = null
 	var src: String = source
 	if src == "":
 		src = _petrify_source if _petrify_source != "" else "gargoyle"
 	set_source_stamp(src)
 	set_aura_role(AURA_OFF)
+	if _icon != null and _petrify_mat != null:
+		_icon.material = _petrify_mat
+		_icon.modulate = Color.WHITE
+	modulate = Color.WHITE
 	_show_stone_overlay(true)
-	if animate:
-		if _icon != null and _petrify_mat != null:
-			_icon.material = _petrify_mat
+	if animate and _petrify_creep < 0.99:
 		_petrify_creep = 0.0
-		modulate = Color.WHITE
-		if _icon != null:
-			_icon.modulate = Color.WHITE
-		var tw := create_tween()
-		tw.set_trans(Tween.TRANS_SINE)
-		tw.set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(self, "_petrify_creep", 1.0, 0.36)
-		tw.parallel().tween_property(self, "modulate", Color(0.58, 0.56, 0.52, 1.0), 0.36)
-		await tw.finished
-		_petrify_creep = 1.0
-		_show_stone_overlay(true)
-		modulate = Color(0.58, 0.56, 0.52, 1.0)
-		_sync_lock_shade()
-		queue_redraw()
-	else:
-		if _icon != null and _petrify_mat != null:
-			_icon.material = _petrify_mat
-		_petrify_creep = 1.0
-		modulate = Color(0.58, 0.56, 0.52, 1.0)
-		_show_stone_overlay(true)
-		_sync_lock_shade()
-		queue_redraw()
+		_petrify_tw = create_tween()
+		_petrify_tw.set_trans(Tween.TRANS_SINE)
+		_petrify_tw.set_ease(Tween.EASE_IN_OUT)
+		_petrify_tw.tween_property(self, "_petrify_creep", 1.0, 0.36)
+		await _petrify_tw.finished
+		_petrify_tw = null
+	_petrify_creep = 1.0
+	_show_stone_overlay(true)
+	_sync_lock_shade()
+	_apply_style(_hot)
+	queue_redraw()
 
 
 func petrify_tick(spins_left: int) -> void:
@@ -951,8 +951,7 @@ func petrify_shatter() -> void:
 	if _petrify_dummy:
 		return
 	_ensure_shatter()
-	_stone.visible = false
-	material = null
+	_show_stone_overlay(false)
 	if _icon != null:
 		_icon.material = null
 	set_source_stamp("")
@@ -975,8 +974,11 @@ func petrify_shatter() -> void:
 	_petrified = false
 	_petrify_spins = 0
 	_petrify_creep = 0.0
+	if _shimmer_mat != null:
+		material = _shimmer_mat
 	set_aura_role(AURA_OFF)
 	_sync_lock_shade()
+	_apply_style(_hot)
 	queue_redraw()
 
 
@@ -1062,30 +1064,38 @@ func _draw_dashed_ring(col: Color, width: float, _pulse: float) -> void:
 func _ensure_stone() -> void:
 	if _stone != null:
 		return
-	_stone = TextureRect.new()
+	_stone = ColorRect.new()
 	_stone.name = "PetrifyStone"
 	_stone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Cover the icon only — full-card stretch read as a checker + white number strip.
+	_stone.z_index = 6
+	_stone.color = Color.WHITE
 	_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_stone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_stone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_stone.texture_filter = TEXTURE_FILTER_NEAREST
-	_stone.texture = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
+	var sh: Shader = load("res://shaders/petrify_overlay.gdshader") as Shader
+	if sh != null:
+		var mat := ShaderMaterial.new()
+		mat.shader = sh
+		var stone_tex: Texture2D = load("res://assets/dungeon/ui/petrify_stone.png") as Texture2D
+		if stone_tex != null:
+			mat.set_shader_parameter("stone_tex", stone_tex)
+		mat.set_shader_parameter("amount", 0.52)
+		_stone.material = mat
 	_stone.visible = false
-	_stone.modulate = Color(0.86, 0.82, 0.74, 0.88)
-	if _icon != null:
-		_icon.add_child(_stone)
-	else:
-		_overlay_host().add_child(_stone)
+	_overlay_host().add_child(_stone)
 
 
 func _show_stone_overlay(on: bool) -> void:
 	_ensure_stone()
 	if _stone == null:
 		return
+	var host: Control = _overlay_host()
+	if host != null and _stone.get_parent() != host:
+		_stone.reparent(host)
+		_stone.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_stone.visible = on
-	# Grain over the icon only. Cover-aspect avoids the old dither-as-checker look.
-	_stone.modulate = Color(0.78, 0.74, 0.66, 0.88) if on else Color(0.86, 0.82, 0.74, 0.42)
+	var mat: ShaderMaterial = _stone.material as ShaderMaterial
+	if mat != null:
+		mat.set_shader_parameter("amount", 0.28 if _petrify_dummy else 0.52)
+	_stone.modulate = Color.WHITE if on else Color(1, 1, 1, 0)
 
 
 func _ensure_petrify_shader() -> void:
@@ -1100,6 +1110,7 @@ func _ensure_petrify_shader() -> void:
 	if stone != null:
 		_petrify_mat.set_shader_parameter("stone_tex", stone)
 	_petrify_mat.set_shader_parameter("creep", 0.0)
+	_petrify_mat.set_shader_parameter("mix_amt", 0.88)
 
 
 func _ensure_shatter() -> void:
@@ -1282,7 +1293,7 @@ func set_live(number_text: String, _note: String = "", can_use: bool = true) -> 
 	elif _glow or _aura or _log_focus or _danger:
 		pass
 	elif _petrified and not _petrify_dummy:
-		modulate = Color(0.58, 0.56, 0.52, 1.0)
+		modulate = Color.WHITE
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
 	else:
@@ -2329,7 +2340,7 @@ func _end_update_pulse(old_pivot: Vector2) -> void:
 	if _selector_dim:
 		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	elif _petrified and not _petrify_dummy:
-		modulate = Color(0.58, 0.56, 0.52, 1.0)
+		modulate = Color.WHITE
 	elif spent:
 		modulate = Color(0.86, 0.84, 0.80, 1.0)
 	else:
@@ -2704,9 +2715,14 @@ func _apply_style(hot: bool) -> void:
 		sb.content_margin_right = 4
 		sb.content_margin_top = IDLE_CONTENT_MARGIN_TOP
 		sb.content_margin_bottom = 3
-	add_theme_stylebox_override("panel", sb)
-	if _selector_dim and not spent and not _petrified:
+	if _petrified and not _petrify_dummy:
+		sb.bg_color = sb.bg_color.lerp(Color("4a4640"), 0.78)
+		metal = metal.lerp(Color("8f877c"), 0.82)
+		sb.border_color = metal
+		modulate = Color.WHITE
+	elif _selector_dim and not spent:
 		modulate = Color(0.38, 0.36, 0.34, 1.0)
+	add_theme_stylebox_override("panel", sb)
 	_sync_decay_markers()
 	queue_redraw()
 
@@ -2758,6 +2774,8 @@ func _draw() -> void:
 	if _petrified and not _petrify_dummy and _petrify_source == "basilisk":
 		# Dotted scale rim while Basilisk stone holds.
 		_draw_dashed_ring(COL_BASILISK, 2.5, 1.0)
+	elif _petrified and not _petrify_dummy:
+		_draw_solid_ring(COL_GARGOYLE, 2.5, 0.0)
 	# Legacy Basilisk spin countdown pips (petrify_n) — kept for hydra/legacy callers.
 	if _petrified and not _petrify_dummy and _petrify_spins > 0:
 		var base := Vector2(size.x - 14.0, 10.0)
