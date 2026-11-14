@@ -1488,13 +1488,59 @@ func _build() -> void:
 	_build_chrome()
 	_build_overlays()
 	_fade = ColorRect.new()
+	_fade.name = "CabinRoomFade"
 	_fade.color = Color(0, 0, 0, 0)
 	_fade.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade.visible = false
 	_fade.z_index = 20
 	add_child(_fade)
+	_ensure_fade()
 	_apply_art()
+
+
+## Named full-screen wipe for BoardSequences portal/shortcut fades. Reused forever.
+func _ensure_fade() -> ColorRect:
+	var wipe = get_node_or_null("BoardFadeWipe")
+	if wipe is ColorRect:
+		return wipe as ColorRect
+	wipe = ColorRect.new()
+	wipe.name = "BoardFadeWipe"
+	wipe.color = Color("0B0706")
+	wipe.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wipe.z_index = 200
+	wipe.visible = false
+	wipe.modulate.a = 0.0
+	add_child(wipe)
+	return wipe as ColorRect
+
+
+func ensure_nib_pointer() -> Control:
+	var existing = get_node_or_null("NibPointer")
+	if existing != null:
+		return existing
+	var ptr = load("res://scripts/cabin/nib_pointer.gd").new()
+	add_child(ptr)
+	return ptr
+
+
+func show_nib_pointer_at(target: Control) -> void:
+	var ptr = ensure_nib_pointer()
+	var from := Vector2(840, 900)
+	if _dialog != null and _dialog.has_method("talk_bar_anchor"):
+		from = _dialog.talk_bar_anchor()
+	elif _dialog != null and _dialog.get("_box") is Control:
+		var box: Control = _dialog.get("_box")
+		from = box.get_global_rect().position + Vector2(box.size.x * 0.55, 8.0)
+	if ptr.has_method("point_at"):
+		ptr.point_at(from, target)
+
+
+func clear_nib_pointer() -> void:
+	var ptr = get_node_or_null("NibPointer")
+	if ptr != null and ptr.has_method("clear"):
+		ptr.clear()
 
 
 func _full_bg(host: Control) -> TextureRect:
@@ -1615,17 +1661,19 @@ func _show_exterior() -> void:
 
 
 ## Developer Test / Play Latest strip must stay off during climb→exterior walk-in.
+## Also never show inside cabin / hall / Rope Exit / return flow (title owns those buttons).
 func _hide_arrive_dev_chrome() -> void:
-	if _editor_strip != null and is_instance_valid(_editor_strip):
-		_editor_strip.visible = false
+	hide_cabin_dev_strip()
 
 
 func _restore_arrive_dev_chrome() -> void:
-	if _editor_strip == null or not is_instance_valid(_editor_strip):
-		return
-	## Only restore when attach_editor populated the strip (editor builds).
-	if _editor_strip.get_child_count() > 0 and DevFlag.on():
-		_editor_strip.visible = true
+	## Intentionally never restores. Strip is title/dev-menu only.
+	hide_cabin_dev_strip()
+
+
+func hide_cabin_dev_strip() -> void:
+	if _editor_strip != null and is_instance_valid(_editor_strip):
+		_editor_strip.visible = false
 
 
 func _host_hero(host: Control) -> void:
@@ -2655,6 +2703,7 @@ func _play_bank_sequence(_ceremony_gen: int = -1) -> void:
 func _clear_board_pulse() -> void:
 	board_pulse_id = ""
 	first_board_hover_done = true
+	clear_nib_pointer()
 	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("set_pulse_id"):
 		_trophy_board.set_pulse_id("")
 	_save()
@@ -2926,14 +2975,8 @@ func _set_glint(id: String, hovered: bool) -> void:
 
 
 func raise_editor_strip() -> void:
-	## Picking ignores z-index. Keep this corner above the full-screen cutscene.
-	if _editor_strip == null or not is_instance_valid(_editor_strip):
-		return
-	if _editor_strip.get_parent() != self:
-		return
-	var last := get_child_count() - 1
-	if last >= 0 and _editor_strip.get_index() != last:
-		move_child(_editor_strip, last)
+	## Strip is title/dev-menu only — never raise it over cabin/hall/return UI.
+	hide_cabin_dev_strip()
 
 
 func _process(delta: float) -> void:
@@ -3935,7 +3978,8 @@ func _build_overlays() -> void:
 func attach_editor(main) -> void:
 	if main == null or not DevFlag.on():
 		return
-	_editor_strip.visible = true
+	## Populate for rare debug reparent, but keep hidden in cabin/hall/return.
+	_editor_strip.visible = false
 	for pair in [["Play Latest", "latest"], ["Developer Test", "dev"], ["Roster", "roster"], ["Script", "script"]]:
 		var b := Button.new()
 		b.text = str(pair[0])
@@ -3944,6 +3988,7 @@ func attach_editor(main) -> void:
 				main.settings_ui.mode_picked.emit(str(pair[1]))
 		)
 		_editor_strip.add_child(b)
+	hide_cabin_dev_strip()
 	_sync_playtest_fab()
 
 
@@ -4142,17 +4187,20 @@ func _relocate_nib_to_hall(owner_gen: int = -1, catchup: bool = false) -> bool:
 		if main_nib and main_nib.sprite_frames:
 			main_nib.play("idle")
 	var hall = _rooms.get("hall")
-	## Place hall Nib at the left doorway, then walk to idle (1544 px / 386 native).
+	## Place hall Nib at the left doorway, then walk to idle — feet stay on hall floor.
 	var hall_nib = hall.nib if hall else null
 	var hall_spots = hall.spots if hall else {}
 	var hall_hs = hall_spots.get("Nib", null) if typeof(hall_spots) == TYPE_DICTIONARY else null
+	var floor_top: Vector2 = NIB_HOST.hall_idle_top_left()
 	if hall_nib:
-		hall_nib.position = Vector2(0.0, NIB_HOST.IDLE_NATIVE.y * PX)
+		NIB_HOST.apply_hall_scale(hall_nib)
+		hall_nib.position = Vector2(0.0, floor_top.y)
 		hall_nib.visible = true
 		if hall_nib.sprite_frames:
 			hall_nib.play("walk")
 	if hall_hs is Control:
-		(hall_hs as Control).position = Vector2(0.0, NIB_HOST.IDLE_NATIVE.y * PX)
+		(hall_hs as Control).position = Vector2(0.0, floor_top.y)
+		(hall_hs as Control).size = NIB_HOST.nib_drawn_size()
 		(hall_hs as Control).visible = true
 		(hall_hs as Control).mouse_filter = Control.MOUSE_FILTER_STOP
 	if _current_room != "hall":
@@ -4187,6 +4235,7 @@ func _relocate_nib_to_hall(owner_gen: int = -1, catchup: bool = false) -> bool:
 
 
 ## Tween Nib (and hotspot) in a named room — used by hall relocation.
+## Hall walks keep feet planted on HALL_FLOOR_Y.
 func _tween_nib_in_room(room_id: String, x_native: float, dur: float) -> void:
 	var room = _rooms.get(room_id)
 	if room == null:
@@ -4194,15 +4243,27 @@ func _tween_nib_in_room(room_id: String, x_native: float, dur: float) -> void:
 	var nib = room.get("nib")
 	var spots = room.get("spots")
 	var hs = spots.get("Nib", null) if typeof(spots) == TYPE_DICTIONARY else null
+	var dest_x: float = x_native * PX
+	var dest_y: float = -1.0
+	if room_id == "hall":
+		dest_y = NIB_HOST.hall_idle_top_left().y
+		if nib is AnimatedSprite2D:
+			NIB_HOST.apply_hall_scale(nib)
+		if hs is Control:
+			(hs as Control).size = NIB_HOST.nib_drawn_size()
 	var tw := create_tween()
 	_cabin_motion = tw
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_parallel(true)
 	var d: float = dur / maxf(Engine.time_scale, 0.001)
 	if nib:
-		tw.tween_property(nib, "position:x", x_native * PX, d)
+		tw.tween_property(nib, "position:x", dest_x, d)
+		if dest_y >= 0.0:
+			tw.tween_property(nib, "position:y", dest_y, d)
 	if hs is Control:
-		tw.tween_property(hs, "position:x", x_native * PX, d)
+		tw.tween_property(hs, "position:x", dest_x, d)
+		if dest_y >= 0.0:
+			tw.tween_property(hs, "position:y", dest_y, d)
 	await tw.finished
 
 

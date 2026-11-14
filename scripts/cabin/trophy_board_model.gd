@@ -21,10 +21,15 @@ const SLUGS := {
 }
 
 ## Screen absolute board geometry (px @ 1680×1040).
-const BOARD_OUTER := Rect2(176, 40, 1328, 776)
-const FACE_VIEWPORT := Rect2(224, 128, 1232, 616)
-const PYRAMID_AREA := Rect2(224, 272, 1232, 464)
+## Board sits ABOVE the hall floor/dais line so Nib's feet read on the floor, not on the frame.
+## Raised 80px from the old (176,40) origin so bottom clears HALL_FLOOR_Y.
+const BOARD_RAISE_PX := 80.0
+const BOARD_OUTER := Rect2(176, 40.0 - BOARD_RAISE_PX, 1328, 776)
+const FACE_VIEWPORT := Rect2(224, 128.0 - BOARD_RAISE_PX, 1232, 616)
+const PYRAMID_AREA := Rect2(224, 272.0 - BOARD_RAISE_PX, 1232, 464)
 const FACE_CENTER_X := 840.0
+## Visible floor line under the board (Nib feet + lever feet land here).
+const HALL_FLOOR_Y := 848.0
 
 const SLOT_NORMAL := 128.0
 const HGAP_NORMAL := 24.0

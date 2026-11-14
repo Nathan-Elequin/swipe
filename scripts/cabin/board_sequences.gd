@@ -74,6 +74,7 @@ func portal(face_index: int) -> void:
 	var prev_name := str(face.get("name", ""))
 	var vars := _token_vars(face, next_name, prev_name)
 	if bool(nxt.get("endless", false)) or next_id == "endless":
+		_start_splash_music("endless")
 		await _play_splash(
 			"endless",
 			"res://assets/ui/trophy_board/splash/portal_endless.png",
@@ -81,15 +82,17 @@ func portal(face_index: int) -> void:
 			vars,
 			&"sting.portal_open"
 		)
-		await _fade(0.3, false)
-		if board != null and board.has_method("slide_to"):
-			board.slide_to(face_index, true)
+		await _land_hall_after_splash(face_index, "")
 		_busy = false
 		portal_finished.emit(face_index)
 		return
 	var slug := str(MODEL.SLUGS.get(next_id, next_id))
 	var art := "res://assets/ui/trophy_board/splash/portal_%s.png" % slug
+	_start_splash_music(next_id)
 	await _play_splash(next_id, art, ["nib.portal.1", "nib.portal.2"], vars, &"sting.portal_open")
+	## Splash gone → hall visible (lever spent, lights latched) + rumble wake line.
+	await _land_hall_after_splash(face_index, next_id)
+	await _nib(["nib.portal.rumble_wake"], vars)
 	await _fade(0.3, true)
 	## Map beat: fog clears, node becomes Known (not startable).
 	await _present_map({"reveal": next_id, "read_only": true}, ["nib.portal.map"], vars)
@@ -276,6 +279,98 @@ func _play_splash(
 	else:
 		await splash.wait_dismissed()
 	await splash.play_out()
+	_hide_biome_splash()
+
+
+## After splash dismiss: fade wipe out, hide BiomeSplash, restore trophy hall + cabin music.
+func _land_hall_after_splash(face_index: int, _biome_id: String) -> void:
+	_hide_biome_splash()
+	_restore_cabin_music()
+	if cabin != null and cabin.has_method("hide_cabin_dev_strip"):
+		cabin.hide_cabin_dev_strip()
+	## Ensure hall / board are the live surface before the wipe clears.
+	if cabin != null:
+		var int_root = cabin.get("_int_root") if cabin != null else null
+		var cur_room := ""
+		if cabin.get("_current_room") != null:
+			cur_room = str(cabin.get("_current_room"))
+		if int_root != null and int_root is CanvasItem and (int_root as CanvasItem).visible:
+			if cur_room != "hall" and cabin.has_method("pan_to"):
+				cabin.pan_to("hall")
+		elif cabin.has_method("show_menu"):
+			cabin.show_menu("hall")
+	if board != null and board.has_method("slide_to"):
+		board.slide_to(face_index, true)
+	if board != null and board.has_method("refresh"):
+		board.refresh()
+	await _fade(0.3, false)
+	_hide_biome_splash()
+	## Belt-and-suspenders: never leave an opaque full-screen wipe on the cabin.
+	_clear_opaque_wipes()
+
+
+func _clear_opaque_wipes() -> void:
+	var wipe := _ensure_board_fade()
+	wipe.modulate.a = 0.0
+	wipe.visible = false
+	var parent: Node = cabin if cabin != null else self
+	if parent == null:
+		return
+	for child in parent.get_children():
+		if child is ColorRect and child != wipe:
+			var cr := child as ColorRect
+			## Anonymous full-screen leftovers from older builds.
+			if cr.z_index >= 100 and cr.visible and cr.modulate.a > 0.05:
+				cr.modulate.a = 0.0
+				cr.visible = false
+				cr.queue_free()
+
+
+func _hide_biome_splash() -> void:
+	var roots: Array = []
+	if cabin != null:
+		roots.append(cabin)
+	roots.append(self)
+	if main_ref != null:
+		roots.append(main_ref)
+	for root in roots:
+		if root == null or not (root is Node):
+			continue
+		_hide_splash_under(root as Node)
+
+
+func _hide_splash_under(root: Node) -> void:
+	for child in root.get_children():
+		if child == null or not is_instance_valid(child):
+			continue
+		if str(child.name) == "BiomeSplash" or child.get_script() == SPLASH:
+			child.visible = false
+			if child is CanvasLayer:
+				(child as CanvasLayer).visible = false
+			if child.has_method("queue_free"):
+				child.queue_free()
+
+
+func _start_splash_music(biome_id: String) -> void:
+	if sfx == null:
+		return
+	## Fade the newly opened biome bed in over ~1.5s while the splash holds.
+	if sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id, 1.5)
+	elif sfx.has_method("dungeon_bed_for_biome") and sfx.has_method("music_to"):
+		var bed: StringName = sfx.dungeon_bed_for_biome(biome_id)
+		if bed != &"":
+			sfx.music_to(bed, 1.5)
+
+
+func _restore_cabin_music() -> void:
+	if sfx == null:
+		return
+	## Back in the hall: crossfade to cabin over ~1s.
+	if sfx.has_method("music_to"):
+		sfx.music_to(&"cabin", 1.0)
+	elif sfx.has_method("music_cabin"):
+		sfx.music_cabin()
 
 
 func _present_map(opts: Dictionary, nib_keys: Array, vars: Dictionary) -> void:
@@ -348,20 +443,15 @@ func _nib(keys: Array, vars: Dictionary) -> void:
 
 
 func _fade(seconds: float, to_black: bool) -> void:
+	var wipe: ColorRect = _ensure_board_fade()
+	## Instant final state for reduce-motion / fast selftests — never leave alpha stuck at 1.
 	if reduce_motion or Engine.time_scale >= 4.0:
+		wipe.visible = to_black
+		wipe.modulate.a = 1.0 if to_black else 0.0
+		if not to_black:
+			wipe.visible = false
 		await _wait(seconds)
 		return
-	var wipe: ColorRect = null
-	if cabin != null and cabin.has_method("_ensure_fade"):
-		wipe = cabin._ensure_fade()
-	if wipe == null:
-		wipe = ColorRect.new()
-		wipe.color = Color("0B0706")
-		wipe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		wipe.z_index = 200
-		var parent: Node = cabin if cabin != null else self
-		parent.add_child(wipe)
 	wipe.visible = true
 	wipe.modulate.a = 0.0 if to_black else 1.0
 	var tw := create_tween()
@@ -369,7 +459,30 @@ func _fade(seconds: float, to_black: bool) -> void:
 	tw.tween_property(wipe, "modulate:a", 1.0 if to_black else 0.0, seconds / maxf(0.001, Engine.time_scale))
 	await tw.finished
 	if not to_black:
+		wipe.modulate.a = 0.0
 		wipe.visible = false
+
+
+## One named, reused full-screen wipe. Never spawn anonymous ColorRects.
+func _ensure_board_fade() -> ColorRect:
+	if cabin != null and cabin.has_method("_ensure_fade"):
+		var from_cabin = cabin._ensure_fade()
+		if from_cabin is ColorRect:
+			return from_cabin as ColorRect
+	var parent: Node = cabin if cabin != null else self
+	var existing = parent.get_node_or_null("BoardFadeWipe")
+	if existing is ColorRect:
+		return existing as ColorRect
+	var wipe := ColorRect.new()
+	wipe.name = "BoardFadeWipe"
+	wipe.color = Color("0B0706")
+	wipe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wipe.z_index = 200
+	wipe.visible = false
+	wipe.modulate.a = 0.0
+	parent.add_child(wipe)
+	return wipe
 
 
 func _wait(seconds: float) -> void:
