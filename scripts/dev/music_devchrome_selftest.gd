@@ -46,6 +46,16 @@ func _run() -> void:
 		main_src.find("KEY_F11") >= 0 and main_src.find("DevChrome.toggle") >= 0
 	) or failed
 	failed = _check(
+		rows, failed, "STATIC.ctrl_shift_d_dev_chrome",
+		main_src.find("KEY_D") >= 0
+		and main_src.find("ctrl_pressed") >= 0
+		and main_src.find("shift_pressed") >= 0
+		and main_src.find("Works in playtest F5") >= 0
+		and main_src.find(
+			"if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11"
+		) < 0
+	) or failed
+	failed = _check(
 		rows, failed, "STATIC.branch_tag_respects_chrome",
 		branch_src.find("DevChrome.on()") >= 0 and branch_src.find("DevChrome.listen") >= 0
 	) or failed

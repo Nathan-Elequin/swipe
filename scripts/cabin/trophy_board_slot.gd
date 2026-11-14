@@ -63,7 +63,7 @@ func _build() -> void:
 	_glow.color = Color(1.0, 0.88, 0.45, 0.16)
 	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_glow.visible = false
-	_glow.z_index = 0
+	_glow.z_index = 1
 	add_child(_glow)
 	## WIRING: pulse_ring.png centred on the slot (160×160, centre = slot centre − 80).
 	_aura = TextureRect.new()
@@ -73,7 +73,7 @@ func _build() -> void:
 	_aura.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_aura.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_aura.visible = false
-	_aura.z_index = 0
+	_aura.z_index = 1
 	add_child(_aura)
 	_place_pulse_ring()
 	_sprite = TextureRect.new()
@@ -82,7 +82,8 @@ func _build() -> void:
 	_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_sprite.z_index = 1
+	## Above the slab — silhouette modulate must never tint the plinth.
+	_sprite.z_index = 2
 	_sprite.position = Vector2.ZERO
 	_sprite.size = size
 	add_child(_sprite)
@@ -121,7 +122,9 @@ func _make_plinth(claimed: bool) -> Control:
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		tr.texture = tex
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tr.z_index = -1
+		## z=0 (not -1): negative z draws behind the face oak bg sibling and hides slabs.
+		tr.z_index = 0
+		tr.modulate = Color.WHITE
 		return tr
 	## Missing art only — never the old square recess on the board.
 	var box := Panel.new()
@@ -129,7 +132,7 @@ func _make_plinth(claimed: bool) -> Control:
 	box.position = pr.position
 	box.size = pr.size
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.z_index = -1
+	box.z_index = 0
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("5c3a22") if claimed else Color("1e120c")
 	sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
@@ -263,6 +266,10 @@ func _apply_plinth_art(claimed: bool) -> void:
 		return
 	var tex: Texture2D = KIT.ui_tex(_plinth_stem(claimed))
 	var pr: Rect2 = _plinth_rect()
+	## Keep slab on WIRING rect; never inherit silhouette/dark modulate.
+	_recess.z_index = 0
+	_recess.modulate = Color.WHITE
+	_recess.visible = true
 	if _recess is TextureRect:
 		var tr := _recess as TextureRect
 		tr.position = pr.position
@@ -275,8 +282,8 @@ func _apply_plinth_art(claimed: bool) -> void:
 		box.position = pr.position
 		box.size = pr.size
 		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color("6a4228") if claimed else Color("1e120c")
-		sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
+		sb.bg_color = Color("6a4228") if claimed else Color("3a2418")
+		sb.border_color = Color("e8c36a") if claimed else Color("6a4a32")
 		sb.set_border_width_all(3 if claimed else 2)
 		box.add_theme_stylebox_override("panel", sb)
 

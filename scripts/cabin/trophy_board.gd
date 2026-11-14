@@ -54,6 +54,10 @@ var _item_tag: Control = null
 var _item_tag_title: Label = null
 var _item_tag_body: Label = null
 var _item_tag_open: bool = false
+var _item_tag_card_id: String = ""
+## Fixed readable width at 1680×1040 (never a tall 1-col strip).
+const ITEM_TAG_WIDTH := 300.0
+const ITEM_TAG_PAD := 48.0 ## 24 left + 24 right ninepatch margins
 
 
 func setup(rules, items_by_id, campaign_state, cabin_seen, hold: Array) -> void:
@@ -416,7 +420,7 @@ func _rebuild_faces() -> void:
 		face_n.rebuild_slots(lay, _tex_by_id)
 		face_n.apply_states(_rules, _campaign_state, _cabin_seen, _hold)
 		face_n.slot_hovered.connect(_on_slot_hover)
-		face_n.slot_unhovered.connect(func(_cid: String) -> void: hover_clear.emit())
+		face_n.slot_unhovered.connect(_on_slot_unhover)
 		face_n.slot_clicked.connect(_on_slot_click)
 		face_n.lever_clicked.connect(_on_lever)
 		face_n.padlock_hovered.connect(_on_padlock_hover)
@@ -654,10 +658,13 @@ func _build_item_tag() -> void:
 	_item_tag.name = "ItemParchmentTag"
 	_item_tag.visible = false
 	_item_tag.z_index = 40
+	## Keep receiving mouse + input while the cabin SceneTree is paused.
+	_item_tag.process_mode = Node.PROCESS_MODE_ALWAYS
 	_item_tag.mouse_filter = Control.MOUSE_FILTER_STOP
-	_item_tag.custom_minimum_size = Vector2(160, 48)
+	_item_tag.custom_minimum_size = Vector2(ITEM_TAG_WIDTH, 64)
+	## Top-left anchors so size/position stick (no full-rect stretch into a tall strip).
+	_item_tag.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	add_child(_item_tag)
-	var frame: Control = null
 	var parch: Texture2D = KIT.ui_tex("trophy/parchment_tag")
 	if parch != null:
 		var nine := NinePatchRect.new()
@@ -672,7 +679,6 @@ func _build_item_tag() -> void:
 		nine.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 		nine.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_item_tag.add_child(nine)
-		frame = nine
 	else:
 		var panel := Panel.new()
 		panel.name = "Frame"
@@ -688,7 +694,6 @@ func _build_item_tag() -> void:
 		sb.content_margin_bottom = 8
 		panel.add_theme_stylebox_override("panel", sb)
 		_item_tag.add_child(panel)
-		frame = panel
 	## NinePatch margins are 24 — keep text inside the flat centre with matching pad.
 	var col := VBoxContainer.new()
 	col.name = "Cols"
@@ -716,7 +721,9 @@ func _build_item_tag() -> void:
 	_item_tag_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_item_tag_body)
 	_item_tag.mouse_exited.connect(_on_item_tag_mouse_exited)
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_unhandled_input(true)
+	set_process_input(true)
 
 
 func show_item_tag(card_id: String, screen_anchor: Vector2) -> void:
@@ -730,18 +737,25 @@ func show_item_tag(card_id: String, screen_anchor: Vector2) -> void:
 	var body := str(card.get("ability", "")).strip_edges()
 	if body == "":
 		body = str(card.get("explainer", "")).strip_edges()
+	_item_tag_card_id = card_id
 	_item_tag_title.text = title
 	_item_tag_body.text = body
 	_item_tag_body.visible = body != ""
-	## Size to content (24px pad each side from ninepatch), then clamp on screen.
-	var max_w := 320.0
-	var pad := 48.0 ## 24 left + 24 right
-	_item_tag_title.custom_minimum_size = Vector2(max_w - pad, 0)
-	_item_tag_body.custom_minimum_size = Vector2(max_w - pad, 0)
-	var title_sz: Vector2 = _item_tag_title.get_minimum_size()
-	var body_sz: Vector2 = _item_tag_body.get_minimum_size() if _item_tag_body.visible else Vector2.ZERO
-	var w: float = clampf(maxi(title_sz.x, body_sz.x) + pad, 180.0, max_w)
-	var h: float = 24.0 + title_sz.y + (6.0 + body_sz.y if _item_tag_body.visible else 0.0) + 24.0
+	## Fixed width + measure wrapped height via TextServer (Label min-size at w=0
+	## used to produce a giant tall narrow strip that covered the room).
+	var w: float = clampf(ITEM_TAG_WIDTH, 280.0, 340.0)
+	var inner_w: float = w - ITEM_TAG_PAD
+	_item_tag_title.custom_minimum_size = Vector2(inner_w, 0)
+	_item_tag_title.size = Vector2(inner_w, 0)
+	_item_tag_body.custom_minimum_size = Vector2(inner_w, 0)
+	_item_tag_body.size = Vector2(inner_w, 0)
+	var title_h: float = _measure_label_height(_item_tag_title, title, inner_w, 22)
+	var body_h: float = 0.0
+	if body != "":
+		body_h = _measure_label_height(_item_tag_body, body, inner_w, 18)
+	var h: float = 24.0 + title_h + (6.0 + body_h if body != "" else 0.0) + 24.0
+	h = maxf(h, 64.0)
+	_item_tag.custom_minimum_size = Vector2(w, h)
 	_item_tag.size = Vector2(w, h)
 	## Sit beside the item (mock), not overlapping it. Prefer right; flip left if needed.
 	var gp := screen_anchor + Vector2(56, -h * 0.35)
@@ -754,26 +768,80 @@ func show_item_tag(card_id: String, screen_anchor: Vector2) -> void:
 	if gp.x + w > view.position.x + view.size.x - 8.0:
 		gp.x = screen_anchor.x - w - 56.0
 	gp.x = clampf(gp.x, view.position.x + 8.0, view.position.x + view.size.x - w - 8.0)
-	gp.y = clampf(gp.y, view.position.y + 8.0, view.position.y + view.size.y - h - 8.0)
+	## Height always fits; clamp y without inverting when h < view (never full-screen).
+	var max_y: float = view.position.y + view.size.y - h - 8.0
+	if max_y < view.position.y + 8.0:
+		max_y = view.position.y + 8.0
+	gp.y = clampf(gp.y, view.position.y + 8.0, max_y)
 	_item_tag.global_position = gp
 	_item_tag.visible = true
 	_item_tag_open = true
 	hover_clear.emit()
 
 
+func _measure_label_height(lab: Label, text: String, wrap_w: float, font_size: int) -> float:
+	if text == "":
+		return 0.0
+	var font: Font = lab.get_theme_font("font")
+	if font == null:
+		font = ThemeDB.fallback_font
+	if font == null:
+		## Safe fallback: ~1.2em per ~28 chars.
+		var lines: int = maxi(1, int(ceil(float(text.length()) / 28.0)))
+		return float(lines) * float(font_size) * 1.25
+	var sz: Vector2 = font.get_multiline_string_size(
+		text, HORIZONTAL_ALIGNMENT_LEFT, wrap_w, font_size
+	)
+	return maxf(sz.y, float(font_size))
+
+
 func hide_item_tag() -> void:
 	_item_tag_open = false
+	_item_tag_card_id = ""
 	if _item_tag:
 		_item_tag.visible = false
 
 
 func _on_item_tag_mouse_exited() -> void:
-	## Auto-hide as soon as the mouse leaves the tag.
-	if _item_tag_open:
-		hide_item_tag()
+	## Auto-hide when the mouse leaves the tag (and is not still over its slot).
+	if not _item_tag_open:
+		return
+	## Defer one frame so moving from tag → slot or slot → tag does not flicker.
+	call_deferred("_maybe_hide_item_tag_after_leave")
+
+
+func _maybe_hide_item_tag_after_leave() -> void:
+	if not _item_tag_open or _item_tag == null:
+		return
+	var mouse := get_global_mouse_position()
+	if _item_tag.get_global_rect().has_point(mouse):
+		return
+	## Still over the source slot — keep the tag up until the pointer leaves both.
+	if _item_tag_card_id != "" and _current < _face_nodes.size():
+		var slot = (_face_nodes[_current] as TrophyBoardFace).slot_node(_item_tag_card_id)
+		if slot != null and slot.get_global_rect().grow(8.0).has_point(mouse):
+			return
+	hide_item_tag()
+
+
+func _on_slot_unhover(card_id: String) -> void:
+	hover_clear.emit()
+	## Hide parchment when the pointer leaves the clicked slot (unless entering the tag).
+	if _item_tag_open and (_item_tag_card_id == "" or _item_tag_card_id == card_id):
+		call_deferred("_maybe_hide_item_tag_after_leave")
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	_handle_item_tag_dismiss(event)
+
+
+func _input(event: InputEvent) -> void:
+	## Also listen on _input so click-away works while the tree is paused
+	## (unhandled can be eaten by ALWAYS controls under the wipe/cabin).
+	_handle_item_tag_dismiss(event)
+
+
+func _handle_item_tag_dismiss(event: InputEvent) -> void:
 	if not _item_tag_open:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -782,8 +850,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 	if event is InputEventMouseButton and event.pressed:
-		## Click elsewhere closes the tag.
-		if _item_tag != null and not _item_tag.get_global_rect().has_point(event.position):
+		var mb := event as InputEventMouseButton
+		## global_position — event.position is viewport-local and misses the tag rect
+		## when the cabin/board is transformed, so click-away never fired.
+		var pt: Vector2 = mb.global_position
+		if pt == Vector2.ZERO:
+			pt = get_global_mouse_position()
+		if _item_tag != null and not _item_tag.get_global_rect().has_point(pt):
 			hide_item_tag()
 
 
