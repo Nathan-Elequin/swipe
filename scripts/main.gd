@@ -60,11 +60,11 @@ const STARTER_COUNT := 4
 const STARTER_ITEM_COUNT := 4
 const REFUSALS_MAX := 3
 const DRAFT_ROUNDS := 4
-const DEV_ITEM_MAX := 50
 const HAND_MAX := 50
 const CHALLENGE_SEATS := 6
 const CHALLENGE_DECK_N := 6
 const CHALLENGE_HAND := 10
+const DEV_ITEM_MAX := CHALLENGE_HAND
 const ADVENTURE_MOVES := 3
 const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
@@ -680,6 +680,7 @@ var _dev_tiers: Dictionary = {}
 var _dev_alpha: bool = false
 var _dev_query: String = ""
 var _dev_fold_open: Dictionary = {}
+var _dev_session: bool = false
 var dev_latest_btn: Button
 var btn_start: Button
 var btn_spin: Button
@@ -2204,6 +2205,9 @@ func _build_dev_panel() -> void:
 	dev_enter = _pill("Play", Color("3a3220"), Color("e8c36a"), _dev_enter)
 	dev_enter.custom_minimum_size = Vector2(0, 48)
 	play_row.add_child(dev_enter)
+	var clear_setup := _pill("Clear", Color("3a2420"), Color("c47a5c"), _dev_clear_setup)
+	clear_setup.custom_minimum_size = Vector2(0, 48)
+	play_row.add_child(clear_setup)
 	dev_search = LineEdit.new()
 	dev_search.placeholder_text = "Type a name..."
 	dev_search.custom_minimum_size = Vector2(0, 36)
@@ -2315,6 +2319,7 @@ func _open_dev_test() -> void:
 	_dev_review = ""
 	_reset_run()
 	phase = "devtest"
+	_dev_session = true
 	draft_action = "place"
 	if dev_panel:
 		dev_panel.visible = true
@@ -2576,7 +2581,7 @@ func _dev_add_monster(id: String, noisy: bool = true) -> void:
 func _dev_add_item(id: String, noisy: bool = true) -> void:
 	if phase != "devtest":
 		return
-	if hotbar.size() >= DEV_ITEM_MAX:
+	if hotbar.size() >= _dev_hand_cap():
 		if noisy and sfx:
 			sfx.play("error", -12.0, 1.2)
 		return
@@ -2684,6 +2689,27 @@ func _dev_click_slice(index: int) -> void:
 	_refresh()
 
 
+func _dev_hand_cap() -> int:
+	return CHALLENGE_HAND
+
+
+func _hotbar_uses_seats() -> bool:
+	return adventure or _dev_session
+
+
+func _dev_clear_setup() -> void:
+	if phase != "devtest":
+		return
+	_empty_wheel()
+	hotbar.clear()
+	_hotbar_sig = ""
+	if sfx:
+		sfx.play("scratch", -10.0)
+	_log("on_click", "Clear")
+	_sync_wheel_stats()
+	_refresh()
+
+
 func _dev_enter() -> void:
 	if phase != "devtest":
 		return
@@ -2721,7 +2747,7 @@ func _sync_dev_panel() -> void:
 	if dev_mon_n:
 		dev_mon_n.text = "Monsters  %s / 8" % _monsters_left()
 	if dev_item_n:
-		dev_item_n.text = "Items  %s / %s" % [hotbar.size(), DEV_ITEM_MAX]
+		dev_item_n.text = "Items  %s / %s" % [hotbar.size(), _dev_hand_cap()]
 	if dev_enter:
 		dev_enter.disabled = _monsters_left() <= 0
 
@@ -2776,6 +2802,7 @@ func _on_overlay_primary() -> void:
 
 
 func _reset_run() -> void:
+	_dev_session = false
 	_undo_clear()
 	_mill_seq += 1
 	if ability_slash != null and ability_slash.has_method("reset_slash_seen"):
@@ -5179,6 +5206,8 @@ func _empty_wheel(n: int = 8) -> void:
 func _hand_limit() -> int:
 	if OS.has_feature("editor") and has_meta("qa_hand_cap"):
 		return int(get_meta("qa_hand_cap"))
+	if _dev_session:
+		return CHALLENGE_HAND
 	if _campaign_on:
 		return HAND_MAX
 	return CHALLENGE_HAND if adventure else HAND_MAX
@@ -29175,11 +29204,12 @@ func _flush_item_pulses() -> void:
 
 func _sync_hotbar() -> void:
 	_free_stray_marble_rolls()
+	var seated_hand: bool = _hotbar_uses_seats()
 	if hotbar_box is GridContainer:
-		hotbar_box.columns = 5 if adventure else 12
+		hotbar_box.columns = 5 if seated_hand else 12
 	if hotbar_panel:
 		hotbar_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		if adventure:
+		if seated_hand:
 			var hsb := StyleBoxFlat.new()
 			hsb.bg_color = Color("14100ce8")
 			hsb.border_color = Color("c4a574")
@@ -29206,9 +29236,9 @@ func _sync_hotbar() -> void:
 		var chain_n: int = int(_ops_of(it).get("n", 0)) if str(it.get("card_id", "")) == "ball_and_chain" else 0
 		# marble_n is omitted so grow / swirl can play on the live card.
 		sig.append("%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s" % [it.get("uid", 0), it.get("card_id", ""), echo_id, it.get("petrified", false), it.get("toll_n", 0), it.get("bagged_hp", 0), it.get("bagged_name", ""), chain_n, it.get("recycle_n", 0), it.get("cats_eye", false), 0, it.get("rust_n", 0), it.get("hex_n", 0), it.get("shrouded", false)])
-	var cap_n: int = CHALLENGE_HAND if adventure else 9999
+	var cap_n: int = CHALLENGE_HAND if seated_hand else 9999
 	var seated_n: int = mini(hotbar.size(), cap_n)
-	var empties: int = (cap_n - seated_n) if adventure else 0
+	var empties: int = (cap_n - seated_n) if seated_hand else 0
 	var pending_uid: int = int(_challenge_pending_gain.get("uid", 0)) if _challenge_loot_wait and not _challenge_pending_gain.is_empty() else 0
 	var joined: String = ",".join(sig) + "|e%s|d%s|s%s|p%s" % [empties, 1 if _challenge_loot_wait else 0, seated_n, pending_uid]
 	if joined != _hotbar_sig and not _hotbar_inserting:
@@ -29219,7 +29249,7 @@ func _sync_hotbar() -> void:
 			if typeof(it_seat) != TYPE_DICTIONARY:
 				continue
 			hotbar_box.add_child(_reuse_or_spawn_item_card(keep, it_seat))
-		if adventure:
+		if seated_hand:
 			for _e in range(maxi(0, empties)):
 				hotbar_box.add_child(_make_hot_empty())
 		if hotbar_overflow != null:
