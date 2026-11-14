@@ -57,6 +57,9 @@ var _ambient_home_index: int = -1
 var _pages: PackedStringArray = PackedStringArray()
 var _page_index: int = 0
 var _page_swap_busy: bool = false
+## Package D: portal / shortcut splash may override art and feed Nib lines.
+var _art_override: String = ""
+var _nib_line_keys: PackedStringArray = PackedStringArray()
 
 
 func _ready() -> void:
@@ -68,6 +71,14 @@ func _ready() -> void:
 func play_in(biome_id: String, ctx: Dictionary) -> void:
 	_biome_id = str(biome_id)
 	_ctx = ctx.duplicate(true) if typeof(ctx) == TYPE_DICTIONARY else {}
+	_art_override = str(_ctx.get("art_override", ""))
+	_nib_line_keys = PackedStringArray()
+	var raw_lines: Variant = _ctx.get("nib_lines", [])
+	if typeof(raw_lines) == TYPE_ARRAY or typeof(raw_lines) == TYPE_PACKED_STRING_ARRAY:
+		for raw_k in raw_lines:
+			var k := str(raw_k)
+			if k != "":
+				_nib_line_keys.append(k)
 	_skipped = false
 	_dismissed_emitted = false
 	_play_in_finished = false
@@ -76,10 +87,17 @@ func play_in(biome_id: String, ctx: Dictionary) -> void:
 	_build()
 	_root.modulate.a = 0.0
 	visible = true
+	## Soft push-in on art for portal/shortcut overrides (SCREEN §7.1).
+	if _art != null and _art_override != "":
+		_art.pivot_offset = _art.size * 0.5
+		_art.scale = Vector2(1.03, 1.03)
+		var push := create_tween()
+		push.set_trans(Tween.TRANS_SINE)
+		push.tween_property(_art, "scale", Vector2.ONE, 4.0)
 	_in_tween = create_tween()
 	_in_tween.set_trans(Tween.TRANS_SINE)
 	_in_tween.set_ease(Tween.EASE_IN_OUT)
-	_in_tween.tween_property(_root, "modulate:a", 1.0, 0.35)
+	_in_tween.tween_property(_root, "modulate:a", 1.0, 0.4 if _art_override != "" else 0.35)
 	_in_tween.finished.connect(_on_play_in_tween_finished, CONNECT_ONE_SHOT)
 	await play_in_done
 
@@ -578,8 +596,16 @@ func _apply_copy() -> void:
 		_chrome_delves.text = PLAYER_COPY.fill("splash.chrome.delves", {"n": delves_n}, "Delves: %s" % delves_n)
 	if _cue_label:
 		_cue_label.text = PLAYER_COPY.text("splash.chrome.continue", "click anytime")
-	## Page list from .p1/.p2/.p3 (legacy single key = unused fallback only).
-	_pages = narration_pages_for_name(biome_name)
+	## Package D portal/shortcut: explicit Nib keys. Else biome .p1/.p2/.p3 pages.
+	if _nib_line_keys.size() > 0:
+		_pages = PackedStringArray()
+		var nib_vars: Dictionary = _ctx.get("nib_vars", {}) if typeof(_ctx.get("nib_vars", {})) == TYPE_DICTIONARY else {}
+		for key in _nib_line_keys:
+			var line := PLAYER_COPY.fill(str(key), nib_vars, PLAYER_COPY.text(str(key), ""))
+			if line.strip_edges() != "":
+				_pages.append(line)
+	else:
+		_pages = narration_pages_for_name(biome_name)
 	if _page_index < 0 or (_pages.size() > 0 and _page_index >= _pages.size()):
 		_page_index = 0
 	if _narration:
@@ -714,6 +740,10 @@ func _start_leaf_bob() -> void:
 
 
 func _resolve_bg_tex() -> Texture2D:
+	if _art_override != "" and ResourceLoader.exists(_art_override):
+		var ov = load(_art_override)
+		if ov != null:
+			return ov
 	var biome_name := str(_ctx.get("biome_name", ""))
 	var short := art_short_for_name(biome_name)
 	var painted := "res://assets/ui/biome_splash/bg_%s.png" % short

@@ -16,14 +16,14 @@ func load_all() -> void:
 	state = fresh_state()
 	if not disk.is_empty():
 		_copy_state(disk)
-	normalize(state)
+	normalize_with_rules(rules, state)
 	if bool(state.get("run", {}).get("active", false)):
 		end_run(state)
 		write()
 
 
 func write() -> void:
-	normalize(state)
+	normalize_with_rules(rules, state)
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f == null:
 		return
@@ -53,6 +53,12 @@ static func fresh_state() -> Dictionary:
 		"final_dungeon_cleared": false,
 		"pencil_fresh": [],
 		"mudroom_loadout": [],
+		## Trophy-board Package D: latched start floors + one-time migration.
+		"shortcuts": [],
+		"shortcut_fresh": [],
+		"shortcut_badge_seen": [],
+		"board_complete_seen": [],
+		"migrated_board_v1": false,
 		"next_run": {},
 		"run": _idle_run(),
 	}
@@ -76,14 +82,11 @@ static func normalize(state: Dictionary) -> void:
 	state["final_dungeon_cleared"] = bool(state.get("final_dungeon_cleared", false))
 	state["map_pieces"] = _clean_id_list(state.get("map_pieces", []))
 	state["pencil_fresh"] = _clean_id_list(state.get("pencil_fresh", []))
-	var pieces: Variant = state.get("map_pieces", [])
-	var piece_clean: Array = []
-	if typeof(pieces) == TYPE_ARRAY or typeof(pieces) == TYPE_PACKED_STRING_ARRAY:
-		for raw_piece in pieces:
-			var pid := str(raw_piece)
-			if pid != "" and not piece_clean.has(pid):
-				piece_clean.append(pid)
-	state["map_pieces"] = piece_clean
+	state["shortcuts"] = _clean_id_list(state.get("shortcuts", []))
+	state["shortcut_fresh"] = _clean_id_list(state.get("shortcut_fresh", []))
+	state["shortcut_badge_seen"] = _clean_id_list(state.get("shortcut_badge_seen", []))
+	state["board_complete_seen"] = _clean_id_list(state.get("board_complete_seen", []))
+	state["migrated_board_v1"] = bool(state.get("migrated_board_v1", false))
 	var loadout: Variant = state.get("mudroom_loadout", [])
 	var load_clean: Array = []
 	if typeof(loadout) == TYPE_ARRAY or typeof(loadout) == TYPE_PACKED_STRING_ARRAY:
@@ -117,6 +120,12 @@ static func normalize(state: Dictionary) -> void:
 		state["endless_best"] = maxi(int(state.get("endless_best", 0)), depth)
 
 
+## Call after load with live rules so old saves keep portals and start floors.
+static func normalize_with_rules(rules: Dictionary, state: Dictionary) -> void:
+	normalize(state)
+	_migrate_board_v1(rules, state)
+
+
 static func pool_for_bucket(rules: Dictionary, bucket: int) -> String:
 	if bucket < 1:
 		return ""
@@ -145,18 +154,46 @@ static func total_uniques(state: Dictionary) -> int:
 	return banked.size()
 
 
-static func cabinet_count(state: Dictionary, pool: String) -> int:
-	var n := 0
+## Unique board finds for a pool. Prefer live membership when items_by_id is given;
+## otherwise fall back to the pool string stored at bank time (tests / migration).
+static func cabinet_count(
+	state: Dictionary,
+	pool: String,
+	items_by_id: Dictionary = {},
+	rules: Dictionary = {}
+) -> int:
 	var banked: Dictionary = state.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		return 0
+	if not items_by_id.is_empty() and not rules.is_empty() and pool != "":
+		var Model = load("res://scripts/cabin/trophy_board_model.gd")
+		if Model != null:
+			var n := 0
+			for id in Model.board_ids(rules, items_by_id, pool):
+				if banked.has(str(id)):
+					n += 1
+			return n
+	var n2 := 0
 	for id in banked.keys():
 		if str(banked[id]) == pool:
-			n += 1
-	return n
+			n2 += 1
+	return n2
 
 
 static func map_unlocked(rules: Dictionary, _state: Dictionary = {}) -> bool:
 	## start_gate_uniques 0: the held map works on the first Outpost visit.
 	return total_uniques(_state) >= int(rules.get("start_gate_uniques", 0))
+
+
+## Portal opened for this biome id (map_pieces). Endless uses endless_unlocked.
+static func portal_opened(state: Dictionary, biome_id: String) -> bool:
+	var id := str(biome_id)
+	if id == "" or id == "endless":
+		return bool(state.get("endless_unlocked", false))
+	var pieces: Variant = state.get("map_pieces", [])
+	if typeof(pieces) != TYPE_ARRAY and typeof(pieces) != TYPE_PACKED_STRING_ARRAY:
+		return false
+	return (pieces as Array).has(id)
 
 
 static func biome_unlocked(rules: Dictionary, state: Dictionary, index: int) -> bool:
@@ -165,8 +202,8 @@ static func biome_unlocked(rules: Dictionary, state: Dictionary, index: int) -> 
 	var biomes := biomes_of(rules)
 	if index >= biomes.size():
 		return false
-	var prev: Dictionary = biomes[index - 1]
-	return cabinet_count(state, str(prev.get("id", ""))) >= quota_of(rules)
+	var biome: Dictionary = biomes[index]
+	return portal_opened(state, str(biome.get("id", "")))
 
 
 static func pool_unlocked(rules: Dictionary, state: Dictionary, pool: String) -> bool:
@@ -184,13 +221,10 @@ static func pool_open_for_bucket(rules: Dictionary, state: Dictionary, bucket: i
 	return pool != "" and pool_unlocked(rules, state, pool)
 
 
-## When every cabinet is full (DEV "Fill every cabinet", or a real 5/5 sweep),
-## each delve may draw from every mill pool. Until then, a biome's deck is only
-## that biome's pool, so Verdant stays the first-pool tutorial.
+## Monsters from every opened pool mix into every opened biome (Nathan 2026-11-13).
+## Same openness rule as items via pool_unlocked / biome_unlocked.
 static func rows_for_biome(rules: Dictionary, state: Dictionary, rows: Array, biome_id: String) -> Array:
 	if biome_id == "" or biome_id == str(rules.get("endless", {}).get("id", "endless")):
-		return rows
-	if cabinets_complete(rules, state):
 		return rows
 	var tagged := false
 	var out: Array = []
@@ -201,32 +235,33 @@ static func rows_for_biome(rules: Dictionary, state: Dictionary, rows: Array, bi
 		var p := str(row.get("pool", ""))
 		if p != "":
 			tagged = true
-		if p == "" or p == biome_id:
+		if p == "" or pool_unlocked(rules, state, p):
 			out.append(row)
 	if not tagged:
 		return rows
 	return out
 
 
+## Latched start floor: Verdant always; later biomes need state.shortcuts.
 static func shortcut_open(rules: Dictionary, state: Dictionary, index: int) -> bool:
-	var biomes := biomes_of(rules)
-	if index < 0 or index >= biomes.size():
-		return false
-	return biome_unlocked(rules, state, index + 1)
+	return can_start(rules, state, index)
 
 
-## Fresh-start floor eligibility (distinct from destination access).
-## Index 0 (Dungeon 1) is always startable. A later index is startable only as a
-## one-behind shortcut: unlock D3 → start D2, D4 → D3, D5 → D4. Unlocking D2
-## alone never licenses a D2 fresh start — reach D2 via same-run Push instead.
-## Earlier earned starts stay available. Endless is not Dungeon 6 here; there is
-## no invented D5 fresh-start shortcut. biome_unlocked / can_push stay separate.
+## Fresh-start floor eligibility. Index 0 always. Later indexes need a shortcut
+## granted by 100% of the previous board (never revoked). Push stays separate.
 static func can_start(rules: Dictionary, state: Dictionary, index: int) -> bool:
 	if index < 0:
 		return false
 	if index == 0:
 		return true
-	return shortcut_open(rules, state, index)
+	var biomes := biomes_of(rules)
+	if index >= biomes.size():
+		return false
+	var id := str((biomes[index] as Dictionary).get("id", ""))
+	var shorts: Variant = state.get("shortcuts", [])
+	if typeof(shorts) != TYPE_ARRAY and typeof(shorts) != TYPE_PACKED_STRING_ARRAY:
+		return false
+	return (shorts as Array).has(id)
 
 
 static func can_push(rules: Dictionary, state: Dictionary) -> bool:
@@ -240,14 +275,25 @@ static func can_push(rules: Dictionary, state: Dictionary) -> bool:
 	return biome_unlocked(rules, state, nxt)
 
 
-## Hovering Push deeper shows Nib when this biome's cabinet is under quota.
-## Never in Endless. Never at/above quota (even on the last biome where can_push is false).
+## Nib blocks Push while the next portal is still shut — including 5 lights lit
+## but the lever not yet pulled.
 static func push_needs_nib(rules: Dictionary, state: Dictionary) -> bool:
 	var run: Dictionary = state.get("run", {})
 	if not bool(run.get("active", false)) or bool(run.get("endless", false)):
 		return false
+	var nxt: int = int(run.get("biome_index", 0)) + 1
+	return not biome_unlocked(rules, state, nxt)
+
+
+## Player-facing push-block key. Lever line when this board is at quota but the
+## next portal is still shut; otherwise the lights-count line.
+static func push_block_key(rules: Dictionary, state: Dictionary) -> String:
+	if not push_needs_nib(rules, state):
+		return ""
 	var pool := current_biome_id(rules, state)
-	return cabinet_count(state, pool) < quota_of(rules)
+	if cabinet_count(state, pool) >= quota_of(rules):
+		return "nib.push_block.lever"
+	return "nib.push_block.1"
 
 
 static func current_biome_id(rules: Dictionary, state: Dictionary) -> String:
@@ -448,16 +494,99 @@ static func bank(rules: Dictionary, state: Dictionary, ids: Array, pools_by_id: 
 			continue
 		banked[id] = str(pools_by_id.get(id, ""))
 		added.append(id)
-	var already: bool = bool(state.get("won", false))
-	var win := cabinets_complete(rules, state)
-	if win:
-		state["won"] = true
-		state["endless_unlocked"] = true
+	## Package D: bank only. Endless / won / drawer come from the lever and
+	## 100% board sequences — never from banking alone.
 	return {
 		"added": added,
-		"win": win,
-		"show_drawer": win and not already and not bool(state.get("drawer_seen", false)),
+		"win": false,
+		"show_drawer": false,
 		"map": map_unlocked(rules, state),
+	}
+
+
+## Lever pull: stamp the next map piece (or open Endless after Shadow Abyss).
+static func open_portal(rules: Dictionary, state: Dictionary, face_pool_id: String) -> Dictionary:
+	normalize(state)
+	var nxt := stamp_map_piece(rules, state, face_pool_id)
+	if bool(nxt.get("endless", false)):
+		state["endless_unlocked"] = true
+		## Cabinets along the way are at quota by the time the last lever pulls.
+		if cabinets_complete(rules, state):
+			state["won"] = true
+	return nxt
+
+
+## 100% of a board (b1–b4) grants a latched start floor on the next biome.
+static func grant_shortcut(rules: Dictionary, state: Dictionary, biome_id: String) -> Dictionary:
+	normalize(state)
+	var id := str(biome_id)
+	if id == "" or id == "endless" or id == "b1":
+		return {"id": id, "first": false}
+	var shorts: Array = state["shortcuts"]
+	var fresh: Array = state["shortcut_fresh"]
+	var first := not shorts.has(id)
+	if first:
+		shorts.append(id)
+	if not fresh.has(id):
+		fresh.append(id)
+	return {"id": id, "first": first, "name": biome_name(rules, id)}
+
+
+## Mark a board's 100% ceremony as seen (idempotent).
+static func mark_board_complete_seen(state: Dictionary, pool_id: String) -> void:
+	normalize(state)
+	var pid := str(pool_id)
+	if pid == "":
+		return
+	var seen: Array = state["board_complete_seen"]
+	if not seen.has(pid):
+		seen.append(pid)
+
+
+## Clear the bouncing "Start here" badge after launching from that node.
+static func note_shortcut_launched(state: Dictionary, biome_id: String) -> void:
+	normalize(state)
+	var id := str(biome_id)
+	if id == "":
+		return
+	var fresh: Array = state["shortcut_fresh"]
+	var idx := fresh.find(id)
+	if idx >= 0:
+		fresh.remove_at(idx)
+	var seen: Array = state["shortcut_badge_seen"]
+	if not seen.has(id):
+		seen.append(id)
+
+
+## Ending drawer after Shadow Abyss hits 100% (Nathan 2026-11-13).
+static func maybe_show_ending_drawer(rules: Dictionary, state: Dictionary) -> bool:
+	normalize(state)
+	if bool(state.get("drawer_seen", false)):
+		return false
+	var last := last_tip_biome_id(rules)
+	if last == "":
+		return false
+	var Model = load("res://scripts/cabin/trophy_board_model.gd")
+	## Without catalog membership, treat "won + endless" as already eligible.
+	if Model == null:
+		if bool(state.get("won", false)) and bool(state.get("endless_unlocked", false)):
+			state["won"] = true
+			return true
+		return false
+	return false
+
+
+## Mark won + request drawer when the Abyss board is fully claimed.
+static func complete_abyss_board(rules: Dictionary, state: Dictionary, items_by_id: Dictionary = {}) -> Dictionary:
+	normalize(state)
+	var already := bool(state.get("drawer_seen", false))
+	state["won"] = true
+	state["endless_unlocked"] = true
+	var last := last_tip_biome_id(rules)
+	mark_board_complete_seen(state, last)
+	return {
+		"show_drawer": not already,
+		"pool": last,
 	}
 
 
@@ -549,13 +678,10 @@ static func debug_bank_matching(rules: Dictionary, state: Dictionary, entries: A
 			continue
 		banked[id] = p
 		got += 1
-	if cabinets_complete(rules, state):
-		state["won"] = true
-		state["endless_unlocked"] = true
 	return got
 
 
-## DEV: fill every biome cabinet, ink the later stamps, skip the win drawer.
+## DEV: fill every biome cabinet, ink every portal, grant every shortcut, skip drawer.
 static func debug_unlock_all_pools(rules: Dictionary, state: Dictionary, entries: Array) -> void:
 	normalize(state)
 	for raw in biomes_of(rules):
@@ -565,15 +691,22 @@ static func debug_unlock_all_pools(rules: Dictionary, state: Dictionary, entries
 		var need: int = quota_of(rules) - cabinet_count(state, pool)
 		debug_bank_matching(rules, state, entries, maxi(0, need), pool)
 	var pieces: Array = []
+	var shorts: Array = []
 	for raw2 in biomes_of(rules):
 		var pid := str((raw2 as Dictionary).get("id", ""))
-		if pid == "" or pid == "b1":
+		if pid == "":
 			continue
-		pieces.append(pid)
+		if pid != "b1":
+			pieces.append(pid)
+			shorts.append(pid)
 	state["map_pieces"] = pieces
+	state["shortcuts"] = shorts
+	state["shortcut_fresh"] = []
+	state["shortcut_badge_seen"] = shorts.duplicate()
 	state["won"] = true
 	state["endless_unlocked"] = true
 	state["drawer_seen"] = true
+	state["migrated_board_v1"] = true
 
 
 static func starter_tiers(rules: Dictionary, rng: RandomNumberGenerator) -> Array:
@@ -815,8 +948,8 @@ static func consume_next_run_deal(
 
 func _copy_state(disk: Dictionary) -> void:
 	## Older user://campaign_save.json files omit keys added later (map_pieces,
-	## mudroom_loadout, pencil_fresh, endless_best, …). Never hard-index a key
-	## after disk.get(key, default): the default makes typeof pass even when
+	## mudroom_loadout, pencil_fresh, endless_best, shortcuts, …). Never hard-index
+	## a key after disk.get(key, default): the default makes typeof pass even when
 	## the key is absent, then disk[key] crashes.
 	state = fresh_state()
 	if disk.has("banked") and typeof(disk["banked"]) == TYPE_DICTIONARY:
@@ -825,6 +958,11 @@ func _copy_state(disk: Dictionary) -> void:
 		state["seen_deadly"] = (disk["seen_deadly"] as Array).duplicate()
 	state["map_pieces"] = _clean_id_list(disk.get("map_pieces", []))
 	state["pencil_fresh"] = _clean_id_list(disk.get("pencil_fresh", []))
+	state["shortcuts"] = _clean_id_list(disk.get("shortcuts", []))
+	state["shortcut_fresh"] = _clean_id_list(disk.get("shortcut_fresh", []))
+	state["shortcut_badge_seen"] = _clean_id_list(disk.get("shortcut_badge_seen", []))
+	state["board_complete_seen"] = _clean_id_list(disk.get("board_complete_seen", []))
+	state["migrated_board_v1"] = bool(disk.get("migrated_board_v1", false))
 	if disk.has("mudroom_loadout") and typeof(disk["mudroom_loadout"]) == TYPE_ARRAY:
 		state["mudroom_loadout"] = (disk["mudroom_loadout"] as Array).duplicate()
 	## Older saves omit next_run — default {} (never hard-index a missing key).
@@ -839,6 +977,60 @@ func _copy_state(disk: Dictionary) -> void:
 	state["final_dungeon_cleared"] = bool(disk.get("final_dungeon_cleared", false))
 	if disk.has("run") and typeof(disk["run"]) == TYPE_DICTIONARY:
 		state["run"] = (disk["run"] as Dictionary).duplicate(true)
+
+
+## One-time silent migration (AUDIT R3–R4). Never revokes earned access.
+static func _migrate_board_v1(rules: Dictionary, state: Dictionary) -> void:
+	if bool(state.get("migrated_board_v1", false)):
+		return
+	var biomes := biomes_of(rules)
+	var q := quota_of(rules)
+	var pieces: Array = state["map_pieces"]
+	## R3: deferred stamp saves (5 banked, portal open via old count, no map piece).
+	for i in biomes.size():
+		var pool := str((biomes[i] as Dictionary).get("id", ""))
+		if pool == "":
+			continue
+		if _cabinet_count_stored(state, pool) < q:
+			continue
+		var nxt := next_after_pool(rules, pool)
+		var next_id := str(nxt.get("id", ""))
+		if next_id == "":
+			continue
+		if bool(nxt.get("endless", false)):
+			state["endless_unlocked"] = true
+			continue
+		if not pieces.has(next_id):
+			pieces.append(next_id)
+	## R4: grandfather old one-behind can_start into latched shortcuts (no ceremony).
+	var shorts: Array = state["shortcuts"]
+	var badge: Array = state["shortcut_badge_seen"]
+	for i2 in biomes.size():
+		if i2 <= 0:
+			continue
+		## Old rule: can_start(i) == biome_unlocked(i+1) via cabinet_count of biomes[i].
+		## Index i startable when biomes[i] (same index pool) had ≥ quota.
+		var pool_i := str((biomes[i2] as Dictionary).get("id", ""))
+		if pool_i == "":
+			continue
+		if _cabinet_count_stored(state, pool_i) >= q:
+			if not shorts.has(pool_i):
+				shorts.append(pool_i)
+			if not badge.has(pool_i):
+				badge.append(pool_i)
+	state["migrated_board_v1"] = true
+
+
+## Stored-pool count only — used by migration so membership moves never revoke access.
+static func _cabinet_count_stored(state: Dictionary, pool: String) -> int:
+	var n := 0
+	var banked: Dictionary = state.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		return 0
+	for id in banked.keys():
+		if str(banked[id]) == pool:
+			n += 1
+	return n
 
 
 static func _clean_id_list(raw: Variant) -> Array:

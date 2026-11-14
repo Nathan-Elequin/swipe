@@ -3778,10 +3778,8 @@ func _campaign_abort() -> void:
 
 
 ## Bank haul into CampaignShell.
-## stamp_crosses=true (successful Leave): idempotently stamp every past-quota cabinet.
-## That preserves deferred award when Push-block earlier crossed without stamping.
-## stamp_crosses=false (Push-block): bank credit only — never stamp here.
-## stamp_map_piece is idempotent per next id — old saves / re-Leave do not double-award.
+## Package D: bank only. Portals open on the trophy-board lever pull — never here.
+## stamp_crosses still gates final-clear recognition below.
 func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 	if _campaign == null:
 		return
@@ -3796,16 +3794,7 @@ func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
 		ids.append(id)
 		pools[id] = _campaign_pool_of_item(id)
 	var before: Dictionary = _campaign.state.duplicate(true)
-	var quota: int = CAMPAIGN_SHELL.quota_of(_campaign.rules)
 	var result: Dictionary = CAMPAIGN_SHELL.bank(_campaign.rules, _campaign.state, ids, pools)
-	if stamp_crosses:
-		for raw_b in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
-			var pool_id := str((raw_b as Dictionary).get("id", ""))
-			if pool_id == "":
-				continue
-			## Deferred award: stamp whenever cabinet is at/over quota (not only this-return cross).
-			if CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota:
-				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, pool_id)
 	## Final-dungeon clear: Leave AFTER a real tip clear commit (run.final_clear_eligible).
 	## Mere Leave / early return from b5 without clear does not recognize.
 	## Distinct from cabinets_complete won/endless and from full-collection inheritance.
@@ -4940,6 +4929,11 @@ func _reveal_new_buckets() -> void:
 		_guarantee_bucket = newest
 	_save_bucket_progress()
 	_fill_pools()
+
+
+## Package D portal / shortcut sequences call this for the new-pool reveal.
+func bucket_reveal_for(bucket_n: int) -> Array:
+	return _bucket_entries(bucket_n)
 
 
 func _bucket_entries(bucket_n: int) -> Array:
@@ -28992,6 +28986,7 @@ func _sync_overlay() -> void:
 						"next": next_name,
 						"next_id": next_id,
 						"show_next": can_push and next_name != "",
+						"push_block_key": CAMPAIGN_SHELL.push_block_key(_campaign.rules, _campaign.state),
 					}
 					push_interrupt = CAMPAIGN_SHELL.push_needs_nib(_campaign.rules, _campaign.state)
 				var endless_run := _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))

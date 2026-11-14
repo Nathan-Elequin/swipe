@@ -227,6 +227,7 @@ var _beat: String = ""
 var _rng := RandomNumberGenerator.new()
 
 var _trophy_board = null
+var _board_sequences = null
 var board_face: int = 0
 var board_viewed: Dictionary = {}
 
@@ -2428,8 +2429,7 @@ func rebuild_board() -> void:
 		)
 		_trophy_board.hover_clear.connect(hide_hover_tag)
 		_trophy_board.lever_pulled.connect(func(fi: int) -> void:
-			## Package D wires portal sequence. Placeholder: emit only.
-			print("trophy_board lever_pulled face=", fi)
+			_on_trophy_lever_pulled(fi)
 		)
 		if hall.has_method("attach_trophy_board"):
 			hall.attach_trophy_board(_trophy_board)
@@ -2442,6 +2442,67 @@ func rebuild_board() -> void:
 	_trophy_board.set_board_viewed(board_viewed)
 	_trophy_board.setup(rules, items_by_id, state, _hall_seen_dict(), held)
 	_trophy_board.slide_to(board_face, true)
+	_ensure_board_sequences()
+
+
+func _ensure_board_sequences() -> void:
+	var main_n = _main_ref()
+	var map_n = null
+	if main_n != null and main_n.get("campaign_map") != null:
+		map_n = main_n.campaign_map
+	if _board_sequences != null and is_instance_valid(_board_sequences):
+		_board_sequences.cabin = self
+		_board_sequences.board = _trophy_board
+		_board_sequences.sfx = sfx
+		_board_sequences.main_ref = main_n
+		_board_sequences.set_campaign_map(map_n)
+		return
+	_board_sequences = preload("res://scripts/cabin/board_sequences.gd").new()
+	add_child(_board_sequences)
+	_board_sequences.setup(self, _trophy_board, sfx, null, main_n)
+	_board_sequences.set_campaign_map(map_n)
+
+
+func _main_ref():
+	var n: Node = get_parent()
+	while n:
+		if n.has_method("bucket_reveal_for") or n.has_method("_bucket_entries"):
+			return n
+		n = n.get_parent()
+	return null
+
+
+func _on_trophy_lever_pulled(face_index: int) -> void:
+	_ensure_board_sequences()
+	if _board_sequences == null:
+		return
+	await _board_sequences.portal(face_index)
+	await _maybe_run_board_complete_sequences()
+
+
+## After homecoming (or portal), run shortcut / Abyss-complete for newly finished boards.
+func _maybe_run_board_complete_sequences() -> void:
+	_ensure_board_sequences()
+	if _board_sequences == null or _trophy_board == null:
+		return
+	var rules := _biome_rules()
+	var state := _campaign_shell_state()
+	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
+		state = _campaign_shell.state
+	var faces: Array = TrophyBoardModel.faces(rules, items_by_id)
+	var seen: Array = state.get("board_complete_seen", [])
+	if typeof(seen) != TYPE_ARRAY:
+		seen = []
+	for face in faces:
+		var pool := str(face.get("pool_id", ""))
+		var idx := int(face.get("index", 0))
+		if pool == "" or seen.has(pool):
+			continue
+		if TrophyBoardModel.is_complete(state, face):
+			await _board_sequences.shortcut(idx)
+			seen = state.get("board_complete_seen", [])
+			if typeof(seen) != TYPE_ARRAY:
+				seen = []
 
 
 func _hall_banked_dict() -> Dictionary:

@@ -51,6 +51,8 @@ var _chip_biome: FitLabelBox
 var _chip_count: FitLabelBox
 var _chip_biome_name: String = ""
 var _chip_n: int = 0
+var _chip_quota: int = 5
+var _push_block_key: String = "nib.push_block.1"
 var _chip_show_proj: bool = false
 var _next_carry: FitLabelBox
 var _next_name: String = ""
@@ -980,6 +982,10 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	_interrupt_fired = false
 	_chip_biome_name = str(chip.get("biome", ""))
 	_chip_n = int(chip.get("n", 0))
+	_chip_quota = int(chip.get("quota", 5))
+	_push_block_key = str(chip.get("push_block_key", ""))
+	if _push_block_key == "":
+		_push_block_key = "nib.push_block.lever" if _chip_n >= _chip_quota else "nib.push_block.1"
 	_chip_show_proj = bool(chip.get("show_proj", false))
 	_next_name = str(chip.get("next", ""))
 	_next_biome_id = str(chip.get("next_id", "")).strip_edges()
@@ -1133,7 +1139,8 @@ func _show_nib_interrupt() -> void:
 		"biome": _chip_biome_name,
 		"n": _chip_n,
 	}
-	_dialog.say(["nib.push_block.1"], ["nib.push_block.yes"], vars)
+	## Package D: at 5 lights with the lever still unpulled, use the lever line.
+	_dialog.say([_push_block_key], ["nib.push_block.yes"], vars)
 	var ch: int = await _dialog.finished
 	if ch == 0 or ch == -1:
 		# Only CTA is Yes; treat empty choice close the same.
