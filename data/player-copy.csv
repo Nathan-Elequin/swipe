@@ -334,6 +334,8 @@ Nib,nib.home.give_home,Campaign win homecoming: before S7 bank flight into troph
 Nib,nib.lesson.new_mark,"First campaign ready beat with a real hotbar New! badge visible (not tutorial, not peg twinkle)","See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection."
 Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,"See those? They go on the board when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together."
 Nib,nib.lesson.five_finds,Post-return under-quota teaching if extract lesson not yet said; Verdant/b1 only,Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
+Nib,nib.first.map_point,"First cabin visit, Nib in entryway pointing at the map (return flow v2)","Welcome in! Your first run starts at the map, right over there."
+Nib,nib.return.continue_mission,First return after keys/room unlock; Nib gestures at the map (return flow v2),"Found the keys, and every room's open! Now keep the mission going: bring home unique finds for the trophy cabinet. The map's waiting."
 Nib,nib.lesson.five_threshold,After S7 celebration when b1 cabinet first crosses 5/5,Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.
 Nib,nib.lesson.tutorial_return,Tutorial clear cabin arrival; zero bank credit,"Back in one piece. Next time, let's bring something home for these shelves."
 Nib,nib.home.nothing_new,Win homecoming with no new items,"Nothing new, but a good haul's a good haul. His things like being held."

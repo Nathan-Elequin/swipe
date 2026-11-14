@@ -836,12 +836,16 @@ func _point_map_after_first_speech() -> void:
 	if map_hit != null:
 		show_nib_pointer_at(map_hit)
 	## Existing line that already pushes the mission; pointer carries the "click map" read.
-	## Placeholder if a dedicated map-prompt line is needed later: nib.first.map_point
 	if _dialog != null:
 		var main_room = _rooms.get("main")
 		if main_room != null and main_room.get("nib") != null and main_room.nib.sprite_frames \
 				and main_room.nib.sprite_frames.has_animation("point"):
 			main_room.nib.play("point")
+		if _copy_key_exists("nib.first.map_point"):
+			_dialog.say(["nib.first.map_point"])
+			await _dialog.finished
+			if map_hit != null and is_instance_valid(map_hit):
+				show_nib_pointer_at(map_hit)
 	## Leave the pointer up until the player opens the map or leaves.
 
 
