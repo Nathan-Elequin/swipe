@@ -501,7 +501,8 @@ func _show_lever_ring(on: bool) -> void:
 	_lever_ring.name = "LeverAuraRing"
 	_lever_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lever_ring.z_index = 50
-	var sz := Vector2(160, 200)
+	## Ring tracks the 192×224 floor lever (slightly larger than the art hit).
+	var sz := Vector2(220, 260)
 	_lever_ring.size = sz
 	if anchor != null and is_instance_valid(anchor):
 		var g: Rect2 = anchor.get_global_rect()

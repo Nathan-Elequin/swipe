@@ -92,6 +92,32 @@ func _run() -> void:
 	failed = _check(rows, failed, "rope.no_new_unique_text", not has_new_unique_label) or failed
 	failed = _check(rows, failed, "rope.has_satchel", rope.get("_floor_satchel") != null) or failed
 	failed = _check(rows, failed, "rope.has_strip", rope.get("_loot_strip") != null) or failed
+	## Final art: satchel_floor + carried_strip_9 + arch_light_* present.
+	var satchel_n = rope.get("_floor_satchel")
+	failed = _check(
+		rows, failed, "rope.satchel_floor_tex",
+		satchel_n != null and satchel_n.get_node_or_null("Bag") != null
+		and (satchel_n.get_node("Bag") as TextureRect).texture != null
+	) or failed
+	failed = _check(
+		rows, failed, "rope.satchel_mouth_shadow",
+		satchel_n != null and satchel_n.get_node_or_null("MouthShadow") != null
+	) or failed
+	var strip_n = rope.get("_loot_strip")
+	failed = _check(
+		rows, failed, "rope.strip_ninepatch",
+		strip_n != null and strip_n.get_node_or_null("StripTrough") is NinePatchRect
+	) or failed
+	## Dead portal plate + mist loop on the gate.
+	var gp = rope.get("_gate_portal")
+	failed = _check(rows, failed, "gate.has_dead_plate", gp != null and gp.get_node_or_null("DeadPortal") != null) or failed
+	failed = _check(rows, failed, "gate.has_dead_mist", gp != null and gp.get_node_or_null("DeadMistLoop") != null) or failed
+	if gp != null and gp.get_node_or_null("DeadPortal") != null:
+		var plate: TextureRect = gp.get_node("DeadPortal")
+		failed = _check(
+			rows, failed, "gate.dead_plate_size",
+			plate.texture != null and plate.texture.get_width() == 256 and plate.texture.get_height() == 448
+		) or failed
 	## Fizzle path.
 	rope.call("_fizzle_dead_portal")
 	failed = _check(rows, failed, "rope.fizzle_meta", bool(rope.get_meta("last_portal_fizzle", false))) or failed
@@ -221,9 +247,64 @@ func _run() -> void:
 	failed = _check(rows, failed, "src.first_light", home_src.find("_play_first_light_scene") >= 0) or failed
 	failed = _check(rows, failed, "src.first_return_step", home_src.find("FIRST_RETURN_STEP") >= 0) or failed
 	var face_src := FileAccess.get_file_as_string("res://scripts/cabin/trophy_board_face.gd")
-	failed = _check(rows, failed, "src.floor_lever", face_src.find("big brass") >= 0 or face_src.find("128, 256") >= 0) or failed
+	failed = _check(
+		rows, failed, "src.floor_lever",
+		face_src.find("LEVER_ART") >= 0 and face_src.find("192, 224") >= 0
+	) or failed
+	failed = _check(rows, failed, "src.lever_pull_anim", face_src.find("play_pull_anim") >= 0) or failed
+	failed = _check(rows, failed, "src.lever_glow_offset", face_src.find("LEVER_GLOW_OFFSET") >= 0) or failed
+
+	## Size / placement asserts for the final lever art.
+	var board: Control = BOARD.new()
+	root.add_child(board)
+	board.reduce_motion = true
+	board.setup(rules, items_by_id, SHELL.fresh_state(), {}, [])
+	var lever: Control = board.lever_node() if board.has_method("lever_node") else null
+	failed = _check(rows, failed, "lever.node", lever != null) or failed
+	if lever != null:
+		failed = _check(rows, failed, "lever.hit_192x224", lever.size.x == 192 and lever.size.y == 224) or failed
+		## Bottom-aligned with Nib feet: face-local bottom = 688.
+		failed = _check(
+			rows, failed, "lever.feet_align",
+			is_equal_approx(lever.position.y + lever.size.y, 688.0)
+		) or failed
+		var glow = lever.get_parent().get_node_or_null("LeverGlow") if lever.get_parent() != null else null
+		failed = _check(rows, failed, "lever.glow_node", glow != null) or failed
+		if glow != null:
+			failed = _check(
+				rows, failed, "lever.glow_288x320",
+				(glow as Control).size.x == 288 and (glow as Control).size.y == 320
+			) or failed
+			failed = _check(
+				rows, failed, "lever.glow_offset",
+				is_equal_approx((glow as Control).position.x, lever.position.x - 32.0)
+				and is_equal_approx((glow as Control).position.y, lever.position.y - 56.0)
+			) or failed
+
+	## Asset files on disk at the shipped sizes.
+	failed = _check(rows, failed, "asset.lever_locked", _png_size_ok("res://assets/ui/trophy_board/lever_locked.png", 192, 224)) or failed
+	failed = _check(rows, failed, "asset.lever_glow", _png_size_ok("res://assets/ui/trophy_board/lever_glow.png", 288, 320)) or failed
+	failed = _check(rows, failed, "asset.portal_dead", _png_size_ok("res://assets/dungeon/home/overlays/portal_dead.png", 256, 448)) or failed
+	failed = _check(rows, failed, "asset.satchel_floor", _png_size_ok("res://assets/dungeon/home/overlays/satchel_floor.png", 256, 192)) or failed
+	failed = _check(rows, failed, "asset.carried_strip", _png_size_ok("res://assets/ui/trophy_board/carried_strip_9.png", 96, 64)) or failed
+	failed = _check(rows, failed, "asset.unique_star", _png_size_ok("res://assets/ui/trophy_board/unique_star.png", 40, 40)) or failed
+	failed = _check(rows, failed, "asset.fog_clear", _png_size_ok("res://assets/ui/map/trophy/fog_clear_f0.png", 192, 128)) or failed
+	for mi in 6:
+		failed = _check(
+			rows, failed, "asset.portal_mist_f%d" % mi,
+			_png_size_ok("res://assets/dungeon/home/overlays/portal_dead_mist_f%d.png" % mi, 256, 448)
+		) or failed
 
 	_finish(failed, rows)
+
+
+func _png_size_ok(path: String, w: int, h: int) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var img := Image.new()
+	if img.load(path) != OK:
+		return false
+	return img.get_width() == w and img.get_height() == h
 
 
 func _check(rows: Array, failed: bool, name: String, ok: bool) -> bool:

@@ -634,6 +634,11 @@ func _on_lever(face_index: int) -> void:
 		return
 	var ls: StringName = MODEL.lever_state(_rules, _campaign_state, face)
 	if ls == &"ready":
+		## Pull frames f0..f4 @ 12 fps before the portal sequence commits.
+		if face_index < _face_nodes.size():
+			var face_n: TrophyBoardFace = _face_nodes[face_index]
+			if face_n != null and face_n.has_method("play_pull_anim"):
+				await face_n.play_pull_anim()
 		lever_pulled.emit(face_index)
 	elif ls == &"locked":
 		_cue("cabin.locked")
