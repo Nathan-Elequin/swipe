@@ -78,6 +78,9 @@ var _watch_s: float = 0.0
 var _last_logged_playing: bool = false
 var _music_hold: Dictionary = {}
 var _music_seq: int = 0
+## Set by music_biome_dungeon; blocks cabin/station music_to until an intentional
+## music_cabin / title / stop / victory handoff clears it.
+var _dungeon_music_lock: bool = false
 
 
 func setup() -> void:
@@ -767,7 +770,14 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "cinder_forge_victory", "crystal_cavern", "ashen_crypt", "shadow_abyss", "shadow_abyss_victory"] or id.ends_with("_victory"):
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
+	# Refuse cabin/station while the delve lock is on — cabin `_play_station`
+	# and radio can fire after map→biome has already taken the Music bus.
+	# Intentional `music_cabin()` clears the lock first.
+	if (id == "cabin" or id.begins_with("station_")) and _dungeon_music_lock and music != null and music.playing:
+		log_audio("skip", "music_to_cabin_during_dungeon", {"bed": id, "keep": String(_current_bed)})
+		return
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
+		_dungeon_music_lock = false
 		_dungeon_bed = &""
 		_stop_forge_layers(0.4)
 	if not _beds.has(id):
@@ -831,6 +841,7 @@ func _set_out_lin(t: float, player: AudioStreamPlayer, start_db: float) -> void:
 
 
 func music_title() -> void:
+	_dungeon_music_lock = false
 	_clear_dungeon_bed()
 	music_state = &"title"
 	_between_duck = 0.0
@@ -852,6 +863,10 @@ func music_deadly() -> void:
 
 
 func music_cabin() -> void:
+	## Intentional cabin bed (Leave, road finish, limp home). Clears the delve
+	## lock so music_to(cabin) is allowed. Accidental station plays use music_to
+	## while the lock is still on and are refused.
+	_dungeon_music_lock = false
 	_clear_dungeon_bed()
 	music_state = &"cabin"
 	_between_duck = 0.0
@@ -867,6 +882,11 @@ func current_bed() -> StringName:
 
 func _clear_dungeon_bed() -> void:
 	_dungeon_bed = &""
+
+
+## True while map→biome music owns the bus (selftests / debug).
+func dungeon_music_locked() -> bool:
+	return _dungeon_music_lock
 
 
 ## Map biome id (b1 / verdant_hollow) → dungeon bed key, or "" if none.
@@ -885,6 +905,7 @@ func music_biome_dungeon(biome_id: String, fade_s: float = -1.0) -> void:
 	_dungeon_bed = bed
 	if bed == &"":
 		return
+	_dungeon_music_lock = true
 	music_state = &"dungeon"
 	_between_duck = 0.0
 	_mix_duck(0.3)
@@ -1372,6 +1393,7 @@ func _set_victory_out_lin(t: float, player: AudioStreamPlayer, start_db: float) 
 
 func _music_to_between_dungeons(reason: String) -> void:
 	# Soft enter via native music_to crossfade only (~0.8s). No second fade.
+	_dungeon_music_lock = false
 	if not _beds.has("between_dungeons"):
 		var fades_missing: Dictionary = _music_cfg.get("crossfade_s", {})
 		var fade_missing: float = float(fades_missing.get("to_rest", fades_missing.get("to_title", 1.2)))
@@ -1536,6 +1558,7 @@ func stop_music() -> void:
 	log_audio("stop", "stop_music")
 	if session_log:
 		session_log.push("audio", "stop music")
+	_dungeon_music_lock = false
 	_clear_dungeon_bed()
 	_fade_music_out(0.5)
 

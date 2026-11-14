@@ -1,6 +1,6 @@
 extends RefCounted
 ## Dev-only: shows the current git branch in the bottom-left corner in editor runs.
-## Never shown in exported builds or during shot-harness runs. Not player-facing text.
+## Hidden by default; F11 (DevChrome) toggles. Never shown in exported builds.
 
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 
@@ -19,6 +19,8 @@ static func attach(parent: Node) -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 128
 	layer.name = "DevBranchTag"
+	## Hidden until DevChrome (F11) is on — players must not see the branch label.
+	layer.visible = DevChrome.on()
 	var label := Label.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("font_size", 12)
@@ -33,6 +35,10 @@ static func attach(parent: Node) -> void:
 	label.position += Vector2(6, -4)
 	layer.add_child(label)
 	parent.add_child(layer)
+	DevChrome.listen(func(on: bool) -> void:
+		if is_instance_valid(layer):
+			layer.visible = on
+	)
 
 
 static func read_branch() -> String:

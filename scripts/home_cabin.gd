@@ -4050,6 +4050,10 @@ func attach_editor(main) -> void:
 func _play_station() -> void:
 	if sfx == null:
 		return
+	## Hidden cabin (map→biome / hide_for_run) must not re-assert cabin/station
+	## over the biome intro that already started on splash.
+	if not visible or not _menu_on:
+		return
 	var bed: String = STATION_BEDS[clampi(radio_station, 0, 3)]
 	if sfx.has_method("music_to"):
 		sfx.music_to(StringName(bed), 0.8)

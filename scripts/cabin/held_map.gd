@@ -77,6 +77,7 @@ var _monsters: Control
 var _pins: Control
 var _hands: Hands
 var _tip: Label
+var _cheat_box: VBoxContainer
 var _rules: Dictionary = {}
 var _state: Dictionary = {}
 var _monsters_by_id: Dictionary = {}
@@ -171,6 +172,10 @@ func setup() -> void:
 	add_child(_hands)
 	if DEV.on():
 		_build_cheats()
+		DevChrome.listen(func(on: bool) -> void:
+			if _cheat_box != null and is_instance_valid(_cheat_box):
+				_cheat_box.visible = on
+		)
 
 
 func set_map_monster_stats(on: bool) -> void:
@@ -952,10 +957,14 @@ func _build_close() -> void:
 
 func _build_cheats() -> void:
 	var box := VBoxContainer.new()
+	box.name = "DevCheatBox"
 	box.position = Vector2(16, 16)
 	box.z_index = 20
 	box.add_theme_constant_override("separation", 6)
+	## Hidden until DevChrome (F11). Normal play must not see map editor buttons.
+	box.visible = DevChrome.on()
 	add_child(box)
+	_cheat_box = box
 	_cheat(box, "Grant 3 uniques", "grant3")
 	_cheat(box, "Fill the Verdant Hollow cabinet", "fill_b1")
 	_cheat(box, "Fill every cabinet", "win")

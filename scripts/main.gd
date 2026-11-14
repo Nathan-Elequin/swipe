@@ -2113,8 +2113,13 @@ func _build_copy_stamp() -> void:
 	_copy_stamp.offset_bottom = -8
 	_copy_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_copy_stamp.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_copy_stamp.visible = true
+	## Hidden until DevChrome (F11). BuildStamp + Feedback stay visible.
+	_copy_stamp.visible = DevChrome.on()
 	add_child(_copy_stamp)
+	DevChrome.listen(func(on: bool) -> void:
+		if _copy_stamp != null and is_instance_valid(_copy_stamp):
+			_copy_stamp.visible = on
+	)
 
 
 func _legend() -> HFlowContainer:
@@ -2887,10 +2892,15 @@ func _reset_run() -> void:
 		# `start_music()` is `music_title()` and would wipe that one shot.
 		# Climb / leave homecoming must keep cabin music, not title or the
 		# leftover between_dungeons / biome "cave" bed from Rope Exit.
-		if _cabin_from_leave:
+		# `_cabin_from_leave` must NOT beat `_splash_busy`: after Leave→cabin→map
+		# enter, begin_delve still has the leave flag and used to call music_cabin
+		# on top of the verdant intro (P13 cutback).
+		if _splash_busy:
+			pass
+		elif _cabin_from_leave:
 			if sfx.has_method("music_cabin"):
 				sfx.music_cabin()
-		elif not _splash_busy:
+		else:
 			sfx.start_music()
 	rng.randomize()
 	hp = HP_MAX
@@ -3345,6 +3355,9 @@ func _classic_swipe_home() -> void:
 
 
 func _hide_cabin_for_run() -> void:
+	## Leaving cabin for a delve: drop the leave-return music flag so a later
+	## `_reset_run` cannot re-assert cabin over biome intro/loop.
+	_cabin_from_leave = false
 	if home_cabin:
 		home_cabin.hide_for_run()
 	if rope_exit:
@@ -8515,6 +8528,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if biome_ambient != null:
 			biome_ambient.toggle()
 			print("ambient_fx ", "on" if biome_ambient.is_enabled() else "off")
+		get_viewport().set_input_as_handled()
+		return
+	## F11: show/hide editor dummy chrome (branch tag, copy stamp, map cheats).
+	## Keeps BuildStamp SHA + Feedback. F1–F10 / F7 map / F8 metrics already taken.
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11:
+		var on: bool = DevChrome.toggle()
+		print("dev_chrome ", "on" if on else "off")
 		get_viewport().set_input_as_handled()
 		return
 	if not event.is_action_pressed("ui_cancel"):
