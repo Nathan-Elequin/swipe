@@ -668,10 +668,19 @@ var dev_panel: VBoxContainer
 var dev_mon_n: Label
 var dev_item_n: Label
 var dev_enter: Button
-var dev_mon_grid: GridContainer
-var dev_item_grid: GridContainer
+var dev_mon_list: VBoxContainer
+var dev_item_list: VBoxContainer
+var dev_search: LineEdit
 var _dev_review: String = ""
 var _dev_sort_btns: Dictionary = {}
+var _dev_pool_btns: Dictionary = {}
+var _dev_tier_btns: Dictionary = {}
+var _dev_alpha_btn: Button
+var _dev_pools: Dictionary = {}
+var _dev_tiers: Dictionary = {}
+var _dev_alpha: bool = false
+var _dev_query: String = ""
+var _dev_fold_open: Dictionary = {}
 var dev_latest_btn: Button
 var btn_start: Button
 var btn_spin: Button
@@ -2198,20 +2207,79 @@ func _build_dev_panel() -> void:
 	dev_enter = _pill("Play", Color("3a3220"), Color("e8c36a"), _dev_enter)
 	dev_enter.custom_minimum_size = Vector2(0, 48)
 	play_row.add_child(dev_enter)
+	dev_search = LineEdit.new()
+	dev_search.placeholder_text = "Type a name..."
+	dev_search.custom_minimum_size = Vector2(0, 36)
+	dev_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dev_search.add_theme_font_size_override("font_size", 15)
+	dev_search.add_theme_color_override("font_color", Color("1c120c"))
+	dev_search.add_theme_color_override("font_placeholder_color", Color("8a6a3a"))
+	dev_search.add_theme_color_override("caret_color", Color("6b1008"))
+	var search_sb := StyleBoxFlat.new()
+	search_sb.bg_color = Color("fffaf2")
+	search_sb.border_color = Color("c4a574")
+	search_sb.set_border_width_all(1)
+	search_sb.set_corner_radius_all(8)
+	search_sb.content_margin_left = 10
+	search_sb.content_margin_right = 10
+	search_sb.content_margin_top = 6
+	search_sb.content_margin_bottom = 6
+	var search_focus := search_sb.duplicate() as StyleBoxFlat
+	search_focus.border_color = Color("e8c36a")
+	search_focus.set_border_width_all(2)
+	dev_search.add_theme_stylebox_override("normal", search_sb)
+	dev_search.add_theme_stylebox_override("focus", search_focus)
+	dev_search.text_changed.connect(_dev_on_search)
+	dev_panel.add_child(dev_search)
+	var filter_cap := Label.new()
+	filter_cap.text = "Pool"
+	filter_cap.add_theme_font_size_override("font_size", 14)
+	filter_cap.add_theme_color_override("font_color", Color("e8c36a"))
+	dev_panel.add_child(filter_cap)
+	var pool_row := HFlowContainer.new()
+	pool_row.add_theme_constant_override("h_separation", 4)
+	pool_row.add_theme_constant_override("v_separation", 4)
+	dev_panel.add_child(pool_row)
+	for n in [1, 2, 3, 4, 5, 0, -1]:
+		var plabel: String = ("Pool %s" % n) if n >= 1 else BucketRules.label_of(n)
+		var pb := _pill(plabel, Color("241c18"), Color("6a5f52"), _dev_toggle_pool.bind(int(n)))
+		pb.custom_minimum_size = Vector2(0, 34)
+		_dev_pool_btns[int(n)] = pb
+		pool_row.add_child(pb)
+	var tier_cap := Label.new()
+	tier_cap.text = "Tier"
+	tier_cap.add_theme_font_size_override("font_size", 14)
+	tier_cap.add_theme_color_override("font_color", Color("e8c36a"))
+	dev_panel.add_child(tier_cap)
+	var tier_row := HBoxContainer.new()
+	tier_row.add_theme_constant_override("separation", 6)
+	dev_panel.add_child(tier_row)
+	for t in [1, 2, 3]:
+		var tb := _pill(PLAYER_COPY.tier_name(int(t)), Color("241c18"), Color("6a5f52"), _dev_toggle_tier.bind(int(t)))
+		tb.custom_minimum_size = Vector2(0, 34)
+		_dev_tier_btns[int(t)] = tb
+		tier_row.add_child(tb)
+	_dev_alpha_btn = _pill("A-Z", Color("241c18"), Color("6a5f52"), _dev_toggle_alpha)
+	_dev_alpha_btn.custom_minimum_size = Vector2(0, 34)
+	tier_row.add_child(_dev_alpha_btn)
 	var sort_cap := Label.new()
-	sort_cap.text = "Sort by"
-	sort_cap.add_theme_font_size_override("font_size", 16)
+	sort_cap.text = "Review"
+	sort_cap.add_theme_font_size_override("font_size", 14)
 	sort_cap.add_theme_color_override("font_color", Color("e8c36a"))
 	dev_panel.add_child(sort_cap)
-	var sort_row := HBoxContainer.new()
-	sort_row.add_theme_constant_override("separation", 6)
+	var sort_row := HFlowContainer.new()
+	sort_row.add_theme_constant_override("h_separation", 6)
+	sort_row.add_theme_constant_override("v_separation", 4)
 	dev_panel.add_child(sort_row)
+	var all_review := _pill("All", Color("241c18"), Color("6a5f52"), _dev_clear_review)
+	all_review.custom_minimum_size = Vector2(0, 36)
+	sort_row.add_child(all_review)
 	dev_latest_btn = _pill("Latest", Color("3a1c14"), Color("e8c36a"), _dev_fill_latest.bind(true))
-	dev_latest_btn.custom_minimum_size = Vector2(0, 40)
+	dev_latest_btn.custom_minimum_size = Vector2(0, 36)
 	sort_row.add_child(dev_latest_btn)
 	for stage in REVIEW_STAGE.STAGES:
 		var b := _pill(str(stage).capitalize(), Color("3a1c14") if str(stage) == "rough" else Color("241c18"), Color("e8c36a") if str(stage) == "rough" else Color("6a5f52"), _dev_sort_by.bind(str(stage)))
-		b.custom_minimum_size = Vector2(0, 40)
+		b.custom_minimum_size = Vector2(0, 36)
 		_dev_sort_btns[str(stage)] = b
 		sort_row.add_child(b)
 	dev_mon_n = Label.new()
@@ -2220,26 +2288,24 @@ func _build_dev_panel() -> void:
 	dev_panel.add_child(dev_mon_n)
 	var mscroll := ScrollContainer.new()
 	mscroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	mscroll.custom_minimum_size = Vector2(0, 120)
+	mscroll.custom_minimum_size = Vector2(0, 140)
 	dev_panel.add_child(mscroll)
-	dev_mon_grid = GridContainer.new()
-	dev_mon_grid.columns = 2
-	dev_mon_grid.add_theme_constant_override("h_separation", 6)
-	dev_mon_grid.add_theme_constant_override("v_separation", 6)
-	mscroll.add_child(dev_mon_grid)
+	dev_mon_list = VBoxContainer.new()
+	dev_mon_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dev_mon_list.add_theme_constant_override("separation", 8)
+	mscroll.add_child(dev_mon_list)
 	dev_item_n = Label.new()
 	dev_item_n.add_theme_font_size_override("font_size", 16)
 	dev_item_n.add_theme_color_override("font_color", Color("e8c36a"))
 	dev_panel.add_child(dev_item_n)
 	var iscroll := ScrollContainer.new()
 	iscroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	iscroll.custom_minimum_size = Vector2(0, 120)
+	iscroll.custom_minimum_size = Vector2(0, 140)
 	dev_panel.add_child(iscroll)
-	dev_item_grid = GridContainer.new()
-	dev_item_grid.columns = 2
-	dev_item_grid.add_theme_constant_override("h_separation", 6)
-	dev_item_grid.add_theme_constant_override("v_separation", 6)
-	iscroll.add_child(dev_item_grid)
+	dev_item_list = VBoxContainer.new()
+	dev_item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dev_item_list.add_theme_constant_override("separation", 8)
+	iscroll.add_child(dev_item_list)
 
 
 func _open_dev_test() -> void:
@@ -2256,7 +2322,7 @@ func _open_dev_test() -> void:
 		log_label.visible = false
 	if right_col:
 		right_col.visible = true
-		right_col.custom_minimum_size = Vector2(380, 0)
+		right_col.custom_minimum_size = Vector2(460, 0)
 	_fill_dev_grids()
 	_sync_dev_sort_btns()
 	_log("on_click", "Developer Test")
@@ -2309,24 +2375,147 @@ func _dev_fill_latest(noisy: bool = true) -> bool:
 
 
 func _fill_dev_grids() -> void:
-	if dev_mon_grid == null:
+	if dev_mon_list == null:
 		return
-	_clear_box(dev_mon_grid)
-	_clear_box(dev_item_grid)
-	for id in runtime.get("monsters", []):
-		var card: Dictionary = monsters_by_id.get(str(id), {})
+	_clear_box(dev_mon_list)
+	_clear_box(dev_item_list)
+	_dev_fill_kind(true)
+	_dev_fill_kind(false)
+	_sync_dev_sort_btns()
+
+
+func _dev_fill_kind(is_mon: bool) -> void:
+	var host: VBoxContainer = dev_mon_list if is_mon else dev_item_list
+	var src: Array = runtime.get("monsters" if is_mon else "items", [])
+	var by: Dictionary = monsters_by_id if is_mon else items_by_id
+	var grouped: Dictionary = {}
+	for id in src:
+		var card: Dictionary = by.get(str(id), {})
 		if card.is_empty():
 			continue
-		if _dev_review != "" and _dev_review != "latest" and REVIEW_STAGE.of_card(card) != _dev_review:
+		if not _dev_card_visible(str(id), card):
 			continue
-		dev_mon_grid.add_child(_dev_tile(str(id), _title_case(str(card.get("name", id))), str(card.get("rarity", "")), int(card.get("tier", 0)), true))
-	for id2 in runtime.get("items", []):
-		var card2: Dictionary = items_by_id.get(str(id2), {})
-		if card2.is_empty():
+		var pool: int = BucketRules.of_card(card)
+		if not grouped.has(pool):
+			grouped[pool] = []
+		(grouped[pool] as Array).append({"id": str(id), "card": card})
+	var order: Array = [1, 2, 3, 4, 5, 0, -1]
+	for extra in grouped.keys():
+		if not order.has(int(extra)):
+			order.append(int(extra))
+	for pool2 in order:
+		if not grouped.has(pool2):
 			continue
-		if _dev_review != "" and _dev_review != "latest" and REVIEW_STAGE.of_card(card2) != _dev_review:
-			continue
-		dev_item_grid.add_child(_dev_tile(str(id2), _title_case(str(card2.get("name", id2))), str(card2.get("rarity", "")), int(card2.get("tier", 0)), false))
+		var rows: Array = grouped[pool2]
+		if _dev_alpha:
+			rows.sort_custom(_dev_name_sort)
+		var prefix: String = "m" if is_mon else "i"
+		var key: String = "%s:%s" % [prefix, pool2]
+		var title: String = ("Pool %s" % pool2) if int(pool2) >= 1 else BucketRules.label_of(pool2)
+		host.add_child(_dev_pool_section(title, key, rows, is_mon))
+
+
+func _dev_pool_section(title: String, key: String, rows: Array, is_mon: bool) -> VBoxContainer:
+	var wrap := VBoxContainer.new()
+	wrap.add_theme_constant_override("separation", 4)
+	var searching: bool = _dev_query.strip_edges() != ""
+	var open: bool = searching or bool(_dev_fold_open.get(key, true))
+	var head := Button.new()
+	head.text = _dev_section_title(open, title, rows.size())
+	head.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	head.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	head.add_theme_font_size_override("font_size", 14)
+	head.add_theme_color_override("font_color", Color("e8c36a"))
+	head.add_theme_stylebox_override("normal", _sb(Color("1c1814"), Color("6a5f52"), 1))
+	head.add_theme_stylebox_override("hover", _sb(Color("2e241c"), Color("e8c36a"), 1))
+	head.add_theme_stylebox_override("pressed", _sb(Color("1c1814"), Color("c4a574"), 1))
+	wrap.add_child(head)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	grid.visible = open
+	wrap.add_child(grid)
+	for row in rows:
+		var id: String = str(row.get("id", ""))
+		var card: Dictionary = row.get("card", {})
+		grid.add_child(_dev_tile(id, _title_case(str(card.get("name", id))), str(card.get("rarity", "")), int(card.get("tier", 0)), is_mon))
+	head.pressed.connect(_dev_toggle_section.bind(head, grid, title, key, rows.size()))
+	return wrap
+
+
+func _dev_section_title(open: bool, title: String, n: int) -> String:
+	var mark := "v" if open else ">"
+	return "%s  %s  (%s)" % [mark, title, n]
+
+
+func _dev_toggle_section(head: Button, grid: GridContainer, title: String, key: String, n: int) -> void:
+	grid.visible = not grid.visible
+	_dev_fold_open[key] = grid.visible
+	head.text = _dev_section_title(grid.visible, title, n)
+
+
+func _dev_name_sort(a, b) -> bool:
+	var an: String = str(a.get("card", {}).get("name", a.get("id", "")))
+	var bn: String = str(b.get("card", {}).get("name", b.get("id", "")))
+	return an.nocasecmp_to(bn) < 0
+
+
+func _dev_card_visible(id: String, card: Dictionary) -> bool:
+	if _dev_review != "" and _dev_review != "latest" and REVIEW_STAGE.of_card(card) != _dev_review:
+		return false
+	if not _dev_facet_ok(_dev_pools, BucketRules.of_card(card)):
+		return false
+	if not _dev_facet_ok(_dev_tiers, BucketRules.tier_of(card)):
+		return false
+	var q: String = _dev_query.strip_edges().to_lower()
+	if q == "":
+		return true
+	var name: String = str(card.get("name", id)).to_lower()
+	return q in name or q in id.to_lower()
+
+
+func _dev_facet_ok(selected: Dictionary, key: int) -> bool:
+	var any_on := false
+	for k in selected.keys():
+		if bool(selected[k]):
+			any_on = true
+			break
+	if not any_on:
+		return true
+	return bool(selected.get(key, false))
+
+
+func _dev_on_search(text: String) -> void:
+	_dev_query = text
+	_fill_dev_grids()
+
+
+func _dev_toggle_pool(n: int) -> void:
+	_dev_pools[n] = not bool(_dev_pools.get(n, false))
+	_fill_dev_grids()
+
+
+func _dev_toggle_tier(n: int) -> void:
+	_dev_tiers[n] = not bool(_dev_tiers.get(n, false))
+	_fill_dev_grids()
+
+
+func _dev_toggle_alpha() -> void:
+	_dev_alpha = not _dev_alpha
+	_fill_dev_grids()
+
+
+func _dev_tex(id: String, is_mon: bool) -> Texture2D:
+	if is_mon:
+		var t: Texture2D = tex_by_monster.get(id, null)
+		if t == null and art != null:
+			t = art.monster_still(id)
+		return t
+	var t2: Texture2D = tex_by_item.get(id, null)
+	if t2 == null and art != null:
+		t2 = art.item_tex(id)
+	return t2
 
 
 func _dev_tile(id: String, name: String, rarity: String, tier: int, is_mon: bool) -> Button:
@@ -2335,13 +2524,22 @@ func _dev_tile(id: String, name: String, rarity: String, tier: int, is_mon: bool
 		sub = "%s · %s" % [rarity, sub] if sub != "" else rarity
 	var b := Button.new()
 	b.text = "%s\n%s" % [name, sub.strip_edges()]
-	b.custom_minimum_size = Vector2(168, 56)
+	b.custom_minimum_size = Vector2(200, 52)
+	b.clip_text = true
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.add_theme_font_size_override("font_size", 13)
 	b.add_theme_color_override("font_color", Color("f0e6d8"))
 	b.add_theme_stylebox_override("normal", _sb(Color("241c18"), Color("6a5f52"), 1))
 	b.add_theme_stylebox_override("hover", _sb(Color("2e241c"), Color("e8c36a"), 2))
 	b.add_theme_stylebox_override("pressed", _sb(Color("1c1814"), Color("c4a574"), 1))
+	b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var tex: Texture2D = _dev_tex(id, is_mon)
+	if tex != null:
+		b.icon = tex
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 40)
+		b.add_theme_constant_override("h_separation", 8)
 	if is_mon:
 		b.pressed.connect(_dev_add_monster.bind(id))
 	else:
@@ -2422,16 +2620,24 @@ func _dev_sort_by(stage: String) -> void:
 	_refresh()
 
 
+func _dev_clear_review() -> void:
+	_dev_review = ""
+	_fill_dev_grids()
+
+
 func _dev_ids_for(kind: String, stage: String) -> Array:
 	var src: Array = runtime.get("monsters" if kind == "monster" else "items", [])
 	var by: Dictionary = monsters_by_id if kind == "monster" else items_by_id
 	var out: Array = []
+	var saved: String = _dev_review
+	_dev_review = stage
 	for id in src:
 		var card: Dictionary = by.get(str(id), {})
 		if card.is_empty():
 			continue
-		if REVIEW_STAGE.of_card(card) == stage:
+		if _dev_card_visible(str(id), card):
 			out.append(str(id))
+	_dev_review = saved
 	return out
 
 
@@ -2441,6 +2647,29 @@ func _sync_dev_sort_btns() -> void:
 	for k in _dev_sort_btns.keys():
 		var b: Button = _dev_sort_btns[k]
 		b.modulate = Color.WHITE if str(k) == _dev_review else Color(1, 1, 1, 0.55)
+	var pool_on := _dev_facet_active(_dev_pools)
+	for pk in _dev_pool_btns.keys():
+		var pb: Button = _dev_pool_btns[pk]
+		if not pool_on:
+			pb.modulate = Color(1, 1, 1, 0.85)
+		else:
+			pb.modulate = Color.WHITE if bool(_dev_pools.get(pk, false)) else Color(1, 1, 1, 0.4)
+	var tier_on := _dev_facet_active(_dev_tiers)
+	for tk in _dev_tier_btns.keys():
+		var tb: Button = _dev_tier_btns[tk]
+		if not tier_on:
+			tb.modulate = Color(1, 1, 1, 0.85)
+		else:
+			tb.modulate = Color.WHITE if bool(_dev_tiers.get(tk, false)) else Color(1, 1, 1, 0.4)
+	if _dev_alpha_btn:
+		_dev_alpha_btn.modulate = Color.WHITE if _dev_alpha else Color(1, 1, 1, 0.55)
+
+
+func _dev_facet_active(selected: Dictionary) -> bool:
+	for k in selected.keys():
+		if bool(selected[k]):
+			return true
+	return false
 
 
 func _dev_click_slice(index: int) -> void:
@@ -10132,13 +10361,15 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 	else:
 		_log("hp", "take 0")
 		await _play_attack_blocked(at)
+	# Pacemaker / potion / Druid land after the hit tell, as their own beat.
+	await _maybe_pacemaker_heal()
 	if hp <= 0:
 		await _try_potion()
 		if incoming > 0:
 			await _cleric_maybe_flush()
 	if hp > 0 and incoming > 0 and str(m.get("card_id", "")) == "druid" and not _is_silenced(m):
 		_sfx_ability("druid")
-		await _heal(incoming * 2)
+		await _present_monster_heal(incoming * 2, at, true)
 	if incoming > 0 and str(m.get("card_id", "")) == "fungal_colony":
 		await _fungal_on_damage(at, m)
 	# Mockery: only an Attack that just resolved while you face him.
@@ -10177,6 +10408,7 @@ func _apply_egg_hurt(n: int) -> void:
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
+		await _maybe_pacemaker_heal()
 	else:
 		_log("hp", "take 0")
 		_flash_screen(Color("5aa8e8"), 0.22)
@@ -10201,6 +10433,8 @@ func _play_attack_connect() -> void:
 	if sfx:
 		sfx.play_event(&"player.hurt")
 	_player_play("hit")
+	if wheel_view and wheel_view.has_method("wait_hero_frame") and not _qa_instant():
+		await wheel_view.wait_hero_frame("hit", 2)
 
 
 func _play_attack_blocked(src: int = -1) -> void:
@@ -11532,15 +11766,15 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			return
 		"heal_poison":
 			_log("on_item_use", str(it["name"]))
-			await _heal(int(ops.get("heal", 5)))
+			await _present_player_heal(int(ops.get("heal", 5)), it, false)
 			_gain_player_poison(int(ops.get("poison", 2)))
 		"heal":
 			_log("on_item_use", str(it["name"]))
-			await _heal(int(ops.get("n", 2)))
+			await _present_player_heal(int(ops.get("n", 2)), it, false)
 		"heal_both_draw":
 			_log("on_item_use", str(it["name"]))
 			var both_n: int = int(ops.get("heal", 3))
-			await _heal(both_n)
+			await _present_player_heal(both_n, it, false)
 			if facing_index >= 0 and facing_index < wheel.size():
 				var ale_face: Dictionary = wheel[facing_index]
 				if str(ale_face.get("kind", "")) == "monster" and int(ale_face.get("hp", 0)) > 0:
@@ -11559,10 +11793,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"heal_kills":
 			var flask_n: int = 1 + mobs_defeated
 			_log("on_item_use", str(it["name"]))
-			await _heal(flask_n)
+			await _present_player_heal(flask_n, it, false)
 		"heal_full":
 			_log("on_item_use", str(it["name"]))
-			await _heal(6)
+			await _present_player_heal(6, it, false)
 		"egg_hurt":
 			var egg_atk: int = _atk_with_head(int(ops.get("n", 1)))
 			_log("on_item_use", str(it["name"]))
@@ -11652,7 +11886,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"heal_keep":
 			var lantern_n: int = maxi(1, int(ops.get("n", 1)))
 			_log("on_item_use", str(it["name"]))
-			await _heal(lantern_n)
+			await _present_player_heal(lantern_n, it, false)
 			var lantern_stays: bool = hp < HP_MAX and not _keep_blocked_now()
 			it["keep_after"] = hp < HP_MAX
 			if lantern_stays and str(it.get("card_id", "")) == "lantern":
@@ -11664,7 +11898,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 		"heal_swap_keep":
 			var jar_n: int = int(ops.get("n", 2))
 			_log("on_item_use", str(it["name"]))
-			await _heal(jar_n)
+			await _present_player_heal(jar_n, it, false)
 			it["spent"] = true
 			it["keep_after"] = false
 			await _count_item_use()
@@ -11802,7 +12036,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_log("on_resolve", "undying")
 				await _lich_keep_defeat_item(it)
 				var lich_down: bool = await _lich_chip_defeat(facing_index)
-				await _heal(stored)
+				await _present_player_heal(stored, it, false)
 				if lich_down:
 					await _begin_slay()
 				return
@@ -11821,9 +12055,10 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				return
 			it["spent"] = true
 			await _count_item_use()
+			# Heal while Fangs is still in the hotbar and the owner is still on the wheel.
+			await _present_player_heal(stored, it, false)
 			_toss_item(int(it["uid"]), false)
 			await _play_ended_visuals()
-			await _heal(stored)
 			await _clear_after_fight(false)
 			_maybe_auto_spin()
 			return
@@ -11922,7 +12157,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					sfx.play("error", -10.0)
 				return
 			_log("on_item_use", str(it["name"]))
-			await _heal(last_hp_lost)
+			await _present_player_heal(last_hp_lost, it, false)
 		"pacemaker_use":
 			# Kept for old hand snapshots. Pacemaker is Unplayable now.
 			return
@@ -12129,7 +12364,7 @@ func _on_owner_defeated(index: int, from_bag: bool = false) -> void:
 	elif _special_id_of(m) == "lifelink" and not _is_quiet_belled(m):
 		# Kiss counts as silenced for the old ability. Lifelink is the replacement, so it still resolves.
 		# Quiet Bell is the one that turns Lifelink off.
-		await _apply_lifelink(m)
+		await _apply_lifelink(m, index)
 		if hp <= 0:
 			return
 	elif cid == "martyr" and SP_DALLAS.martyr_dies_on_defeat(
@@ -12241,7 +12476,7 @@ func _bear_trap_snap() -> bool:
 	return true
 
 
-func _apply_lifelink(m: Dictionary) -> void:
+func _apply_lifelink(m: Dictionary, index: int = -1) -> void:
 	var cur: int = int(m.get("hp", 0))
 	var has_pre: bool = m.has("hp_pre_hit")
 	var died: bool = cur <= 0 and has_pre
@@ -12251,8 +12486,9 @@ func _apply_lifelink(m: Dictionary) -> void:
 	_sfx_ability("wraith")
 	_log("on_resolve", "Lifelink %s" % source)
 	var kind: String = str(change.get("kind", "none"))
+	var seat: int = index if index >= 0 else facing_index
 	if kind == "heal":
-		await _heal(int(change.get("n", 0)))
+		await _present_monster_heal(int(change.get("n", 0)), seat, true)
 	elif kind == "bleed":
 		await _bleed(int(change.get("n", 0)))
 
@@ -14179,6 +14415,7 @@ func _tick_player_poison() -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
+	await _maybe_pacemaker_heal()
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
@@ -15151,10 +15388,9 @@ func _resolve_toll_death() -> bool:
 			continue
 		it["spent"] = true
 		it["keep_after"] = false
-		_log_begin_item(it)
 		if wheel_view and wheel_view.has_method("reset_hero"):
 			wheel_view.reset_hero()
-		await _heal(3)
+		await _present_player_heal(3, it, true)
 		_toss_item(int(it["uid"]), false)
 		saved = true
 		break
@@ -16611,17 +16847,7 @@ func _note_hp_lost(n: int) -> void:
 	_shake_screen()
 	_tut_note_hp_change()
 	_grief_jar_on_hp_lost()
-	if n != 2:
-		return
-	for it in hotbar:
-		if str(it.get("card_id", "")) != "pacemaker":
-			continue
-		if bool(it.get("spent", false)):
-			continue
-		_log_begin_item(it, false)
-		await _heal(1)
-		_log_end_proc()
-		return
+	# Pacemaker waits until the hit tell has finished (`_maybe_pacemaker_heal`).
 
 
 func _bank_stone_wall() -> void:
@@ -17129,7 +17355,7 @@ func _damsel_resolve() -> void:
 		sfx.play("pluck", -6.0, 1.35)
 		sfx.play("bong", -10.0, 1.5)
 		sfx.play("open", -12.0, 1.2)
-	_heal(3)
+	await _present_monster_heal(3, facing_index, true)
 	await _begin_slay()
 
 
@@ -18477,7 +18703,7 @@ func _cleric_play(index: int) -> void:
 		light = art.vfx.get("magic", art.vfx.get("star", null))
 	if light != null and from != Vector2.ZERO:
 		await _fly_courier(light, from, hearts, 0.34)
-	_heal(3)
+	await _heal(3)
 	_log("on_spin", "Health Insurance Heal 3  →  %s" % hp)
 	var uid: int = _worst_item_uid()
 	if uid < 0:
@@ -18738,6 +18964,61 @@ func _lantern_set_n(it: Dictionary, n: int) -> void:
 	it["log_hint"] = "Heal %d, keep if still hurt" % shown
 
 
+func _maybe_pacemaker_heal() -> void:
+	if last_hp_lost != 2:
+		return
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "pacemaker":
+			continue
+		if bool(it.get("spent", false)):
+			continue
+		await _present_player_heal(1, it, true)
+		_log_end_proc()
+		return
+
+
+func _fly_heal_to_hub(from: Vector2) -> void:
+	if _qa_instant():
+		return
+	var dest: Vector2 = _hub_hp_pos()
+	if dest == Vector2.ZERO:
+		return
+	if from == Vector2.ZERO:
+		from = dest + Vector2(0, 90)
+	await _radiate_line(from, dest, Color("8fd18f"), 0.12, true, false, 0)
+	if tex_heart != null:
+		await _fly_courier(tex_heart, from, dest, 0.42)
+
+
+func _present_player_heal(n: int, it: Dictionary, announce: bool = false) -> int:
+	if n <= 0 or hp >= HP_MAX:
+		return 0
+	if announce and not it.is_empty():
+		await _announce_item_use(it, _hub_hp_pos(), false)
+	else:
+		var uid: int = int(it.get("uid", -1))
+		var card: Control = _hotbar_card_by_uid(uid)
+		if card != null and card.has_method("play_update_pulse"):
+			card.play_update_pulse("mint")
+		elif card != null and card.has_method("bounce"):
+			card.bounce()
+		if get_tree() and not _qa_instant():
+			await get_tree().create_timer(0.16).timeout
+	await _fly_heal_to_hub(_item_card_global(int(it.get("uid", -1))))
+	return await _heal(n)
+
+
+func _present_monster_heal(n: int, index: int, announce: bool = true) -> int:
+	if n <= 0 or hp >= HP_MAX:
+		return 0
+	if announce:
+		await _announce_slice(index, _hub_hp_pos(), false, false)
+	await _fly_heal_to_hub(_slice_from(index))
+	return await _heal(n)
+
+
 func _heal(n: int) -> int:
 	var before: int = hp
 	hp = mini(HP_MAX, hp + maxi(0, n))
@@ -18746,16 +19027,21 @@ func _heal(n: int) -> int:
 	if gained <= 0:
 		return 0
 	if wheel_view and wheel_view.has_method("play_hero"):
-		wheel_view.play_hero("heal")
-		if wheel_view.has_method("wait_hero_frame"):
-			await wheel_view.wait_hero_frame("heal", 2)
+		# Hit still outranks Heal. Force so a nested heal can replace the leftover hurt pose.
+		wheel_view.play_hero("heal", 1, true)
 	_player_play("heal")
+	if wheel_view and wheel_view.has_method("wait_hero_done") and not _qa_instant():
+		await wheel_view.wait_hero_done()
+	elif wheel_view and wheel_view.has_method("wait_hero_frame") and not _qa_instant():
+		await wheel_view.wait_hero_frame("heal", 2)
 	_refresh_hearts()
 	_flash_screen(Color("8fd18f"), 0.28)
 	if sfx:
 		sfx.play_event(&"heal.gain", {"n": gained})
 	_glow_hearts_heal()
 	_sync_dire_wolves()
+	if get_tree() and not _qa_instant():
+		await get_tree().create_timer(0.28).timeout
 	return gained
 
 
@@ -18783,6 +19069,7 @@ func _bleed(n: int) -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
+	await _maybe_pacemaker_heal()
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
@@ -20617,6 +20904,7 @@ func _player_take_atk(n: int) -> bool:
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
+	await _maybe_pacemaker_heal()
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
@@ -22536,7 +22824,7 @@ func _neighbor_full_attack(src: int) -> int:
 			if hp <= 0:
 				break
 		if hp > 0:
-			await _heal(3)
+			await _present_monster_heal(3, src, true)
 		await _slay_dead_after_watch()
 	elif _blood_threshes(src):
 		total = await _shark_attack_player(src)
@@ -23032,11 +23320,10 @@ func _try_potion() -> bool:
 			continue
 		it["spent"] = true
 		it["keep_after"] = false
-		_log_begin_item(it, false)
 		# Finish the Heal before the caller adds on-hit Poison or checks death.
 		# A thrown-away _heal() can resume after the lethal check and look like
 		# the revive erased the Poison from this same swing.
-		await _heal(3)
+		await _present_player_heal(3, it, true)
 		_log_end_proc()
 		_toss_item(int(it["uid"]), false)
 		return true
@@ -24285,7 +24572,7 @@ func _sync_log_panel() -> void:
 	var in_dev: bool = phase == "devtest" and dev_panel != null and dev_panel.visible
 	if right_col:
 		right_col.visible = in_dev
-		right_col.custom_minimum_size = Vector2(380, 0) if in_dev else Vector2(0, 0)
+		right_col.custom_minimum_size = Vector2(460, 0) if in_dev else Vector2(0, 0)
 	if in_dev:
 		log_label.visible = false
 		if log_btn:
