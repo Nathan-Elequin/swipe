@@ -275,8 +275,10 @@ Room layout data, including every hotspot, is in `_pixel_extras/layout.json`. Th
 | nib/nib_idle_press.png | 1 | 26x34 | 104x136 | press |
 | nib/nib_point.png | 1 | 24x32 | 96x128 | points at the door / map |
 | nib/nib_psst_f*.png | 2 | 24x32 | 96x128 | "psst" beckon (tutorial prompt) 2f @ 280ms |
+| nib/nib_react_f0..f3.png | 4 | 24x32 | 96x128 | 4 @ 10 fps once. f0 squash, f1 up 2 px with hands together, f2 land squash, f3 = nib_idle_f0. Feet row 30 (f1: row 28). |
 | nib/nib_talk_f*.png | 3 | 24x32 | 96x128 | talk mouth cycle 90ms (random 0/1/2) while text types |
 | nib/nib_walk_f*.png | 4 | 24x32 | 96x128 | walk 8 fps |
+| nib/nib_watch.png | 1 | 24x32 | 96x128 | Face shifted 1 px left (toward the board), hands hidden behind his back. |
 
 ## overlays/
 
@@ -411,10 +413,12 @@ Room layout data, including every hotspot, is in `_pixel_extras/layout.json`. Th
 |---|---|---|---|---|
 | rooms/room_hall.png | 1 | 420x260 | 1680x1040 | hall room background, opaque 420x260 origin (0,0) [0,0] |
 | rooms/room_hall_glow.png | 1 | 91x175 | 364x700 | light overlay: NORMAL blend, alpha 1.0, above bg / below sprites origin (20,40) [80,160] |
+| rooms/room_trophy.png | 1 | 420x260 | 1680x1040 | Opaque. Replaces room_hall.png as the hall `plate`. Same ceiling, floor and left doorway (x0..41) as room_hall; the painted board frame, the chained right door, the stool and the old sconce are removed. Wallpaper (12x28 tile) runs y13..145, wainscot y146..194, floor line y195. Sconces at native (20..31,50..71) and (384..395,50..71). |
+| rooms/room_trophy_glow.png | 1 | 420x260 | 1680x1040 | Flat 3-step tone-swap pools around both sconces (centres (26,54) and (390,54)); transparent elsewhere. Same registration as the plate. |
 | rooms/room_loft.png | 1 | 420x260 | 1680x1040 | loft room background, opaque 420x260 origin (0,0) [0,0] |
 | rooms/room_loft_candle_glow.png | 1 | 80x91 | 320x364 | light overlay: NORMAL blend, alpha 1.0, above bg / below sprites origin (340,120) [1360,480] |
 | rooms/room_loft_moon.png | 1 | 129x191 | 516x764 | light overlay: NORMAL blend, alpha 1.0, above bg / below sprites origin (152,40) [608,160] |
-| rooms/room_main.png | 1 | 420x260 | 1680x1040 | main room background, opaque 420x260 origin (0,0) [0,0] |
+| rooms/room_main.png | 1 | 420x260 | 1680x1040 | Repainted in place: the centre "to the Outpost" door (x242..300, y121..207) is replaced with log wall and floor, plus a peg rail (x253..290, y135..141) with a coat, a hat and a scarf. Every other pixel is identical to the previous plate. |
 | rooms/room_main_fire_glow.png | 1 | 185x101 | 740x404 | light overlay: NORMAL blend, alpha 1.0, above bg / below sprites origin (0,136) [0,544] |
 | rooms/room_study.png | 1 | 420x260 | 1680x1040 | study room background, opaque 420x260 origin (0,0) [0,0] |
 | rooms/room_study_glow.png | 1 | 170x66 | 680x264 | light overlay: NORMAL blend, alpha 1.0, above bg / below sprites origin (180,110) [720,440] |
