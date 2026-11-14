@@ -90,5 +90,17 @@
   "beggar": {
     "title": "Beggar",
     "body": "Marks a random Item. Spinning this Beggar discards it."
+  },
+  "neighbor": {
+    "title": "Neighbor",
+    "body": "The spaces right beside another on the wheel: one to its left, one to its right."
+  },
+  "keep": {
+    "title": "Keep",
+    "body": "This item stays in your hand after you use it."
+  },
+  "attack": {
+    "title": "Attack",
+    "body": "Damage from a strike. HP lost any other way doesn't count as Attack."
   }
 }

@@ -429,6 +429,13 @@ static func def_id_of(piece: String) -> String:
 		return "hex"
 	if low == "beggar" or low.begins_with("beggar"):
 		return "beggar"
+	if low.begins_with("neighbor"):
+		return "neighbor"
+	if low == "keep":
+		return "keep"
+	## Full word "Attack" / "Attacks" — not the "Atk" / "ATK" abbreviation (never show ATK as a chip).
+	if low.begins_with("attack"):
+		return "attack"
 	return ""
 
 
@@ -846,6 +853,7 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 		"heals", "healed", "healing", "heal",
 		"thorns", "thorn",
 		"keep",
+		"neighbors", "neighboring", "neighbor",
 		"move",
 		"bled", "bleeds", "bleeding", "bleed",
 		"fleeing", "flees", "fled", "flee",
@@ -1020,6 +1028,8 @@ static func _stem_hex(low: String, gold: String, hp_c: String, atk_c: String, va
 	if low.begins_with("thorn"):
 		return atk_c
 	if low == "keep":
+		return gold
+	if low.begins_with("neighbor"):
 		return gold
 	if low == "across":
 		return gold

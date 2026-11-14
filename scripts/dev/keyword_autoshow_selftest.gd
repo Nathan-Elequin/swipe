@@ -10,7 +10,9 @@ func _init() -> void:
 func _run() -> void:
 	var failed := false
 	failed = _check_collect_kw_ids() or failed
+	failed = _check_registry_three() or failed
 	failed = await _check_plate_stack_and_input() or failed
+	failed = await _check_catalog_inspect_stacks() or failed
 	failed = await _check_log_line_stack() or failed
 	failed = _check_text_fits_long_def() or failed
 	if failed:
@@ -34,6 +36,135 @@ func _check_collect_kw_ids() -> bool:
 	var ids: Array = UxStyle.collect_kw_ids(sample)
 	failed = _check("collect_order", ids.size() == 2 and str(ids[0]) == "defeated" and str(ids[1]) == "spin") or failed
 	failed = _check("collect_empty", UxStyle.collect_kw_ids("plain text").is_empty()) or failed
+	return failed
+
+
+func _check_registry_three() -> bool:
+	var failed := false
+	KeywordDefs.reload(true)
+	failed = _check("ids_has_neighbor", KeywordDefs.ids().has("neighbor")) or failed
+	failed = _check("ids_has_keep", KeywordDefs.ids().has("keep")) or failed
+	failed = _check("ids_has_attack", KeywordDefs.ids().has("attack")) or failed
+	failed = _check(
+		"def_neighbor",
+		KeywordDefs.def_of("neighbor")
+		== "The spaces right beside another on the wheel: one to its left, one to its right."
+	) or failed
+	failed = _check(
+		"def_keep",
+		KeywordDefs.def_of("keep") == "This item stays in your hand after you use it."
+	) or failed
+	failed = _check(
+		"def_attack",
+		KeywordDefs.def_of("attack")
+		== "Damage from a strike. HP lost any other way doesn't count as Attack."
+	) or failed
+	failed = _check("def_id_neighbor", UxStyle.def_id_of("Neighbor") == "neighbor") or failed
+	failed = _check("def_id_neighbors", UxStyle.def_id_of("Neighbors") == "neighbor") or failed
+	failed = _check("def_id_keep", UxStyle.def_id_of("Keep") == "keep") or failed
+	failed = _check("def_id_attack", UxStyle.def_id_of("Attack") == "attack") or failed
+	## Abbreviation must not become a chip label that shows ATK.
+	failed = _check("def_id_atk_blank", UxStyle.def_id_of("Atk") == "" and UxStyle.def_id_of("atk") == "") or failed
+	var painted_n: String = UxStyle.paint("Mark a Neighbor with 4 Poison.")
+	var painted_k: String = UxStyle.paint("Atk 3, or Atk 1 and Keep this item")
+	var painted_a: String = UxStyle.paint("I Attack you for 2 Damage each time I take Attack Damage.")
+	var n_ids: Array = UxStyle.collect_kw_ids(painted_n)
+	var k_ids: Array = UxStyle.collect_kw_ids(painted_k)
+	var a_ids: Array = UxStyle.collect_kw_ids(painted_a)
+	failed = _check("paint_poison_flask_neighbor", n_ids.has("neighbor")) or failed
+	failed = _check("paint_poison_flask_poison", n_ids.has("poison")) or failed
+	failed = _check("paint_knife_keep", k_ids.has("keep")) or failed
+	failed = _check("paint_needleback_attack", a_ids.has("attack")) or failed
+	return failed
+
+
+func _catalog_ability(card_id: String) -> String:
+	var f := FileAccess.open("res://data/catalog.json", FileAccess.READ)
+	if f == null:
+		return ""
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	f.close()
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return ""
+	var root: Dictionary = parsed
+	for bucket in ["items", "monsters"]:
+		var cards: Variant = root.get(bucket, [])
+		if typeof(cards) != TYPE_ARRAY:
+			continue
+		for row in cards:
+			if typeof(row) != TYPE_DICTIONARY:
+				continue
+			if str((row as Dictionary).get("id", "")) == card_id:
+				return str((row as Dictionary).get("ability", ""))
+	return ""
+
+
+func _check_catalog_inspect_stacks() -> bool:
+	## Poison Flask → neighbor+poison; Throwing Knife → keep+attack; Needleback → attack.
+	var failed := false
+	var stray: Node = root.get_node_or_null("Main")
+	if stray != null:
+		stray.free()
+	var main: Node = _make_main_stub()
+	failed = _check("catalog_main_stub", main != null) or failed
+	if main == null:
+		return failed
+	var plate_scr: GDScript = load("res://scripts/hover_panel.gd") as GDScript
+	var plate: PanelContainer = plate_scr.new()
+	plate.set("accept_clicks", false)
+	root.add_child(plate)
+	await process_frame
+	plate.position = Vector2(1280, 520)
+	plate.size = Vector2(280, 200)
+	## Poison Flask ability paints Neighbor + Poison chips.
+	var flask_ab: String = _catalog_ability("poison_flask")
+	failed = _check("catalog_poison_flask", flask_ab != "") or failed
+	var flask_body: String = UxStyle.paint(flask_ab if flask_ab != "" else "Mark a Neighbor with 4 Poison.")
+	plate.show_rule("Poison Flask", "", "", flask_body, "", null, "item", "poison_flask", {})
+	await process_frame
+	await process_frame
+	var stack: Control = plate.get("_kw_stack")
+	var flask_ids: Array = stack.call("current_ids") if stack != null else []
+	failed = _check("flask_stack_neighbor", flask_ids.has("neighbor")) or failed
+	failed = _check("flask_stack_poison", flask_ids.has("poison")) or failed
+	## Throwing Knife: Keep from ability + Attack from value line (production _value_bb).
+	var knife_ab: String = _catalog_ability("throwing_knife")
+	failed = _check("catalog_throwing_knife", knife_ab != "") or failed
+	var knife_body: String = UxStyle.paint(knife_ab if knife_ab != "" else "Atk 3, or Atk 1 and Keep this item")
+	var knife_value: String = UxStyle.chip_bbcode("Attack", "attack", "#E07A7A", false) + " 3"
+	plate.show_rule("Throwing Knife", knife_value, "", knife_body, "", null, "item", "throwing_knife", {})
+	await process_frame
+	await process_frame
+	var knife_ids: Array = stack.call("current_ids") if stack != null else []
+	failed = _check("knife_stack_keep", knife_ids.has("keep")) or failed
+	failed = _check("knife_stack_attack", knife_ids.has("attack")) or failed
+	## Needleback speech/ability.
+	var needle_ab: String = _catalog_ability("needleback")
+	failed = _check("catalog_needleback", needle_ab != "") or failed
+	var needle_body: String = UxStyle.paint(
+		needle_ab if needle_ab != "" else "I Attack you for 2 Damage each time I take Attack Damage."
+	)
+	plate.show_rule(
+		"Needleback",
+		"",
+		"",
+		needle_body,
+		"",
+		null,
+		"monster",
+		"needleback",
+		{"hp_n": "3", "atk_n": "1"}
+	)
+	await process_frame
+	await process_frame
+	var needle_ids: Array = stack.call("current_ids") if stack != null else []
+	failed = _check("needleback_stack_attack", needle_ids.has("attack")) or failed
+	if stack != null and stack.has_method("hide_stack"):
+		stack.hide_stack()
+	plate.queue_free()
+	await process_frame
+	if is_instance_valid(main):
+		main.free()
 	return failed
 
 

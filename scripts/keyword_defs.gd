@@ -14,6 +14,7 @@ static func ids() -> PackedStringArray:
 		"any", "eject", "across", "bear_trap", "move", "flee", "defeated", "marked",
 		"poison", "spin", "always", "swap", "loaded", "unplayable", "rust", "decay",
 		"gaze", "petrify", "curse", "shroud", "toll", "hex", "beggar",
+		"neighbor", "keep", "attack",
 	])
 
 

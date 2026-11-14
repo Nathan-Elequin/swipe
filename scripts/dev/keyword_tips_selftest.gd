@@ -38,7 +38,7 @@ func _check_defs_roundtrip() -> bool:
 	var before: Dictionary = {}
 	for id in KeywordDefs.all_ids():
 		before[id] = KeywordDefs.entry(id)
-	failed = _check("defs_count_23", before.size() == 23) or failed
+	failed = _check("defs_count_26", before.size() == 26) or failed
 	failed = _check("defs_save", KeywordDefs.save_all(before)) or failed
 	KeywordDefs.reload(true)
 	for id in KeywordDefs.all_ids():
@@ -60,10 +60,16 @@ func _check_def_of_matches_json() -> bool:
 		"swap": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
 		"loaded": "Loaded: your next Attack can hit any monster.",
 		"flee": "If you are facing them, Spin the wheel at random. They are not removed.",
+		"neighbor": "The spaces right beside another on the wheel: one to its left, one to its right.",
+		"keep": "This item stays in your hand after you use it.",
+		"attack": "Damage from a strike. HP lost any other way doesn't count as Attack.",
 	}
 	for id in expect.keys():
 		failed = _check("def_of_%s" % id, UxStyle.def_of(id) == str(expect[id])) or failed
 		failed = _check("json_%s" % id, KeywordDefs.def_of(id) == str(expect[id])) or failed
+	failed = _check("title_neighbor", KeywordDefs.title_of("neighbor") == "Neighbor") or failed
+	failed = _check("title_keep", KeywordDefs.title_of("keep") == "Keep") or failed
+	failed = _check("title_attack", KeywordDefs.title_of("attack") == "Attack") or failed
 	return failed
 
 
@@ -161,7 +167,7 @@ func _check_defs_editor_compiles() -> bool:
 	await process_frame
 	failed = _check("editor_visible", bool(ed.visible)) or failed
 	var list: ItemList = ed.get("_list") as ItemList
-	failed = _check("editor_list", list != null and list.item_count == 23) or failed
+	failed = _check("editor_list", list != null and list.item_count == 26) or failed
 	if ed.has_method("hide_editor"):
 		ed.call("hide_editor")
 	ed.queue_free()
