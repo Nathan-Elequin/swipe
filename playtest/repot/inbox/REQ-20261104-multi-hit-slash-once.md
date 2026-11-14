@@ -1,6 +1,6 @@
 ---
 id: REQ-20261104-multi-hit-slash-once
-status: open
+status: done
 priority: high
 pr: 389
 tip_sha: 4be34b6a

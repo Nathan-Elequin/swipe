@@ -10322,6 +10322,13 @@ func _resolve_then_continue(skip_attack: bool) -> void:
 	await _begin_slay(banner)
 
 
+func _announce_multi_swing(index: int, hit_i: int, hits: int) -> void:
+	## Hornet / Hydra heads / Mound: one slash portrait + ability oneshot per swing.
+	if hits <= 1:
+		return
+	await _announce_slice(index, _hub_hp_pos(), hit_i > 0)
+
+
 func _apply_resolve_hits() -> int:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return 0
@@ -10338,10 +10345,9 @@ func _apply_resolve_hits() -> int:
 	for h in range(hits):
 		if hp <= 0:
 			break
-		if hits > 1 and h == 0:
-			# Multi-hit ability burst: slash portrait once on the first swing.
-			# Later swings in this same burst keep damage/FX without replaying the cut-in (#357).
-			await _announce_slice(facing_index, _hub_hp_pos())
+		# Each swing of a multi-hit burst (Hornet, Hydra heads, Mound) gets its
+		# own slash portrait and ability oneshot so Pacemaker / heals in between stay readable.
+		await _announce_multi_swing(facing_index, h, hits)
 		var incoming: int = await _owner_attack(m, h + 1, hits)
 		await _after_self_deconstruct(facing_index)
 		if facing_index >= 0 and facing_index < wheel.size():
@@ -10352,7 +10358,6 @@ func _apply_resolve_hits() -> int:
 		if facing_index >= 0 and facing_index < wheel.size() and int(wheel[facing_index].get("hp", 0)) <= 0:
 			break
 		if hits > 1 and h < hits - 1:
-			# Ability oneshot replaces mon.hornet_buzz between swings.
 			await get_tree().create_timer(0.04).timeout
 	if hp > 0 and not _fungal_stop_fight and phase == "fighting":
 		await _straight_shot_after(attacker)
@@ -17411,6 +17416,9 @@ func _damsel_resolve() -> void:
 			for h in range(hits):
 				if hp <= 0:
 					break
+				# Neighbor already slashed once above; extra Hornet/Hydra/Mound swings slash again.
+				if h > 0:
+					await _announce_multi_swing(j, h, hits)
 				await _owner_attack(nm, h + 1, hits, j)
 				await _after_self_deconstruct(j)
 				if j >= 0 and j < wheel.size():
@@ -22890,9 +22898,7 @@ func _neighbor_full_attack(src: int) -> int:
 			for h in range(hits):
 				if hp <= 0:
 					break
-				if hits > 1 and h == 0:
-					# Same burst rule as _apply_resolve_hits (#357): slash once, then swings only.
-					await _announce_slice(j, _hub_hp_pos())
+				await _announce_multi_swing(j, h, hits)
 				total += await _owner_attack(nm, h + 1, hits, j)
 				await _after_self_deconstruct(j)
 				if j >= 0 and j < wheel.size():
@@ -22919,9 +22925,7 @@ func _neighbor_full_attack(src: int) -> int:
 		for h2 in range(hits2):
 			if hp <= 0:
 				break
-			if hits2 > 1 and h2 == 0:
-				# Same burst rule as _apply_resolve_hits (#357): slash once, then swings only.
-				await _announce_slice(src, _hub_hp_pos())
+			await _announce_multi_swing(src, h2, hits2)
 			if src < 0 or src >= wheel.size():
 				break
 			m = wheel[src]
@@ -23696,9 +23700,7 @@ func _shark_attack_player(index: int) -> int:
 	var zeros: int = 0
 	while hp > 0 and index >= 0 and index < wheel.size() and int(wheel[index].get("hp", 0)) > 0:
 		var m: Dictionary = wheel[index]
-		if zeros == 0:
-			# Blood Thresh retries are one ability burst: slash once, then silent swings (#357).
-			await _announce_slice(index, _hub_hp_pos())
+		await _announce_slice(index, _hub_hp_pos(), zeros > 0)
 		var incoming: int = await _owner_attack(m, zeros + 1, 0, index)
 		total += incoming
 		if incoming > 0:
@@ -23707,7 +23709,6 @@ func _shark_attack_player(index: int) -> int:
 		if zeros >= 5:
 			await _shark_net_death(index)
 			return total
-		# Ability oneshot replaces mon.hornet_buzz between thresh retries.
 		if get_tree():
 			await get_tree().create_timer(0.04).timeout
 	return total
