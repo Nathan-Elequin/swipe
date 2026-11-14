@@ -4,7 +4,7 @@ status: open
 priority: high
 pr: pending
 branch: cursor/keyword-registry-3-4b75
-tip_sha: f80ec53f
+tip_sha: 8c0e81c4
 created: 2026-11-14T10:50:00Z
 created_by: cloud-agent
 viewport: 1680x1040
