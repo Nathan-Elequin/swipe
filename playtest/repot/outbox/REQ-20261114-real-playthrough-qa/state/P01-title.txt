@@ -1,0 +1,23 @@
+step=P01-title
+git_head=d59492c3ee3f01ab18af52be0906d7879983ae57
+godot_project_path=C:/Users/Natha/Documents/boss-rush/
+sha_on_screen=d59492c3*
+phase=title
+paused=true
+room=playtest_intro
+win=(1550, 960)
+vp_texture=(1550, 960)
+logical_view=(1680, 1040)
+import_errors_after_rescan=none (Output had only prior TextEdit gutter / WASAPI / DAP noise; no PNG corrupt)
+---ui---
+BTN Log z=8 rect=[P:(28,14) S:(88,43)]
+BTN New z=0 rect=[P:(802,959) S:(75,43)]
+BTN Skip z=0 rect=[P:(860,563) S:(108,44)]
+BTN Next z=0 rect=[P:(976,563) S:(108,44)]
+LBL BuildStamp/Sha=d59492c3*
+LBL DevBranchTag=🧪 playtest/latest
+LBL FitLabelBox=copy: swipe-player-copy-v3-draftgate · 2026-11-08
+LBL playtest_intro Nathan
+---audio---
+MusicB playing=true vol=14.0 stream=res://assets/audio/music.ogg
+MusicA playing=false vol=-66.0 stream=res://assets/audio/music.ogg

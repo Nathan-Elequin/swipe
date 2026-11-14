@@ -1,0 +1,8 @@
+step=P03
+phase=draft then ready
+room=Verdant Hollow dungeon 1
+music_on_enter=MusicB playing=true vol=-4 stream=res://assets/audio/music_verdant_hollow_intro.ogg
+music_after_splash=MusicA playing=true vol=-4 stream=res://assets/audio/music_verdant_hollow_loop.ogg
+cabin_music_ducked=MusicA then swapped; MusicA cabin at -82 while intro played
+map_debug_buttons=Grant 3 uniques; Fill the Verdant Hollow cabinet; Fill every cabinet; Fresh campaign
+launch=LaunchHit_start click

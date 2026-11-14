@@ -1,0 +1,6 @@
+git_head=d59492c3ee3f01ab18af52be0906d7879983ae57
+godot_project_path=C:/Users/Natha/Documents/boss-rush/
+sha_on_screen=d59492c3*
+win=1550x960
+logical_view=1680x1040
+import_errors=none (no PNG corrupt; leftover TextEdit/DAP/WASAPI only)

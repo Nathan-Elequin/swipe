@@ -1,0 +1,10 @@
+step=P07
+after=Limp home
+sequence=exterior walk to door, door opens, land fireplace/main
+nib=visible by broom (not invisible)
+padlocks=both side doors still locked
+tree.paused=true after landing (cabin process_mode ALWAYS)
+beat=idle room=0
+music=music_cabin.ogg + cabin_fire_loop.ogg + cabin_cat_purr_loop.ogg
+satchel=did not play
+trophy_plinths_in_tree=res://assets/ui/trophy/plinth_empty.png (off-screen board)

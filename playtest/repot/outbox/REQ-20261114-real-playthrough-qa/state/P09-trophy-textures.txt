@@ -1,0 +1,7 @@
+step=P09
+player_in_trophy_room=no
+plinth_texture_resource_path=res://assets/ui/trophy/plinth_empty.png (all TrophyBoard plinths found in tree)
+backdrop=not captured from player view
+dais=not captured
+parchment_tag=not shown
+signs_on_main=door_sign_loft/workshop/study/hall pngs

@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-real-playthrough-qa
-status: open
+status: done
 priority: urgent
 tip_sha: 0de7b223
 created: 2026-11-14T09:35:00Z
