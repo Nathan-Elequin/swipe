@@ -61,9 +61,12 @@ func _init() -> void:
 	var rects: Dictionary = lay.get("rects", {})
 	var top_ids: Array = (b1.get("rows", {}) as Dictionary).get(3, [])
 	var bot_ids: Array = (b1.get("rows", {}) as Dictionary).get(1, [])
+	## Raised board (#512): pyramid tracks PYRAMID_AREA (272 − BOARD_RAISE_PX).
+	var top_y: float = MODEL.PYRAMID_AREA.position.y
+	var bot_y: float = top_y + 2.0 * (MODEL.SLOT_NORMAL + MODEL.VGAP_NORMAL)
 	if top_ids.size() >= 1:
 		var tr: Rect2 = rects[str(top_ids[0])]
-		failed = _check(failed, "top y 272", is_equal_approx(tr.position.y, 272.0)) or failed
+		failed = _check(failed, "top y raised pyramid", is_equal_approx(tr.position.y, top_y)) or failed
 		failed = _check(failed, "top x0 624", is_equal_approx(tr.position.x, 624.0)) or failed
 		var last_top: Rect2 = rects[str(top_ids[top_ids.size() - 1])]
 		failed = _check(
@@ -73,7 +76,7 @@ func _init() -> void:
 		) or failed
 	if bot_ids.size() >= 1:
 		var br: Rect2 = rects[str(bot_ids[0])]
-		failed = _check(failed, "bottom y 576", is_equal_approx(br.position.y, 576.0)) or failed
+		failed = _check(failed, "bottom y raised pyramid", is_equal_approx(br.position.y, bot_y)) or failed
 		failed = _check(failed, "bottom x0 396", is_equal_approx(br.position.x, 396.0)) or failed
 
 	## Compact mode: 9 tier-1 items

@@ -292,10 +292,11 @@ func _run() -> void:
 	failed = _check(rows, failed, "lever.node", lever != null) or failed
 	if lever != null:
 		failed = _check(rows, failed, "lever.hit_192x224", lever.size.x == 192 and lever.size.y == 224) or failed
-		## Bottom-aligned with Nib feet: face-local bottom = 688.
+		## Bottom-aligned with Nib feet (HALL_FLOOR_Y − FACE_VIEWPORT.y after #512 raise).
+		var want_feet: float = MODEL.HALL_FLOOR_Y - MODEL.FACE_VIEWPORT.position.y
 		failed = _check(
 			rows, failed, "lever.feet_align",
-			is_equal_approx(lever.position.y + lever.size.y, 688.0)
+			is_equal_approx(lever.position.y + lever.size.y, want_feet)
 		) or failed
 		var glow = lever.get_parent().get_node_or_null("LeverGlow") if lever.get_parent() != null else null
 		failed = _check(rows, failed, "lever.glow_node", glow != null) or failed
