@@ -28,16 +28,18 @@
   .col { background: var(--card); border: 1px solid var(--line); min-height: 12em; }
   .col h2 { margin: 0; padding: 8px 10px; font-size: 14px; font-weight: normal; color: var(--gold); border-bottom: 1px solid var(--line); }
   .band { padding: 8px 8px 4px; color: var(--muted); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
-  .grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 8px 12px; }
-  .cell {
-    width: 56px; height: 56px; position: relative; background: var(--grey);
-    border: 1px solid #100e0c; image-rendering: pixelated;
+  .rows { display: flex; flex-direction: column; gap: 6px; padding: 4px 10px 14px; }
+  .row { display: grid; grid-template-columns: 36px 1fr 2.6em; gap: 8px; align-items: center; min-height: 36px; }
+  .row img, .row .ph {
+    width: 32px; height: 32px; image-rendering: pixelated; background: #100e0c; border: 1px solid #100e0c;
   }
-  .cell img {
-    width: 48px; height: 48px; position: absolute; left: 4px; top: 4px;
-    image-rendering: pixelated; pointer-events: none;
+  .row .ph { display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--muted); text-align: center; }
+  .track { position: relative; height: 14px; background: #100e0c; border: 1px solid #3a322b; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; }
+  .mean {
+    position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 1px dashed #e8c36a; opacity: 0.85; pointer-events: none;
   }
-  .cell .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); text-align: center; padding: 4px; }
+  .pct { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); text-align: right; }
   .tip {
     position: fixed; z-index: 20; max-width: 22em; padding: 8px 10px;
     background: #100e0c; border: 1px solid var(--gold); color: var(--ink);
@@ -179,11 +181,10 @@ function sortRows(rows, kind) {
   return copy;
 }
 
-function cell(row, kind, m, spread) {
+function barRow(row, kind, m, spread) {
   const met = metric(row, kind);
   const el = document.createElement("div");
-  el.className = "cell";
-  el.style.background = heatColor(met.value, m, spread, met.n >= N_MIN);
+  el.className = "row";
   const src = ART[row.id];
   if (src) {
     const img = document.createElement("img");
@@ -196,9 +197,27 @@ function cell(row, kind, m, spread) {
     ph.textContent = row.id;
     el.appendChild(ph);
   }
+  const track = document.createElement("div");
+  track.className = "track";
+  const fill = document.createElement("div");
+  fill.className = "fill";
+  const v = met.value == null ? 0 : Math.max(0, Math.min(100, met.value));
+  fill.style.width = v + "%";
+  fill.style.background = heatColor(met.value, m, spread, met.n >= N_MIN);
+  track.appendChild(fill);
+  if (m != null && !Number.isNaN(m)) {
+    const mark = document.createElement("div");
+    mark.className = "mean";
+    mark.style.left = Math.max(0, Math.min(100, m)) + "%";
+    track.appendChild(mark);
+  }
+  el.appendChild(track);
+  const pct = document.createElement("div");
+  pct.className = "pct";
+  pct.textContent = fmt(met.value);
+  el.appendChild(pct);
   el.addEventListener("pointerenter", (ev) => {
-    const fn = TIPS[met.tip];
-    $("tip").innerHTML = fn(row, met.value);
+    $("tip").innerHTML = TIPS[met.tip](row, met.value);
     $("tip").style.display = "block";
     moveTip(ev);
   });
@@ -219,14 +238,14 @@ function band(title, rows, kind) {
   lab.className = "band";
   lab.textContent = title;
   wrap.appendChild(lab);
-  const grid = document.createElement("div");
-  grid.className = "grid";
+  const list = document.createElement("div");
+  list.className = "rows";
   const usable = sortRows(rows, kind);
   const vals = usable.map((r) => metric(r, kind).value).filter((v) => v != null);
   const m = mean(vals);
   const spread = Math.max(12, sd(vals, m) * 1.25);
-  usable.forEach((r) => grid.appendChild(cell(r, kind, m, spread)));
-  wrap.appendChild(grid);
+  usable.forEach((r) => list.appendChild(barRow(r, kind, m, spread)));
+  wrap.appendChild(list);
   return wrap;
 }
 
@@ -278,7 +297,7 @@ async function loadLive() {
 function showExample() {
   DATA = EXAMPLE;
   draw();
-  $("status").textContent = "Example. Invented so you can read the heat. Load live after an F5 campaign dungeon.";
+  $("status").textContent = "Example. Invented bars. Gold dash is this column's average. Load live after an F5 campaign dungeon.";
 }
 
 setSec("survive");
