@@ -278,24 +278,22 @@ func _build_shell() -> void:
 	_viewport.clip_contents = true
 	_viewport.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_viewport)
-	## Plaque sticks above frame: absolute (600,16) → board-local
-	var plaque_r := Rect2(
-		Vector2(600, 16) - MODEL.BOARD_OUTER.position,
-		Vector2(480, 96)
-	)
-	_plaque = _tex_or_box("Plaque", plaque_r, "trophy_board/plaque_verdant", Color("c4a574"))
+	## Painted placard (LINEAR, 1:1). Do not use _tex_or_box — that forces Nearest.
+	## Screen top at y 0, centred on x 840 → board-local y −40.
+	_plaque = TextureRect.new()
+	_plaque.name = "Plaque"
+	_plaque.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_plaque.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_plaque.stretch_mode = TextureRect.STRETCH_KEEP
 	_plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_plaque)
+	## Live name label retired — painted art carries the title. Keep for a11y hook only.
 	_plaque_lab = Label.new()
 	_plaque_lab.name = "PlaqueLabel"
-	_plaque_lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_plaque_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_plaque_lab.add_theme_font_size_override("font_size", 40)
-	_plaque_lab.add_theme_color_override("font_color", Color("1c120c"))
-	_plaque_lab.position = plaque_r.position + Vector2(40, 24)
-	_plaque_lab.size = Vector2(400, 48)
+	_plaque_lab.visible = false
 	_plaque_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_plaque_lab)
+	_apply_placard_tex("b1", "Verdant Hollow")
 	## Arrows / rails
 	_rail_l = _make_rail(true)
 	_rail_r = _make_rail(false)
@@ -395,11 +393,11 @@ func _update_chrome() -> void:
 	if _faces_data.is_empty():
 		return
 	var face: Dictionary = _faces_data[_current]
-	var slug := str(face.get("slug", "verdant"))
-	_plaque_lab.text = str(face.get("name", ""))
-	var ptex: Texture2D = KIT.ui_tex("trophy_board/plaque_%s" % slug)
-	if _plaque is TextureRect and ptex != null:
-		(_plaque as TextureRect).texture = ptex
+	var pool_id := str(face.get("pool_id", "b1"))
+	var face_name := str(face.get("name", ""))
+	_apply_placard_tex(pool_id, face_name)
+	if _current < _face_nodes.size():
+		(_face_nodes[_current] as TrophyBoardFace).set_plaque_host(_plaque, _plaque_lab)
 	var complete: bool = MODEL.is_complete(_campaign_state, face)
 	_trim.visible = complete
 	for i in _dots.size():
@@ -683,6 +681,29 @@ func _journal_for(card_id: String) -> String:
 	if typeof(entry) != TYPE_DICTIONARY:
 		return ""
 	return str((entry as Dictionary).get("journal", ""))
+
+
+func _apply_placard_tex(pool_id: String, face_name: String) -> void:
+	if _plaque == null:
+		return
+	var pid := pool_id if pool_id != "" else "b1"
+	var ptex: Texture2D = KIT.ui_tex("trophy_board/placard_%s" % pid)
+	if _plaque_lab != null:
+		_plaque_lab.text = face_name
+		_plaque_lab.visible = false
+	if _plaque is TextureRect:
+		var tr := _plaque as TextureRect
+		tr.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP
+		if ptex != null:
+			tr.texture = ptex
+			var tw := float(ptex.get_width())
+			var th := float(ptex.get_height())
+			tr.size = Vector2(tw, th)
+			## Screen centre x 840, top y 0 → board-local.
+			tr.position = Vector2(840.0 - tw * 0.5, 0.0) - MODEL.BOARD_OUTER.position
+		tr.tooltip_text = face_name
 
 
 func _tex_or_box(p_name: String, rect: Rect2, rel: String, fill: Color) -> Control:

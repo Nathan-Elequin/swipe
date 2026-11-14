@@ -28,7 +28,7 @@ const FACE_CENTER_X := 840.0
 
 const SLOT_NORMAL := 128.0
 const HGAP_NORMAL := 24.0
-const VGAP_NORMAL := 40.0
+const VGAP_NORMAL := 24.0
 const MAX_PER_LINE_NORMAL := 8
 
 const SLOT_COMPACT := 80.0
@@ -323,10 +323,11 @@ static func _layout_normal(tiers: Array) -> Dictionary:
 		PYRAMID_AREA.position - FACE_VIEWPORT.position,
 		PYRAMID_AREA.size
 	)
-	var y0: float = area_local.position.y + (area_local.size.y - block_h) * 0.5
-	## Prefer top-aligned fill when three lines exactly match 464.
-	if tiers.size() == 3 and is_equal_approx(block_h, area_local.size.y):
-		y0 = area_local.position.y
+	## Top-align the pyramid in PYRAMID_AREA (screen y 272). With VGAP_NORMAL 24,
+	## block_h is 432 and the leftover 32 px sits under the bottom row (oak/lip clearance).
+	var y0: float = area_local.position.y
+	if tiers.size() != 3:
+		y0 = area_local.position.y + (area_local.size.y - block_h) * 0.5
 	var rects := {}
 	var y := y0
 	for raw in tiers:

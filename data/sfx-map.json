@@ -1011,7 +1011,10 @@
         "gain_db": -4.0,
         "loop": false,
         "resume_position": false,
-        "note": "Verdant Hollow (b1) dungeon-clear one-shot; finished → between_dungeons via music_to (no next; soft 0.8s)"
+        "outro_style": "crossfade",
+        "out_frac": 0.8,
+        "in_frac": 0.5,
+        "note": "Verdant Hollow (b1) dungeon-clear one-shot; bar-synced linear dual-crossfade (out 0.8× / in 0.5× bar), then soft 0.8s → between_dungeons"
       },
       "between_dungeons": {
         "file": "music_between_dungeons",
@@ -1025,7 +1028,8 @@
         "gain_db": -4.0,
         "loop": true,
         "resume_position": true,
-        "note": "Cinder Forge (b4) Approach F layer A (Lead+Bass+Keyboard+Synth+Other+Woodwinds). Always on during the delve."
+        "bar_period_s": 1.98347,
+        "note": "Cinder Forge (b4) Approach F layer A (Lead+Bass+Keyboard+Synth+Other+Woodwinds). Always on during the delve. bar_period_s = 60/121*4 (121 BPM 4/4)."
       },
       "cinder_forge_b": {
         "file": "music_cinder_forge_b",
@@ -1040,6 +1044,16 @@
         "loop": true,
         "resume_position": false,
         "note": "Forge intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
+      },
+      "cinder_forge_victory": {
+        "file": "music_cinder_forge_victory",
+        "gain_db": -4.0,
+        "loop": false,
+        "resume_position": false,
+        "outro_style": "splice",
+        "lead_in_frac": 0.5,
+        "splice_out_s": 0.04,
+        "note": "Cinder Forge (b4) dungeon-clear one-shot; splice style. Clip has baked 0.992s linear fade-in (half of 1.983s bar); loudness-matched to boss-combat mix. gain_db = A bed (-4), same convention as shadow_abyss_victory. Finished → between_dungeons soft 0.8s."
       },
       "crystal_cavern": {
         "file": "music_crystal_cavern_a",
@@ -1088,7 +1102,8 @@
         "gain_db": -2.0,
         "loop": true,
         "resume_position": true,
-        "note": "Shadow Abyss (b5) Approach F layer A bed. Always on during the delve."
+        "bar_period_s": 2.4,
+        "note": "Shadow Abyss (b5) Approach F layer A bed. Always on during the delve. bar_period_s 2.4 = felt 100 BPM bar (production 200 BPM half-time feel); victory boom lands one bar after cut."
       },
       "shadow_abyss_b": {
         "file": "music_shadow_abyss_b",
@@ -1103,6 +1118,16 @@
         "loop": true,
         "resume_position": false,
         "note": "Abyss intensity C (perc+brass heat). Quiet stem; +6 dB. Synced to A; fade in on Tier-3/boss only."
+      },
+      "shadow_abyss_victory": {
+        "file": "music_shadow_abyss_victory",
+        "gain_db": -2.0,
+        "loop": false,
+        "resume_position": false,
+        "outro_style": "crossfade",
+        "out_frac": 0.8,
+        "in_frac": 0.5,
+        "note": "Shadow Abyss (b5) dungeon-clear one-shot; clip loudness-matched to A-2/B-2/C+6 combat mix so gain_db matches shadow_abyss A (-2). Bar-synced linear dual-crossfade; finished → between_dungeons soft 0.8s."
       },
       "intro": {
         "file": "music_intro",
