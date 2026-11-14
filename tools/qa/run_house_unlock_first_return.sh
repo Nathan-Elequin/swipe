@@ -69,11 +69,12 @@ if ! grep -q 'HOUSE_UNLOCK_FIRST_RETURN_OK' "$OUT"; then
   echo "HOUSE_UNLOCK_FIRST_RETURN missing OK mark" >&2
   exit 1
 fi
+## Assert ids match scripts/dev/house_unlock_first_return_selftest.gd (return-flow v2: hall open from start; loss still requests key tour).
 for need in \
   TUT.no_haul_credit \
-  TUT.rooms_stay_main \
-  LOSS.no_haul \
-  LOSS.rooms_stay_main \
+  TUT.rooms_stay_main_hall \
+  LOSS.credits_and_key_due \
+  LOSS.rooms_stay_main_hall \
   WIN0.haul_and_key_due \
   WIN3.haul_and_key_due \
   RECOVER.partial_fills_rest \
