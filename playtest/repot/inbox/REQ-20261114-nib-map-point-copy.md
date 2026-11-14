@@ -4,7 +4,7 @@ status: open
 priority: normal
 pr: 521
 branch: cursor/nib-map-point-copy-bd13
-tip_sha: 964a8238
+tip_sha: 4ca689c5
 created: 2026-11-14T10:15:00Z
 created_by: cloud-agent
 viewport: 1680x1040
