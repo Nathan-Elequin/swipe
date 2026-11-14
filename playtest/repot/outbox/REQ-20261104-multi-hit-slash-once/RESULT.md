@@ -4,7 +4,7 @@ status: done
 fulfilled_by: local-cursor
 fulfilled_at: 2026-11-13T20:00:00-06:00
 machine: Cherry
-tip_sha: pending
+tip_sha: 9bc26d8c
 godot: n/a — request superseded
 ---
 
