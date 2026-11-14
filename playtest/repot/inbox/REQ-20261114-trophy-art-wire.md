@@ -3,6 +3,7 @@ id: REQ-20261114-trophy-art-wire
 status: open
 priority: high
 branch: cursor/trophy-art-wire-b998
+pr: 514
 created: 2026-11-14T06:30:00Z
 created_by: cloud-agent
 viewport: 1680x1040
