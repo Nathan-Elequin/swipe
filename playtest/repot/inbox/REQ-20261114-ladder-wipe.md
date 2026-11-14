@@ -3,7 +3,7 @@ id: REQ-20261114-ladder-wipe
 status: open
 priority: high
 branch: cursor/ladder-wipe-homecoming-c308
-tip_sha: b57f090e
+tip_sha: 01ab849c
 created: 2026-11-14T05:40:00Z
 created_by: cloud-agent
 viewport: 1680x1040
