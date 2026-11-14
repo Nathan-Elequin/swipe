@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6d9eb4a4d9d26c"
-path="res://.godot/imported/shambling_mound_wheel_base.png-ff6f260834f4595935290eafcff9f08d.ctex"
+uid="uid://5jp7lubxty4c"
+path="res://.godot/imported/shambling_mound_wheel_base.png-293974ed10c7773235cdc1613c7a8949.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/shambling_mound_wheel_base.png"
-dest_files=["res://.godot/imported/shambling_mound_wheel_base.png-ff6f260834f4595935290eafcff9f08d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/shambling_mound_wheel_base.png"
+dest_files=["res://.godot/imported/shambling_mound_wheel_base.png-293974ed10c7773235cdc1613c7a8949.ctex"]
 
 [params]
 

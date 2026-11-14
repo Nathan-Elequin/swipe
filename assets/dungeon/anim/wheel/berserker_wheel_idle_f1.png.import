@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://eda214bc8f8bdda1"
-path="res://.godot/imported/berserker_wheel_idle_f1.png-ae51bbe1e6e404d965b3aae3cd544064.ctex"
+uid="uid://dy5pv5arj5gss"
+path="res://.godot/imported/berserker_wheel_idle_f1.png-6aec15f735bb624fe383b1a6d1f90e53.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/berserker_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/berserker_wheel_idle_f1.png-ae51bbe1e6e404d965b3aae3cd544064.ctex"]
+dest_files=["res://.godot/imported/berserker_wheel_idle_f1.png-6aec15f735bb624fe383b1a6d1f90e53.ctex"]
 
 [params]
 

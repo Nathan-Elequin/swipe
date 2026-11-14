@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dae586592fb42648"
-path="res://.godot/imported/scorpion_wheel_idle_f0.png-1ae354248d7e375e84ea5986266df766.ctex"
+uid="uid://bhwwekqdta21p"
+path="res://.godot/imported/scorpion_wheel_idle_f0.png-8956484a8b3ced38b01de0a99a414437.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/scorpion_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/scorpion_wheel_idle_f0.png-1ae354248d7e375e84ea5986266df766.ctex"]
+dest_files=["res://.godot/imported/scorpion_wheel_idle_f0.png-8956484a8b3ced38b01de0a99a414437.ctex"]
 
 [params]
 

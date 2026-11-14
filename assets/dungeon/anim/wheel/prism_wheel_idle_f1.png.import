@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6c9498351e589157"
-path="res://.godot/imported/prism_wheel_idle_f1.png-20fc69d2ab761817c78af84292dee5d6.ctex"
+uid="uid://cav8q8143q1im"
+path="res://.godot/imported/prism_wheel_idle_f1.png-bd4f0ccd9ecdd82a039ff3b5e141fe40.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/prism_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/prism_wheel_idle_f1.png-20fc69d2ab761817c78af84292dee5d6.ctex"]
+dest_files=["res://.godot/imported/prism_wheel_idle_f1.png-bd4f0ccd9ecdd82a039ff3b5e141fe40.ctex"]
 
 [params]
 

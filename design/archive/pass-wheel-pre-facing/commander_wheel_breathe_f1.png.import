@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6ebd45b59095a0"
-path="res://.godot/imported/commander_wheel_breathe_f1.png-f975586fb0b00b3a0054670606668df2.ctex"
+uid="uid://6jj8mv7pq170"
+path="res://.godot/imported/commander_wheel_breathe_f1.png-14ec527dda2490218d67d783c9e21c66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/commander_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/commander_wheel_breathe_f1.png-f975586fb0b00b3a0054670606668df2.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/commander_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/commander_wheel_breathe_f1.png-14ec527dda2490218d67d783c9e21c66.ctex"]
 
 [params]
 

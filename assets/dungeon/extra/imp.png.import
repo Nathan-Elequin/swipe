@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c53373d5e3764"
-path="res://.godot/imported/imp.png-5f4d6282cc50c284d9eb36e5fde55a8e.ctex"
+path="res://.godot/imported/imp.png-7e0a29cc26f4fb70af43509f6a89d00e.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/extra/imp.png"
-dest_files=["res://.godot/imported/imp.png-5f4d6282cc50c284d9eb36e5fde55a8e.ctex"]
+dest_files=["res://.godot/imported/imp.png-7e0a29cc26f4fb70af43509f6a89d00e.ctex"]
 
 [params]
 

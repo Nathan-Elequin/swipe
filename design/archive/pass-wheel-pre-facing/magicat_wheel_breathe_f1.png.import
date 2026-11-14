@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6eafee3ef3990f"
-path="res://.godot/imported/magicat_wheel_breathe_f1.png-91412f8f3ab64b094e885bb6012236f1.ctex"
+uid="uid://5ksie4dsq6xf"
+path="res://.godot/imported/magicat_wheel_breathe_f1.png-5d5ce77c6edade10b4879ca881b51d4f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/magicat_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/magicat_wheel_breathe_f1.png-91412f8f3ab64b094e885bb6012236f1.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/magicat_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/magicat_wheel_breathe_f1.png-5d5ce77c6edade10b4879ca881b51d4f.ctex"]
 
 [params]
 

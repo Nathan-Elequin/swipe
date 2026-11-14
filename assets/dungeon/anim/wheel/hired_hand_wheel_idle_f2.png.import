@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c783acad4f4064ae"
-path="res://.godot/imported/hired_hand_wheel_idle_f2.png-a2004fec55f6377c24e16f10f8d0c3a0.ctex"
+uid="uid://b1eee1xtyx2tw"
+path="res://.godot/imported/hired_hand_wheel_idle_f2.png-0e6d0896e43ae6cfdbe972bf90119806.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/hired_hand_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/hired_hand_wheel_idle_f2.png-a2004fec55f6377c24e16f10f8d0c3a0.ctex"]
+dest_files=["res://.godot/imported/hired_hand_wheel_idle_f2.png-0e6d0896e43ae6cfdbe972bf90119806.ctex"]
 
 [params]
 

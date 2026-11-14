@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c343b6490ba3fc61"
-path="res://.godot/imported/death_bell_wheel_idle_f3.png-c0c1bf566d9b6338501e7e7542ebbf2e.ctex"
+uid="uid://doug2g8cubldo"
+path="res://.godot/imported/death_bell_wheel_idle_f3.png-1da69974a2e65803c538422365c2a3f4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/death_bell_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/death_bell_wheel_idle_f3.png-c0c1bf566d9b6338501e7e7542ebbf2e.ctex"]
+dest_files=["res://.godot/imported/death_bell_wheel_idle_f3.png-1da69974a2e65803c538422365c2a3f4.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67f4622419d641"
-path="res://.godot/imported/mimic_wheel_breathe_f1.png-9c5db619146968f2fee980ef21808dcf.ctex"
+uid="uid://cagi10f70fyro"
+path="res://.godot/imported/mimic_wheel_breathe_f1.png-9ec8a15c78817626feace12f8e1e4ff1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/mimic_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/mimic_wheel_breathe_f1.png-9c5db619146968f2fee980ef21808dcf.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/mimic_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/mimic_wheel_breathe_f1.png-9ec8a15c78817626feace12f8e1e4ff1.ctex"]
 
 [params]
 

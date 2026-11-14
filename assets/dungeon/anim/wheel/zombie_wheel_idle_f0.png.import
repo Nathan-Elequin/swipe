@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://aac20ad96b2429a2"
-path="res://.godot/imported/zombie_wheel_idle_f0.png-3b420e93c4993e27f16b707f28e70bb1.ctex"
+uid="uid://c8hh4s81k783p"
+path="res://.godot/imported/zombie_wheel_idle_f0.png-a6169e5f99264e9e3ccadc4b56cb249f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/zombie_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/zombie_wheel_idle_f0.png-3b420e93c4993e27f16b707f28e70bb1.ctex"]
+dest_files=["res://.godot/imported/zombie_wheel_idle_f0.png-a6169e5f99264e9e3ccadc4b56cb249f.ctex"]
 
 [params]
 

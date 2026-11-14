@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67a4f424f8a7b8"
-path="res://.godot/imported/merchant_wheel_base.png-4c6a9f605df177b9faaa40b40f914c98.ctex"
+uid="uid://b4fq30flycyxv"
+path="res://.godot/imported/merchant_wheel_base.png-942f27d782380c9e443f85444b904bcd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/merchant_wheel_base.png"
-dest_files=["res://.godot/imported/merchant_wheel_base.png-4c6a9f605df177b9faaa40b40f914c98.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/merchant_wheel_base.png"
+dest_files=["res://.godot/imported/merchant_wheel_base.png-942f27d782380c9e443f85444b904bcd.ctex"]
 
 [params]
 

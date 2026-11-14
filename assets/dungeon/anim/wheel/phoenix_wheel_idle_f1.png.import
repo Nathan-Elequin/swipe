@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ef429db39476f5db"
-path="res://.godot/imported/phoenix_wheel_idle_f1.png-e0fb1fb9aec67ca65c8c9efc76e3b3fb.ctex"
+uid="uid://bj0ivy0m4jsp0"
+path="res://.godot/imported/phoenix_wheel_idle_f1.png-9cc6b42a4c285fdcf3a25efa786983b7.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/phoenix_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/phoenix_wheel_idle_f1.png-e0fb1fb9aec67ca65c8c9efc76e3b3fb.ctex"]
+dest_files=["res://.godot/imported/phoenix_wheel_idle_f1.png-9cc6b42a4c285fdcf3a25efa786983b7.ctex"]
 
 [params]
 

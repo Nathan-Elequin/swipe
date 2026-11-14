@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p68fe6e27ab2073"
-path="res://.godot/imported/bushido_wheel_base.png-2ee05a33ed30bfd14da09156a72f132f.ctex"
+uid="uid://c8pid0if14suq"
+path="res://.godot/imported/bushido_wheel_base.png-cbbdf6676a78d0134f07b6583192f94a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bushido_wheel_base.png"
-dest_files=["res://.godot/imported/bushido_wheel_base.png-2ee05a33ed30bfd14da09156a72f132f.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bushido_wheel_base.png"
+dest_files=["res://.godot/imported/bushido_wheel_base.png-cbbdf6676a78d0134f07b6583192f94a.ctex"]
 
 [params]
 

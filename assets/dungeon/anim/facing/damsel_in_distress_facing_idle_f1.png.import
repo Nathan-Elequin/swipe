@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6957ced856979d"
-path="res://.godot/imported/damsel_in_distress_facing_idle_f1.png-eec431ec5cb44df48e57db79069865f8.ctex"
+uid="uid://43rq8m3d4448"
+path="res://.godot/imported/damsel_in_distress_facing_idle_f1.png-c7846b3a9e73ca6bae9c22888fae2ffd.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/damsel_in_distress_facing_idle_f1.png"
-dest_files=["res://.godot/imported/damsel_in_distress_facing_idle_f1.png-eec431ec5cb44df48e57db79069865f8.ctex"]
+dest_files=["res://.godot/imported/damsel_in_distress_facing_idle_f1.png-c7846b3a9e73ca6bae9c22888fae2ffd.ctex"]
 
 [params]
 

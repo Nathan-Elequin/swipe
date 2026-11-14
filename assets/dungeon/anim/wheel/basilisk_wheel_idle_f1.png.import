@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd5d72c85c62232a"
-path="res://.godot/imported/basilisk_wheel_idle_f1.png-63aca454f7abf0b1f628489a18d9ef7f.ctex"
+uid="uid://bla8ah4dr0ly1"
+path="res://.godot/imported/basilisk_wheel_idle_f1.png-d4320bee3eb2f82fd3638dde2803638f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/basilisk_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/basilisk_wheel_idle_f1.png-63aca454f7abf0b1f628489a18d9ef7f.ctex"]
+dest_files=["res://.godot/imported/basilisk_wheel_idle_f1.png-d4320bee3eb2f82fd3638dde2803638f.ctex"]
 
 [params]
 

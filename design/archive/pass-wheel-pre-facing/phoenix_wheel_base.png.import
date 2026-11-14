@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6c704cd496adf4"
-path="res://.godot/imported/phoenix_wheel_base.png-19ad5be1520fbd10114d17e631ac7492.ctex"
+uid="uid://dyle0qshfw44v"
+path="res://.godot/imported/phoenix_wheel_base.png-acd8c5515876e125b1cac52e09bb897a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/phoenix_wheel_base.png"
-dest_files=["res://.godot/imported/phoenix_wheel_base.png-19ad5be1520fbd10114d17e631ac7492.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/phoenix_wheel_base.png"
+dest_files=["res://.godot/imported/phoenix_wheel_base.png-acd8c5515876e125b1cac52e09bb897a.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://908bf093e9562"
-path="res://.godot/imported/shardplate.png-824044ffc8766c26770c5e810fdeca5e.ctex"
+uid="uid://d3ycpkw2vn54x"
+path="res://.godot/imported/shardplate.png-e48c3d0c4ed05950f0155a41ac5ae397.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/shardplate.png"
-dest_files=["res://.godot/imported/shardplate.png-824044ffc8766c26770c5e810fdeca5e.ctex"]
+dest_files=["res://.godot/imported/shardplate.png-e48c3d0c4ed05950f0155a41ac5ae397.ctex"]
 
 [params]
 

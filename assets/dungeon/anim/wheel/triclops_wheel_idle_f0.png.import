@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://65911be88e2c7c10"
-path="res://.godot/imported/triclops_wheel_idle_f0.png-27dd637d4faf1fae4502ab684eecbd1a.ctex"
+uid="uid://b0rp2rvksc5or"
+path="res://.godot/imported/triclops_wheel_idle_f0.png-8ec0bad7f90e014f707247a5361c3de8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/triclops_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/triclops_wheel_idle_f0.png-27dd637d4faf1fae4502ab684eecbd1a.ctex"]
+dest_files=["res://.godot/imported/triclops_wheel_idle_f0.png-8ec0bad7f90e014f707247a5361c3de8.ctex"]
 
 [params]
 

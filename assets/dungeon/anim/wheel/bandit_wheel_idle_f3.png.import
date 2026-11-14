@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b9322c9c8324428e"
-path="res://.godot/imported/bandit_wheel_idle_f3.png-d67b8c92da1fd3a95b2d47ee1aeaa49e.ctex"
+uid="uid://7t77whud6dwk"
+path="res://.godot/imported/bandit_wheel_idle_f3.png-69d77490635c39800055c26bd40b2424.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/bandit_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/bandit_wheel_idle_f3.png-d67b8c92da1fd3a95b2d47ee1aeaa49e.ctex"]
+dest_files=["res://.godot/imported/bandit_wheel_idle_f3.png-69d77490635c39800055c26bd40b2424.ctex"]
 
 [params]
 

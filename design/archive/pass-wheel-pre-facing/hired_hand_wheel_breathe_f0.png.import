@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6b337682ebe6fb"
-path="res://.godot/imported/hired_hand_wheel_breathe_f0.png-b8d51972f2b083abbf788386326b01fe.ctex"
+uid="uid://cuoivmpkj2x32"
+path="res://.godot/imported/hired_hand_wheel_breathe_f0.png-c3feb7fe3cd07bfef6cdb678881070a8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/hired_hand_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/hired_hand_wheel_breathe_f0.png-b8d51972f2b083abbf788386326b01fe.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/hired_hand_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/hired_hand_wheel_breathe_f0.png-c3feb7fe3cd07bfef6cdb678881070a8.ctex"]
 
 [params]
 

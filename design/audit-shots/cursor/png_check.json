@@ -1,5 +1,54 @@
 {
-  "updated": "2026-10-19T20:59:27-05:00",
-  "checked": 1071,
-  "failures": []
+  "updated": "2026-11-12T14:27:13-06:00",
+  "checked": 2672,
+  "failures": [
+    {
+      "path": "assets/ui/anim/seat_target_ghost_deadly_f0.png",
+      "reason": "IHDR 80x80 != shipped 40x40 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_deadly_f1.png",
+      "reason": "IHDR 80x80 != shipped 40x40 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_deadly_f2.png",
+      "reason": "IHDR 80x80 != shipped 40x40 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_deadly_f3.png",
+      "reason": "IHDR 80x80 != shipped 40x40 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_f0.png",
+      "reason": "IHDR 64x64 != shipped 32x32 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_f1.png",
+      "reason": "IHDR 64x64 != shipped 32x32 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_f2.png",
+      "reason": "IHDR 64x64 != shipped 32x32 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_ghost_f3.png",
+      "reason": "IHDR 64x64 != shipped 32x32 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_locked.png",
+      "reason": "IHDR 64x64 != shipped 32x32 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/anim/seat_target_locked_deadly.png",
+      "reason": "IHDR 80x80 != shipped 40x40 in design/visual/sizes/neighbor-who-rings.sizes.json"
+    },
+    {
+      "path": "assets/ui/fonts/arrow_glyphs.png",
+      "reason": "compress/mode=missing (lossless is 0)"
+    },
+    {
+      "path": "assets/ui/fonts/arrow_glyphs.png",
+      "reason": "mipmaps/generate=missing (expected false)"
+    }
+  ]
 }

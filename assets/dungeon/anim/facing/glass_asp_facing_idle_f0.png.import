@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5607889178867"
-path="res://.godot/imported/glass_asp_facing_idle_f0.png-45483bc1657104db6d0b68d83850284a.ctex"
+uid="uid://rajsw1pm843"
+path="res://.godot/imported/glass_asp_facing_idle_f0.png-57e4e2171e53d552cb94bc68bba63ad2.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/glass_asp_facing_idle_f0.png"
-dest_files=["res://.godot/imported/glass_asp_facing_idle_f0.png-45483bc1657104db6d0b68d83850284a.ctex"]
+dest_files=["res://.godot/imported/glass_asp_facing_idle_f0.png-57e4e2171e53d552cb94bc68bba63ad2.ctex"]
 
 [params]
 

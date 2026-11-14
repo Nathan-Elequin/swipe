@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6c7c77b4fc628a"
-path="res://.godot/imported/skeleton_wheel_breathe_f0.png-1e95900dc2827132a64599779b35313d.ctex"
+uid="uid://dxwivorlluuw1"
+path="res://.godot/imported/skeleton_wheel_breathe_f0.png-69dd57d48834ab0a653a31ce9f1ff581.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/skeleton_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/skeleton_wheel_breathe_f0.png-1e95900dc2827132a64599779b35313d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/skeleton_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/skeleton_wheel_breathe_f0.png-69dd57d48834ab0a653a31ce9f1ff581.ctex"]
 
 [params]
 

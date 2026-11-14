@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5404ba1a690e0ed8"
-path="res://.godot/imported/wick_wheel_idle_f3.png-1de96dab11235ffa50f3573e6d2d49d5.ctex"
+uid="uid://bsfbp3bdhu8ed"
+path="res://.godot/imported/wick_wheel_idle_f3.png-0826ae4a2dad9ff1b2d3819088061567.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/wick_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/wick_wheel_idle_f3.png-1de96dab11235ffa50f3573e6d2d49d5.ctex"]
+dest_files=["res://.godot/imported/wick_wheel_idle_f3.png-0826ae4a2dad9ff1b2d3819088061567.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p64fdf274dd8a1a"
-path="res://.godot/imported/basilisk_wheel_breathe_f0.png-83ca10874b34f1c6dd7beb002803c888.ctex"
+uid="uid://c32mm7crohxfo"
+path="res://.godot/imported/basilisk_wheel_breathe_f0.png-c003f6612dcb9b069cb345e72005c8db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/basilisk_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/basilisk_wheel_breathe_f0.png-83ca10874b34f1c6dd7beb002803c888.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/basilisk_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/basilisk_wheel_breathe_f0.png-c003f6612dcb9b069cb345e72005c8db.ctex"]
 
 [params]
 

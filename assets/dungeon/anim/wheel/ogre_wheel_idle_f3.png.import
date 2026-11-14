@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcb996f630fbbc9f"
-path="res://.godot/imported/ogre_wheel_idle_f3.png-c508cf2be84ac28365319bc7bba18a56.ctex"
+uid="uid://bwgc6cpl8f0j2"
+path="res://.godot/imported/ogre_wheel_idle_f3.png-6033a093881b279392bc5b3d60c1ec3a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/ogre_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/ogre_wheel_idle_f3.png-c508cf2be84ac28365319bc7bba18a56.ctex"]
+dest_files=["res://.godot/imported/ogre_wheel_idle_f3.png-6033a093881b279392bc5b3d60c1ec3a.ctex"]
 
 [params]
 

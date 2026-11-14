@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6daeade8933801"
-path="res://.godot/imported/bodyguard_wheel_base.png-8fc2c4da67216190d77068a536d42029.ctex"
+uid="uid://d0xj1rwhdr1ps"
+path="res://.godot/imported/bodyguard_wheel_base.png-d65aa8cf7f579da8e05e2364381af3a7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bodyguard_wheel_base.png"
-dest_files=["res://.godot/imported/bodyguard_wheel_base.png-8fc2c4da67216190d77068a536d42029.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bodyguard_wheel_base.png"
+dest_files=["res://.godot/imported/bodyguard_wheel_base.png-d65aa8cf7f579da8e05e2364381af3a7.ctex"]
 
 [params]
 

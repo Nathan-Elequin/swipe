@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0571b1bc27183da8"
-path="res://.godot/imported/leech_league_wheel_idle_f3.png-68008db731cdc7923a88d730ffc71c24.ctex"
+uid="uid://b1bxtrkcw2vl2"
+path="res://.godot/imported/leech_league_wheel_idle_f3.png-905f39d9cd62d9b6face9738e5be8f17.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/leech_league_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/leech_league_wheel_idle_f3.png-68008db731cdc7923a88d730ffc71c24.ctex"]
+dest_files=["res://.godot/imported/leech_league_wheel_idle_f3.png-905f39d9cd62d9b6face9738e5be8f17.ctex"]
 
 [params]
 

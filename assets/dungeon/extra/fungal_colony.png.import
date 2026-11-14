@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/fungal_colony.png-pending.ctex"
+uid="uid://dkf7af84ou658"
+path="res://.godot/imported/fungal_colony.png-799e2be25371322fa0354cb0f9fb76cf.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/dungeon/extra/fungal_colony.png"
-dest_files=["res://.godot/imported/fungal_colony.png-pending.ctex"]
+dest_files=["res://.godot/imported/fungal_colony.png-799e2be25371322fa0354cb0f9fb76cf.ctex"]
 
 [params]
-
 
 compress/mode=0
 compress/high_quality=false

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://a5e24a377942edcf"
-path="res://.godot/imported/merchant_wheel_idle_f2.png-984d847e04246e0beb274c0dab1a80a4.ctex"
+uid="uid://bomgcdw7nf5vl"
+path="res://.godot/imported/merchant_wheel_idle_f2.png-3cbef1b59d05d67c544286ca7e03a030.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/merchant_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/merchant_wheel_idle_f2.png-984d847e04246e0beb274c0dab1a80a4.ctex"]
+dest_files=["res://.godot/imported/merchant_wheel_idle_f2.png-3cbef1b59d05d67c544286ca7e03a030.ctex"]
 
 [params]
 

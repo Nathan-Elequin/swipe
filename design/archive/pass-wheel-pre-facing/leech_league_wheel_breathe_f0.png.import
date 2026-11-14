@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p69bada761c2d48"
-path="res://.godot/imported/leech_league_wheel_breathe_f0.png-cdeef18733fc2f1992be0ce19e4b1cee.ctex"
+uid="uid://d4kn85h6235rv"
+path="res://.godot/imported/leech_league_wheel_breathe_f0.png-211c7df6a6798a7655d8aedc6545998c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/leech_league_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/leech_league_wheel_breathe_f0.png-cdeef18733fc2f1992be0ce19e4b1cee.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/leech_league_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/leech_league_wheel_breathe_f0.png-211c7df6a6798a7655d8aedc6545998c.ctex"]
 
 [params]
 

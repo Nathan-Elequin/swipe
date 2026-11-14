@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6ed214570a0485"
-path="res://.godot/imported/commander_wheel_base.png-1074b1bfadf9b324cf5b75ddba1086a7.ctex"
+uid="uid://88g8hxwyh165"
+path="res://.godot/imported/commander_wheel_base.png-a971f8ad4f19feb6b54a110ea7bb07aa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/commander_wheel_base.png"
-dest_files=["res://.godot/imported/commander_wheel_base.png-1074b1bfadf9b324cf5b75ddba1086a7.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/commander_wheel_base.png"
+dest_files=["res://.godot/imported/commander_wheel_base.png-a971f8ad4f19feb6b54a110ea7bb07aa.ctex"]
 
 [params]
 

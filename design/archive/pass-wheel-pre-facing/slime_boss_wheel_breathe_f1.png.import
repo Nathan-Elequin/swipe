@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p63476a2c412104"
-path="res://.godot/imported/slime_boss_wheel_breathe_f1.png-47bcf8957d42143d96c1c86509768cc8.ctex"
+uid="uid://ctxdt1kkdcpfj"
+path="res://.godot/imported/slime_boss_wheel_breathe_f1.png-f49c569bbc48cc86dcb6e97ee392701f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/slime_boss_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/slime_boss_wheel_breathe_f1.png-47bcf8957d42143d96c1c86509768cc8.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/slime_boss_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/slime_boss_wheel_breathe_f1.png-f49c569bbc48cc86dcb6e97ee392701f.ctex"]
 
 [params]
 

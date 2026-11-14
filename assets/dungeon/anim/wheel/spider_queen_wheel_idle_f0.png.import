@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://a7443f7302124a25"
-path="res://.godot/imported/spider_queen_wheel_idle_f0.png-85a7760d6517fe7508f0f4ee27b61dd9.ctex"
+uid="uid://nr2wws4ka01"
+path="res://.godot/imported/spider_queen_wheel_idle_f0.png-4263ce3e35cc999b50eaf1c9890f39f9.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/spider_queen_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/spider_queen_wheel_idle_f0.png-85a7760d6517fe7508f0f4ee27b61dd9.ctex"]
+dest_files=["res://.godot/imported/spider_queen_wheel_idle_f0.png-4263ce3e35cc999b50eaf1c9890f39f9.ctex"]
 
 [params]
 

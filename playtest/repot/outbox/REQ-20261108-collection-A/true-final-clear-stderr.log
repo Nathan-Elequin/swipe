@@ -1,0 +1,386 @@
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -9.96841430664063 still < 0 (r=171.33 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 0 clearance -5.33082056045532 still < 0 (r=195.12 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 1 clearance -9.65130615234375 still < 0 (r=189.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 2 clearance -9.65132904052734 still < 0 (r=189.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.3308048248291 still < 0 (r=195.12 dy=16.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 4 clearance -5.05908203125 still < 0 (r=201.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -5.92297983169556 still < 0 (r=183.12 dy=8.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 6 clearance -5.92298460006714 still < 0 (r=183.12 dy=8.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 7 clearance -5.05906677246094 still < 0 (r=201.12 dy=28.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: wheel seat fungal_colony is 24.0x24.0; difficulty wants 48.0 native
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _seat_sprite_size (res://scripts/boss_wheel.gd:2046)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1560)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 1 clearance -9.07998291015626 still < 0 (r=186.33 dy=36.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 3 clearance -5.582763671875 still < 0 (r=198.33 dy=12.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: pass6 fit: seat 5 clearance -17.2606353759766 still < 0 (r=180.33 dy=24.0)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fit_table (res://scripts/boss_wheel.gd:2155)
+       [1] _spoke_rest (res://scripts/boss_wheel.gd:1564)
+       [2] _spoke (res://scripts/boss_wheel.gd:1541)
+       [3] _draw_slice_contents (res://scripts/boss_wheel.gd:2789)
+       [4] _draw (res://scripts/boss_wheel.gd:2484)
+WARNING: 11 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+ERROR: Texture with GL ID of 19: leaked 20 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 671: leaked 2296 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 923: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 924: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 931: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 932: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 936: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 937: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 938: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 939: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 940: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 941: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 942: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 709: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 726: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 985: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 990: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 992: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 994: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1001: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1002: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1003: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1006: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1007: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 733: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1014: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1013: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1015: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1016: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 935: leaked 131072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1022: leaked 174762 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1029: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1030: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1031: leaked 524288 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Texture with GL ID of 1032: leaked 699050 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+WARNING: 222 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

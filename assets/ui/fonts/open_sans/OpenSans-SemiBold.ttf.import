@@ -2,7 +2,7 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://8t93whcrdjlmu"
+uid="uid://cw0460yqtwlkq"
 path="res://.godot/imported/OpenSans-SemiBold.ttf-8aa971730012f9a1bc16947cbe2a7a1f.fontdata"
 
 [deps]
@@ -12,6 +12,7 @@ dest_files=["res://.godot/imported/OpenSans-SemiBold.ttf-8aa971730012f9a1bc16947
 
 [params]
 
+Rendering=null
 antialiasing=1
 generate_mipmaps=false
 disable_embedded_bitmaps=true
@@ -20,11 +21,16 @@ msdf_pixel_range=8
 msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
+modulate_color_glyphs=false
 hinting=1
 subpixel_positioning=1
 keep_rounding_remainders=true
 oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
 preload=[]
 language_support={}
 script_support={}
-opentype_feature_overrides={}
+opentype_features={}

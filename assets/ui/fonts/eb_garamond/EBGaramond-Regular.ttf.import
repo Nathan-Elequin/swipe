@@ -2,7 +2,7 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://i4cpsqf9es9x0"
+uid="uid://beiymmlrafjgh"
 path="res://.godot/imported/EBGaramond-Regular.ttf-19aefdd0248836a9b40da49136e80677.fontdata"
 
 [deps]
@@ -12,6 +12,7 @@ dest_files=["res://.godot/imported/EBGaramond-Regular.ttf-19aefdd0248836a9b40da4
 
 [params]
 
+Rendering=null
 antialiasing=1
 generate_mipmaps=false
 disable_embedded_bitmaps=true
@@ -20,11 +21,16 @@ msdf_pixel_range=8
 msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
+modulate_color_glyphs=false
 hinting=1
 subpixel_positioning=1
 keep_rounding_remainders=true
 oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
 preload=[]
 language_support={}
 script_support={}
-opentype_feature_overrides={}
+opentype_features={}

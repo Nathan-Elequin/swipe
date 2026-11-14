@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p66887ee7a338b6"
-path="res://.godot/imported/spider_queen_wheel_base.png-7fdb604226fc6ce1d8387aed2302c664.ctex"
+uid="uid://b3kjdcigt50xt"
+path="res://.godot/imported/spider_queen_wheel_base.png-2e6a9a19cc1ee29887cf0cb73d4aa94b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/spider_queen_wheel_base.png"
-dest_files=["res://.godot/imported/spider_queen_wheel_base.png-7fdb604226fc6ce1d8387aed2302c664.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/spider_queen_wheel_base.png"
+dest_files=["res://.godot/imported/spider_queen_wheel_base.png-2e6a9a19cc1ee29887cf0cb73d4aa94b.ctex"]
 
 [params]
 

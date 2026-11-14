@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d0ddd58fdb1d0368"
-path="res://.godot/imported/cleric_wheel_idle_f1.png-11070cd51206ed3d0a8dc28c8837c888.ctex"
+uid="uid://da6qbpombiv88"
+path="res://.godot/imported/cleric_wheel_idle_f1.png-c37d813cff217a567a6753b103ffb64e.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/cleric_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/cleric_wheel_idle_f1.png-11070cd51206ed3d0a8dc28c8837c888.ctex"]
+dest_files=["res://.godot/imported/cleric_wheel_idle_f1.png-c37d813cff217a567a6753b103ffb64e.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p63296dc1e9b416"
-path="res://.godot/imported/ogre_wheel_breathe_f0.png-d78bd1fbac93e9e3d94a4eb517c41354.ctex"
+uid="uid://cr0dwb8tkksgl"
+path="res://.godot/imported/ogre_wheel_breathe_f0.png-fac00d20d5278ca0f24deabb753d82bb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/ogre_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/ogre_wheel_breathe_f0.png-d78bd1fbac93e9e3d94a4eb517c41354.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/ogre_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/ogre_wheel_breathe_f0.png-fac00d20d5278ca0f24deabb753d82bb.ctex"]
 
 [params]
 

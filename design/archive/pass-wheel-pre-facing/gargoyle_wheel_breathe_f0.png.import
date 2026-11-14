@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6c933bb5a0619f"
-path="res://.godot/imported/gargoyle_wheel_breathe_f0.png-180bfb446445b61efb26e6f6db00a021.ctex"
+uid="uid://d1odyoshautx6"
+path="res://.godot/imported/gargoyle_wheel_breathe_f0.png-be485b4bcd3585b94ece17e15d1851f8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/gargoyle_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/gargoyle_wheel_breathe_f0.png-180bfb446445b61efb26e6f6db00a021.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/gargoyle_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/gargoyle_wheel_breathe_f0.png-be485b4bcd3585b94ece17e15d1851f8.ctex"]
 
 [params]
 

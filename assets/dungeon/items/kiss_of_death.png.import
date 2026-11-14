@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f47fd233cfbb2"
-path="res://.godot/imported/kiss_of_death.png-6e6d22ebc0a4d777ec4c3d2d97b8a880.ctex"
+uid="uid://casjr06tq7fkb"
+path="res://.godot/imported/kiss_of_death.png-f24c609b4c3dd3105c1a11a02f43fb39.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/kiss_of_death.png"
-dest_files=["res://.godot/imported/kiss_of_death.png-6e6d22ebc0a4d777ec4c3d2d97b8a880.ctex"]
+dest_files=["res://.godot/imported/kiss_of_death.png-f24c609b4c3dd3105c1a11a02f43fb39.ctex"]
 
 [params]
 

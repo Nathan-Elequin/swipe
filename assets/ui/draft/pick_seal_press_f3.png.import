@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dps00621d58ad494"
-path="res://.godot/imported/pick_seal_press_f3.png-0a64db5c79397478fc53abb0a0cdbaa0.ctex"
+uid="uid://cl3ivrxihrybt"
+path="res://.godot/imported/pick_seal_press_f3.png-a41bf637214226459469e63aa1dbf09d.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/draft/pick_seal_press_f3.png"
-dest_files=["res://.godot/imported/pick_seal_press_f3.png-0a64db5c79397478fc53abb0a0cdbaa0.ctex"]
+dest_files=["res://.godot/imported/pick_seal_press_f3.png-a41bf637214226459469e63aa1dbf09d.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd7d67233d26ccf6"
-path="res://.godot/imported/phoenix_egg_wheel_idle_f2.png-b056bf04a71b9aa9f76acfce75e8ac51.ctex"
+uid="uid://dui53hiyasxhx"
+path="res://.godot/imported/phoenix_egg_wheel_idle_f2.png-5f0082a26522217fd9bc13064e8abd81.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/phoenix_egg_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/phoenix_egg_wheel_idle_f2.png-b056bf04a71b9aa9f76acfce75e8ac51.ctex"]
+dest_files=["res://.godot/imported/phoenix_egg_wheel_idle_f2.png-5f0082a26522217fd9bc13064e8abd81.ctex"]
 
 [params]
 

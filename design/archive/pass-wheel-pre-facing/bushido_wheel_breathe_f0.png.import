@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6b0a7142a4e3a5"
-path="res://.godot/imported/bushido_wheel_breathe_f0.png-30ef315f55eac0ccc3ea3c8e7fd9f04e.ctex"
+uid="uid://cquiqiphd2uyw"
+path="res://.godot/imported/bushido_wheel_breathe_f0.png-b558aaf7925ec6e1b1e0a3eed1c23695.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bushido_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/bushido_wheel_breathe_f0.png-30ef315f55eac0ccc3ea3c8e7fd9f04e.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bushido_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/bushido_wheel_breathe_f0.png-b558aaf7925ec6e1b1e0a3eed1c23695.ctex"]
 
 [params]
 

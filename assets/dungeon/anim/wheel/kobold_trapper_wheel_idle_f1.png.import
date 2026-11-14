@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8c905c5b3ea44d23"
-path="res://.godot/imported/kobold_trapper_wheel_idle_f1.png-18b57f684375f7b544ab8de0577b7e46.ctex"
+uid="uid://y4bmbu0nyxkw"
+path="res://.godot/imported/kobold_trapper_wheel_idle_f1.png-6e574385d276ff460716b0b9ff7c2002.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/kobold_trapper_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/kobold_trapper_wheel_idle_f1.png-18b57f684375f7b544ab8de0577b7e46.ctex"]
+dest_files=["res://.godot/imported/kobold_trapper_wheel_idle_f1.png-6e574385d276ff460716b0b9ff7c2002.ctex"]
 
 [params]
 

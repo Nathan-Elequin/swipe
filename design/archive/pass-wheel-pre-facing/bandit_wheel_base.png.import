@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p68f03fa5e515d8"
-path="res://.godot/imported/bandit_wheel_base.png-e82a7a52eb0c6ad8b15bc3865fb85b43.ctex"
+uid="uid://dacfd7gkv3w0v"
+path="res://.godot/imported/bandit_wheel_base.png-68ca3ad9be6df3aaa9c4c6918b1e26bc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bandit_wheel_base.png"
-dest_files=["res://.godot/imported/bandit_wheel_base.png-e82a7a52eb0c6ad8b15bc3865fb85b43.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bandit_wheel_base.png"
+dest_files=["res://.godot/imported/bandit_wheel_base.png-68ca3ad9be6df3aaa9c4c6918b1e26bc.ctex"]
 
 [params]
 

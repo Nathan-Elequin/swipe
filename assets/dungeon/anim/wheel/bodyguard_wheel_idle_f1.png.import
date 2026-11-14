@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://929e32a6189897b2"
-path="res://.godot/imported/bodyguard_wheel_idle_f1.png-cf20926e0548b7ad41aaba6691d3d467.ctex"
+uid="uid://cj6m5il5nwupp"
+path="res://.godot/imported/bodyguard_wheel_idle_f1.png-83ad7eb0d93a0dd78a0563775fca40f0.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/bodyguard_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/bodyguard_wheel_idle_f1.png-cf20926e0548b7ad41aaba6691d3d467.ctex"]
+dest_files=["res://.godot/imported/bodyguard_wheel_idle_f1.png-83ad7eb0d93a0dd78a0563775fca40f0.ctex"]
 
 [params]
 

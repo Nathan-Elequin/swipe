@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://974cba86bd9a91bb"
-path="res://.godot/imported/shark_wheel_idle_f1.png-6114bff888e6233a59b1b516b99c050e.ctex"
+uid="uid://bphs6t0l7ip5d"
+path="res://.godot/imported/shark_wheel_idle_f1.png-dfe91de81028f43a1fd7b45a1822cfa4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/shark_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/shark_wheel_idle_f1.png-6114bff888e6233a59b1b516b99c050e.ctex"]
+dest_files=["res://.godot/imported/shark_wheel_idle_f1.png-dfe91de81028f43a1fd7b45a1822cfa4.ctex"]
 
 [params]
 

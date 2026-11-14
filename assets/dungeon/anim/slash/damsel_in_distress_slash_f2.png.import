@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnli4xjdetp3r"
-path="res://.godot/imported/damsel_in_distress_slash_f2.png-524031c805564b9dc97add85cc3b0460.ctex"
+path="res://.godot/imported/damsel_in_distress_slash_f2.png-61d4c55acdb0805b9c0d6c6691d0d7a2.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/slash/damsel_in_distress_slash_f2.png"
-dest_files=["res://.godot/imported/damsel_in_distress_slash_f2.png-524031c805564b9dc97add85cc3b0460.ctex"]
+dest_files=["res://.godot/imported/damsel_in_distress_slash_f2.png-61d4c55acdb0805b9c0d6c6691d0d7a2.ctex"]
 
 [params]
 

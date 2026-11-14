@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6b19fb0d7493dcc3"
-path="res://.godot/imported/harpy_wheel_idle_f2.png-df85a5df167c4d642b97a8a6d1bb4316.ctex"
+uid="uid://o3e171xq8ejw"
+path="res://.godot/imported/harpy_wheel_idle_f2.png-a7894c5e0cafbd4c0ba1364cfc9774b5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/harpy_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/harpy_wheel_idle_f2.png-df85a5df167c4d642b97a8a6d1bb4316.ctex"]
+dest_files=["res://.godot/imported/harpy_wheel_idle_f2.png-a7894c5e0cafbd4c0ba1364cfc9774b5.ctex"]
 
 [params]
 

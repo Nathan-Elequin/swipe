@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6345c6623df8bb"
-path="res://.godot/imported/wizard_wheel_base.png-380501fc9dddae14f84c55ffa32dc416.ctex"
+uid="uid://ctujq6binovop"
+path="res://.godot/imported/wizard_wheel_base.png-802f30a5ef1cd841481d561485c4835e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/wizard_wheel_base.png"
-dest_files=["res://.godot/imported/wizard_wheel_base.png-380501fc9dddae14f84c55ffa32dc416.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/wizard_wheel_base.png"
+dest_files=["res://.godot/imported/wizard_wheel_base.png-802f30a5ef1cd841481d561485c4835e.ctex"]
 
 [params]
 

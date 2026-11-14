@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p66d4dc7faa4ddb"
-path="res://.godot/imported/dire_wolf_wheel_breathe_f0.png-95b54535e46c01b1f2bccdaecb6a68c9.ctex"
+uid="uid://7fob4pf054yx"
+path="res://.godot/imported/dire_wolf_wheel_breathe_f0.png-51c4eb40653637aa25285995e6472569.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/dire_wolf_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/dire_wolf_wheel_breathe_f0.png-95b54535e46c01b1f2bccdaecb6a68c9.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/dire_wolf_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/dire_wolf_wheel_breathe_f0.png-51c4eb40653637aa25285995e6472569.ctex"]
 
 [params]
 

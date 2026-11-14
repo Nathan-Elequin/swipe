@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://22691ad74bf01cd7"
-path="res://.godot/imported/hollow_wheel_idle_f2.png-6cd54760ff8595e53f7b5b51063133a7.ctex"
+uid="uid://bm1w3rhxd0r4y"
+path="res://.godot/imported/hollow_wheel_idle_f2.png-73019004b620acfea0777b9eb14cbcc2.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/hollow_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/hollow_wheel_idle_f2.png-6cd54760ff8595e53f7b5b51063133a7.ctex"]
+dest_files=["res://.godot/imported/hollow_wheel_idle_f2.png-73019004b620acfea0777b9eb14cbcc2.ctex"]
 
 [params]
 

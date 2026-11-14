@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p69d17fe7c8dde8"
-path="res://.godot/imported/martyr_wheel_breathe_f1.png-8818603588e271bcfb6aa968c7f6d355.ctex"
+uid="uid://cxnsalae7aa4"
+path="res://.godot/imported/martyr_wheel_breathe_f1.png-2b7664243f813452caeffd6784fc897c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/martyr_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/martyr_wheel_breathe_f1.png-8818603588e271bcfb6aa968c7f6d355.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/martyr_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/martyr_wheel_breathe_f1.png-2b7664243f813452caeffd6784fc897c.ctex"]
 
 [params]
 

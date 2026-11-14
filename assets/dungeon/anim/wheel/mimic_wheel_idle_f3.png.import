@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f6e293babaf6eb86"
-path="res://.godot/imported/mimic_wheel_idle_f3.png-e5fbe9064f763ad0c5b912823724ab44.ctex"
+uid="uid://bnfpkfuky2n4p"
+path="res://.godot/imported/mimic_wheel_idle_f3.png-125b3d87bba9db305a47e88752d42f9b.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/mimic_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/mimic_wheel_idle_f3.png-e5fbe9064f763ad0c5b912823724ab44.ctex"]
+dest_files=["res://.godot/imported/mimic_wheel_idle_f3.png-125b3d87bba9db305a47e88752d42f9b.ctex"]
 
 [params]
 

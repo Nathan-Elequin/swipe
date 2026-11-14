@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccmns8tqgf23"
-path="res://.godot/imported/oligarch_wheel_base.png-8933c496783ce791d9f846f99f11cd62.ctex"
+path="res://.godot/imported/oligarch_wheel_base.png-3a981e4079fe6c36cc8259bb26305393.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/oligarch_wheel_base.png"
-dest_files=["res://.godot/imported/oligarch_wheel_base.png-8933c496783ce791d9f846f99f11cd62.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/oligarch_wheel_base.png"
+dest_files=["res://.godot/imported/oligarch_wheel_base.png-3a981e4079fe6c36cc8259bb26305393.ctex"]
 
 [params]
 

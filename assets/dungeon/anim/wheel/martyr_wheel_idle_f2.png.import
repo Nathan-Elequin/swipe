@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3530d002c7b8c3f6"
-path="res://.godot/imported/martyr_wheel_idle_f2.png-cc162528ceca373d5a521aaec506b7b4.ctex"
+uid="uid://rubnxkbnbrq4"
+path="res://.godot/imported/martyr_wheel_idle_f2.png-7d8527b76af7a91065d26e23d8295567.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/martyr_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/martyr_wheel_idle_f2.png-cc162528ceca373d5a521aaec506b7b4.ctex"]
+dest_files=["res://.godot/imported/martyr_wheel_idle_f2.png-7d8527b76af7a91065d26e23d8295567.ctex"]
 
 [params]
 

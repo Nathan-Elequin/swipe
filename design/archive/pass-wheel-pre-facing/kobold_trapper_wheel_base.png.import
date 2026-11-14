@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p61d38fbf47b2e6"
-path="res://.godot/imported/kobold_trapper_wheel_base.png-9a5b91aa5e92cbfd2bf359a68e04ba5b.ctex"
+uid="uid://dw8bkcks2rlkd"
+path="res://.godot/imported/kobold_trapper_wheel_base.png-c4e0b3a194cc0a21850e8d66293a2995.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/kobold_trapper_wheel_base.png"
-dest_files=["res://.godot/imported/kobold_trapper_wheel_base.png-9a5b91aa5e92cbfd2bf359a68e04ba5b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/kobold_trapper_wheel_base.png"
+dest_files=["res://.godot/imported/kobold_trapper_wheel_base.png-c4e0b3a194cc0a21850e8d66293a2995.ctex"]
 
 [params]
 

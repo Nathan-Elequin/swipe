@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6e9659f03224c5"
-path="res://.godot/imported/gargoyle_wheel_base.png-cf05571a9541dc7813a96d9d650341e4.ctex"
+uid="uid://b6dldqq1rj1a5"
+path="res://.godot/imported/gargoyle_wheel_base.png-8e97284a13a3149a5b0f876a3b0a4fe2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/gargoyle_wheel_base.png"
-dest_files=["res://.godot/imported/gargoyle_wheel_base.png-cf05571a9541dc7813a96d9d650341e4.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/gargoyle_wheel_base.png"
+dest_files=["res://.godot/imported/gargoyle_wheel_base.png-8e97284a13a3149a5b0f876a3b0a4fe2.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c91f97ef95fe6"
-path="res://.godot/imported/swift_sneaks.png-514c5eefbe81bae7759350dbab80ed47.ctex"
+uid="uid://da1ga7ega5fe6"
+path="res://.godot/imported/swift_sneaks.png-398df14c5ae100fdddba29cee104afc8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/swift_sneaks.png"
-dest_files=["res://.godot/imported/swift_sneaks.png-514c5eefbe81bae7759350dbab80ed47.ctex"]
+dest_files=["res://.godot/imported/swift_sneaks.png-398df14c5ae100fdddba29cee104afc8.ctex"]
 
 [params]
 

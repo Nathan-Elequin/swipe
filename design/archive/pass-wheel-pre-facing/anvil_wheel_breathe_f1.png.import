@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p633f6061bfa875"
-path="res://.godot/imported/anvil_wheel_breathe_f1.png-49e7983c880886d8aa8acf81be47a960.ctex"
+uid="uid://cr5ek58ppjwmk"
+path="res://.godot/imported/anvil_wheel_breathe_f1.png-0e8f71a22b889093f171d804a3e84b05.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/anvil_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/anvil_wheel_breathe_f1.png-49e7983c880886d8aa8acf81be47a960.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/anvil_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/anvil_wheel_breathe_f1.png-0e8f71a22b889093f171d804a3e84b05.ctex"]
 
 [params]
 

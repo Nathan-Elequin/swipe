@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p61752cb678efad"
-path="res://.godot/imported/almighty_worm_wheel_breathe_f0.png-dd9e8c5d372655eeca91e0f87dc5b4d2.ctex"
+uid="uid://wu8vbfnjm2nr"
+path="res://.godot/imported/almighty_worm_wheel_breathe_f0.png-4626059c89ee557b4caf7ce1c6d8c7e1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/almighty_worm_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/almighty_worm_wheel_breathe_f0.png-dd9e8c5d372655eeca91e0f87dc5b4d2.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/almighty_worm_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/almighty_worm_wheel_breathe_f0.png-4626059c89ee557b4caf7ce1c6d8c7e1.ctex"]
 
 [params]
 

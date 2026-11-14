@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6dfe5770d1da60"
-path="res://.godot/imported/needleback_wheel_base.png-e2d9ce8e1b47245426b642aeb740357e.ctex"
+uid="uid://bklcjqbps640"
+path="res://.godot/imported/needleback_wheel_base.png-69567e1cd14c49e6c0152959d8dbb616.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/needleback_wheel_base.png"
-dest_files=["res://.godot/imported/needleback_wheel_base.png-e2d9ce8e1b47245426b642aeb740357e.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/needleback_wheel_base.png"
+dest_files=["res://.godot/imported/needleback_wheel_base.png-69567e1cd14c49e6c0152959d8dbb616.ctex"]
 
 [params]
 

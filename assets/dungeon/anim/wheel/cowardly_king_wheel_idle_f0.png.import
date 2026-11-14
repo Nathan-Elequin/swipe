@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://afe03051b8f96659"
-path="res://.godot/imported/cowardly_king_wheel_idle_f0.png-91e4020552d123360189b5d6514d04a3.ctex"
+uid="uid://bo0jdkg88eygw"
+path="res://.godot/imported/cowardly_king_wheel_idle_f0.png-758c7ca1412b2c8d30edd53fe47dadbe.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/cowardly_king_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/cowardly_king_wheel_idle_f0.png-91e4020552d123360189b5d6514d04a3.ctex"]
+dest_files=["res://.godot/imported/cowardly_king_wheel_idle_f0.png-758c7ca1412b2c8d30edd53fe47dadbe.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ee5c81245868e10b"
-path="res://.godot/imported/clockwork_knight_wheel_idle_f3.png-6dbb14a36c8e617dfca60438acc563c5.ctex"
+uid="uid://cfuq4m4fwknf4"
+path="res://.godot/imported/clockwork_knight_wheel_idle_f3.png-b1893cda9b1a7dc52617010ea993e149.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/clockwork_knight_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/clockwork_knight_wheel_idle_f3.png-6dbb14a36c8e617dfca60438acc563c5.ctex"]
+dest_files=["res://.godot/imported/clockwork_knight_wheel_idle_f3.png-b1893cda9b1a7dc52617010ea993e149.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2a2091fd4753abae"
-path="res://.godot/imported/plague_doctor_wheel_idle_f2.png-7f3d25ef0a4392da29872b28db286395.ctex"
+uid="uid://5im2qoefshw7"
+path="res://.godot/imported/plague_doctor_wheel_idle_f2.png-41e33c26f1e52692607a544503c82d64.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/plague_doctor_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/plague_doctor_wheel_idle_f2.png-7f3d25ef0a4392da29872b28db286395.ctex"]
+dest_files=["res://.godot/imported/plague_doctor_wheel_idle_f2.png-41e33c26f1e52692607a544503c82d64.ctex"]
 
 [params]
 

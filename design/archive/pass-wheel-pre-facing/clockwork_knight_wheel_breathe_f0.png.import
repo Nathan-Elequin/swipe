@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6693475b226cfb"
-path="res://.godot/imported/clockwork_knight_wheel_breathe_f0.png-68ac5b6e8b8838f4a9f3218f3358a11d.ctex"
+uid="uid://b4fg62l8s731x"
+path="res://.godot/imported/clockwork_knight_wheel_breathe_f0.png-31eff528419d5be5f9b5260039b7ca49.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/clockwork_knight_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/clockwork_knight_wheel_breathe_f0.png-68ac5b6e8b8838f4a9f3218f3358a11d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/clockwork_knight_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/clockwork_knight_wheel_breathe_f0.png-31eff528419d5be5f9b5260039b7ca49.ctex"]
 
 [params]
 

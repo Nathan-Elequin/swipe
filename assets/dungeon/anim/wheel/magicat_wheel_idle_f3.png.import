@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://9982d4e461820f8c"
-path="res://.godot/imported/magicat_wheel_idle_f3.png-51c7f552914a00eef0beca4beef20dd7.ctex"
+uid="uid://77ymmfejsy3y"
+path="res://.godot/imported/magicat_wheel_idle_f3.png-0fb3f70972c7e385b27923ef314841ee.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/magicat_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/magicat_wheel_idle_f3.png-51c7f552914a00eef0beca4beef20dd7.ctex"]
+dest_files=["res://.godot/imported/magicat_wheel_idle_f3.png-0fb3f70972c7e385b27923ef314841ee.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6967e933607218"
-path="res://.godot/imported/lich_wheel_base.png-81827290957721d9db7ebe779cd14640.ctex"
+uid="uid://53unyh362yw4"
+path="res://.godot/imported/lich_wheel_base.png-77d2f3c87c81f64a2f78c615c9efb5b4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/lich_wheel_base.png"
-dest_files=["res://.godot/imported/lich_wheel_base.png-81827290957721d9db7ebe779cd14640.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/lich_wheel_base.png"
+dest_files=["res://.godot/imported/lich_wheel_base.png-77d2f3c87c81f64a2f78c615c9efb5b4.ctex"]
 
 [params]
 

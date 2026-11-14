@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://82f565f4e62a9"
-path="res://.godot/imported/glass_asp.png-e87ce99b2e3337452d51c82d6aa56f1a.ctex"
+uid="uid://c457ho23vk175"
+path="res://.godot/imported/glass_asp.png-70e686d65d971b128b7f00890c4e02e5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/extra/glass_asp.png"
-dest_files=["res://.godot/imported/glass_asp.png-e87ce99b2e3337452d51c82d6aa56f1a.ctex"]
+dest_files=["res://.godot/imported/glass_asp.png-70e686d65d971b128b7f00890c4e02e5.ctex"]
 
 [params]
 

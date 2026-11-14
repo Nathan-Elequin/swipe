@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6ee80ffb8217d6"
-path="res://.godot/imported/plague_doctor_wheel_breathe_f0.png-27999452d9346a268e274bbeb3cbdc84.ctex"
+uid="uid://bbffip16ri4b6"
+path="res://.godot/imported/plague_doctor_wheel_breathe_f0.png-8f800ae567e42dae62dc511aa43592ea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/plague_doctor_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/plague_doctor_wheel_breathe_f0.png-27999452d9346a268e274bbeb3cbdc84.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/plague_doctor_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/plague_doctor_wheel_breathe_f0.png-8f800ae567e42dae62dc511aa43592ea.ctex"]
 
 [params]
 

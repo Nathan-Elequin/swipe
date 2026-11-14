@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b37cea2579ca300d"
-path="res://.godot/imported/cultist_wheel_idle_f1.png-61a05be57d5bc5d8c4aa8b77abf227ca.ctex"
+uid="uid://07yskvxv8xw0"
+path="res://.godot/imported/cultist_wheel_idle_f1.png-7c3ceb7e42f66d84c7532b7000cd269d.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/cultist_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/cultist_wheel_idle_f1.png-61a05be57d5bc5d8c4aa8b77abf227ca.ctex"]
+dest_files=["res://.godot/imported/cultist_wheel_idle_f1.png-7c3ceb7e42f66d84c7532b7000cd269d.ctex"]
 
 [params]
 

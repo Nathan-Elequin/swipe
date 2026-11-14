@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://7eb21c7deb88e0db"
-path="res://.godot/imported/hornet_swarm_wheel_idle_f3.png-272aba4af0febb07737efb044536b777.ctex"
+uid="uid://1wbl7r0ya7dv"
+path="res://.godot/imported/hornet_swarm_wheel_idle_f3.png-91e05cc1c111745c47fe897d49365dc1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/hornet_swarm_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/hornet_swarm_wheel_idle_f3.png-272aba4af0febb07737efb044536b777.ctex"]
+dest_files=["res://.godot/imported/hornet_swarm_wheel_idle_f3.png-91e05cc1c111745c47fe897d49365dc1.ctex"]
 
 [params]
 

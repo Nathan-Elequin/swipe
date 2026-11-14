@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e824dec87f2ab"
-path="res://.godot/imported/tesla_coil.png-0c88be99b3ac057aca5fccff388c999f.ctex"
+uid="uid://ben8rcf0m76ij"
+path="res://.godot/imported/tesla_coil.png-f979339a4bbec6feec74b1801a88e3b1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/tesla_coil.png"
-dest_files=["res://.godot/imported/tesla_coil.png-0c88be99b3ac057aca5fccff388c999f.ctex"]
+dest_files=["res://.godot/imported/tesla_coil.png-f979339a4bbec6feec74b1801a88e3b1.ctex"]
 
 [params]
 

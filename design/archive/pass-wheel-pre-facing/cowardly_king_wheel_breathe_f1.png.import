@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p686c640a6f3a91"
-path="res://.godot/imported/cowardly_king_wheel_breathe_f1.png-3d3783530b987b9379728c0de8ea8597.ctex"
+uid="uid://d0ni3wlc542wo"
+path="res://.godot/imported/cowardly_king_wheel_breathe_f1.png-ba7f116bd7baa35ad92438a9860c5228.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/cowardly_king_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/cowardly_king_wheel_breathe_f1.png-3d3783530b987b9379728c0de8ea8597.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/cowardly_king_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/cowardly_king_wheel_breathe_f1.png-ba7f116bd7baa35ad92438a9860c5228.ctex"]
 
 [params]
 

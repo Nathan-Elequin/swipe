@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67bc19c9733e53"
-path="res://.godot/imported/shark_wheel_base.png-8efbf9a771ce6ed912c4d0abcc366d5a.ctex"
+uid="uid://b4nd8alet46sq"
+path="res://.godot/imported/shark_wheel_base.png-7c76e3815b6f01de933fd2d00bd6ac71.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/shark_wheel_base.png"
-dest_files=["res://.godot/imported/shark_wheel_base.png-8efbf9a771ce6ed912c4d0abcc366d5a.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/shark_wheel_base.png"
+dest_files=["res://.godot/imported/shark_wheel_base.png-7c76e3815b6f01de933fd2d00bd6ac71.ctex"]
 
 [params]
 

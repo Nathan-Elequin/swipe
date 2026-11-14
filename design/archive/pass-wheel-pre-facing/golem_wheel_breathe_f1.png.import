@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p621e8aa9dcfabe"
-path="res://.godot/imported/golem_wheel_breathe_f1.png-a9d7d9688ad16453472e8245f3453ee1.ctex"
+uid="uid://bp4ftahrmnwos"
+path="res://.godot/imported/golem_wheel_breathe_f1.png-68c0ac4ce514d88cdad2d74bc33874f8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/golem_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/golem_wheel_breathe_f1.png-a9d7d9688ad16453472e8245f3453ee1.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/golem_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/golem_wheel_breathe_f1.png-68c0ac4ce514d88cdad2d74bc33874f8.ctex"]
 
 [params]
 

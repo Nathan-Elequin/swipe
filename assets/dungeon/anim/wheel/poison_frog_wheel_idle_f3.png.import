@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3d5c9b61e556871"
-path="res://.godot/imported/poison_frog_wheel_idle_f3.png-4735700bdaf275b147971e189dcc0933.ctex"
+uid="uid://bid14d0auh83c"
+path="res://.godot/imported/poison_frog_wheel_idle_f3.png-316169256056522005754627d827b824.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/poison_frog_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/poison_frog_wheel_idle_f3.png-4735700bdaf275b147971e189dcc0933.ctex"]
+dest_files=["res://.godot/imported/poison_frog_wheel_idle_f3.png-316169256056522005754627d827b824.ctex"]
 
 [params]
 

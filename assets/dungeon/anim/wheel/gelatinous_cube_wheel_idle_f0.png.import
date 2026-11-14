@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://a23dd7a60ebc6fde"
-path="res://.godot/imported/gelatinous_cube_wheel_idle_f0.png-193e82ca763d1f792d85e4f3198f4375.ctex"
+uid="uid://dc8p280xcdq2i"
+path="res://.godot/imported/gelatinous_cube_wheel_idle_f0.png-5e44141935e6f78649a7906a7a3ee548.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/gelatinous_cube_wheel_idle_f0.png-193e82ca763d1f792d85e4f3198f4375.ctex"]
+dest_files=["res://.godot/imported/gelatinous_cube_wheel_idle_f0.png-5e44141935e6f78649a7906a7a3ee548.ctex"]
 
 [params]
 

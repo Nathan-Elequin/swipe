@@ -1206,13 +1206,13 @@
 			"type": "I"
 		},
 		{
-			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"ability": "Defeat an enemy with 6 or more Attack.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"exceptions": "",
 			"explainer": "(ENEMY Attack ≥ 6)",
@@ -1225,7 +1225,7 @@
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "sledgehammer",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-13",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -1243,7 +1243,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Kill 6+ Attack enemies",
 			"mode_pool": "all",
@@ -1252,15 +1253,21 @@
 			"ops": {
 				"kind": "defeat_atk"
 			},
+			"pending_fields": {
+				"ability": {
+					"from": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"to": "Defeat an enemy with 6 or more Attack."
+				}
+			},
 			"poc": false,
-			"pool": 1.0,
-			"priority": 2.0,
+			"pool": 1,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "I",
 			"usable_when": "enemy_atk >= 6"
 		},
@@ -1441,7 +1448,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "utility",
-			"count": 1,
+			"count": 1.0,
 			"defined": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
 			"exceptions": "",
 			"explainer": "Move (the shortest path) to Any monster, then Draw 1 Item.",
@@ -1484,14 +1491,14 @@
 			},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 5,
-			"priority": 2,
+			"pool": 5.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1,
+			"tier": 1.0,
 			"type": "I"
 		},
 		{

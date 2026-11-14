@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67eacd3ef51a75"
-path="res://.godot/imported/gelatinous_cube_wheel_base.png-a830a9aa8776602eab4628edcaba10f0.ctex"
+uid="uid://b7knc0olv22us"
+path="res://.godot/imported/gelatinous_cube_wheel_base.png-e9bf2b1df631336eb61ad5822864cf69.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_base.png"
-dest_files=["res://.godot/imported/gelatinous_cube_wheel_base.png-a830a9aa8776602eab4628edcaba10f0.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/gelatinous_cube_wheel_base.png"
+dest_files=["res://.godot/imported/gelatinous_cube_wheel_base.png-e9bf2b1df631336eb61ad5822864cf69.ctex"]
 
 [params]
 

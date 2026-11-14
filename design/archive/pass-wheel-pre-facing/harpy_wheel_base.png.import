@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0hmfht41s05d"
-path="res://.godot/imported/harpy_wheel_base.png-484e366eb51ceff8936576adfa4c90f5.ctex"
+path="res://.godot/imported/harpy_wheel_base.png-71707a4d6ae1ab5d2f987e308bed87e1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/harpy_wheel_base.png"
-dest_files=["res://.godot/imported/harpy_wheel_base.png-484e366eb51ceff8936576adfa4c90f5.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/harpy_wheel_base.png"
+dest_files=["res://.godot/imported/harpy_wheel_base.png-71707a4d6ae1ab5d2f987e308bed87e1.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://92882be41497c30b"
-path="res://.godot/imported/huntsman_wheel_breathe_f1.png-501e06e0a6bf7c1ecb5621fc4f9da0f9.ctex"
+uid="uid://bdtmokfe56m5p"
+path="res://.godot/imported/huntsman_wheel_breathe_f1.png-879596f4794dbf4961f3f7686e249264.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/huntsman_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/huntsman_wheel_breathe_f1.png-501e06e0a6bf7c1ecb5621fc4f9da0f9.ctex"]
+dest_files=["res://.godot/imported/huntsman_wheel_breathe_f1.png-879596f4794dbf4961f3f7686e249264.ctex"]
 
 [params]
 

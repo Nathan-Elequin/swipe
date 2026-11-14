@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p64869952597939"
-path="res://.godot/imported/magicat_wheel_base.png-3479288622a5f15198a572a5584a3738.ctex"
+uid="uid://dxwht5bllhxio"
+path="res://.godot/imported/magicat_wheel_base.png-2445457080fc25b0dcd5cc82735728d8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/magicat_wheel_base.png"
-dest_files=["res://.godot/imported/magicat_wheel_base.png-3479288622a5f15198a572a5584a3738.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/magicat_wheel_base.png"
+dest_files=["res://.godot/imported/magicat_wheel_base.png-2445457080fc25b0dcd5cc82735728d8.ctex"]
 
 [params]
 

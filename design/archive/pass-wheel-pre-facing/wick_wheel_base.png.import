@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6ad5b6ad6df76c"
-path="res://.godot/imported/wick_wheel_base.png-f7d40b8470c333d4a7a1aa60e1502470.ctex"
+uid="uid://4plum1dl30u3"
+path="res://.godot/imported/wick_wheel_base.png-766b20e4ea8aa7febc1d2799ba6e5dd5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/wick_wheel_base.png"
-dest_files=["res://.godot/imported/wick_wheel_base.png-f7d40b8470c333d4a7a1aa60e1502470.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/wick_wheel_base.png"
+dest_files=["res://.godot/imported/wick_wheel_base.png-766b20e4ea8aa7febc1d2799ba6e5dd5.ctex"]
 
 [params]
 

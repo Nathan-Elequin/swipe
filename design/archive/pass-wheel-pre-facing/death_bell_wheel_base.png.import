@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6c3538635e52e1"
-path="res://.godot/imported/death_bell_wheel_base.png-071596c02f7b8015edd64aa66a12d3ab.ctex"
+uid="uid://duqexkrcntt3s"
+path="res://.godot/imported/death_bell_wheel_base.png-6492c5f6896a88ae3502c0a69327daa5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/death_bell_wheel_base.png"
-dest_files=["res://.godot/imported/death_bell_wheel_base.png-071596c02f7b8015edd64aa66a12d3ab.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/death_bell_wheel_base.png"
+dest_files=["res://.godot/imported/death_bell_wheel_base.png-6492c5f6896a88ae3502c0a69327daa5.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5cd1ba7b009288b"
-path="res://.godot/imported/anvil_wheel_idle_f3.png-2f93580642f989a1638d98452c0ebba3.ctex"
+uid="uid://dryissnjaou2j"
+path="res://.godot/imported/anvil_wheel_idle_f3.png-e82c3d7f897bf403ef99941c650c4b15.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/anvil_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/anvil_wheel_idle_f3.png-2f93580642f989a1638d98452c0ebba3.ctex"]
+dest_files=["res://.godot/imported/anvil_wheel_idle_f3.png-e82c3d7f897bf403ef99941c650c4b15.ctex"]
 
 [params]
 

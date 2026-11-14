@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6a764a0f180e08"
-path="res://.godot/imported/bandit_wheel_breathe_f0.png-3a94e79f945b805b0b6267826ca0ebdc.ctex"
+uid="uid://byreyd28in6p0"
+path="res://.godot/imported/bandit_wheel_breathe_f0.png-6e7d0f9511f4abebd978ab889d4026d0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bandit_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/bandit_wheel_breathe_f0.png-3a94e79f945b805b0b6267826ca0ebdc.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bandit_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/bandit_wheel_breathe_f0.png-6e7d0f9511f4abebd978ab889d4026d0.ctex"]
 
 [params]
 

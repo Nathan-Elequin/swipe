@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6e980b767583ed"
-path="res://.godot/imported/poison_frog_wheel_breathe_f1.png-e0d1acf5cde74a0555a07b7ba50b642b.ctex"
+uid="uid://b6fffjw5up0cd"
+path="res://.godot/imported/poison_frog_wheel_breathe_f1.png-8862ff145c143d87a7ba86971a448b7d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/poison_frog_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/poison_frog_wheel_breathe_f1.png-e0d1acf5cde74a0555a07b7ba50b642b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/poison_frog_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/poison_frog_wheel_breathe_f1.png-8862ff145c143d87a7ba86971a448b7d.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6cc3ec29b5efcf"
-path="res://.godot/imported/hollow_wheel_breathe_f1.png-85a0e0ea9968144071871a5bc3a8087d.ctex"
+uid="uid://c3nn1gwie1606"
+path="res://.godot/imported/hollow_wheel_breathe_f1.png-b4bef97815ed4e951167821030afa9a4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/hollow_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/hollow_wheel_breathe_f1.png-85a0e0ea9968144071871a5bc3a8087d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/hollow_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/hollow_wheel_breathe_f1.png-b4bef97815ed4e951167821030afa9a4.ctex"]
 
 [params]
 

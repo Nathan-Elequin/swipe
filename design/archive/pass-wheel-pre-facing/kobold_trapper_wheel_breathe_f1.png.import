@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6ab18efd3764c1"
-path="res://.godot/imported/kobold_trapper_wheel_breathe_f1.png-0417ad79d2d002b2ecc74662b6bd1f42.ctex"
+uid="uid://2mi2r1bhuv1s"
+path="res://.godot/imported/kobold_trapper_wheel_breathe_f1.png-2411068d5a1850b1c06de16542cc52ed.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/kobold_trapper_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/kobold_trapper_wheel_breathe_f1.png-0417ad79d2d002b2ecc74662b6bd1f42.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/kobold_trapper_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/kobold_trapper_wheel_breathe_f1.png-2411068d5a1850b1c06de16542cc52ed.ctex"]
 
 [params]
 

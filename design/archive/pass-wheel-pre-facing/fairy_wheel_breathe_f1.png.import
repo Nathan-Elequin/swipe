@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6422bf1649fc48"
-path="res://.godot/imported/fairy_wheel_breathe_f1.png-f50b00aecb8224716334c749eaef3d8b.ctex"
+uid="uid://drrhy1fkkn0jn"
+path="res://.godot/imported/fairy_wheel_breathe_f1.png-e3f5e28e77df67def95e7a1d46a8845e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/fairy_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/fairy_wheel_breathe_f1.png-f50b00aecb8224716334c749eaef3d8b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/fairy_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/fairy_wheel_breathe_f1.png-e3f5e28e77df67def95e7a1d46a8845e.ctex"]
 
 [params]
 

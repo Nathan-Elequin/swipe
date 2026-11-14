@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p610bae5c17e4d8"
-path="res://.godot/imported/hornet_swarm_wheel_breathe_f0.png-7a80f12e7334e44af08cfb84e1637320.ctex"
+uid="uid://o0gx4khinrrn"
+path="res://.godot/imported/hornet_swarm_wheel_breathe_f0.png-3f080534265e86887c51856ed639343d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/hornet_swarm_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/hornet_swarm_wheel_breathe_f0.png-7a80f12e7334e44af08cfb84e1637320.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/hornet_swarm_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/hornet_swarm_wheel_breathe_f0.png-3f080534265e86887c51856ed639343d.ctex"]
 
 [params]
 

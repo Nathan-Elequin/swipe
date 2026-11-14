@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f04f284173c59"
-path="res://.godot/imported/anvil_facing_idle_f3.png-9fbe28e43c4581a7b1349d41dab0a15e.ctex"
+uid="uid://b5pkh67snvhfi"
+path="res://.godot/imported/anvil_facing_idle_f3.png-379f1b9653d1f1522b99683fdb7b11a6.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/anvil_facing_idle_f3.png"
-dest_files=["res://.godot/imported/anvil_facing_idle_f3.png-9fbe28e43c4581a7b1349d41dab0a15e.ctex"]
+dest_files=["res://.godot/imported/anvil_facing_idle_f3.png-379f1b9653d1f1522b99683fdb7b11a6.ctex"]
 
 [params]
 

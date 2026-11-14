@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6a7fb6b1fe4b4a"
-path="res://.godot/imported/hydra_wheel_base.png-2570f3b2381067d59c7c72f31d141269.ctex"
+uid="uid://bxyluoolnr3s1"
+path="res://.godot/imported/hydra_wheel_base.png-f64557a195432ce9ffd09fec4bcfdf23.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/hydra_wheel_base.png"
-dest_files=["res://.godot/imported/hydra_wheel_base.png-2570f3b2381067d59c7c72f31d141269.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/hydra_wheel_base.png"
+dest_files=["res://.godot/imported/hydra_wheel_base.png-f64557a195432ce9ffd09fec4bcfdf23.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p620ec71b74b508"
-path="res://.godot/imported/triclops_wheel_breathe_f0.png-ae2e07d48cd9152940dfa339c2a8a34d.ctex"
+uid="uid://bo3jr0jnfktfn"
+path="res://.godot/imported/triclops_wheel_breathe_f0.png-4c7674e5ef699f164e41f9c55504ad42.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/triclops_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/triclops_wheel_breathe_f0.png-ae2e07d48cd9152940dfa339c2a8a34d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/triclops_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/triclops_wheel_breathe_f0.png-4c7674e5ef699f164e41f9c55504ad42.ctex"]
 
 [params]
 

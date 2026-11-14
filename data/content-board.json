@@ -587,21 +587,21 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+			"ability": "Defeat an enemy with 6 or more Attack.",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "(ENEMY Attack ≥ 6)",
 			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "sledgehammer",
 			"kind": "item",
-			"locked_at": "2026-10-17",
+			"locked_at": "2026-11-13",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -619,7 +619,8 @@
 				"hp_formula",
 				"call_name",
 				"reminder",
-				"card_color"
+				"card_color",
+				"log_hint"
 			],
 			"log_hint": "Kill 6+ Attack enemies",
 			"mode_pool": "all",
@@ -628,14 +629,20 @@
 			"ops": {
 				"kind": "defeat_atk"
 			},
-			"pool": 1.0,
-			"priority": 2.0,
+			"pending_fields": {
+				"ability": {
+					"from": "Defeat an enemy with 6 or more Attack. Combat ends immediately.",
+					"to": "Defeat an enemy with 6 or more Attack."
+				}
+			},
+			"pool": 1,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3
 		},
 		{
 			"ability": "Attack equal to the Attack of the last monster you spun.",
@@ -1147,7 +1154,7 @@
 			"call_name": "",
 			"card_color": "utility",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "Move (the shortest path) to Any monster, then Draw 1 Item.",
 			"flow": "On use, pick a living neighbor. Swap that owner with the facing owner. Keep current block, items-used, and snapshots. Draw one item from the remaining pool if any. Used up.",
 			"hp_base": null,
@@ -1183,14 +1190,14 @@
 				"kind": "hook_swap"
 			},
 			"pending_fields": {},
-			"pool": 5,
-			"priority": 2,
+			"pool": 5.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 1
+			"tier": 1.0
 		},
 		{
 			"ability": "3 Attack or 3 Block. Alternates on Item Use",
@@ -7443,5 +7450,5 @@
 			"tier": 3.0
 		}
 	],
-	"updated": "2026-11-12"
+	"updated": "2026-11-13"
 }

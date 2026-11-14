@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ffd27995c93fcac2"
-path="res://.godot/imported/bushido_wheel_idle_f0.png-617f6ba942443c94a573618a395c661e.ctex"
+uid="uid://d0wsdykkjf5cl"
+path="res://.godot/imported/bushido_wheel_idle_f0.png-e7998df352e1a5e6b7ccd0743c676b78.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/bushido_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/bushido_wheel_idle_f0.png-617f6ba942443c94a573618a395c661e.ctex"]
+dest_files=["res://.godot/imported/bushido_wheel_idle_f0.png-e7998df352e1a5e6b7ccd0743c676b78.ctex"]
 
 [params]
 

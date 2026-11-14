@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p672ab60ddc227b"
-path="res://.godot/imported/goblin_wheel_breathe_f0.png-4ac09606c542c9b85f4ce178f8316f36.ctex"
+uid="uid://cvkm5wni24utx"
+path="res://.godot/imported/goblin_wheel_breathe_f0.png-8f9bbe4a0c5fdb73b68a6eeb198a0b27.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/goblin_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/goblin_wheel_breathe_f0.png-4ac09606c542c9b85f4ce178f8316f36.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/goblin_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/goblin_wheel_breathe_f0.png-8f9bbe4a0c5fdb73b68a6eeb198a0b27.ctex"]
 
 [params]
 

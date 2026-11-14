@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5755cd4a7c1aacf6"
-path="res://.godot/imported/amalgam_wheel_idle_f2.png-7cb1d0bcac44bb2c2fa534776e83537a.ctex"
+uid="uid://dwmgmyfcvuldp"
+path="res://.godot/imported/amalgam_wheel_idle_f2.png-2f984e8af1a4bba1d75c48e9e841c612.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/amalgam_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/amalgam_wheel_idle_f2.png-7cb1d0bcac44bb2c2fa534776e83537a.ctex"]
+dest_files=["res://.godot/imported/amalgam_wheel_idle_f2.png-2f984e8af1a4bba1d75c48e9e841c612.ctex"]
 
 [params]
 

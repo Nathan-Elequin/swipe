@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ce7871e3b46fd1380"
-path="res://.godot/imported/golem_slash_f2.png-e7871e3b46fd13801934a922f26687e7.ctex"
+uid="uid://cflf4ehq6c6xb"
+path="res://.godot/imported/golem_slash_f2.png-89fca88b96e5c09b8764ac7776e1ff86.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/slash/golem_slash_f2.png"
-dest_files=["res://.godot/imported/golem_slash_f2.png-e7871e3b46fd13801934a922f26687e7.ctex"]
+dest_files=["res://.godot/imported/golem_slash_f2.png-89fca88b96e5c09b8764ac7776e1ff86.ctex"]
 
 [params]
 

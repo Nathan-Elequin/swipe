@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://63abc83568b440fe"
-path="res://.godot/imported/wraith_wheel_idle_f1.png-46318be358254b276ba6754471bb96e1.ctex"
+uid="uid://b8i58rnj4203g"
+path="res://.godot/imported/wraith_wheel_idle_f1.png-306951537f1e6f9a96e8213542ac408a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/wraith_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/wraith_wheel_idle_f1.png-46318be358254b276ba6754471bb96e1.ctex"]
+dest_files=["res://.godot/imported/wraith_wheel_idle_f1.png-306951537f1e6f9a96e8213542ac408a.ctex"]
 
 [params]
 

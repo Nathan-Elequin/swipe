@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://7aedd185fc1dd31e"
-path="res://.godot/imported/shambling_mound_wheel_idle_f3.png-81cd91c985d154ac85496839575bdf3c.ctex"
+uid="uid://dfropooatagx1"
+path="res://.godot/imported/shambling_mound_wheel_idle_f3.png-5fe4d51178b19e42a97b93c5be655322.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/shambling_mound_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/shambling_mound_wheel_idle_f3.png-81cd91c985d154ac85496839575bdf3c.ctex"]
+dest_files=["res://.godot/imported/shambling_mound_wheel_idle_f3.png-5fe4d51178b19e42a97b93c5be655322.ctex"]
 
 [params]
 

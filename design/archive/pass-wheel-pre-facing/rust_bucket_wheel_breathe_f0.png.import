@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p606437c795e151"
-path="res://.godot/imported/rust_bucket_wheel_breathe_f0.png-1b8bf862fb56f551aa2bdc92ad978611.ctex"
+uid="uid://dq86dedx0ulb7"
+path="res://.godot/imported/rust_bucket_wheel_breathe_f0.png-b0855a85bf82b5f7513b1a543972ec40.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/rust_bucket_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/rust_bucket_wheel_breathe_f0.png-1b8bf862fb56f551aa2bdc92ad978611.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/rust_bucket_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/rust_bucket_wheel_breathe_f0.png-b0855a85bf82b5f7513b1a543972ec40.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://9ce17112e9fd194a"
-path="res://.godot/imported/dragon_wheel_idle_f2.png-dd3f7983f1c61cf1cf34183d512358b0.ctex"
+uid="uid://dt2ygjc0t0pqo"
+path="res://.godot/imported/dragon_wheel_idle_f2.png-82cad6402ef5b668cc718aef34d514cf.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/dragon_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/dragon_wheel_idle_f2.png-dd3f7983f1c61cf1cf34183d512358b0.ctex"]
+dest_files=["res://.godot/imported/dragon_wheel_idle_f2.png-82cad6402ef5b668cc718aef34d514cf.ctex"]
 
 [params]
 

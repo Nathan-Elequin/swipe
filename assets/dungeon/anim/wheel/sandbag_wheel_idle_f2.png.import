@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://029aa781cd80ab30"
-path="res://.godot/imported/sandbag_wheel_idle_f2.png-ab754e204cb05656cc7277bedeebbc32.ctex"
+uid="uid://cxy503p2fbtd"
+path="res://.godot/imported/sandbag_wheel_idle_f2.png-8014a0e7fc521a953deccb670d365a1f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/sandbag_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/sandbag_wheel_idle_f2.png-ab754e204cb05656cc7277bedeebbc32.ctex"]
+dest_files=["res://.godot/imported/sandbag_wheel_idle_f2.png-8014a0e7fc521a953deccb670d365a1f.ctex"]
 
 [params]
 

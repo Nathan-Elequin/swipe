@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bot03nevns0iu"
-path="res://.godot/imported/sandbag_wheel_base.png-a16bcee63191ee9eb0122ac844c69fe0.ctex"
+path="res://.godot/imported/sandbag_wheel_base.png-8e8323b51431b06ade34de52bba36e25.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/sandbag_wheel_base.png"
-dest_files=["res://.godot/imported/sandbag_wheel_base.png-a16bcee63191ee9eb0122ac844c69fe0.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/sandbag_wheel_base.png"
+dest_files=["res://.godot/imported/sandbag_wheel_base.png-8e8323b51431b06ade34de52bba36e25.ctex"]
 
 [params]
 

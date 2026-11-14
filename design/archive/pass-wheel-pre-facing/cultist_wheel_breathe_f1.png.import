@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67ccb6a1f17a55"
-path="res://.godot/imported/cultist_wheel_breathe_f1.png-86f95c6643c66880fabc4d46c1d3873d.ctex"
+uid="uid://b5mm47clr82ss"
+path="res://.godot/imported/cultist_wheel_breathe_f1.png-eff99f5027faccb95d0297f752f88f0a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/cultist_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/cultist_wheel_breathe_f1.png-86f95c6643c66880fabc4d46c1d3873d.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/cultist_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/cultist_wheel_breathe_f1.png-eff99f5027faccb95d0297f752f88f0a.ctex"]
 
 [params]
 

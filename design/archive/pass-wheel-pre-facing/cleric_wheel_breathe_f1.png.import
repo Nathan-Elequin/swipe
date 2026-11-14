@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6eccf0938b8440"
-path="res://.godot/imported/cleric_wheel_breathe_f1.png-4bb163889f389fe110e61c3c6a4d0c07.ctex"
+uid="uid://7ht4lt50p120"
+path="res://.godot/imported/cleric_wheel_breathe_f1.png-1b2acc50b3d1d4226fba864ef20418b9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/cleric_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/cleric_wheel_breathe_f1.png-4bb163889f389fe110e61c3c6a4d0c07.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/cleric_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/cleric_wheel_breathe_f1.png-1b2acc50b3d1d4226fba864ef20418b9.ctex"]
 
 [params]
 

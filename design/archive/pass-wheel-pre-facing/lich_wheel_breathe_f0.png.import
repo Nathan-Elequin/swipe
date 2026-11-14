@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p65e5cc1b25fbe4"
-path="res://.godot/imported/lich_wheel_breathe_f0.png-571c9818cc3058efdb8a004405815254.ctex"
+uid="uid://d3uiv0jignxsj"
+path="res://.godot/imported/lich_wheel_breathe_f0.png-f0cc498866e707f8f0be0d1235817c34.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/lich_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/lich_wheel_breathe_f0.png-571c9818cc3058efdb8a004405815254.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/lich_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/lich_wheel_breathe_f0.png-f0cc498866e707f8f0be0d1235817c34.ctex"]
 
 [params]
 

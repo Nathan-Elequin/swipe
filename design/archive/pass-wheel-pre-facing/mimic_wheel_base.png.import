@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6a2016ee613c8c"
-path="res://.godot/imported/mimic_wheel_base.png-a6a698de2a205bbfba457afe452686fd.ctex"
+uid="uid://btlcuq2ebq4w3"
+path="res://.godot/imported/mimic_wheel_base.png-69c8db01ea58adfffd24bcb479f4e966.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/mimic_wheel_base.png"
-dest_files=["res://.godot/imported/mimic_wheel_base.png-a6a698de2a205bbfba457afe452686fd.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/mimic_wheel_base.png"
+dest_files=["res://.godot/imported/mimic_wheel_base.png-69c8db01ea58adfffd24bcb479f4e966.ctex"]
 
 [params]
 

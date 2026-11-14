@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p668eddc36f680c"
-path="res://.godot/imported/rust_bucket_wheel_base.png-5f85adaab11e39710cbd46c4ab43129b.ctex"
+uid="uid://b2oocafc581my"
+path="res://.godot/imported/rust_bucket_wheel_base.png-531ae3e095e3bfdc6cce2cccf396897c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/rust_bucket_wheel_base.png"
-dest_files=["res://.godot/imported/rust_bucket_wheel_base.png-5f85adaab11e39710cbd46c4ab43129b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/rust_bucket_wheel_base.png"
+dest_files=["res://.godot/imported/rust_bucket_wheel_base.png-531ae3e095e3bfdc6cce2cccf396897c.ctex"]
 
 [params]
 

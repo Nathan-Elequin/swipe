@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0yhqbl5d4245"
-path="res://.godot/imported/damsel_in_distress_facing_idle_f3.png-70c6423ed4f9e77dc7ec15455f6f021f.ctex"
+path="res://.godot/imported/damsel_in_distress_facing_idle_f3.png-97f6cef4d5721f3491d169d260ac1466.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://design/visual/qa-wheel-pass2/_facing_before/damsel_in_distress_facing_idle_f3.png"
-dest_files=["res://.godot/imported/damsel_in_distress_facing_idle_f3.png-70c6423ed4f9e77dc7ec15455f6f021f.ctex"]
+dest_files=["res://.godot/imported/damsel_in_distress_facing_idle_f3.png-97f6cef4d5721f3491d169d260ac1466.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6907b9fc68288f"
-path="res://.godot/imported/wraith_wheel_breathe_f1.png-cbed938e600c3aaaa54117a3f27d2c43.ctex"
+uid="uid://y3rnap4fw54b"
+path="res://.godot/imported/wraith_wheel_breathe_f1.png-976ab55c6cd5f6320abb05e78fb2e0c4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/wraith_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/wraith_wheel_breathe_f1.png-cbed938e600c3aaaa54117a3f27d2c43.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/wraith_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/wraith_wheel_breathe_f1.png-976ab55c6cd5f6320abb05e78fb2e0c4.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p65cea79065137f"
-path="res://.godot/imported/zombie_wheel_base.png-3508f7c61e07ff7b267726d5bfbd6414.ctex"
+uid="uid://d03hr88mhbrlt"
+path="res://.godot/imported/zombie_wheel_base.png-d42418911c5a90351982a528d7b6770b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/zombie_wheel_base.png"
-dest_files=["res://.godot/imported/zombie_wheel_base.png-3508f7c61e07ff7b267726d5bfbd6414.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/zombie_wheel_base.png"
+dest_files=["res://.godot/imported/zombie_wheel_base.png-d42418911c5a90351982a528d7b6770b.ctex"]
 
 [params]
 

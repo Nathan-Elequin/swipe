@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6145be2e8ab97a"
-path="res://.godot/imported/goblin_wheel_base.png-ecd32ce703bdee5d761dcb781ee1991a.ctex"
+uid="uid://tuhx1mnkkxlo"
+path="res://.godot/imported/goblin_wheel_base.png-76b4466c061a1fa9e4f647187fe9feb4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/goblin_wheel_base.png"
-dest_files=["res://.godot/imported/goblin_wheel_base.png-ecd32ce703bdee5d761dcb781ee1991a.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/goblin_wheel_base.png"
+dest_files=["res://.godot/imported/goblin_wheel_base.png-76b4466c061a1fa9e4f647187fe9feb4.ctex"]
 
 [params]
 

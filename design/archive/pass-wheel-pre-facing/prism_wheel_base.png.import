@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p66e588cfcf9ed1"
-path="res://.godot/imported/prism_wheel_base.png-ff0b235694381f269fd6ff1157b8b324.ctex"
+uid="uid://8hk68ph6b50o"
+path="res://.godot/imported/prism_wheel_base.png-5384f5fb9ba6de8cfd46bed4aa901892.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/prism_wheel_base.png"
-dest_files=["res://.godot/imported/prism_wheel_base.png-ff0b235694381f269fd6ff1157b8b324.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/prism_wheel_base.png"
+dest_files=["res://.godot/imported/prism_wheel_base.png-5384f5fb9ba6de8cfd46bed4aa901892.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6e0bd5a1035b3d"
-path="res://.godot/imported/beggar_wheel_base.png-405e95c6d27d21ab6927f3476d602905.ctex"
+uid="uid://bvgr8lrxsl71d"
+path="res://.godot/imported/beggar_wheel_base.png-2f31e668a23a45841ef5000d4ddf3b4a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/beggar_wheel_base.png"
-dest_files=["res://.godot/imported/beggar_wheel_base.png-405e95c6d27d21ab6927f3476d602905.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/beggar_wheel_base.png"
+dest_files=["res://.godot/imported/beggar_wheel_base.png-2f31e668a23a45841ef5000d4ddf3b4a.ctex"]
 
 [params]
 

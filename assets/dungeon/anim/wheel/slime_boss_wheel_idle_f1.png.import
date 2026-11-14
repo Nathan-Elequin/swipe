@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://504510bbca071da4"
-path="res://.godot/imported/slime_boss_wheel_idle_f1.png-5a8e1d84894edb7b0e7b85ecf83f9e1c.ctex"
+uid="uid://cqqylqgt0oc22"
+path="res://.godot/imported/slime_boss_wheel_idle_f1.png-24d7b69b78d2c37b2e4d74f6175086a1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/slime_boss_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/slime_boss_wheel_idle_f1.png-5a8e1d84894edb7b0e7b85ecf83f9e1c.ctex"]
+dest_files=["res://.godot/imported/slime_boss_wheel_idle_f1.png-24d7b69b78d2c37b2e4d74f6175086a1.ctex"]
 
 [params]
 

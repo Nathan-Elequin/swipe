@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8492992db18df724"
-path="res://.godot/imported/juggernaut_wheel_idle_f2.png-79959788eeb1be8ba99a045bcd5ab1e8.ctex"
+uid="uid://bvgqnobkr8go6"
+path="res://.godot/imported/juggernaut_wheel_idle_f2.png-bffc1c46805720541cae472a88ccc202.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/juggernaut_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/juggernaut_wheel_idle_f2.png-79959788eeb1be8ba99a045bcd5ab1e8.ctex"]
+dest_files=["res://.godot/imported/juggernaut_wheel_idle_f2.png-bffc1c46805720541cae472a88ccc202.ctex"]
 
 [params]
 

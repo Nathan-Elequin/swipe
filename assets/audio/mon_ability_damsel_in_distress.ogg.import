@@ -2,13 +2,13 @@
 
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
-uid="uid://c339d0f19b0616"
-path="res://.godot/imported/mon_ability_damsel_in_distress.ogg-5bfd69a423eae6d4729bf1ebd2b6620d.oggvorbisstr"
+uid="uid://h2l802x6yb32"
+path="res://.godot/imported/mon_ability_damsel_in_distress.ogg-543dd060df703ecec55e1d57a31ea691.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/audio/mon_ability_damsel_in_distress.ogg"
-dest_files=["res://.godot/imported/mon_ability_damsel_in_distress.ogg-5bfd69a423eae6d4729bf1ebd2b6620d.oggvorbisstr"]
+dest_files=["res://.godot/imported/mon_ability_damsel_in_distress.ogg-543dd060df703ecec55e1d57a31ea691.oggvorbisstr"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p68b2ef32d98256"
-path="res://.godot/imported/vampire_wheel_breathe_f0.png-715fa83c3eff0dae8f5be29ea71e6eb5.ctex"
+uid="uid://c5dpe1dj1bust"
+path="res://.godot/imported/vampire_wheel_breathe_f0.png-f0af3e1b1279a6a9c2dfdba079971da3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/vampire_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/vampire_wheel_breathe_f0.png-715fa83c3eff0dae8f5be29ea71e6eb5.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/vampire_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/vampire_wheel_breathe_f0.png-f0af3e1b1279a6a9c2dfdba079971da3.ctex"]
 
 [params]
 

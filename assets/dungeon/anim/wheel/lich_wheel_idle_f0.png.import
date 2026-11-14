@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://255e5fa9fedc8f94"
-path="res://.godot/imported/lich_wheel_idle_f0.png-6f637745750ff4fa0d17f5d0ea193468.ctex"
+uid="uid://qr4gcrw42tf6"
+path="res://.godot/imported/lich_wheel_idle_f0.png-0ea7b656e7f1170d44cb3965f04a66f9.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/lich_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/lich_wheel_idle_f0.png-6f637745750ff4fa0d17f5d0ea193468.ctex"]
+dest_files=["res://.godot/imported/lich_wheel_idle_f0.png-0ea7b656e7f1170d44cb3965f04a66f9.ctex"]
 
 [params]
 

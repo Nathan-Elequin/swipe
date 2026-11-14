@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p69fa21997b0de5"
-path="res://.godot/imported/poison_frog_wheel_base.png-c63002bc6b1ea297419f27a140ea1ced.ctex"
+uid="uid://d6jf5n4huaa1"
+path="res://.godot/imported/poison_frog_wheel_base.png-157258457b81109fd09811759a880a49.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/poison_frog_wheel_base.png"
-dest_files=["res://.godot/imported/poison_frog_wheel_base.png-c63002bc6b1ea297419f27a140ea1ced.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/poison_frog_wheel_base.png"
+dest_files=["res://.godot/imported/poison_frog_wheel_base.png-157258457b81109fd09811759a880a49.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5a93d93acacc7"
-path="res://.godot/imported/venom_veins.png-2157697cbb95f780fffc493749166062.ctex"
+uid="uid://c8fy8vnidt61u"
+path="res://.godot/imported/venom_veins.png-4b0bf4d8f2729a5783e7796ba297a6ac.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/items/venom_veins.png"
-dest_files=["res://.godot/imported/venom_veins.png-2157697cbb95f780fffc493749166062.ctex"]
+dest_files=["res://.godot/imported/venom_veins.png-4b0bf4d8f2729a5783e7796ba297a6ac.ctex"]
 
 [params]
 

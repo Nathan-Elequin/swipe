@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1f8999870dddbb35"
-path="res://.godot/imported/wizard_wheel_idle_f3.png-13cd64868f365b38e0f108e09a17c25f.ctex"
+uid="uid://b2vi735qgo34y"
+path="res://.godot/imported/wizard_wheel_idle_f3.png-54a8209cb938813413b7aedf9dda8bb3.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/wizard_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/wizard_wheel_idle_f3.png-13cd64868f365b38e0f108e09a17c25f.ctex"]
+dest_files=["res://.godot/imported/wizard_wheel_idle_f3.png-54a8209cb938813413b7aedf9dda8bb3.ctex"]
 
 [params]
 

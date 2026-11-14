@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6eb48b175d80c9"
-path="res://.godot/imported/wick_wheel_breathe_f0.png-75aec4beb2366eb659a70aa4a3014737.ctex"
+uid="uid://7bnfdx22pwba"
+path="res://.godot/imported/wick_wheel_breathe_f0.png-ba005c91ce83afd251655139e8685bdb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/wick_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/wick_wheel_breathe_f0.png-75aec4beb2366eb659a70aa4a3014737.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/wick_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/wick_wheel_breathe_f0.png-ba005c91ce83afd251655139e8685bdb.ctex"]
 
 [params]
 

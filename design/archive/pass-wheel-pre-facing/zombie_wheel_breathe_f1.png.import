@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p616fcead6b8efb"
-path="res://.godot/imported/zombie_wheel_breathe_f1.png-e7f4ada53ce4b91c3cf3b2b3348a8dc8.ctex"
+uid="uid://u4iw8llmh1sp"
+path="res://.godot/imported/zombie_wheel_breathe_f1.png-d76bc71f9b4525cc0478a40226e5ef92.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/zombie_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/zombie_wheel_breathe_f1.png-e7f4ada53ce4b91c3cf3b2b3348a8dc8.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/zombie_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/zombie_wheel_breathe_f1.png-d76bc71f9b4525cc0478a40226e5ef92.ctex"]
 
 [params]
 

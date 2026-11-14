@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://89e3942ad6be7f7a"
-path="res://.godot/imported/almighty_worm_wheel_idle_f2.png-627a64bac798b327bcd97befc2c2c4ca.ctex"
+uid="uid://bapjs60a1vd77"
+path="res://.godot/imported/almighty_worm_wheel_idle_f2.png-ca16b83f3eaacb2bd318e2920371f045.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/almighty_worm_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/almighty_worm_wheel_idle_f2.png-627a64bac798b327bcd97befc2c2c4ca.ctex"]
+dest_files=["res://.godot/imported/almighty_worm_wheel_idle_f2.png-ca16b83f3eaacb2bd318e2920371f045.ctex"]
 
 [params]
 

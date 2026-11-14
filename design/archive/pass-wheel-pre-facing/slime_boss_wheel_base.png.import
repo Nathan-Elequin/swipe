@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p661780740e913e"
-path="res://.godot/imported/slime_boss_wheel_base.png-cd8e46f7843672a9a33d55e4ad57df7b.ctex"
+uid="uid://bvjky5f55ctp1"
+path="res://.godot/imported/slime_boss_wheel_base.png-6f3f9dde686d47be54c5c94812881ef5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/slime_boss_wheel_base.png"
-dest_files=["res://.godot/imported/slime_boss_wheel_base.png-cd8e46f7843672a9a33d55e4ad57df7b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/slime_boss_wheel_base.png"
+dest_files=["res://.godot/imported/slime_boss_wheel_base.png-6f3f9dde686d47be54c5c94812881ef5.ctex"]
 
 [params]
 

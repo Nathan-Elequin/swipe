@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6718f843a79040"
-path="res://.godot/imported/merchant_wheel_breathe_f0.png-f62e7b786fd45733604bdc41d411ccea.ctex"
+uid="uid://cvjq72egycsrn"
+path="res://.godot/imported/merchant_wheel_breathe_f0.png-f2c066efd5372c07faea2ca4d87a66fe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/merchant_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/merchant_wheel_breathe_f0.png-f62e7b786fd45733604bdc41d411ccea.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/merchant_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/merchant_wheel_breathe_f0.png-f2c066efd5372c07faea2ca4d87a66fe.ctex"]
 
 [params]
 

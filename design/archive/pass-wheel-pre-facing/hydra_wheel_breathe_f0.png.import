@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p65d31c7a532b35"
-path="res://.godot/imported/hydra_wheel_breathe_f0.png-38216d3af6728845e9ee26f79a6eddd2.ctex"
+uid="uid://d2s7v6ilfbyik"
+path="res://.godot/imported/hydra_wheel_breathe_f0.png-13ab785d16687799bbfe24bef9e34d8d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/hydra_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/hydra_wheel_breathe_f0.png-38216d3af6728845e9ee26f79a6eddd2.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/hydra_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/hydra_wheel_breathe_f0.png-13ab785d16687799bbfe24bef9e34d8d.ctex"]
 
 [params]
 

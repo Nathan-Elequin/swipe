@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p634c9f36aeeea5"
-path="res://.godot/imported/shambling_mound_wheel_breathe_f0.png-1267beb4408d6905601b1f37484bedcc.ctex"
+uid="uid://cs2gy3eoom1ok"
+path="res://.godot/imported/shambling_mound_wheel_breathe_f0.png-3daf51282f1b065c7bd5d41fcd1dd87c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/shambling_mound_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/shambling_mound_wheel_breathe_f0.png-1267beb4408d6905601b1f37484bedcc.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/shambling_mound_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/shambling_mound_wheel_breathe_f0.png-3daf51282f1b065c7bd5d41fcd1dd87c.ctex"]
 
 [params]
 

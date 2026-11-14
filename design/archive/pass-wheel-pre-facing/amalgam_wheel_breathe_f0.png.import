@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6b1acf042f8bc0"
-path="res://.godot/imported/amalgam_wheel_breathe_f0.png-0969e9ab83e8dbb2b5cb700220310127.ctex"
+uid="uid://crtl4er8ov21r"
+path="res://.godot/imported/amalgam_wheel_breathe_f0.png-ac3339f2327b17619dfb451e45489c22.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/amalgam_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/amalgam_wheel_breathe_f0.png-0969e9ab83e8dbb2b5cb700220310127.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/amalgam_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/amalgam_wheel_breathe_f0.png-ac3339f2327b17619dfb451e45489c22.ctex"]
 
 [params]
 

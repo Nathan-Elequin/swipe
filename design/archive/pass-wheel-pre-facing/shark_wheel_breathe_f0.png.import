@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6250f9cc7eb9a6"
-path="res://.godot/imported/shark_wheel_breathe_f0.png-f07144023eeba0c94e2b478af1975c2b.ctex"
+uid="uid://bupmtbkmokwol"
+path="res://.godot/imported/shark_wheel_breathe_f0.png-ea786cdb6cde206ccee98b6c59d67d96.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/shark_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/shark_wheel_breathe_f0.png-f07144023eeba0c94e2b478af1975c2b.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/shark_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/shark_wheel_breathe_f0.png-ea786cdb6cde206ccee98b6c59d67d96.ctex"]
 
 [params]
 

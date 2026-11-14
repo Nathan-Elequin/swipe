@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p63984272f77f3a"
-path="res://.godot/imported/mouse_wheel_base.png-6d891dfe0855a9020adf67f4b995c355.ctex"
+uid="uid://cyycm7aujg3ho"
+path="res://.godot/imported/mouse_wheel_base.png-31df4466b9bd182863f4b0f2d01b7a23.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/mouse_wheel_base.png"
-dest_files=["res://.godot/imported/mouse_wheel_base.png-6d891dfe0855a9020adf67f4b995c355.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/mouse_wheel_base.png"
+dest_files=["res://.godot/imported/mouse_wheel_base.png-31df4466b9bd182863f4b0f2d01b7a23.ctex"]
 
 [params]
 

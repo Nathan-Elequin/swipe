@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d7d9eb3617e52"
-path="res://.godot/imported/imp_facing_idle_f3.png-e41ad64eb7b81ceb9e38475cf1415e53.ctex"
+uid="uid://cyer86xh0jfb"
+path="res://.godot/imported/imp_facing_idle_f3.png-9c340f08690d6ab68c25550b72c18bf1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/imp_facing_idle_f3.png"
-dest_files=["res://.godot/imported/imp_facing_idle_f3.png-e41ad64eb7b81ceb9e38475cf1415e53.ctex"]
+dest_files=["res://.godot/imported/imp_facing_idle_f3.png-9c340f08690d6ab68c25550b72c18bf1.ctex"]
 
 [params]
 

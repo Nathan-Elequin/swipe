@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6410569e29074b"
-path="res://.godot/imported/triclops_wheel_base.png-a7ed46e6823cdfc35c865169ce4e5ff7.ctex"
+uid="uid://dqqdq8milavip"
+path="res://.godot/imported/triclops_wheel_base.png-c466276daef5f808f324dc62246bf5ce.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/triclops_wheel_base.png"
-dest_files=["res://.godot/imported/triclops_wheel_base.png-a7ed46e6823cdfc35c865169ce4e5ff7.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/triclops_wheel_base.png"
+dest_files=["res://.godot/imported/triclops_wheel_base.png-c466276daef5f808f324dc62246bf5ce.ctex"]
 
 [params]
 

@@ -21,7 +21,7 @@
 		"item:echo_bell": 1792136735.68746,
 		"item:fangs": 1792282200.0,
 		"item:flying_saucer": 1793342400.0,
-		"item:grappling_hook": 1794539638,
+		"item:grappling_hook": 1794539638.0,
 		"item:grief_jar": 1794126874.6542,
 		"item:grimoire": 1792282200.0,
 		"item:healing_potion": 1794127312.60001,
@@ -56,7 +56,7 @@
 		"item:shardplate": 1794135300.0,
 		"item:shuriken": 1792692178.0,
 		"item:signpost": 1792449835.18609,
-		"item:sledgehammer": 1792470000.0,
+		"item:sledgehammer": 1794630095,
 		"item:sling": 1793416800.0,
 		"item:smoke_bomb": 1792277000.0,
 		"item:spiked_flail": 1792194900.0,
@@ -128,12 +128,12 @@
 		"monster:vampire": 1794006248.0,
 		"monster:wick": 1792689329.0,
 		"monster:wizard": 1792790558.82853,
-		"monster:zombie": 1794599918.5255425
+		"monster:zombie": 1794599918.52554
 	},
 	"id": "boss-rush-recent-edits",
 	"item:signpost": 1792450564.02935,
 	"item:sling": 1793416800.0,
 	"monster:mouse": 1794125579.34569,
 	"monster:plague_doctor": 1793347200.0,
-	"updated": "2026-11-13T19:55:00"
+	"updated": "2026-11-14T04:21:35"
 }

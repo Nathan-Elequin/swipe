@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpsfe23371fa8a2e"
-path="res://.godot/imported/draft_leftbehind.png-1803b50684d4d2b3e591f85bed0f7875.ctex"
+uid="uid://bb0vwwexcnhuw"
+path="res://.godot/imported/draft_leftbehind.png-7df87e5eb1ddd34e3f9512444a110467.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/ui/draft/draft_leftbehind.png"
-dest_files=["res://.godot/imported/draft_leftbehind.png-1803b50684d4d2b3e591f85bed0f7875.ctex"]
+dest_files=["res://.godot/imported/draft_leftbehind.png-7df87e5eb1ddd34e3f9512444a110467.ctex"]
 
 [params]
 

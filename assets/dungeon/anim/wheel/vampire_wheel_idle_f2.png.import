@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e730c2bfcc04d210"
-path="res://.godot/imported/vampire_wheel_idle_f2.png-e5ca2baabdb25dc78447f06a9acdcad4.ctex"
+uid="uid://b06p3p5kmf44l"
+path="res://.godot/imported/vampire_wheel_idle_f2.png-3b369ec9a623329af772e3e824ce86a3.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/vampire_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/vampire_wheel_idle_f2.png-e5ca2baabdb25dc78447f06a9acdcad4.ctex"]
+dest_files=["res://.godot/imported/vampire_wheel_idle_f2.png-3b369ec9a623329af772e3e824ce86a3.ctex"]
 
 [params]
 

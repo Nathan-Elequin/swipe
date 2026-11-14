@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0fe362758bda3c67"
-path="res://.godot/imported/mouse_wheel_idle_f3.png-144884949d97b4797a4a62e3e4bc2a05.ctex"
+uid="uid://btx5fue3oravu"
+path="res://.godot/imported/mouse_wheel_idle_f3.png-1e5e85b061a4ed29b51cb5a6ce9370f1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/mouse_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/mouse_wheel_idle_f3.png-144884949d97b4797a4a62e3e4bc2a05.ctex"]
+dest_files=["res://.godot/imported/mouse_wheel_idle_f3.png-1e5e85b061a4ed29b51cb5a6ce9370f1.ctex"]
 
 [params]
 

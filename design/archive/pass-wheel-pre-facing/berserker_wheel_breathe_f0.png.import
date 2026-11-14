@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6642397339623e"
-path="res://.godot/imported/berserker_wheel_breathe_f0.png-27477528e05b61a0a36794ad42ba4fff.ctex"
+uid="uid://byef85fa08up1"
+path="res://.godot/imported/berserker_wheel_breathe_f0.png-a5ee7ce42b4fab7d19ba817ed64846ad.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/berserker_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/berserker_wheel_breathe_f0.png-27477528e05b61a0a36794ad42ba4fff.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/berserker_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/berserker_wheel_breathe_f0.png-a5ee7ce42b4fab7d19ba817ed64846ad.ctex"]
 
 [params]
 

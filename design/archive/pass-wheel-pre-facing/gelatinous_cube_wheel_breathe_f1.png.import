@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6138c75c27140c"
-path="res://.godot/imported/gelatinous_cube_wheel_breathe_f1.png-3c47751bc989d63ac0addb5d942be3fe.ctex"
+uid="uid://sxjr4kijbseq"
+path="res://.godot/imported/gelatinous_cube_wheel_breathe_f1.png-0477d072a60cff1aba7463568bdcec2e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/gelatinous_cube_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/gelatinous_cube_wheel_breathe_f1.png-3c47751bc989d63ac0addb5d942be3fe.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/gelatinous_cube_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/gelatinous_cube_wheel_breathe_f1.png-0477d072a60cff1aba7463568bdcec2e.ctex"]
 
 [params]
 

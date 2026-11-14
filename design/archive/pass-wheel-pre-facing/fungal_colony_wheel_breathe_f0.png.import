@@ -2,15 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/fungal_colony_wheel_breathe_f0.png-pending.ctex"
+uid="uid://dx3ic2qtdilor"
+path="res://.godot/imported/fungal_colony_wheel_breathe_f0.png-7cabb79c74d0a6dbc175190b15efe457.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/fungal_colony_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/fungal_colony_wheel_breathe_f0.png-pending.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/fungal_colony_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/fungal_colony_wheel_breathe_f0.png-7cabb79c74d0a6dbc175190b15efe457.ctex"]
 
 [params]
-
 
 compress/mode=0
 compress/high_quality=false

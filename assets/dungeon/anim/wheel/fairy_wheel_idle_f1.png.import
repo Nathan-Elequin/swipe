@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f38c56c9fda1a24c"
-path="res://.godot/imported/fairy_wheel_idle_f1.png-769872504f46416dfbbb25e2a3fa520f.ctex"
+uid="uid://cvale6hwd7gr5"
+path="res://.godot/imported/fairy_wheel_idle_f1.png-8cfce57e4f74abbdb5ab0b6d1b337081.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/fairy_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/fairy_wheel_idle_f1.png-769872504f46416dfbbb25e2a3fa520f.ctex"]
+dest_files=["res://.godot/imported/fairy_wheel_idle_f1.png-8cfce57e4f74abbdb5ab0b6d1b337081.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://a4d96a822a5259bd"
-path="res://.godot/imported/huntsman_wheel_idle_f2.png-5aa091c743efeed6a922708da73531c5.ctex"
+uid="uid://bfgvog7ch3vqj"
+path="res://.godot/imported/huntsman_wheel_idle_f2.png-0a750b7fe74633a5de3a8da78ebf8b54.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/huntsman_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/huntsman_wheel_idle_f2.png-5aa091c743efeed6a922708da73531c5.ctex"]
+dest_files=["res://.godot/imported/huntsman_wheel_idle_f2.png-0a750b7fe74633a5de3a8da78ebf8b54.ctex"]
 
 [params]
 

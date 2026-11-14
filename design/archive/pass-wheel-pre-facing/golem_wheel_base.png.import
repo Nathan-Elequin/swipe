@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p67a1157830e4f5"
-path="res://.godot/imported/golem_wheel_base.png-e49e4735b707f2cac959e1d80f01573e.ctex"
+uid="uid://b4dd45kaqgv2s"
+path="res://.godot/imported/golem_wheel_base.png-a3c7c0e568c0f216ae332b9b9d59538d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/golem_wheel_base.png"
-dest_files=["res://.godot/imported/golem_wheel_base.png-e49e4735b707f2cac959e1d80f01573e.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/golem_wheel_base.png"
+dest_files=["res://.godot/imported/golem_wheel_base.png-a3c7c0e568c0f216ae332b9b9d59538d.ctex"]
 
 [params]
 

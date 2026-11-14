@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p62d795729457f3"
-path="res://.godot/imported/bodyguard_wheel_breathe_f0.png-71b721dd261c2e2b9f38cd503ed6aba9.ctex"
+uid="uid://2xhp7bpgfuti"
+path="res://.godot/imported/bodyguard_wheel_breathe_f0.png-15697eae62051c3f0d9f844c10625752.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/bodyguard_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/bodyguard_wheel_breathe_f0.png-71b721dd261c2e2b9f38cd503ed6aba9.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/bodyguard_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/bodyguard_wheel_breathe_f0.png-15697eae62051c3f0d9f844c10625752.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://10b341393594a"
-path="res://.godot/imported/glass_asp_facing.png-a4c7ca0ad31bed99adb24521a06cf8d2.ctex"
+uid="uid://dsuvlplrpx1ko"
+path="res://.godot/imported/glass_asp_facing.png-5e65ff73f63ef519d5780abcefee503a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/glass_asp_facing.png"
-dest_files=["res://.godot/imported/glass_asp_facing.png-a4c7ca0ad31bed99adb24521a06cf8d2.ctex"]
+dest_files=["res://.godot/imported/glass_asp_facing.png-5e65ff73f63ef519d5780abcefee503a.ctex"]
 
 [params]
 

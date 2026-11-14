@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://80fa2463ff1a4632"
-path="res://.godot/imported/damsel_in_distress_wheel_idle_f2.png-647f575e714c6e57172786b4925e5fca.ctex"
+uid="uid://dmim14qvpyect"
+path="res://.godot/imported/damsel_in_distress_wheel_idle_f2.png-f2dc09a335ac34d090a2fb59d99e1c56.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/damsel_in_distress_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/damsel_in_distress_wheel_idle_f2.png-647f575e714c6e57172786b4925e5fca.ctex"]
+dest_files=["res://.godot/imported/damsel_in_distress_wheel_idle_f2.png-f2dc09a335ac34d090a2fb59d99e1c56.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://599eff51c3afe356"
-path="res://.godot/imported/oligarch_wheel_idle_f0.png-0e5617828a8974a03704aa26c04ea5a3.ctex"
+uid="uid://covtiptmw7lx8"
+path="res://.godot/imported/oligarch_wheel_idle_f0.png-621aad07a1e02799b583083efa28ba8a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/oligarch_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/oligarch_wheel_idle_f0.png-0e5617828a8974a03704aa26c04ea5a3.ctex"]
+dest_files=["res://.godot/imported/oligarch_wheel_idle_f0.png-621aad07a1e02799b583083efa28ba8a.ctex"]
 
 [params]
 

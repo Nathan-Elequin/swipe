@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d27d6769274ef775"
-path="res://.godot/imported/dire_wolf_wheel_idle_f3.png-8d84a04537063ef25d9c1fd64738ab90.ctex"
+uid="uid://bguhe8mky8k43"
+path="res://.godot/imported/dire_wolf_wheel_idle_f3.png-cab5b249d3132825f9bf7ab98cccf4ba.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/dire_wolf_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/dire_wolf_wheel_idle_f3.png-8d84a04537063ef25d9c1fd64738ab90.ctex"]
+dest_files=["res://.godot/imported/dire_wolf_wheel_idle_f3.png-cab5b249d3132825f9bf7ab98cccf4ba.ctex"]
 
 [params]
 

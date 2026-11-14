@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://lpe0jjw3cg8q"
-path="res://.godot/imported/oligarch_wheel_breathe_f1.png-316212823bb873158a3adaeba1f173a7.ctex"
+path="res://.godot/imported/oligarch_wheel_breathe_f1.png-af718c9b9c7b70bf4c65e1796878615a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/oligarch_wheel_breathe_f1.png"
-dest_files=["res://.godot/imported/oligarch_wheel_breathe_f1.png-316212823bb873158a3adaeba1f173a7.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/oligarch_wheel_breathe_f1.png"
+dest_files=["res://.godot/imported/oligarch_wheel_breathe_f1.png-af718c9b9c7b70bf4c65e1796878615a.ctex"]
 
 [params]
 

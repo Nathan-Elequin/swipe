@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8178d39e58702c0a"
-path="res://.godot/imported/gargoyle_wheel_idle_f1.png-a1ac45c7545dbd16f21406b472dc30a9.ctex"
+uid="uid://di5eu4msnoi8a"
+path="res://.godot/imported/gargoyle_wheel_idle_f1.png-c6df2d709a5867fafb0d7f9c78ae0c15.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/gargoyle_wheel_idle_f1.png"
-dest_files=["res://.godot/imported/gargoyle_wheel_idle_f1.png-a1ac45c7545dbd16f21406b472dc30a9.ctex"]
+dest_files=["res://.godot/imported/gargoyle_wheel_idle_f1.png-c6df2d709a5867fafb0d7f9c78ae0c15.ctex"]
 
 [params]
 

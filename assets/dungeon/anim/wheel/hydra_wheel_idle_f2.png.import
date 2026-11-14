@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://66ff15fc76c058b4"
-path="res://.godot/imported/hydra_wheel_idle_f2.png-f4a3967f3cf0f7a190b6728d598c2240.ctex"
+uid="uid://bpr5ks1gfwe2"
+path="res://.godot/imported/hydra_wheel_idle_f2.png-3b9d73f8b33563d091b04e32508af666.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/hydra_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/hydra_wheel_idle_f2.png-f4a3967f3cf0f7a190b6728d598c2240.ctex"]
+dest_files=["res://.godot/imported/hydra_wheel_idle_f2.png-3b9d73f8b33563d091b04e32508af666.ctex"]
 
 [params]
 

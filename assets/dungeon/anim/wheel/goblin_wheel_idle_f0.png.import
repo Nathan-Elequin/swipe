@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://a90b6d11c6980a2d"
-path="res://.godot/imported/goblin_wheel_idle_f0.png-34aa230ca62def6d06871f32c8e0cd23.ctex"
+uid="uid://db6llwv8t7jft"
+path="res://.godot/imported/goblin_wheel_idle_f0.png-11491754acb82b533969b3930daaa7cd.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/goblin_wheel_idle_f0.png"
-dest_files=["res://.godot/imported/goblin_wheel_idle_f0.png-34aa230ca62def6d06871f32c8e0cd23.ctex"]
+dest_files=["res://.godot/imported/goblin_wheel_idle_f0.png-11491754acb82b533969b3930daaa7cd.ctex"]
 
 [params]
 

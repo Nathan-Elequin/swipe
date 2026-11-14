@@ -2,7 +2,7 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://ggik2pw831cxw"
+uid="uid://ck3phn00jtg65"
 path="res://.godot/imported/EBGaramond-SemiBold.ttf-bdc409353d3cdd28d42a4c884df80bd8.fontdata"
 
 [deps]
@@ -12,6 +12,7 @@ dest_files=["res://.godot/imported/EBGaramond-SemiBold.ttf-bdc409353d3cdd28d42a4
 
 [params]
 
+Rendering=null
 antialiasing=1
 generate_mipmaps=false
 disable_embedded_bitmaps=true
@@ -20,11 +21,16 @@ msdf_pixel_range=8
 msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
+modulate_color_glyphs=false
 hinting=1
 subpixel_positioning=1
 keep_rounding_remainders=true
 oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
 preload=[]
 language_support={}
 script_support={}
-opentype_feature_overrides={}
+opentype_features={}

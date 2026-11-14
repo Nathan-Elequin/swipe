@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://33aa459aff9a3"
-path="res://.godot/imported/imp_facing.png-18f62efc079e6e30ede848776f1cbe2c.ctex"
+uid="uid://b1e60rtig04yq"
+path="res://.godot/imported/imp_facing.png-4ce213fc06ae5806f8aa3627e35ea032.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/facing/imp_facing.png"
-dest_files=["res://.godot/imported/imp_facing.png-18f62efc079e6e30ede848776f1cbe2c.ctex"]
+dest_files=["res://.godot/imported/imp_facing.png-4ce213fc06ae5806f8aa3627e35ea032.ctex"]
 
 [params]
 

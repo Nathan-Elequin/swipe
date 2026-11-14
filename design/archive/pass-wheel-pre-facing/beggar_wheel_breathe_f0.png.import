@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6669b865d10b80"
-path="res://.godot/imported/beggar_wheel_breathe_f0.png-716bbbda5781136561d93a65a68598cc.ctex"
+uid="uid://b1km74gjr13vn"
+path="res://.godot/imported/beggar_wheel_breathe_f0.png-ee228b2ab2202020899b7a85edfcc252.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/beggar_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/beggar_wheel_breathe_f0.png-716bbbda5781136561d93a65a68598cc.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/beggar_wheel_breathe_f0.png"
+dest_files=["res://.godot/imported/beggar_wheel_breathe_f0.png-ee228b2ab2202020899b7a85edfcc252.ctex"]
 
 [params]
 

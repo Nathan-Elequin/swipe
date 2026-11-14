@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p6cb8d88409b9e5"
-path="res://.godot/imported/fairy_wheel_base.png-d7e9e3f6d8b46133bcbcc5fa5ff8ef3e.ctex"
+uid="uid://c2snxmr7iy13w"
+path="res://.godot/imported/fairy_wheel_base.png-ed3c8862af0382f4ffd7749cec2fcf66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dungeon/anim/wheel/fairy_wheel_base.png"
-dest_files=["res://.godot/imported/fairy_wheel_base.png-d7e9e3f6d8b46133bcbcc5fa5ff8ef3e.ctex"]
+source_file="res://design/archive/pass-wheel-pre-facing/fairy_wheel_base.png"
+dest_files=["res://.godot/imported/fairy_wheel_base.png-ed3c8862af0382f4ffd7749cec2fcf66.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://de1a520d1768c261"
-path="res://.godot/imported/beggar_wheel_idle_f3.png-f3445f0711a2b539f97d3b7f5f67dcf1.ctex"
+uid="uid://b10y8j84e3eto"
+path="res://.godot/imported/beggar_wheel_idle_f3.png-fcbff86001602ee0cf6b024caee42f61.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/beggar_wheel_idle_f3.png"
-dest_files=["res://.godot/imported/beggar_wheel_idle_f3.png-f3445f0711a2b539f97d3b7f5f67dcf1.ctex"]
+dest_files=["res://.godot/imported/beggar_wheel_idle_f3.png-fcbff86001602ee0cf6b024caee42f61.ctex"]
 
 [params]
 

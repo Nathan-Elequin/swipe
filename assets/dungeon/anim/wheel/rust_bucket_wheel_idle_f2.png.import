@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://870510a1587794f0"
-path="res://.godot/imported/rust_bucket_wheel_idle_f2.png-ddf8d96033deef8c6380fdbb237839aa.ctex"
+uid="uid://8168bo84hjfr"
+path="res://.godot/imported/rust_bucket_wheel_idle_f2.png-4fbbaa09cc6504bfdde65c7337c1931f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/rust_bucket_wheel_idle_f2.png"
-dest_files=["res://.godot/imported/rust_bucket_wheel_idle_f2.png-ddf8d96033deef8c6380fdbb237839aa.ctex"]
+dest_files=["res://.godot/imported/rust_bucket_wheel_idle_f2.png-4fbbaa09cc6504bfdde65c7337c1931f.ctex"]
 
 [params]
 

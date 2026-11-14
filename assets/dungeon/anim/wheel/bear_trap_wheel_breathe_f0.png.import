@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://9c22cba0dfdd36ed"
-path="res://.godot/imported/bear_trap_wheel_breathe_f0.png-88de6bdc8025ac762bb7a4e36aeb5cc1.ctex"
+uid="uid://bdijm0vs60w6j"
+path="res://.godot/imported/bear_trap_wheel_breathe_f0.png-65160ee4fed512a31504b337d18ba586.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/dungeon/anim/wheel/bear_trap_wheel_breathe_f0.png"
-dest_files=["res://.godot/imported/bear_trap_wheel_breathe_f0.png-88de6bdc8025ac762bb7a4e36aeb5cc1.ctex"]
+dest_files=["res://.godot/imported/bear_trap_wheel_breathe_f0.png-65160ee4fed512a31504b337d18ba586.ctex"]
 
 [params]
 
