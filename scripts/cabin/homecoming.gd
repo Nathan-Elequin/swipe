@@ -164,8 +164,9 @@ func _detect_first_return() -> bool:
 	if _cabin_flag("first_return_homecoming_done"):
 		return false
 	var kind := _cabin_str("_homecoming_kind", "win")
-	## First successful dungeon return only (after key-ring / Nib relocate).
-	return kind == "win" and _cabin_flag("key_ring_seen")
+	## Nathan lock 2026-11-14: first return is win OR limp-home, and it runs in the
+	## trophy room BEFORE the key-ring unlocks the other rooms.
+	return kind == "win" or kind == "loss"
 
 
 func _cabin_flag(prop: String) -> bool:
@@ -346,13 +347,14 @@ func _play_one_item(card_id: String) -> void:
 	if _stale() or _skip_requested:
 		_free_fx(spr)
 		return
-	## 1.20 poof + claim
+	## 1.20 land → poof SFX/art → ONLY THEN claim (plinth lights) + biome light.
 	await _poof_at(to_local)
 	_free_fx(spr)
+	## Claim after the poof so the slot never lights before the item arrives.
 	_claim_item(card_id)
 	placed_order.append(card_id)
 	item_placed.emit(card_id)
-	## 1.45 light if raised
+	## 1.45 biome arch light if this claim raised the count.
 	var lights_after: int = _lights_lit_now(face_i)
 	if lights_after > lights_before and lights_after <= 5:
 		await _flash_light(face_i, lights_after - 1, lights_after)

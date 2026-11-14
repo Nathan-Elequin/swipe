@@ -46,9 +46,13 @@ func setup(p_face: Dictionary) -> void:
 	face = p_face
 	face_index = int(p_face.get("index", 0))
 	name = "Face_%s" % str(p_face.get("pool_id", face_index))
-	size = MODEL.FACE_VIEWPORT.size
+	## Match the board FaceViewport (oak face + floor lever strip) so the lever
+	## stays hittable while neighbour boards stay clipped horizontally.
+	var face_h: float = maxf(MODEL.FACE_VIEWPORT.size.y, MODEL.HALL_FLOOR_Y - MODEL.FACE_VIEWPORT.position.y)
+	size = Vector2(MODEL.FACE_VIEWPORT.size.x, face_h)
 	custom_minimum_size = size
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Board FaceViewport clips neighbours; this face must not re-clip the lever.
 	clip_contents = false
 	_build_chrome()
 
@@ -59,9 +63,11 @@ func _build_chrome() -> void:
 	_slots.clear()
 	_lights.clear()
 	var slug := str(face.get("slug", "verdant"))
+	## Oak face plate only — lever lives on the floor strip below (not stretched art).
+	var oak_sz: Vector2 = MODEL.FACE_VIEWPORT.size
 	_bg = _tex_or_box(
 		"Bg",
-		Rect2(Vector2.ZERO, size),
+		Rect2(Vector2.ZERO, oak_sz),
 		"trophy_board/face_bg_%s" % slug,
 		Color(str(_biome_fill(slug)))
 	)
@@ -69,8 +75,11 @@ func _build_chrome() -> void:
 	_pyramid = Control.new()
 	_pyramid.name = "Pyramid"
 	_pyramid.position = Vector2.ZERO
-	_pyramid.size = size
+	_pyramid.size = oak_sz
 	_pyramid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Clip neighbour-slot bleed inside the oak face; slabs may extend into the row gap
+	## but not into the next board.
+	_pyramid.clip_contents = false
 	add_child(_pyramid)
 	## Crest face-local: absolute (240,144) - viewport (224,128) = (16,16)
 	_crest = _tex_or_box(

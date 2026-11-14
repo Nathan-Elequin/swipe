@@ -140,6 +140,7 @@ func slide_to(index: int, instant := false) -> void:
 		if incoming != null:
 			incoming.modulate.a = 0.0
 		var ftw := create_tween()
+		ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		ftw.set_parallel(true)
 		if outgoing != null:
 			ftw.tween_property(outgoing, "modulate:a", 0.0, fade_dur)
@@ -173,12 +174,14 @@ func slide_to(index: int, instant := false) -> void:
 		var start_x := float(i - from) * span
 		node.position.x = start_x
 		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tw.tween_property(node, "position:x", target_x, dur).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	_spin_cogs(dir)
-	await get_tree().create_timer(dur * 0.5).timeout
+	## Cabin keeps SceneTree.paused; ignore_pause so the slide always finishes.
+	await get_tree().create_timer(dur * 0.5, true, false, true).timeout
 	_update_chrome()
 	face_changed.emit(_current)
-	await get_tree().create_timer(dur * 0.5).timeout
+	await get_tree().create_timer(dur * 0.5, true, false, true).timeout
 	_sliding = false
 	_snap_faces()
 	_arm_view_timer()
@@ -308,10 +311,11 @@ func _build_shell() -> void:
 	_viewport = Control.new()
 	_viewport.name = "FaceViewport"
 	_viewport.position = vp_local.position
-	_viewport.size = vp_local.size
-	## False so the floor lever (and feet on HALL_FLOOR_Y in front of the dais) can draw
-	## below the oak face. Pyramid slabs still fit inside the 616 face height.
-	_viewport.clip_contents = false
+	## Tall enough that the floor lever (HALL_FLOOR_Y) stays inside this clip host,
+	## while neighbour faces never paint outside the board frame (whole-room slide bug).
+	var vp_h: float = maxf(vp_local.size.y, MODEL.HALL_FLOOR_Y - MODEL.FACE_VIEWPORT.position.y)
+	_viewport.size = Vector2(vp_local.size.x, vp_h)
+	_viewport.clip_contents = true
 	_viewport.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_viewport)
 	## Painted placard (Nearest, 1:1). New signs are 120 tall; widths even so centre is whole pixels.
@@ -685,26 +689,28 @@ func _build_item_tag() -> void:
 		panel.add_theme_stylebox_override("panel", sb)
 		_item_tag.add_child(panel)
 		frame = panel
+	## NinePatch margins are 24 — keep text inside the flat centre with matching pad.
 	var col := VBoxContainer.new()
 	col.name = "Cols"
 	col.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	col.offset_left = 10
-	col.offset_top = 8
-	col.offset_right = -10
-	col.offset_bottom = -8
-	col.add_theme_constant_override("separation", 4)
+	col.offset_left = 24
+	col.offset_top = 24
+	col.offset_right = -24
+	col.offset_bottom = -24
+	col.add_theme_constant_override("separation", 6)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_tag.add_child(col)
 	_item_tag_title = Label.new()
 	_item_tag_title.name = "Title"
-	_item_tag_title.add_theme_font_size_override("font_size", 18)
+	## Readable size: at least hover-panel body (16–22). Dark brown #4a2f1f.
+	_item_tag_title.add_theme_font_size_override("font_size", 22)
 	_item_tag_title.add_theme_color_override("font_color", Color("4a2f1f"))
 	_item_tag_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_item_tag_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_item_tag_title)
 	_item_tag_body = Label.new()
 	_item_tag_body.name = "Body"
-	_item_tag_body.add_theme_font_size_override("font_size", 14)
+	_item_tag_body.add_theme_font_size_override("font_size", 18)
 	_item_tag_body.add_theme_color_override("font_color", Color("4a2f1f"))
 	_item_tag_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_item_tag_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -727,23 +733,26 @@ func show_item_tag(card_id: String, screen_anchor: Vector2) -> void:
 	_item_tag_title.text = title
 	_item_tag_body.text = body
 	_item_tag_body.visible = body != ""
-	## Size to content, then clamp on screen.
-	var max_w := 280.0
-	_item_tag_title.custom_minimum_size = Vector2(max_w - 20, 0)
-	_item_tag_body.custom_minimum_size = Vector2(max_w - 20, 0)
+	## Size to content (24px pad each side from ninepatch), then clamp on screen.
+	var max_w := 320.0
+	var pad := 48.0 ## 24 left + 24 right
+	_item_tag_title.custom_minimum_size = Vector2(max_w - pad, 0)
+	_item_tag_body.custom_minimum_size = Vector2(max_w - pad, 0)
 	var title_sz: Vector2 = _item_tag_title.get_minimum_size()
 	var body_sz: Vector2 = _item_tag_body.get_minimum_size() if _item_tag_body.visible else Vector2.ZERO
-	var w: float = clampf(maxi(title_sz.x, body_sz.x) + 24.0, 140.0, max_w)
-	var h: float = 16.0 + title_sz.y + (4.0 + body_sz.y if _item_tag_body.visible else 0.0) + 16.0
+	var w: float = clampf(maxi(title_sz.x, body_sz.x) + pad, 180.0, max_w)
+	var h: float = 24.0 + title_sz.y + (6.0 + body_sz.y if _item_tag_body.visible else 0.0) + 24.0
 	_item_tag.size = Vector2(w, h)
-	## Anchor at click, prefer above-right; clamp inside the 1680×1040 viewport.
-	var gp := screen_anchor + Vector2(12, -h - 8)
+	## Sit beside the item (mock), not overlapping it. Prefer right; flip left if needed.
+	var gp := screen_anchor + Vector2(56, -h * 0.35)
 	var view := Rect2(0, 0, 1680, 1040)
 	var vp := get_viewport()
 	if vp != null:
 		view = vp.get_visible_rect()
 		if view.size.x < 8.0 or view.size.y < 8.0:
 			view = Rect2(0, 0, 1680, 1040)
+	if gp.x + w > view.position.x + view.size.x - 8.0:
+		gp.x = screen_anchor.x - w - 56.0
 	gp.x = clampf(gp.x, view.position.x + 8.0, view.position.x + view.size.x - w - 8.0)
 	gp.y = clampf(gp.y, view.position.y + 8.0, view.position.y + view.size.y - h - 8.0)
 	_item_tag.global_position = gp

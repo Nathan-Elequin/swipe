@@ -8,6 +8,17 @@ const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 static func attach(parent: Node) -> void:
 	if not OS.has_feature("editor"):
 		return
+	## Hidden during playtest F5 / itch playtest so Nathan and friends never see
+	## the raw "🧪 playtest/latest" chrome. Opt in with --dev-branch-tag.
+	var playtest := load("res://scripts/playtest_flag.gd")
+	if playtest != null and playtest.has_method("on") and bool(playtest.on()):
+		var want := false
+		for arg in OS.get_cmdline_user_args():
+			if str(arg) == "--dev-branch-tag":
+				want = true
+				break
+		if not want:
+			return
 	if SHOT_CLI.enabled(OS.get_cmdline_user_args()):
 		return
 	for arg in OS.get_cmdline_user_args():

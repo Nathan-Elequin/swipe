@@ -55,9 +55,9 @@ func _run() -> void:
 	## Fresh defaults.
 	cabin.call("_apply_defaults")
 	failed = _assert(
-		rows, failed, "FRESH.rooms_main_only",
-		"fresh save starts with main only",
-		_rooms_eq(cabin, ["main"]),
+		rows, failed, "FRESH.rooms_main_hall",
+		"fresh save starts with main + hall (trophy open from first visit)",
+		_rooms_eq(cabin, ["main", "hall"]),
 		"rooms=%s" % str(cabin.get("rooms_unlocked"))
 	) or failed
 	failed = _assert(
@@ -93,9 +93,9 @@ func _run() -> void:
 	) or failed
 	cabin.call("_sync_progress_doors")
 	failed = _assert(
-		rows, failed, "TUT.rooms_stay_main",
-		"tutorial alone does not unlock house rooms",
-		_rooms_eq(cabin, ["main"]),
+		rows, failed, "TUT.rooms_stay_main_hall",
+		"tutorial alone does not unlock study/workshop/loft (hall is open from start)",
+		_rooms_eq(cabin, ["main", "hall"]),
 		"rooms=%s" % str(cabin.get("rooms_unlocked"))
 	) or failed
 
@@ -111,18 +111,18 @@ func _run() -> void:
 	) or failed
 	var want_loss: bool = cabin.call("_credit_homecoming_counters")
 	failed = _assert(
-		rows, failed, "LOSS.no_haul",
-		"death credits losses only",
-		want_loss == false
+		rows, failed, "LOSS.credits_and_key_due",
+		"death credits losses and (Nathan 2026-11-14) still requests the post-trophy key tour",
+		want_loss == true
 			and int(cabin.get("counters").get("hauls", -1)) == 0
 			and int(cabin.get("counters").get("losses", -1)) == 1,
 		"want=%s counters=%s" % [want_loss, str(cabin.get("counters"))]
 	) or failed
 	cabin.call("_sync_progress_doors")
 	failed = _assert(
-		rows, failed, "LOSS.rooms_stay_main",
-		"death does not unlock house rooms",
-		_rooms_eq(cabin, ["main"]),
+		rows, failed, "LOSS.rooms_stay_main_hall",
+		"death alone does not unlock study/workshop/loft (key tour does that after trophy)",
+		_rooms_eq(cabin, ["main", "hall"]),
 		"rooms=%s" % str(cabin.get("rooms_unlocked"))
 	) or failed
 
