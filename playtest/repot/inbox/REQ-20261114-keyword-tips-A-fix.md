@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-keyword-tips-A-fix
-status: open
+status: done
 priority: high
 pr: 516
 tip_sha: 8f471fb7
