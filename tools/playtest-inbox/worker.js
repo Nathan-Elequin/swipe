@@ -286,10 +286,50 @@ async function insertTelemetry(env, payload) {
   return { ok: true, stored: batch.length, is_test: isTest };
 }
 
-function bump(map, key, field) {
-  if (!key) return;
-  if (!map[key]) map[key] = { id: key, n: 0, win: 0, pick: 0, offered: 0, used: 0 };
-  map[key][field] = (map[key][field] || 0) + 1;
+function pct(num, den) {
+  if (!den) return null;
+  return Math.round((1000 * num) / den) / 10;
+}
+
+function ensureCard(map, id, tier) {
+  const tid = String(id || "").trim();
+  if (!tid) return null;
+  const t = Math.max(1, Math.min(3, Number(tier) || 1));
+  const key = t + "|" + tid;
+  if (!map[key]) {
+    map[key] = {
+      id: tid,
+      tier: t,
+      offered: 0,
+      taken: 0,
+      held: 0,
+      held_win: 0,
+      claimed: 0,
+      seated: 0,
+      seated_win: 0,
+    };
+  }
+  return map[key];
+}
+
+function eachCard(list, fn) {
+  if (!Array.isArray(list)) return;
+  for (const raw of list) {
+    if (raw && typeof raw === "object") fn(String(raw.id || ""), raw.tier);
+    else fn(String(raw || ""), 1);
+  }
+}
+
+function finishCards(map) {
+  return Object.values(map)
+    .map((c) => ({
+      ...c,
+      pick_rate: pct(c.taken, c.offered),
+      win_rate: pct(c.held_win, c.held),
+      claim_rate: pct(c.claimed, c.held_win),
+      survive_rate: pct(c.seated_win, c.seated),
+    }))
+    .sort((a, b) => a.tier - b.tier || b.offered + b.held + b.seated - (a.offered + a.held + a.seated) || a.id.localeCompare(b.id));
 }
 
 async function telemetrySummary(env, includeTest) {
@@ -300,14 +340,12 @@ async function telemetrySummary(env, includeTest) {
   ).all();
   const live = (rows.results || []).filter((r) => includeTest || !r.is_test);
   const counts = {};
-  const drafts = {};
   const items = {};
   const monsters = {};
   const funnel = {};
-  let sessions = {};
-  let runWin = 0;
-  let runLoss = 0;
-  let runLeave = 0;
+  const sessions = {};
+  let dungeonWin = 0;
+  let dungeonDead = 0;
   for (const r of live) {
     counts[r.name] = (counts[r.name] || 0) + 1;
     sessions[r.session_id] = true;
@@ -317,51 +355,52 @@ async function telemetrySummary(env, includeTest) {
     } catch (e) {
       props = {};
     }
-    if (r.name === "draft_offered") {
-      const offered = Array.isArray(props.offered) ? props.offered : [];
-      for (const id of offered) bump(drafts, String(id || ""), "offered");
+    if (r.name === "draft_trial") {
+      const row = ensureCard(items, props.id, props.tier);
+      if (row) {
+        row.offered += 1;
+        if (props.taken) row.taken += 1;
+      }
     }
-    if (r.name === "draft_picked") bump(drafts, String(props.id || ""), "pick");
-    if (r.name === "item_used") bump(items, String(props.id || ""), "used");
-    if (r.name === "fight_start") bump(monsters, String(props.id || ""), "n");
-    if (r.name === "fight_end" && props.outcome === "win") bump(monsters, String(props.id || ""), "win");
-    if (r.name === "run_end") {
-      if (props.outcome === "win") runWin += 1;
-      else if (props.outcome === "dead") runLoss += 1;
-      else if (props.outcome === "leave") runLeave += 1;
+    if (r.name === "dungeon_end") {
+      const win = props.outcome === "win";
+      if (win) dungeonWin += 1;
+      else if (props.outcome === "dead") dungeonDead += 1;
+      eachCard(props.held, (id, tier) => {
+        const row = ensureCard(items, id, tier);
+        if (!row) return;
+        row.held += 1;
+        if (win) row.held_win += 1;
+      });
+      if (win) {
+        eachCard(props.claimed, (id, tier) => {
+          const row = ensureCard(items, id, tier);
+          if (row) row.claimed += 1;
+        });
+      }
+      eachCard(props.monsters, (id, tier) => {
+        const row = ensureCard(monsters, id, tier);
+        if (!row) return;
+        row.seated += 1;
+        if (win) row.seated_win += 1;
+      });
     }
-    if (r.name === "funnel" || r.name === "cabin" || r.name === "mode") {
+    if (r.name === "funnel" || r.name === "mode") {
       const step = String(props.step || props.kind || r.name);
       funnel[step] = (funnel[step] || 0) + 1;
     }
   }
-  const asRows = (map) =>
-    Object.values(map)
-      .map((c) => {
-        const offered = c.offered || 0;
-        return {
-          id: c.id,
-          offered,
-          picked: c.pick || 0,
-          pick_rate: offered ? Math.round((1000 * (c.pick || 0)) / offered) / 10 : null,
-          used: c.used || 0,
-          fights: c.n || 0,
-          wins: c.win || 0,
-        };
-      })
-      .sort((a, b) => (b.offered || b.used || b.fights) - (a.offered || a.used || a.fights));
   return {
     counted: includeTest
-      ? "itch + F5 / editor (test rows included)"
-      : "live itch Sends only (not F5 / editor)",
+      ? "campaign dungeons, itch + F5 (tutorial omitted in the game)"
+      : "campaign dungeons, itch only (uncheck to hide F5)",
     sessions: Object.keys(sessions).length,
     events: live.length,
     counts,
-    runs: { win: runWin, dead: runLoss, leave: runLeave },
+    dungeons: { win: dungeonWin, dead: dungeonDead },
     funnel,
-    drafts: asRows(drafts),
-    items: asRows(items),
-    monsters: asRows(monsters),
+    items: finishCards(items),
+    monsters: finishCards(monsters),
   };
 }
 

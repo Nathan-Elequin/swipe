@@ -27,11 +27,11 @@
 <body>
 <header>
   <h1>Playtest telemetry</h1>
-  <p>Silent events from the itch playtest. F5 Sends are marked test. Open this file in Zen.</p>
+  <p>Campaign dungeons only. Pick-two take rate, survive-with-item, claimed-on-win, monster presence vs survive — each compared inside its tier. Opening six are held, never picks. Rope home after a clear is still a dungeon win.</p>
   <div class="cfg">
     <input id="url" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
     <input id="token" placeholder="shared Send token" type="password">
-    <label style="color:var(--muted);display:flex;align-items:center;gap:6px"><input id="test" type="checkbox" style="min-width:auto"> Include F5</label>
+    <label style="color:var(--muted);display:flex;align-items:center;gap:6px"><input id="test" type="checkbox" checked style="min-width:auto"> Include F5</label>
     <button id="load">Load live</button>
     <button id="example">Show worked example</button>
   </div>
@@ -48,39 +48,22 @@ $("example").onclick = showExample;
 const EXAMPLE = {
   counted: "made-up teaching set — not real players",
   sessions: 12,
-  events: 184,
-  counts: {
-    session_start: 12,
-    funnel: 18,
-    mode: 10,
-    run_start: 10,
-    draft_offered: 42,
-    draft_picked: 38,
-    item_used: 31,
-    fight_start: 28,
-    fight_end: 22,
-    dungeon_cleared: 6,
-    run_end: 10,
-  },
-  runs: { win: 3, dead: 5, leave: 2 },
-  funnel: { hub_brand_new: 4, hub_middle: 3, hub_continue: 5, cabin: 8, adventure: 7, challenge: 3, dungeon_enter: 9 },
-  drafts: [
-    { id: "healing_potion", offered: 18, picked: 15, pick_rate: 83.3 },
-    { id: "net", offered: 14, picked: 9, pick_rate: 64.3 },
-    { id: "da_boot", offered: 12, picked: 4, pick_rate: 33.3 },
-    { id: "sledgehammer", offered: 8, picked: 7, pick_rate: 87.5 },
-    { id: "goblin", offered: 11, picked: 2, pick_rate: 18.2 },
-  ],
+  events: 90,
+  counts: { dungeon_start: 20, dungeon_end: 20, draft_trial: 40, monster_seated: 24 },
+  dungeons: { win: 12, dead: 8 },
+  funnel: { hub_brand_new: 4, hub_middle: 3, hub_continue: 5, campaign: 10 },
   items: [
-    { id: "healing_potion", used: 11 },
-    { id: "shield", used: 8 },
-    { id: "throwing_knife", used: 6 },
-    { id: "smoke_bomb", used: 4 },
+    { id: "healing_potion", tier: 1, offered: 18, taken: 15, pick_rate: 83.3, held: 16, held_win: 12, win_rate: 75, claimed: 11, claim_rate: 91.7 },
+    { id: "net", tier: 1, offered: 14, taken: 9, pick_rate: 64.3, held: 10, held_win: 7, win_rate: 70, claimed: 6, claim_rate: 85.7 },
+    { id: "da_boot", tier: 1, offered: 12, taken: 4, pick_rate: 33.3, held: 6, held_win: 3, win_rate: 50, claimed: 3, claim_rate: 100 },
+    { id: "sledgehammer", tier: 2, offered: 8, taken: 7, pick_rate: 87.5, held: 7, held_win: 6, win_rate: 85.7, claimed: 5, claim_rate: 83.3 },
+    { id: "hex", tier: 2, offered: 6, taken: 5, pick_rate: 83.3, held: 5, held_win: 4, win_rate: 80, claimed: 0, claim_rate: 0 },
+    { id: "grimoire", tier: 3, offered: 4, taken: 2, pick_rate: 50, held: 3, held_win: 2, win_rate: 66.7, claimed: 2, claim_rate: 100 },
   ],
   monsters: [
-    { id: "goblin", fights: 9, wins: 8 },
-    { id: "hornet", fights: 6, wins: 3 },
-    { id: "dragon", fights: 2, wins: 0 },
+    { id: "goblin", tier: 1, seated: 14, seated_win: 12, survive_rate: 85.7 },
+    { id: "hornet", tier: 2, seated: 8, seated_win: 4, survive_rate: 50 },
+    { id: "dragon", tier: 3, seated: 3, seated_win: 0, survive_rate: 0 },
   ],
 };
 
@@ -127,34 +110,49 @@ async function loadLive() {
   }
 }
 
+function byTier(rows, tier) {
+  return (rows || []).filter((r) => Number(r.tier) === tier);
+}
+
+function itemTables(rows) {
+  const cols = [
+    { key: "id", label: "Item" },
+    { key: "offered", label: "Pick-two offered", num: true },
+    { key: "taken", label: "Taken", num: true },
+    { key: "pick_rate", label: "Take %", num: true },
+    { key: "held", label: "Dungeons held", num: true },
+    { key: "held_win", label: "Those survived", num: true },
+    { key: "win_rate", label: "Survive % with it", num: true },
+    { key: "claimed", label: "Still in hand on win", num: true },
+    { key: "claim_rate", label: "Keep % on win", num: true },
+  ];
+  return [1, 2, 3].map((t) => table("Items · tier " + t, byTier(rows, t), cols)).join("");
+}
+
+function monsterTables(rows) {
+  const cols = [
+    { key: "id", label: "Monster" },
+    { key: "seated", label: "Dungeons on the wheel", num: true },
+    { key: "seated_win", label: "Those survived", num: true },
+    { key: "survive_rate", label: "Survive %", num: true },
+  ];
+  return [1, 2, 3].map((t) => table("Monsters · tier " + t, byTier(rows, t), cols)).join("");
+}
+
 function render(data) {
-  const runs = data.runs || {};
+  const dungeons = data.dungeons || data.runs || {};
   const funnel = Object.entries(data.funnel || {}).map(([step, n]) => ({ step, n }));
   const counts = Object.entries(data.counts || {}).map(([name, n]) => ({ name, n }));
   $("board").innerHTML = `
     <div class="cards">
       <div class="stat"><span>Sessions</span><b>${esc(data.sessions || 0)}</b></div>
       <div class="stat"><span>Events</span><b>${esc(data.events || 0)}</b></div>
-      <div class="stat"><span>Wins</span><b>${esc(runs.win || 0)}</b></div>
-      <div class="stat"><span>Deaths</span><b>${esc(runs.dead || 0)}</b></div>
-      <div class="stat"><span>Leaves</span><b>${esc(runs.leave || 0)}</b></div>
+      <div class="stat"><span>Dungeon wins</span><b>${esc(dungeons.win || 0)}</b></div>
+      <div class="stat"><span>Dungeon deaths</span><b>${esc(dungeons.dead || 0)}</b></div>
     </div>
+    ${itemTables(data.items)}
+    ${monsterTables(data.monsters)}
     ${table("Funnel", funnel, [{ key: "step", label: "Step" }, { key: "n", label: "Count", num: true }])}
-    ${table("Draft pick rate (offered → taken)", data.drafts, [
-      { key: "id", label: "Card" },
-      { key: "offered", label: "Offered", num: true },
-      { key: "picked", label: "Taken", num: true },
-      { key: "pick_rate", label: "Take %", num: true },
-    ])}
-    ${table("Items used", data.items, [
-      { key: "id", label: "Item" },
-      { key: "used", label: "Uses", num: true },
-    ])}
-    ${table("Fights (by faced monster)", data.monsters, [
-      { key: "id", label: "Monster" },
-      { key: "fights", label: "Fights", num: true },
-      { key: "wins", label: "Player wins", num: true },
-    ])}
     ${table("Raw event counts", counts, [
       { key: "name", label: "Event" },
       { key: "n", label: "Count", num: true },

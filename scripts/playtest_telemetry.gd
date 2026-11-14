@@ -6,7 +6,7 @@ const CFG_PATH := "res://data/playtest-inbox.json"
 const ANON_PATH := "user://playtest_anon.json"
 const FLUSH_SEC := 12.0
 const BATCH := 25
-const PAYLOAD_CAP := 3500
+const PAYLOAD_CAP := 8000
 
 var _http: HTTPRequest
 var _cfg: Dictionary = {}
