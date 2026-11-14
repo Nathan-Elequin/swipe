@@ -1,0 +1,9 @@
+id=A12
+phase=rest
+music=title on first dead-portal dump (hub bed leftover), cabin after leave
+rope_alive=false then true
+arch_lights=2 then 5
+satchel=_floor_satchel present
+strip=LootStrip with NewStar on new uniques
+hook: open_exit + apply_exit_mode
+shots: A12-rope-0carried / 1carried / 2carried / 3plus-carried

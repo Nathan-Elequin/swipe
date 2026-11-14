@@ -1,0 +1,13 @@
+id=A03
+scene=res://scenes/main.tscn
+phase=title (cabin hall)
+music=cabin
+NibSprite path: hall/NibSprite
+NibSprite.global_position: (1408, 688)
+NibSprite.z_index: 8
+NibSprite.visible: true
+TrophyBoard.global_position: (176, 40)
+TrophyBoard.size: (1328, 776) so board bottom y=816
+Observation: Nib sits on the right of the hall, in front of the board (z 8 > board art). He reads small vs the pyramid. Feet y ~688 native-top; board floor line ~816.
+Developer Test / Play Latest / Roster / Script strip WAS visible (top-left) during hall shots.
+hook: home_cabin.show_menu("hall") + set_nib_in_hall(true)

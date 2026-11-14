@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-flow-overhaul
-status: open
+status: done
 priority: high
 branch: cursor/flow-art-wire-de91
 created: 2026-11-14T04:40:00Z

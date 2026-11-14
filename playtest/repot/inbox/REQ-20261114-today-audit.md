@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-today-audit
-status: open
+status: done
 priority: high
 tip_sha: e667b20c
 created: 2026-11-14T05:45:00Z

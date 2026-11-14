@@ -1,0 +1,6 @@
+id=A09
+scene=res://scenes/main.tscn
+music per frame (BoardSequences.portal burst, 16 x 200ms): cabin on every sampled frame (crystal_cavern bed did not start)
+covers per frame: /root/Main/CabinRoot ColorRect black z=95
+hook: BoardSequences.portal(0) after 5 banked Verdant uniques
+note: Crystal Cavern splash art DID appear (A10-after-splash / A09 later frames) but music key stayed "cabin"

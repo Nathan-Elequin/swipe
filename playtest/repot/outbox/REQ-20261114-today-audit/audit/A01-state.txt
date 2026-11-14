@@ -1,0 +1,6 @@
+id=A01
+music sampled during walk burst: cabin
+climb burst 12 frames: music=cabin, overlay_dev=false, rope=true, cabin=false, ClimbWipe.visible=false (wipe_y=1040)
+A01-climb_f* later contaminated by leftover BiomeSplash (Shadow Abyss)
+walk burst: hero_vis=false for idle exterior (good for empty exterior)
+hook: rope_exit.climb.emit then later _do_climb; debug_pose("walk")

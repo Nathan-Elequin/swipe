@@ -1,0 +1,25 @@
+id=A10
+scene=res://scenes/main.tscn
+phase=title
+music=cabin
+viewport=1680x1040 (RenderingServer.viewport_set_size on editor Game dock)
+
+COVERING NODE (black after splash dismissed / hidden):
+  path: /root/Main/CabinRoot/@ColorRect@990
+  class: ColorRect
+  created by: BoardSequences._fade (cabin._ensure_fade missing, so unnamed ColorRect)
+  color: (0.0431, 0.0275, 0.0235, 1.0) = #0B0706
+  modulate.a: 1.0
+  z_index: 200
+  mouse_filter: IGNORE (2)
+  visible: true
+  full-rect over CabinRoot
+
+ALSO OPAQUE:
+  /root/Main/CabinRoot ColorRect z=95 color=(0,0,0,1) — cabin root plate
+  /root/Main/CabinRoot/BiomeSplash (CanvasLayer 90) stayed visible during A10-after-splash_f00..f05 (Crystal Cavern splash still on screen)
+  When BiomeSplash was hidden, A10-fade-cover.png is full black except playtest.latest watermark — clicks/audio still live
+
+tweens: BoardSequences fade tween (TWEEN_PAUSE_PROCESS) held modulate.a at 1.0 after to_black=true
+ambience: none playing on _loop_players during dump
+hook: BoardSequences.portal(0) after banking 5 b1 uniques; persist writes off

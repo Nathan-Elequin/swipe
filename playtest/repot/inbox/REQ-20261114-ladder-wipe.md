@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-ladder-wipe
-status: open
+status: done
 priority: high
 branch: cursor/ladder-wipe-homecoming-c308
 tip_sha: 01ab849c
