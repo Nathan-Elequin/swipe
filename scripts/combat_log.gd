@@ -482,13 +482,18 @@ func _on_leave() -> void:
 func _mount_hint() -> void:
 	if _kw_tip == null or not is_instance_valid(_kw_tip):
 		return
-	var host: Node = get_parent()
+	## Prefer Main (same paint path as pip/item cards) so the log parchment is not clipped.
+	var host: Node = get_tree().root.get_node_or_null("Main") if is_inside_tree() else null
+	if host == null:
+		host = get_parent()
 	if host == null:
 		return
 	if _kw_tip.get_parent() != host:
 		if _kw_tip.get_parent() != null:
 			_kw_tip.get_parent().remove_child(_kw_tip)
 		host.add_child(_kw_tip)
+	_kw_tip.top_level = true
+	_kw_tip.z_index = 141
 
 
 func _drop_hint() -> void:

@@ -2,6 +2,7 @@ extends CanvasLayer
 ## Dev-only keyword definition editor (F1). Hidden in release exports.
 ## Lists all 23 keywords, edits title/body, live parchment preview, Save / Revert.
 
+const KeywordDefs := preload("res://scripts/keyword_defs.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 
 var _root: Control

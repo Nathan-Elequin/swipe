@@ -784,21 +784,17 @@ func _ready() -> void:
 func _mount_mark_tip() -> void:
 	if _mark_tip == null:
 		return
+	## Parent on Main with top_level (same paint path as other keyword cards).
+	## MarkTipLayer (CanvasLayer 90) failed to paint the parchment on Cherry QA.
 	var host: Node = get_tree().root.get_node_or_null("Main")
 	if host == null:
 		host = get_tree().root
-	var layer: CanvasLayer = host.get_node_or_null("MarkTipLayer") as CanvasLayer
-	if layer == null:
-		layer = CanvasLayer.new()
-		layer.name = "MarkTipLayer"
-		layer.layer = 90
-		host.add_child(layer)
-	if _mark_tip.get_parent() != layer:
+	if _mark_tip.get_parent() != host:
 		if _mark_tip.get_parent() != null:
 			_mark_tip.get_parent().remove_child(_mark_tip)
-		layer.add_child(_mark_tip)
-	_mark_tip.top_level = false
-	_mark_tip.z_index = 1
+		host.add_child(_mark_tip)
+	_mark_tip.top_level = true
+	_mark_tip.z_index = 141
 	## Tip manages its own mouse_filter (PASS while open / STOP while pinned).
 
 
