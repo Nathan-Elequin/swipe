@@ -1,9 +1,9 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
-## Keyword sub-tooltips (Always, Flee, …) are small capsules docked to this callout.
+## Keywords auto-show as a parchment stack beside the plate (locked 2026-11-14).
 
 const COPY := preload("res://scripts/player_copy.gd")
-const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
+const KEYWORD_STACK := preload("res://scripts/keyword_stack.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 
 signal edit_pressed(kind: String, card_id: String)
@@ -17,7 +17,10 @@ var edit_id: String = ""
 var last_shown: Dictionary = {}
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
-var _kw_tip: PanelContainer
+## Autoshow parchment stack (replaces single-card hover/pin on plates).
+var _kw_stack: Control
+## Alias of `_kw_stack` so main.gd notify paths that still read `_kw_tip` keep working.
+var _kw_tip: Control
 var _pin_always: bool = false
 
 
@@ -29,9 +32,10 @@ func _ready() -> void:
 	gui_input.connect(_on_gui)
 	if not _skinned:
 		_plain_skin()
-	_kw_tip = KEYWORD_TIP.new()
-	add_child(_kw_tip)
-	_kw_tip.setup()
+	_kw_stack = KEYWORD_STACK.new()
+	add_child(_kw_stack)
+	_kw_stack.setup()
+	_kw_tip = _kw_stack
 
 
 func apply_skin(tex: Texture2D) -> void:
@@ -164,6 +168,7 @@ func show_rule(
 		reset_size()
 		size.x = 340
 		_release_plate_for_keywords()
+		_autoshow_keywords(look)
 		return
 	var center_copy: bool = p_kind == "monster"
 	var drop: float = float(look.get("title_drop", 0.0))
@@ -272,8 +277,8 @@ func show_rule(
 		_wire_kw(b)
 		col.add_child(b)
 	_pin_always = false
-	if _kw_tip != null and _kw_tip.has_method("hide_def"):
-		_kw_tip.hide_def()
+	if _kw_stack != null and _kw_stack.has_method("hide_stack"):
+		_kw_stack.hide_stack()
 	if warn != "":
 		var w := Label.new()
 		w.text = warn
@@ -345,11 +350,44 @@ func show_rule(
 	visible = true
 	reset_size()
 	_release_plate_for_keywords()
+	_autoshow_keywords(look)
+
+
+func _autoshow_keywords(look: Dictionary = {}) -> void:
+	## Show every keyword on this plate at once, stacked beside it.
+	if _kw_stack == null or not _kw_stack.has_method("show_ids"):
+		return
+	var ids: Array = _collect_plate_kw_ids()
+	if bool(look.get("unplayable", false)) and not ids.has("unplayable"):
+		ids.append("unplayable")
+	var src: String = edit_kind if edit_kind != "" else "item"
+	if ids.is_empty():
+		_kw_stack.hide_stack()
+		return
+	_kw_stack.show_ids(ids, self, src)
+
+
+func _collect_plate_kw_ids() -> Array:
+	var ids: Array = []
+	var seen: Dictionary = {}
+	_collect_kw_from_node(self, ids, seen)
+	return ids
+
+
+func _collect_kw_from_node(n: Node, ids: Array, seen: Dictionary) -> void:
+	if n == _kw_stack:
+		return
+	if n is RichTextLabel:
+		for kid in UxStyle.collect_kw_ids(str((n as RichTextLabel).text)):
+			if not seen.has(kid):
+				seen[kid] = true
+				ids.append(kid)
+	for c in n.get_children():
+		_collect_kw_from_node(c, ids, seen)
 
 
 func _release_plate_for_keywords() -> void:
-	## IGNORE on the plate skips the ability sentence, so Flee / Swap never hover.
-	## PASS keeps the click falling through to Take while the keyword can still hover.
+	## PASS lets chip word-hover highlight the matching stack card; click falls through.
 	if accept_clicks:
 		return
 	if _subtree_has_kw_url(self):
@@ -360,7 +398,7 @@ func _subtree_has_kw_url(n: Node) -> bool:
 	if n is RichTextLabel and str((n as RichTextLabel).text).find("[url=kw:") >= 0:
 		return true
 	for c in n.get_children():
-		if c == _kw_tip:
+		if c == _kw_stack:
 			continue
 		if _subtree_has_kw_url(c):
 			return true
@@ -505,13 +543,14 @@ func _unplayable_chip() -> Control:
 	lab.add_theme_constant_override("outline_size", 3)
 	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(lab)
+	## Unplayable is included in the autoshow stack when the plate opens — no single-card hover.
 	box.mouse_entered.connect(func() -> void:
-		if _kw_tip != null and _kw_tip.has_method("show_def"):
-			_kw_tip.show_def(UxStyle.def_of("unplayable"), self, "unplayable")
+		if _kw_stack != null and _kw_stack.has_method("highlight_id"):
+			_kw_stack.highlight_id("unplayable")
 	)
 	box.mouse_exited.connect(func() -> void:
-		if _kw_tip != null and _kw_tip.has_method("hide_def"):
-			_kw_tip.hide_def()
+		if _kw_stack != null and _kw_stack.has_method("clear_highlight"):
+			_kw_stack.clear_highlight()
 	)
 	return box
 
@@ -522,15 +561,15 @@ func _wire_kw(rtl: RichTextLabel) -> void:
 	rtl.focus_mode = Control.FOCUS_NONE
 	if str(rtl.text).find("[url=") >= 0:
 		rtl.mouse_filter = Control.MOUSE_FILTER_STOP
-		UxStyle.wire_def_hover(rtl, _kw_tip, self)
+		## Word hover only highlights the matching card in the autoshow stack.
+		UxStyle.wire_stack_highlight(rtl, _kw_stack)
 	else:
 		rtl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func pin_always_def() -> void:
-	if not _pin_always or _kw_tip == null or not _kw_tip.has_method("show_def"):
-		return
-	_kw_tip.show_def(UxStyle.def_of("always"), self, "always")
+	## Redundant under autoshow — Always is in the stack when the plate has that chip.
+	pass
 
 
 func hide_plate() -> void:
@@ -539,10 +578,8 @@ func hide_plate() -> void:
 	edit_id = ""
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pin_always = false
-	if _kw_tip != null and _kw_tip.has_method("unpin"):
-		_kw_tip.unpin()
-	elif _kw_tip != null and _kw_tip.has_method("hide_def"):
-		_kw_tip.hide_def()
+	if _kw_stack != null and _kw_stack.has_method("hide_stack"):
+		_kw_stack.hide_stack()
 	_apply_look({})
 
 
@@ -662,7 +699,7 @@ func _apply_look(look: Dictionary) -> void:
 
 func _wipe() -> void:
 	for c in get_children():
-		if c == _kw_tip:
+		if c == _kw_stack:
 			continue
 		remove_child(c)
 		c.queue_free()

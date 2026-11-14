@@ -50,6 +50,10 @@ var _font_title: Font
 var _font_body: Font
 ## Gold teach pulse lives off the card so card modulate.a=0 cannot hide it.
 var _teach_halo: TextureRect = null
+## When true, this card is one of several in a KeywordStack — do not steal/hide siblings,
+## and do not self-dock (the stack owns layout).
+var stack_mode: bool = false
+var _stack_highlight: bool = false
 
 
 func setup() -> void:
@@ -204,13 +208,46 @@ func show_def_at(rect: Rect2, msg: String = "", id: String = "", source: String 
 
 
 func show_def_hover(msg: String, anchor: Control = null, id: String = "", source: String = "") -> void:
-	## Chip hover: 0.15s delay before open (spec §5).
+	## Chip hover: 0.15s delay before open (legacy single-card path; plates use KeywordStack).
+	if stack_mode:
+		return
 	show_def(msg, anchor, id, source, true)
+
+
+func show_in_stack(id: String, anchor: Control = null, source: String = "") -> void:
+	## Instant fill for KeywordStack — no hover delay, no single-active claim.
+	stack_mode = true
+	_pinned = false
+	_follow_mouse = false
+	_hover_timer = -1.0
+	_pending_show.clear()
+	_anchor = anchor
+	_source = source if source != "" else _detect_source(anchor)
+	var kid: String = id.strip_edges().to_lower()
+	var t: String = KeywordDefs.def_of(kid)
+	if t == "" and kid != "":
+		t = KeywordDefs.title_of(kid)
+	_reveal(t, kid, false)
+	modulate.a = 1.0
+	## Stack owns docking; stop self-_place.
+	set_process(false)
+
+
+func set_stack_highlight(on: bool) -> void:
+	_stack_highlight = on
+	## Soft gold wash on the matching card when a chip word is hovered.
+	if on:
+		self_modulate = Color(1.08, 1.02, 0.85, 1.0)
+	else:
+		self_modulate = Color.WHITE
 
 
 func show_def(msg: String, anchor: Control = null, id: String = "", source: String = "", delayed: bool = false) -> void:
 	if _def == null:
 		return
+	if stack_mode and not delayed:
+		## Stack cards are filled via show_in_stack; ignore stray single-card opens.
+		pass
 	if _is_other_pinned():
 		return
 	var t: String = msg.strip_edges()
@@ -235,7 +272,7 @@ func show_def(msg: String, anchor: Control = null, id: String = "", source: Stri
 	if not _first_sight and not _pinned and visible and _kind == kid:
 		_reveal(t, kid, false)
 		return
-	if delayed and not _first_sight and not _pinned and not visible:
+	if delayed and not _first_sight and not _pinned and not visible and not stack_mode:
 		_pending_show = {"msg": t, "id": kid, "anchor": anchor, "source": _source}
 		_hover_timer = HOVER_DELAY
 		set_process(true)
@@ -244,6 +281,9 @@ func show_def(msg: String, anchor: Control = null, id: String = "", source: Stri
 
 
 func pin_def(msg: String, anchor: Control = null, id: String = "", source: String = "") -> void:
+	## Plate inspect uses KeywordStack autoshow — pin is editor / legacy single-card only.
+	if stack_mode:
+		return
 	if _pinned and _kind == id.strip_edges().to_lower():
 		unpin()
 		return
@@ -292,11 +332,14 @@ func hide_def() -> void:
 	_hover_timer = -1.0
 	_pending_show.clear()
 	_first_sight = false
+	_stack_highlight = false
+	self_modulate = Color.WHITE
 	visible = false
 	_anchor = null
 	_kind = ""
 	_follow_mouse = false
 	_source = ""
+	stack_mode = false
 	if _seal:
 		_seal.visible = false
 	if _star:
@@ -412,16 +455,21 @@ func _reveal(msg: String, id: String, teach: bool) -> void:
 	## Nested keywords inside the card body: bold brown, not hoverable.
 	_def.clear()
 	_def.append_text(_bold_nested_keywords(msg))
+	## Fit full definition — never ellipsize or clip.
+	_def.fit_content = true
+	_def.scroll_active = false
+	_def.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	## Teach shows the star after pulses; hover first-sight keeps it if already open.
 	_star.visible = (not teach) and _first_sight
-	_seal.visible = _pinned
+	_seal.visible = _pinned and not stack_mode
 	_layout_chrome()
 	visible = true
 	## Teach starts hidden; pulses then fade the card in.
 	modulate.a = 0.0 if teach else 1.0
 	reset_size()
-	_place()
-	set_process(true)
+	if not stack_mode:
+		_place()
+		set_process(true)
 	_hover_open = true
 
 
@@ -470,6 +518,9 @@ func _process(delta: float) -> void:
 	if not visible:
 		set_process(false)
 		return
+	## KeywordStack owns docking for stack members.
+	if stack_mode:
+		return
 	_place()
 
 
@@ -488,6 +539,8 @@ func _fade_open() -> void:
 
 
 func _place() -> void:
+	if stack_mode:
+		return
 	reset_size()
 	var sz: Vector2 = get_combined_minimum_size()
 	sz.x = CARD_W
@@ -859,6 +912,9 @@ func _finish_teach_dismiss() -> void:
 
 
 func _claim_active() -> void:
+	## Stack members share the screen — never hide sibling parchment cards.
+	if stack_mode:
+		return
 	var prev: Object = _active.get_ref() if _active != null else null
 	if prev != null and prev != self and prev.has_method("hide_def"):
 		if bool(prev.get("_pinned")):

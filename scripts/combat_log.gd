@@ -4,7 +4,7 @@ extends ScrollContainer
 signal hover_changed(highlight: Dictionary)
 
 const UX := preload("res://scripts/ux_style.gd")
-const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
+const KEYWORD_STACK := preload("res://scripts/keyword_stack.gd")
 
 const TAG := {
 	"on_click": {"hex": "#E8C36A", "tag": "You"},
@@ -26,7 +26,9 @@ const TAG := {
 
 var _col: VBoxContainer
 var _stack: Array = []
-var _kw_tip: PanelContainer
+var _kw_stack: Control
+## Alias of `_kw_stack` so main.gd notify paths that still read `_kw_tip` keep working.
+var _kw_tip: Control
 var _fitting: bool = false
 var _plain: PackedStringArray = PackedStringArray()
 var _stick_bottom: bool = true
@@ -64,9 +66,10 @@ func setup() -> void:
 	var bar: VScrollBar = get_v_scroll_bar()
 	if bar != null:
 		bar.value_changed.connect(_on_bar_moved)
-	_kw_tip = KEYWORD_TIP.new()
-	add_child(_kw_tip)
-	_kw_tip.setup()
+	_kw_stack = KEYWORD_STACK.new()
+	add_child(_kw_stack)
+	_kw_stack.setup()
+	_kw_tip = _kw_stack
 	call_deferred("_mount_hint")
 	tree_exiting.connect(_drop_hint)
 	set_process(false)
@@ -344,9 +347,12 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	body.meta_underlined = false
 	if str(body.text).find("[url=") >= 0:
 		body.mouse_filter = Control.MOUSE_FILTER_PASS
-		UxStyle.wire_def_hover(body, _kw_tip, body)
+		## Word hover highlights the matching card; the line hover opens the stack.
+		UxStyle.wire_stack_highlight(body, _kw_stack)
 	else:
 		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.set_meta("kw_body", body)
+	row.mouse_entered.connect(_on_row_kw.bind(body))
 	row.add_child(body)
 	return row
 
@@ -437,17 +443,25 @@ func _on_row_in(highlight: Dictionary) -> void:
 	hover_changed.emit(highlight)
 
 
+func _on_row_kw(body: RichTextLabel) -> void:
+	## Hovering a log line shows that line's keyword cards (autoshow stack).
+	if body == null or _kw_stack == null or not _kw_stack.has_method("show_for_bbcode"):
+		return
+	var ids: Array = UX.collect_kw_ids(str(body.text))
+	if ids.is_empty():
+		return
+	_kw_stack.show_ids(ids, body, "log")
+
+
 func _on_hint(_ctrl: Control, hint: String, highlight: Dictionary) -> void:
 	hover_changed.emit(highlight)
-	if _kw_tip != null and _kw_tip.has_method("show_def"):
-		## Legacy chip hover (non-url rows) still opens the shared parchment.
-		_kw_tip.show_def(hint, _ctrl if _ctrl else self, "", "log")
+	if _kw_stack != null and _kw_stack.has_method("show_for_bbcode"):
+		_kw_stack.show_for_bbcode(hint, _ctrl if _ctrl else self, "log")
 
 
 func _hide_kw() -> void:
-	if _kw_tip != null and _kw_tip.has_method("hide_def"):
-		_kw_tip.set("_pinned", false)
-		_kw_tip.hide_def()
+	if _kw_stack != null and _kw_stack.has_method("hide_stack"):
+		_kw_stack.hide_stack()
 
 
 func _process(_delta: float) -> void:
@@ -480,29 +494,29 @@ func _on_leave() -> void:
 
 
 func _mount_hint() -> void:
-	if _kw_tip == null or not is_instance_valid(_kw_tip):
+	if _kw_stack == null or not is_instance_valid(_kw_stack):
 		return
-	## Prefer Main (same paint path as pip/item cards) so the log parchment is not clipped.
+	## Prefer Main so log parchment cards are not clipped by the scroll panel.
 	var host: Node = get_tree().root.get_node_or_null("Main") if is_inside_tree() else null
 	if host == null:
 		host = get_parent()
 	if host == null:
 		return
-	if _kw_tip.get_parent() != host:
-		if _kw_tip.get_parent() != null:
-			_kw_tip.get_parent().remove_child(_kw_tip)
-		host.add_child(_kw_tip)
-	_kw_tip.top_level = true
-	_kw_tip.z_index = 141
+	if _kw_stack.get_parent() != host:
+		if _kw_stack.get_parent() != null:
+			_kw_stack.get_parent().remove_child(_kw_stack)
+		host.add_child(_kw_stack)
+	_kw_stack.top_level = true
+	_kw_stack.z_index = 141
 
 
 func _drop_hint() -> void:
-	if _kw_tip == null or not is_instance_valid(_kw_tip):
+	if _kw_stack == null or not is_instance_valid(_kw_stack):
 		return
-	var p: Node = _kw_tip.get_parent()
+	var p: Node = _kw_stack.get_parent()
 	if p != null and p != self:
-		p.remove_child(_kw_tip)
-		_kw_tip.queue_free()
+		p.remove_child(_kw_stack)
+		_kw_stack.queue_free()
 
 
 func _on_bar_moved(v: float) -> void:
