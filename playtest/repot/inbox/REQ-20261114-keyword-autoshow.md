@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-keyword-autoshow
-status: open
+status: done
 priority: high
 pr: 520
 branch: cursor/keyword-autoshow-stack-37d8
