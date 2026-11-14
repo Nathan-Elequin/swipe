@@ -2,6 +2,7 @@
 id: REQ-20261114-keyword-autoshow
 status: open
 priority: high
+pr: 520
 branch: cursor/keyword-autoshow-stack-37d8
 tip_sha: a041c697
 created: 2026-11-14T10:00:00Z
