@@ -112,13 +112,15 @@ const GATE_PLATE := Rect2(1180, 379, 384, 512)
 const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 ## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
-## Open satchel by the dead portal (left of arch feet). Prefer satchel_open art.
-const SATCHEL_FLOOR := Rect2(980, 780, 256, 192)
+## Open satchel by the dead portal (left of arch feet). Prefer satchel_open art (256×168).
+const SATCHEL_FLOOR := Rect2(980, 780, 256, 168)
 ## Spill grid sits on the floor plane in front of the satchel (screen space).
+## floor_grid_cell is 60×60 with 76 px pitch (gap 16).
 const SATCHEL_GRID_ORIGIN := Vector2(1108, 900) ## center of first row
-const SATCHEL_CELL := 56.0
-const SATCHEL_GRID_GAP := 8.0
+const SATCHEL_CELL := 60.0
+const SATCHEL_GRID_GAP := 16.0
 const SATCHEL_GRID_COLS := 5
+const SATCHEL_ITEM := 64.0
 ## Climb hits: full ladder column + floor rope coil (same Climb handler).
 const LADDER_HIT := Rect2(721, 0, 200, 920)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
@@ -127,7 +129,7 @@ const HOT_IDLE := Color(1, 1, 1, 1)
 const LADDER_IDLE_FPS := 1000.0 / 220.0
 const LADDER_HOT_FPS := 1000.0 / 110.0
 const WIPE_COLOR := Color("080605")
-const UNIQUE_STAR := Vector2(16, 16)
+const UNIQUE_STAR := Vector2(28, 28)
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 
 
@@ -740,14 +742,6 @@ func _build_satchel_floor_grid(rows: Array) -> void:
 		cell.size = Vector2(SATCHEL_CELL, SATCHEL_CELL)
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP
 		cell.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		## Soft floor shadow under each item.
-		var shadow := ColorRect.new()
-		shadow.name = "Shadow"
-		shadow.color = Color(0.05, 0.03, 0.02, 0.35)
-		shadow.position = Vector2(6, SATCHEL_CELL - 10)
-		shadow.size = Vector2(SATCHEL_CELL - 12, 8)
-		shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		cell.add_child(shadow)
 		if cell_tex != null:
 			var pad := TextureRect.new()
 			pad.name = "CellPad"
@@ -758,18 +752,19 @@ func _build_satchel_floor_grid(rows: Array) -> void:
 			pad.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 			pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			cell.add_child(pad)
+		## 64 px item bottom-aligned on the 60 tile (x = cell_x−4, y = cell_y−10).
 		var spr := TextureRect.new()
 		spr.name = "Icon"
 		spr.texture = row.get("tex", null)
 		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		spr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		spr.position = Vector2(4, 0)
-		spr.size = Vector2(SATCHEL_CELL - 8, SATCHEL_CELL - 8)
+		spr.position = Vector2(-4.0, -10.0)
+		spr.size = Vector2(SATCHEL_ITEM, SATCHEL_ITEM)
 		spr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cell.add_child(spr)
 		if bool(row.get("is_new", false)):
-			_add_gold_star(cell, Vector2(SATCHEL_CELL - UNIQUE_STAR.x - 2.0, 0.0))
+			_add_gold_star(cell, Vector2(SATCHEL_CELL - 24.0, -4.0))
 		var cid := str(row.get("id", ""))
 		var tip_name := str(row.get("name", cid))
 		cell.mouse_entered.connect(_on_loot_icon_hover.bind(cid, tip_name, cell))
@@ -781,7 +776,11 @@ func _build_satchel_floor_grid(rows: Array) -> void:
 func _add_gold_star(parent: Control, at: Vector2) -> void:
 	var star := TextureRect.new()
 	star.name = "NewStar"
-	star.texture = KIT.ui_tex("trophy_board/unique_star")
+	## Prefer hud/new_star (28×28); fall back to unique_star.
+	var star_tex: Texture2D = KIT.ui_tex("hud/new_star")
+	if star_tex == null:
+		star_tex = KIT.ui_tex("trophy_board/unique_star")
+	star.texture = star_tex
 	star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	star.stretch_mode = TextureRect.STRETCH_SCALE

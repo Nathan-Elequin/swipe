@@ -92,9 +92,9 @@ func _build_chrome() -> void:
 		_lights.append(light)
 	## Brass floor lever (final art): 48×56 native → 192×224 shipped.
 	## Pivot (15.5, 49) native / (62, 196) shipped. Stands on the hall floor to the
-	## right of the board, bottom-aligned with Nib's feet (screen y 816 → face-local 688).
+	## right of the board, bottom-aligned with Nib's feet (HALL_FLOOR_Y, in front of the dais).
 	## Away from wall sconces / the light strip. clip_contents is false so it may sit
-	## slightly past the face right edge.
+	## past the face right edge and below the oak face onto the floor.
 	var lever_art := LEVER_ART
 	var lever_hit := LEVER_HIT
 	var lever_pos := Vector2(size.x - lever_hit.x + 16.0, LEVER_FEET_LOCAL_Y - lever_hit.y)

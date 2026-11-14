@@ -1534,7 +1534,7 @@ func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 	lab.position = Vector2(4.0, (SHOW_H if _showcase else CARD_H) - 16.0)
 
 
-## Tiny gold star, top-right. No loop, no text. Prefer hud/new_star, else unique_star.
+## Tiny gold star, top-right. No loop, no text. Prefer hud/new_star (28×28), else unique_star.
 func set_new_star(on: bool) -> void:
 	if not on:
 		if _new_star != null:
@@ -1555,10 +1555,11 @@ func set_new_star(on: bool) -> void:
 			tex = load("res://assets/ui/trophy_board/unique_star.png") as Texture2D
 		_new_star.texture = tex
 		_overlay_host().add_child(_new_star)
-	var star_sz := 14.0
+	## Display 28×28; top-right overhangs ~4 px (pos = slot_w − 24, −4).
+	var star_sz := 28.0
 	var host_w: float = SHOW_W if _showcase else CARD_W
 	_new_star.size = Vector2(star_sz, star_sz)
-	_new_star.position = Vector2(host_w - star_sz - 2.0, 2.0)
+	_new_star.position = Vector2(host_w - 24.0, -4.0)
 	_new_star.visible = _new_star.texture != null
 	if _new_star.texture == null:
 		## Last-ditch glyph — never Tier/ATK text.
