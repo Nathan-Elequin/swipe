@@ -40,11 +40,9 @@ const DRAFT_LINES := preload("res://scripts/draft_lines.gd")
 const DUNGEON_DECK := preload("res://scripts/dungeon_deck.gd")
 const CHALLENGE_DRAFT := preload("res://scripts/challenge_draft.gd")
 const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
-const COLLECTION_JOURNEY := preload("res://scripts/collection_journey.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
-const PROGRESS_MENU := preload("res://scripts/ui/progress_menu.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -953,15 +951,11 @@ var btn_undo: Button
 var btn_redo: Button
 var overlay_undo: Button
 var defeat_spotlight
-var progress_menu
 var playtest_hub
 var playtest_feedback
 var playtest_tier
 var playtest_inbox
 var playtest_telemetry
-var _telem_dungeon_open: bool = false
-var _telem_held: Dictionary = {}
-var _telem_monsters: Dictionary = {}
 var playtest_intro
 var playtest_teaser
 var playtest_fab: Button
@@ -2093,8 +2087,6 @@ func _build_overlay() -> void:
 	add_child(defeat_spotlight)
 	defeat_spotlight.home_pressed.connect(_on_defeat_limp_home)
 	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
-	progress_menu = PROGRESS_MENU.new()
-	add_child(progress_menu)
 
 
 func _build_copy_stamp() -> void:
@@ -2986,8 +2978,8 @@ func _begin_six_seat_run(long_drop: bool) -> void:
 	phase = "draft"
 	draft_action = "busy"
 	_log("on_click", "Challenge Mode" if long_drop else "Adventure Mode")
-	if _campaign_on:
-		_telem("mode", {"step": "campaign"})
+	_telem("mode", {"step": "challenge" if long_drop else "adventure", "kind": "challenge" if long_drop else "adventure"})
+	_telem("run_start", {"mode": "challenge" if long_drop else "adventure", "hp": hp})
 	_log("var", "HP %s" % hp)
 	_log("on_draft", "Dungeon 1")
 	_refresh()
@@ -3071,6 +3063,7 @@ func _enter_dungeon_clear() -> void:
 		_flash_screen(Color("e8c36a"), 0.28)
 		phase = "victory"
 		_log("end", "cleared")
+		_telem("run_end", {"outcome": "win", "tutorial": true, "hp": hp})
 		## D1 Dragon clear → keep rails on B50+. D2 free-play clear → B53 wrap.
 		if _tut_free and tut != null:
 			call_deferred("_tut_on_free_dungeon_clear")
@@ -3082,6 +3075,7 @@ func _enter_dungeon_clear() -> void:
 		_player_play("victory", 2)
 		_flash_screen(Color("e8c36a"), 0.28)
 		_log("end", "cleared")
+		_telem("run_end", {"outcome": "win", "mode": "classic", "hp": hp})
 		await _classic_swipe_home()
 		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
@@ -3113,7 +3107,7 @@ func _commit_dungeon_clear() -> void:
 			home_cabin.note_dungeon_clear()
 		_advance_bucket_counter()
 		_log("end", "dungeon %s" % dungeons_cleared)
-		_telem_dungeon_end("win")
+		_telem("dungeon_cleared", {"n": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
 		## Tip final-clear eligibility: real clear commit on last tip biome only.
 		## Leave/bank alone must not recognize final_dungeon_cleared.
 		if _campaign_on and _campaign != null:
@@ -3214,34 +3208,30 @@ func _adventure_leave() -> void:
 	if rope_exit:
 		rope_exit.hide_exit()
 	_log("end", "leave")
+	_telem("run_end", {"outcome": "leave", "dungeons": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
 	await _biome_dissolve_out()
-	var leave_milestones: Array = []
 	if _campaign_on:
 		## Leave awards deferred map scrap (idempotent) — Push may have crossed without stamp.
-		leave_milestones = await _campaign_bank_from_hand_with_milestones(true)
+		await _campaign_bank_from_hand(true)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
-	## Dedicated progress menu replaces automatic S7 cabin homecoming.
-	var leave_result: Dictionary = await _open_progress_menu("win", news, ids, false, "", "", leave_milestones)
-	await _finalize_progress_menu_result(leave_result)
+	await _go_home("win", news, ids, false)
 	_adventure_busy = false
 
 
-## Nib blocked Push under 5/5: bank the haul, dissolve home. Progress menu always; no map piece.
+## Nib blocked Push under 5/5: bank the haul, dissolve home. Trophy-board cabin; no map piece stamp.
 func _push_interrupt_home() -> void:
 	if not adventure or phase != "rest" or _adventure_busy:
 		return
 	_adventure_busy = true
 	_sync_biome_ambient("", true)
 	var pool := ""
-	var biome_name := ""
 	if _campaign_on and _campaign != null:
 		pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-		biome_name = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
 	var ids: Array = []
 	for it in hotbar:
 		var cid: String = str(it.get("card_id", ""))
@@ -3262,30 +3252,15 @@ func _push_interrupt_home() -> void:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
 	await _biome_dissolve_out()
-	var push_milestones: Array = []
 	if _campaign_on:
 		## Push-block: bank credit yes, map-piece stamp never (deferred to later Leave).
-		## Gate milestones suppressed in payload (push_block) — credit still banks.
-		push_milestones = await _campaign_bank_from_hand_with_milestones(false)
-		## Do not celebrate route unlock on Push-block interrupt (stamp deferred).
-		var filtered: Array = []
-		for raw_m in push_milestones:
-			if typeof(raw_m) != TYPE_DICTIONARY:
-				continue
-			if str((raw_m as Dictionary).get("kind", "")) == "gate":
-				continue
-			filtered.append(raw_m)
-		push_milestones = filtered
+		await _campaign_bank_from_hand(false)
 	_cabin_from_leave = true
 	_reset_run()
 	phase = "title"
 	if pool != "":
 		_sync_dungeon_biome(pool)
-	## Progress menu always; Push-block suppresses unlock/map celebration (payload flag).
-	var push_result: Dictionary = await _open_progress_menu(
-		"win", news, ids, true, pool, biome_name, push_milestones
-	)
-	await _finalize_progress_menu_result(push_result, true)
+	await _go_home("win", news, ids, true)
 	_adventure_busy = false
 
 
@@ -3322,8 +3297,7 @@ func _classic_swipe_home() -> void:
 		news = home_cabin.swipe_ids(ids)
 	_reset_run()
 	phase = "title"
-	var classic_result: Dictionary = await _open_progress_menu("win", news, ids, false)
-	await _finalize_progress_menu_result(classic_result)
+	await _go_home("win", news, ids, false)
 
 
 func _hide_cabin_for_run() -> void:
@@ -3809,13 +3783,8 @@ func _campaign_abort() -> void:
 ## stamp_crosses=false (Push-block): bank credit only — never stamp here.
 ## stamp_map_piece is idempotent per next id — old saves / re-Leave do not double-award.
 func _campaign_bank_from_hand(stamp_crosses: bool = true) -> void:
-	await _campaign_bank_from_hand_with_milestones(stamp_crosses)
-
-
-## Same as `_campaign_bank_from_hand`, returning Journey A milestone facts for the receipt.
-func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Array:
 	if _campaign == null:
-		return []
+		return
 	var ids: Array = []
 	var pools := {}
 	for it in hotbar:
@@ -3837,31 +3806,6 @@ func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Arr
 			## Deferred award: stamp whenever cabinet is at/over quota (not only this-return cross).
 			if CAMPAIGN_SHELL.cabinet_count(_campaign.state, pool_id) >= quota:
 				CAMPAIGN_SHELL.stamp_map_piece(_campaign.rules, _campaign.state, pool_id)
-	## Roster totals for cabinet_full (catalog live non-token) — not Doop page fixtures.
-	var roster_totals := {}
-	var touched: Array = []
-	for pid in pools.values():
-		var p := str(pid)
-		if p == "" or touched.has(p):
-			continue
-		touched.append(p)
-	for raw_b2 in CAMPAIGN_SHELL.biomes_of(_campaign.rules):
-		var bid := str((raw_b2 as Dictionary).get("id", ""))
-		if bid == "" or roster_totals.has(bid):
-			continue
-		var n := 0
-		for cid in items_by_id.keys():
-			var card: Dictionary = items_by_id.get(cid, {})
-			if BucketRules.is_token(card):
-				continue
-			if str(card.get("status", "live")) in ["retired", "hold"]:
-				continue
-			if _campaign_pool_of_item(str(cid)) == bid:
-				n += 1
-		roster_totals[bid] = n
-	var milestones: Array = COLLECTION_JOURNEY.milestones_from_bank(
-		_campaign.rules, before, _campaign.state, touched, roster_totals
-	)
 	## Final-dungeon clear: Leave AFTER a real tip clear commit (run.final_clear_eligible).
 	## Mere Leave / early return from b5 without clear does not recognize.
 	## Distinct from cabinets_complete won/endless and from full-collection inheritance.
@@ -3870,21 +3814,7 @@ func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Arr
 		var played_pool := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, before)
 		if played_pool == "":
 			played_pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-		var final_ms: Dictionary = CAMPAIGN_SHELL.recognize_final_dungeon_clear(
-			_campaign.rules, _campaign.state, played_pool
-		)
-		if not final_ms.is_empty():
-			var ordered: Array = []
-			var deferred_complete: Array = []
-			for raw_m2 in milestones:
-				if typeof(raw_m2) == TYPE_DICTIONARY and str((raw_m2 as Dictionary).get("kind", "")) == "collection_complete":
-					deferred_complete.append(raw_m2)
-				else:
-					ordered.append(raw_m2)
-			ordered.append(final_ms)
-			for raw_cc in deferred_complete:
-				ordered.append(raw_cc)
-			milestones = ordered
+		CAMPAIGN_SHELL.recognize_final_dungeon_clear(_campaign.rules, _campaign.state, played_pool)
 	CAMPAIGN_SHELL.end_run(_campaign.state)
 	## Next run's Deadlies are seeded as soon as the haul banks home.
 	_campaign_seed_next_run_if_needed(true)
@@ -3897,7 +3827,6 @@ func _campaign_bank_from_hand_with_milestones(stamp_crosses: bool = true) -> Arr
 		CAMPAIGN_SHELL.mark_drawer_seen(_campaign.state)
 		_campaign.write()
 		campaign_map.hide_map()
-	return milestones
 
 
 
@@ -3956,8 +3885,7 @@ func _go_home_loss() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	var loss_result: Dictionary = await _open_progress_menu("loss", [], [], false)
-	await _finalize_progress_menu_result(loss_result)
+	await _go_home("loss", [], [], false)
 
 
 func _kick_defeat_spotlight(skip_pose: bool = false) -> void:
@@ -4008,8 +3936,7 @@ func _give_up() -> void:
 	_campaign_abort()
 	_reset_run()
 	phase = "title"
-	var give_result: Dictionary = await _open_progress_menu("loss", [], [], false)
-	await _finalize_progress_menu_result(give_result)
+	await _go_home("loss", [], [], false)
 
 
 func _rope_deeper() -> void:
@@ -4100,119 +4027,23 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 	_hide_fight_hover()
 
 
-## Post-run dedicated progress menu. Returns {action, biome_index}.
-## Callers MUST finalize via _finalize_progress_menu_result so old return coroutines
-## never dissolve/pause into a newly started run.
-func _open_progress_menu(
-	kind: String,
-	new_ids: Array,
-	held_ids: Array,
-	push_block: bool = false,
-	played_pool: String = "",
-	played_name: String = "",
-	milestones: Array = []
-) -> Dictionary:
-	if progress_menu == null:
-		_open_home_cabin(false, kind, new_ids, held_ids)
-		return {"action": "cabin", "biome_index": 0, "kind": kind}
+## Post-run cabin landing (replaces progress menu). Callers that already dissolved out still need reveal.
+func _go_home(kind: String, new_ids: Array, held_ids: Array, _push_block: bool = false) -> void:
+	if home_cabin == null:
+		return
 	_hide_fight_hover()
 	_sync_biome_ambient("", true)
+	if _campaign != null:
+		_sync_dungeon_biome()
+	await _biome_dissolve_reveal()
+	_telem("funnel", {"step": "cabin", "kind": kind, "walk_in": true})
+	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, true, kind, new_ids, held_ids)
 	if overlay:
 		overlay.visible = false
 	if rope_exit:
 		rope_exit.hide_exit()
-	if home_cabin != null and home_cabin.visible:
-		home_cabin.hide_for_run()
-	get_tree().paused = false
-	var pool := played_pool
-	var pname := played_name
-	if pool == "" and _campaign != null:
-		pool = CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
-		pname = CAMPAIGN_SHELL.biome_name(_campaign.rules, pool)
-	if pname == "" and pool != "":
-		pname = pool
-	var swiped: Dictionary = {}
-	var seen_map: Dictionary = {}
-	if home_cabin != null:
-		swiped = home_cabin.swiped.duplicate()
-		seen_map = home_cabin.seen.duplicate()
-	elif _campaign != null:
-		var banked: Dictionary = _campaign.state.get("banked", {})
-		for id in banked.keys():
-			swiped[str(id)] = true
-			seen_map[str(id)] = true
-	var rules: Dictionary = {}
-	var state: Dictionary = {}
-	if _campaign != null:
-		rules = _campaign.rules
-		state = _campaign.state
-	var payload := {
-		"kind": kind,
-		"new_ids": new_ids.duplicate(),
-		"held_ids": held_ids.duplicate(),
-		"played_pool": pool,
-		"played_name": pname,
-		"items_by_id": items_by_id,
-		"tex_by_item": tex_by_item,
-		"swiped": swiped,
-		## Permanent offer/reveal recognition — Journey A catalogue (seen ≠ banked).
-		"seen": seen_map,
-		"rules": rules,
-		"state": state,
-		"push_block": push_block,
-		"tutorial": kind == "tutorial",
-		## Ordered durable milestones (gate / cabinet_full / collection_complete).
-		"milestones": milestones.duplicate(),
-	}
-	var ack := func(id: String) -> void:
-		if home_cabin != null and home_cabin.has_method("_ack_bank_presented"):
-			home_cabin.call("_ack_bank_presented", id, -1)
-	var result: Dictionary = await progress_menu.present(payload, ack)
-	if home_cabin != null:
-		home_cabin.set_meta("progress_menu_handled_return", true)
-	return result
-
-
-## Transactional handoff after menu dismiss — never pause/dissolve a new run.
-## Return routes dissolve_out before the menu; start must reveal the wipe via used_map_wipe.
-func _finalize_progress_menu_result(result: Dictionary, pause_if_idle: bool = false) -> void:
-	var action := str(result.get("action", "dismiss"))
-	if action == "start":
-		if _campaign == null:
-			return
-		var idx: int = maxi(0, int(result.get("biome_index", 0)))
-		if not CAMPAIGN_SHELL.can_start(_campaign.rules, _campaign.state, idx):
-			idx = 0
-		_splash_busy = true
-		## used_map_wipe=true → _begin_campaign_delve calls _biome_dissolve_reveal.
-		await _begin_campaign_delve(idx, idx > 0, false, null, true)
-		_splash_busy = false
-		return
-	await _biome_dissolve_reveal()
-	if action == "cabin":
-		## Preserve run kind (win/loss/tutorial) — haul credit must not invent win on death.
-		var kind := str(result.get("kind", "win"))
-		var focus_pool := str(result.get("focus_pool", ""))
-		## Live Pixel path: progress-menu → cabin never walk-in-arrives, so credit haul here.
-		if home_cabin != null and home_cabin.has_method("open_cabin_after_progress_menu"):
-			_hide_fight_hover()
-			_sync_biome_ambient("", true)
-			if _campaign != null:
-				_sync_dungeon_biome()
-			## No bank ceremony replay — progress menu already handled the return.
-			await home_cabin.open_cabin_after_progress_menu(
-				items_by_id, tex_by_item, _buckets_revealed, kind, [], [], focus_pool
-			)
-			if overlay:
-				overlay.visible = false
-			if rope_exit:
-				rope_exit.hide_exit()
-			get_tree().paused = true
-			_hide_fight_hover()
-		else:
-			_open_home_cabin(false, kind, [], [])
-	elif pause_if_idle:
-		get_tree().paused = true
+	get_tree().paused = true
+	_hide_fight_hover()
 
 
 ## Spin lesson 1: first campaign ready beat with a real hotbar New! badge.
@@ -4449,6 +4280,7 @@ func _adventure_continue() -> void:
 		return
 	_prep_next_dungeon()
 	_log("on_draft", "Dungeon %s" % dungeon_index)
+	_telem("funnel", {"step": "dungeon_enter", "n": dungeon_index})
 	_refresh()
 	_reset_moves()
 	_fill_challenge_pools()
@@ -4909,7 +4741,6 @@ func _on_bucket_assignments_saved(items: Array, monsters: Array) -> void:
 	_on_roster_committed(items, monsters)
 	if roster_ed and roster_ed.visible and roster_ed.has_method("reload_from_disk"):
 		roster_ed.reload_from_disk()
-	## Package B: pool moves rebuild the trophy board without a restart.
 	if home_cabin != null and home_cabin.has_method("rebuild_board"):
 		home_cabin.rebuild_board()
 
@@ -5735,7 +5566,6 @@ func _run_challenge_setup() -> void:
 	if seq != _mill_seq:
 		return
 	if _campaign_on:
-		_telem_dungeon_begin()
 		await _campaign_grant_starter_six()
 		await _enforce_hand_cap()
 		if challenge_draft_ui:
@@ -5780,20 +5610,15 @@ func _campaign_grant_starter_six() -> void:
 		queue.append(seated.duplicate(true))
 	if queue.is_empty():
 		return
-		if _qa_busy():
+	if _qa_busy():
 		for it_qa in queue:
 			if hotbar.size() >= _hand_limit():
 				break
 			hotbar.append(it_qa)
 			_log("on_draft", "gain %s" % it_qa.get("name", "?"))
-			_telem_note_held(str(it_qa.get("card_id", "")), "opening")
 		_sort_hotbar()
 		return
 	await _deal_opening_hand(queue)
-	for it_open in queue:
-		if typeof(it_open) != TYPE_DICTIONARY:
-			continue
-		_telem_note_held(str(it_open.get("card_id", "")), "opening")
 
 
 func _sync_item_deal_deck() -> void:
@@ -6163,11 +5988,6 @@ func _challenge_run_opening_drafts() -> void:
 	var seq: int = _mill_seq
 	draft_action = "challenge_pick"
 	phase = "draft"
-	var mud_load: Array = []
-	if _campaign_on and _campaign != null:
-		mud_load = CAMPAIGN_SHELL.mudroom_loadout_of(_campaign.state)
-	if mud_load.is_empty() and home_cabin != null:
-		mud_load = home_cabin.mudroom_loadout.duplicate()
 	for i in challenge_draft_plan.size():
 		if seq != _mill_seq:
 			return
@@ -6178,15 +5998,6 @@ func _challenge_run_opening_drafts() -> void:
 		var t: int = int(row.get("tier", 1))
 		if _campaign_on and not _campaign_starter_left.is_empty():
 			t = int(_campaign_starter_left.pop_front())
-		## Mudroom peg picks seat the opening hand; skip the pair offer for those.
-		if not mud_load.is_empty():
-			var mid := str(mud_load.pop_front())
-			if mid != "":
-				item_pool.erase(mid)
-				var seated: Dictionary = _make_item(mid)
-				_stamp_pack(seated, _pack_tier_for(mid, items_by_id, t), "draft")
-				await _challenge_commit_item(seated, true)
-				continue
 		var who: String = str(row.get("name", "Monster"))
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_open", "Choose your loot"),
@@ -6304,6 +6115,7 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			b.custom_minimum_size = Vector2(236, 340)
 			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		challenge_draft_ui.present(title, sub, a, b, pair[0], ib)
+		_telem("draft_offered", {"kind": "challenge", "offered": _telem_offered(pair)})
 		var charges := _campaign_rerolls() if allow_reroll else 0
 		if challenge_draft_ui.has_method("set_reroll"):
 			challenge_draft_ui.set_reroll(charges > 0, "Reroll (%s left)" % charges)
@@ -6336,7 +6148,6 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			_layout_play_field()
 			return
 		if str(decision.get("kind", "")) == "reroll" and allow_reroll and _campaign_spend_reroll():
-			_telem_draft_pair(pair_snap, "")
 			_campaign_exclude.clear()
 			for it in pair_snap:
 				var back := str(it.get("card_id", ""))
@@ -6371,7 +6182,11 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 				break
 		if picked.is_empty() and not pair_snap.is_empty():
 			picked = pair_snap[0]
-		_telem_draft_pair(pair_snap, str(picked.get("card_id", "")))
+		_telem("draft_picked", {
+			"id": str(picked.get("card_id", "")),
+			"kind": "item",
+			"offered": _telem_offered(pair_snap),
+		})
 		break
 	FRAME_METRICS.span_begin("draft_to_hotbar")
 	await _challenge_commit_item(picked, replace_if_full, flyer)
@@ -6501,6 +6316,12 @@ func _challenge_vacate(index: int) -> void:
 		"mimic_gift": str(m.get("card_id", "")) == "mimic" and not enemy_attacked,
 	}
 	_log("on_remove_slice", str(m.get("name", "?")))
+	_telem("fight_end", {
+		"id": str(m.get("card_id", "")),
+		"outcome": "win",
+		"hp": hp,
+		"blk": blk,
+	})
 	mobs_defeated += 1
 	if int(m.get("died_seq", 0)) <= 0:
 		_note_death(m)
@@ -7193,6 +7014,10 @@ func _draw_offer(kind: String) -> void:
 		_log("on_draft", "%s  %s" % [PLAYER_COPY.tier_name(int(pending_monster.get("pack_tier", 1))), pending_monster.get("name", "?")])
 		if not pending_item.is_empty():
 			_log("on_draft", "pack item  %s" % pending_item.get("name", "?"))
+		_telem("draft_offered", {
+			"kind": "starter",
+			"offered": _telem_offered([pending_monster, pending_item]),
+		})
 		if sfx:
 			sfx.play("book", -10.0)
 		return
@@ -7211,6 +7036,10 @@ func _draw_offer(kind: String) -> void:
 	_log("on_draft", "%s lure" % PLAYER_COPY.tier_name(pack_t))
 	if not pending_item.is_empty():
 		_log("on_draft", "relic  %s" % pending_item.get("name", "?"))
+	_telem("draft_offered", {
+		"kind": "mill",
+		"offered": _telem_offered([pending_monster, pending_item]),
+	})
 	if sfx:
 		sfx.play("book", -10.0)
 
@@ -7329,7 +7158,6 @@ func _seat_opener(si: int, mid: String, pack_kind: String) -> void:
 	m["spin_locked"] = false
 	_stamp_pack(m, _pack_tier_for(mid, monsters_by_id, int(monsters_by_id.get(mid, {}).get("tier", 1))), pack_kind)
 	wheel[si] = m
-	_telem_note_monster(str(m.get("card_id", "")))
 	_sync_wheel_stats()
 	if _phantom_hold_enter:
 		wheel[si]["enter_pending"] = true
@@ -8232,12 +8060,6 @@ func _apply_atk_mods() -> void:
 
 
 func _sync_wheel_stats() -> void:
-	if _telem_dungeon_open:
-		for slice in wheel:
-			if typeof(slice) != TYPE_DICTIONARY:
-				continue
-			if str(slice.get("kind", "")) == "monster":
-				_telem_note_monster(str(slice.get("card_id", "")))
 	_headstrong_clear_unfaced()
 	var n: int = wheel.size()
 	for i in n:
@@ -8941,100 +8763,15 @@ func _telem(event_name: String, props: Dictionary = {}) -> void:
 	playtest_telemetry.capture(event_name, props)
 
 
-func _telem_balance() -> bool:
-	return _campaign_on and not in_tutorial and phase != "devtest" and not _authoring()
-
-
-func _telem_tier_of(card_id: String, monster: bool) -> int:
-	var src: Dictionary = monsters_by_id if monster else items_by_id
-	return int(src.get(card_id, {}).get("tier", 1))
-
-
-func _telem_dungeon_begin() -> void:
-	if not _telem_balance():
-		return
-	_telem_dungeon_open = true
-	_telem_held.clear()
-	_telem_monsters.clear()
-	for it in hotbar:
+func _telem_offered(cards: Array) -> Array:
+	var ids: Array = []
+	for it in cards:
 		if typeof(it) != TYPE_DICTIONARY:
 			continue
-		_telem_note_held(str(it.get("card_id", "")), "carry")
-	_telem("dungeon_start", {"n": dungeon_index})
-
-
-func _telem_note_held(card_id: String, source: String) -> void:
-	var id: String = card_id.strip_edges()
-	if id == "" or not _telem_balance():
-		return
-	if _telem_held.has(id):
-		return
-	var row := {"id": id, "tier": _telem_tier_of(id, false), "source": source}
-	_telem_held[id] = row
-	_telem("item_held", row)
-
-
-func _telem_note_monster(card_id: String) -> void:
-	var id: String = card_id.strip_edges()
-	if id == "" or not _telem_balance():
-		return
-	if _telem_monsters.has(id):
-		return
-	var row := {"id": id, "tier": _telem_tier_of(id, true)}
-	_telem_monsters[id] = row
-	_telem("monster_seated", row)
-
-
-func _telem_draft_pair(pair: Array, taken_id: String) -> void:
-	if not _telem_balance():
-		return
-	var taken: String = taken_id.strip_edges()
-	for it in pair:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		var id: String = str(it.get("card_id", "")).strip_edges()
-		if id == "":
-			continue
-		var hit: bool = taken != "" and id == taken
-		_telem("draft_trial", {
-			"id": id,
-			"tier": _telem_tier_of(id, false),
-			"taken": hit,
-		})
-		if hit:
-			_telem_note_held(id, "draft")
-
-
-func _telem_hotbar_ids() -> Array:
-	var out: Array = []
-	var seen := {}
-	for it in hotbar:
-		if typeof(it) != TYPE_DICTIONARY:
-			continue
-		var id: String = str(it.get("card_id", "")).strip_edges()
-		if id == "" or seen.has(id):
-			continue
-		seen[id] = true
-		out.append({"id": id, "tier": _telem_tier_of(id, false)})
-	return out
-
-
-func _telem_dungeon_end(outcome: String) -> void:
-	if not _telem_dungeon_open or not _telem_balance():
-		return
-	_telem_dungeon_open = false
-	var claimed: Array = []
-	if outcome == "win":
-		claimed = _telem_hotbar_ids()
-	_telem("dungeon_end", {
-		"n": dungeon_index,
-		"outcome": outcome,
-		"held": _telem_held.values(),
-		"monsters": _telem_monsters.values(),
-		"claimed": claimed,
-	})
-	_telem_held.clear()
-	_telem_monsters.clear()
+		var cid: String = str(it.get("card_id", "")).strip_edges()
+		if cid != "":
+			ids.append(cid)
+	return ids
 
 
 func _playtest_brand_new() -> void:
@@ -9647,6 +9384,12 @@ func _commit_place(index: int, open_next: bool = true) -> void:
 	m["spin_locked"] = false
 	wheel[index] = m
 	_log("on_place", "%s → %s" % [m["name"], m["slot"]])
+	_telem("draft_picked", {
+		"id": str(m.get("card_id", "")),
+		"kind": "monster",
+		"offered": _telem_offered([m, pending_item]),
+		"slot": str(m.get("slot", "")),
+	})
 	if sfx:
 		sfx.play("drop", -8.0)
 		sfx.play("confirm", -14.0, 1.08)
@@ -9654,6 +9397,11 @@ func _commit_place(index: int, open_next: bool = true) -> void:
 		FRAME_METRICS.span_begin("draft_to_hotbar")
 		hotbar.append(pending_item.duplicate(true))
 		_log("on_place", "item  %s" % pending_item.get("name", "?"))
+		_telem("draft_picked", {
+			"id": str(pending_item.get("card_id", "")),
+			"kind": "item",
+			"offered": _telem_offered([m, pending_item]),
+		})
 		FRAME_METRICS.span_end("draft_to_hotbar")
 	pending_monster = {}
 	pending_item = {}
@@ -9899,6 +9647,13 @@ func _on_spin() -> void:
 	_log_user_hid = false
 	_sync_log_panel()
 	_log("on_spin", str(m["name"]))
+	_telem("fight_start", {
+		"id": str(m.get("card_id", "")),
+		"hp": int(m.get("hp", 0)),
+		"atk": int(m.get("atk", 0)),
+		"player_hp": hp,
+		"hand": hotbar.size(),
+	})
 	_log("var", "enemy ATK %s   HP %s" % [m["atk"], m["hp"]])
 	_log("var", "BLK 0")
 	_log("var", "items this combat 0")
@@ -10622,7 +10377,13 @@ func _player_down(skip_pose: bool = false) -> void:
 		_advance_bucket_counter()
 	phase = "defeat"
 	_log("end", "dead")
-	_telem_dungeon_end("dead")
+	_telem("run_end", {
+		"outcome": "dead",
+		"dungeons": dungeons_cleared,
+		"hp": 0,
+		"hand": hotbar.size(),
+		"tutorial": in_tutorial,
+	})
 	# Spotlight sequence owns the blackout — no red flash over it.
 	if sfx:
 		if sfx.has_method("music_hold_for_undo"):
@@ -29646,7 +29407,6 @@ func _sync_hotbar() -> void:
 	_clear_choice_overlay()
 	## New! badge lesson: only between fights (ready), never mid-combat freeze.
 	_maybe_queue_new_mark_lesson()
-	_sync_collection_quiet()
 
 
 ## Journey A — local New! / banked-repeat badge from shared projection (no new spend modal).
@@ -29673,7 +29433,6 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 		var hid := str(raw.get("card_id", ""))
 		if hid != "":
 			held.append(hid)
-	## Package B: item_status lives on TrophyBoardModel (absorbed from CollectionJourney).
 	var st: String = TrophyBoardModel.item_status(cid, seen_map, banked, held)
 	## Only unbanked held (or draft) gets New! — banked repeats stay ordinary.
 	var fresh: bool = st == TrophyBoardModel.STATUS_CARRIED
@@ -29682,11 +29441,6 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 		PLAYER_COPY.text("cabin.tip.new", "New!"),
 		PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet.")
 	)
-
-
-## The hotbar "Spin copy: banked" line is gone. Haul data still saves.
-func _sync_collection_quiet() -> void:
-	return
 
 
 func _dim_hot_empty_slots() -> void:
@@ -31562,12 +31316,10 @@ func _road_finish_to_cabin(declined: bool) -> void:
 	if home_cabin and home_cabin.has_method("play_arrive_splash"):
 		## Arrive cutscene: assets/dungeon/home/cutscenes/intro_p5.png (fade/dissolve after tutorial wrap).
 		await home_cabin.play_arrive_splash()
-	## Progress menu is the between-run surface; cabin optional from there.
+	## Arrive splash already played — land on cabin main without a second walk-in.
 	## Tutorial items do not credit collection (empty new_ids).
-	## Yes-complete → tutorial; Skip/decline → tutorial_skipped (never success_none).
 	var tut_kind := "tutorial_skipped" if declined else "tutorial"
-	var tut_result: Dictionary = await _open_progress_menu(tut_kind, [], [], false)
-	await _finalize_progress_menu_result(tut_result)
+	_open_home_cabin(false, tut_kind, [], [])
 	_refresh()
 	_sync_playtest_chrome()
 

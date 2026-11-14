@@ -1477,7 +1477,7 @@ func _rx_10_trophy() -> void:
 	cabin.tutorial_done = true
 	cabin.key_ring_seen = true
 	cabin.stop_story()
-	for r in ["hall", "study", "workshop", "loft", "mudroom"]:
+	for r in ["hall", "study", "workshop", "loft"]:
 		if not cabin.rooms_unlocked.has(r):
 			cabin.rooms_unlocked.append(r)
 	cabin.visible = true

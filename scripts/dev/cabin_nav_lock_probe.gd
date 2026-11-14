@@ -310,7 +310,7 @@ func _case_pan_to_overlapping_ab(cabin) -> bool:
 		_legacy_pan_done_then_b_finalizes()
 	) or failed
 	_seed_post_tutorial_cabin(cabin)
-	cabin.rooms_unlocked = ["main", "hall", "mudroom", "study"]
+	cabin.rooms_unlocked = ["main", "hall", "study", "workshop"]
 	cabin.visible = true
 	cabin.show_menu("main")
 	cabin._snap_to("main")
@@ -416,7 +416,7 @@ func _case_pan_to_overlapping_ab(cabin) -> bool:
 	cabin._snap_to("main")
 	cabin._current_room = "main"
 	cabin._pan_busy = false
-	cabin.pan_to("mudroom")
+	cabin.pan_to("workshop")
 	var late_session_b: int = int(cabin._cabin_session)
 	var late_a_reject := false
 	var late_b_ok := false
@@ -433,12 +433,12 @@ func _case_pan_to_overlapping_ab(cabin) -> bool:
 			and int(cabin._nested_last_owner_gen) == late_session_a
 		):
 			late_a_reject = true
-		if str(cabin._current_room) == "mudroom" and not cabin._pan_busy:
+		if str(cabin._current_room) == "workshop" and not cabin._pan_busy:
 			late_b_ok = true
 		if late_a_reject and late_b_ok:
 			break
 	failed = _check(failed, "pan_late_a_reject_observed", late_a_reject) or failed
-	failed = _check(failed, "pan_late_b_mudroom_intact", late_b_ok) or failed
+	failed = _check(failed, "pan_late_b_workshop_intact", late_b_ok) or failed
 	failed = _check(
 		failed,
 		"pan_late_b_session_newer",
@@ -822,7 +822,7 @@ func _case_unlock_spot_mid_await_stale(cabin) -> bool:
 	failed = _check(
 		failed,
 		"unlock_spot_stale_a_did_not_persist_hall",
-		not cabin.rooms_unlocked.has("hall") and not cabin.rooms_unlocked.has("mudroom")
+		not cabin.rooms_unlocked.has("hall") and not cabin.rooms_unlocked.has("study")
 	) or failed
 	failed = _check(
 		failed,
@@ -852,9 +852,7 @@ func _legacy_unlock_spot_applies_after_await() -> bool:
 	## await finished; stale owner ignored:
 	if not rooms.has(unlock_room):
 		rooms.append(unlock_room)
-	if unlock_room == "hall" and not rooms.has("mudroom"):
-		rooms.append("mudroom")
-	return rooms.has("hall") and rooms.has("mudroom")
+	return rooms.has("hall")
 
 
 ## Interrupt precisely while _pan_unlocked awaits; B room/pan/presentation stay.
@@ -868,7 +866,7 @@ func _case_pan_unlocked_mid_await_stale(cabin) -> bool:
 	cabin.stop_story()
 	cabin.key_ring_seen = false
 	## Hall already unlocked so pan path does not early-append before await.
-	cabin.rooms_unlocked = ["main", "hall", "mudroom"]
+	cabin.rooms_unlocked = ["main", "hall", "study"]
 	cabin.visible = true
 	cabin.show_menu("main")
 	cabin._snap_to("main")
@@ -1080,14 +1078,16 @@ func _case_push_block_home_then_nav(main: Node, cabin) -> bool:
 	cabin.tex_by_item = main.tex_by_item if ("tex_by_item" in main) else {}
 	## Real push-block landing (forced Nib home). Do not await the whole call
 	## blindly — it waits on dialog.finished, so advance dialog in parallel.
-	cabin.open_hall_after_push_block("b1", "Verdant Hollow", [], ["boot", "net"])
+	cabin.begin_push_block_bank()
+	cabin.lifetime_dungeons_cleared = 1
+	cabin._homecoming_kind = "win"
+	cabin.call("_credit_homecoming_counters")
+	cabin.call("_sync_progress_doors")
+	cabin.key_ring_seen = true
+	cabin.show_menu("main")
 	var landed := false
-	for _i in range(300):
+	for _i in range(120):
 		await process_frame
-		if cabin._dialog != null and cabin._dialog.is_open():
-			if cabin._dialog.has_method("advance"):
-				cabin._dialog.advance()
-		## Station rock sets beat to "rock" after idle land — still free cabin.
 		if _cabin_settled_free(cabin):
 			landed = true
 			break
@@ -1095,11 +1095,13 @@ func _case_push_block_home_then_nav(main: Node, cabin) -> bool:
 	failed = _check(
 		failed,
 		"push_block_rooms_unlocked",
-		cabin.is_room_unlocked("hall") and cabin.is_room_unlocked("mudroom")
+		cabin.is_room_unlocked("hall")
+			and cabin.is_room_unlocked("study")
+			and cabin.is_room_unlocked("workshop")
+			and cabin.is_room_unlocked("loft")
 	) or failed
 	var room_before: String = str(cabin._current_room)
-	## Drive the same handler rooms connect hotspot_activated to.
-	## SideDoor from hall pans to mudroom (async flash then pan_to).
+	## SideDoor from main pans to hall (Package A: no Outpost room).
 	cabin._on_hotspot("SideDoor", room_before)
 	var moved := false
 	for _j in range(180):
@@ -1116,12 +1118,11 @@ func _case_push_block_home_then_nav(main: Node, cabin) -> bool:
 		cabin._room_busy == false and cabin._arriving == false and cabin._pan_busy == false
 	) or failed
 	failed = _check(failed, "push_block_hotspot_changed_room", moved) or failed
-	## Optional InputEvent after room change (mudroom), not on hall LeftDoor.
-	## Handler nav above is the proof; this is pointer attempt only — not click PASS.
+	## Optional InputEvent after room change (hall), not on main LeftDoor.
 	var after_room: String = str(cabin._current_room)
-	var clicked: bool = await _try_input_click_hotspot(cabin, "OutDoor", after_room)
+	var clicked: bool = await _try_input_click_hotspot(cabin, "LeftDoor", after_room)
 	print(
-		"INFO input_click_after_room_change room=%s node=OutDoor attempted=%s (not physical click proof)"
+		"INFO input_click_after_room_change room=%s node=LeftDoor attempted=%s (not physical click proof)"
 		% [after_room, clicked]
 	)
 	await _wait_until_idle(cabin, 90)

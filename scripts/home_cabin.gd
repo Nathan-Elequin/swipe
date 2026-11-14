@@ -12,11 +12,6 @@ signal tutorial_wanted
 signal road_skip_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
-## Fires when a case's shown collection crosses the quota (5) on an extract bank.
-## Never from cheats, death, or the Push/Nib interrupt path. S3 map-piece ceremony.
-signal cabinet_gate_crossed(pool_id: String)
-## Hook for Spelunky-style shortcut scene after unlocking biome index 2..4. Nothing connects yet.
-signal shortcut_scene_wanted(pool_id: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 ## When false, `_save` is a no-op (selftests / dry runs). Default true for play.
@@ -34,8 +29,8 @@ const ARRIVE_INT_SPEED := 51.2
 const ROOM_W := 1680.0
 const ROOM_H := 1040.0
 const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
-## Left of fireplace: study → workshop → loft. Right: trophy hall → Outpost (mudroom).
-const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall", "mudroom"]
+## Left of fireplace: study → workshop → loft. Right: trophy hall.
+const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall"]
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
@@ -55,9 +50,8 @@ var intro_pack: int = 1
 var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
-## Hall + Outpost unlock together on the right path; start at the fireplace.
+## Start at the fireplace.
 var rooms_unlocked: Array = ["main"]
-var mudroom_loadout: Array = []
 var key_ring_seen: bool = false
 var invert_scroll: bool = false
 var ending_seen: bool = false
@@ -126,7 +120,6 @@ var _overlays: Control
 var _dialog
 var _cutscene
 var _road_frame
-var _map_piece_beat
 var _story_seq: int = 0
 var _map
 var _radio
@@ -158,16 +151,7 @@ var _arrive_pending_room: String = ""
 var _step_fi: int = -1
 var _cat_sfx_t: float = 8.0
 var _fade: ColorRect
-var _shelf_host: Control
-var _hole: Control
-var _shelf_fade: ColorRect
 var _back: Button
-var _prev_btn: Control
-var _next_btn: Control
-var _prev_door: TextureRect
-var _next_door: TextureRect
-var _cordon: TextureRect
-var _pips: HBoxContainer
 var _room: int = 0
 var _max_room: int = 0
 var _max_bucket: int = 0
@@ -199,25 +183,7 @@ var _bank_ceremony_fx_nodes: Array = []
 signal bank_ceremony_fx_aborted
 ## Bumped with each abort pulse so awaiters that connect after kill still settle (no hang).
 var _bank_ceremony_fx_abort_gen: int = 0
-var _case_scroll: Dictionary = {}
-var _case_columns: Dictionary = {}
-var _case_clips: Dictionary = {}
 ## Session-only trophy hall page memory + map pulse target.
-var _case_page: Dictionary = {}
-var _map_focus_pool: String = ""
-var _trophy_cases: Dictionary = {}
-var _trophy_board = null
-var board_face: int = 0
-var board_viewed: Dictionary = {}
-var _dumbwaiter = null
-var _hall_zoom_pool: String = ""
-var _hall_zoom_dim: ColorRect = null
-var _hall_pre_zoom_pos: Vector2 = Vector2.ZERO
-var _hall_pre_zoom_scale: Vector2 = Vector2.ONE
-var _hall_zooming: bool = false
-var _hall_zoom_closing: bool = false
-var _hall_zoom_tw: Tween = null
-var _lore_panel: Control = null
 const ROOM_WALK := 1.5
 const ROOM_WIPE_AT := 1.0
 var _window_glow: TextureRect
@@ -259,6 +225,10 @@ var _cat_hold: float = 3.0
 var _door_glow_open: bool = false
 var _beat: String = ""
 var _rng := RandomNumberGenerator.new()
+
+var _trophy_board = null
+var board_face: int = 0
+var board_viewed: Dictionary = {}
 
 
 func _notification(what: int) -> void:
@@ -855,8 +825,6 @@ func show_menu(room: String = "main") -> void:
 	_start_interior_loops()
 	_rebuild_shelves()
 	_refresh_rooms()
-	if _current_room == "mudroom":
-		_refresh_mudroom()
 	_beat = "idle"
 	_play_station()
 	_sync_progress_doors()
@@ -870,26 +838,12 @@ func show_menu(room: String = "main") -> void:
 	_apply_gate()
 	## Reload / free cabin entry: resume unfinished reveal without re-banking.
 	## Skip while Push-block owns the hall handoff (that path mounts after its dialog).
-	## Skip when the post-run progress menu already handled this return (no S7 auto replay).
-	if has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return")):
-		set_meta("progress_menu_handled_return", false)
-	elif not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
+	if not bank_pending.is_empty() and is_room_unlocked("hall") and not _bank_from_push_block:
 		call_deferred("_resume_pending_bank_if_idle")
 
 
 func _resume_pending_bank_if_idle() -> void:
-	if _bank_busy or _arriving or _beat == "keyring" or not visible:
-		return
-	if _bank_from_push_block:
-		return
-	if has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return")):
-		return
-	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
-		return
-	if bank_pending.is_empty():
-		return
-	_stage_homecoming_bank()
-
+	pass
 
 func hide_for_run() -> void:
 	item_unhovered.emit()
@@ -918,172 +872,6 @@ func play_homecoming(kind: String, new_ids: Array, held_ids: Array) -> void:
 ## Call before swipe_ids on the Push-block path so a deferred bank cannot stamp a piece.
 func begin_push_block_bank() -> void:
 	_bank_from_push_block = true
-
-
-## Pixel progress-menu → Cabin: no exterior walk-in, but still credit a successful
-## dungeon return so house rooms unlock (win + lifetime clears ≥1). Tutorial/loss do not.
-## Mirrors open_hall_after_push_block credit order: credit → optional key ring → show_menu.
-## Journey A: optional cabin — focus hall/cabinet when unlocked; no S7 bank replay.
-func open_cabin_after_progress_menu(
-	p_items: Dictionary,
-	p_tex: Dictionary,
-	p_buckets: int,
-	kind: String = "win",
-	new_ids: Array = [],
-	held_ids: Array = [],
-	focus_pool: String = ""
-) -> void:
-	items_by_id = p_items
-	tex_by_item = p_tex
-	buckets_open = p_buckets
-	_homecoming_kind = kind
-	_new_ids = new_ids.duplicate()
-	_held_ids = held_ids.duplicate()
-	visible = true
-	_arriving = false
-	_door_busy = false
-	_room_busy = false
-	_door_glow_open = false
-	_menu_on = true
-	_just_mounted.clear()
-	_room = _start_room()
-	var want_key: bool = _credit_homecoming_counters()
-	_save()
-	if want_key:
-		await play_key_ring()
-	## Prefer trophy hall when open so Visit Cabin can land on the relevant case.
-	var room := "main"
-	var pool := str(focus_pool)
-	if pool != "" and is_room_unlocked("hall"):
-		room = "hall"
-	elif is_room_unlocked("hall") and kind == "win":
-		room = "hall"
-	await show_menu(room)
-	if pool != "" and room == "hall":
-		focus_biome_case(pool)
-
-
-## Push-block interrupt: dissolve already played; land in the hall at that biome's case.
-## No map piece on this path (S3 ceremony suppressed via _bank_from_push_block).
-func open_hall_after_push_block(pool_id: String, biome_name: String, new_ids: Array = [], held_ids: Array = []) -> void:
-	_bank_from_push_block = true
-	sync_swiped_from_banked()
-	_homecoming_kind = "win"
-	_new_ids = new_ids.duplicate()
-	_held_ids = held_ids.duplicate()
-	visible = true
-	_arriving = false
-	_door_busy = false
-	_room_busy = false
-	_menu_on = true
-	## Cleared dungeon + return (Push blocked under 5/5) still counts as a haul for
-	## house rooms, even though this path skips the exterior arrive walk-in.
-	var want_key: bool = _credit_homecoming_counters()
-	_save()
-	if want_key:
-		await play_key_ring()
-	var room := "hall" if is_room_unlocked("hall") else "main"
-	await show_menu(room)
-	focus_biome_case(pool_id)
-	if _dialog:
-		if _dialog.has_method("dismiss"):
-			_dialog.dismiss()
-		_dialog.say(["nib.homecoming"], [], {"biome": biome_name})
-		await _dialog.finished
-	## Push-block: mount pending without S7 FX / map-piece (flag still set).
-	_restore_bank_hold_from_pending()
-	if not _bank_hold.is_empty() and _current_room == "hall" and not _bank_busy:
-		var push_gen: int = _begin_bank_ceremony()
-		await _play_bank_sequence(push_gen)
-
-
-func focus_biome_case(pool_id: String) -> void:
-	## Package B: slide the trophy board to that biome face.
-	if _trophy_board != null and is_instance_valid(_trophy_board):
-		var want := str(pool_id)
-		var faces: Array = TrophyBoardModel.faces(_biome_rules(), items_by_id)
-		for i in faces.size():
-			if str((faces[i] as Dictionary).get("pool_id", "")) == want:
-				board_face = i
-				_trophy_board.slide_to(i, true)
-				return
-	if _shelf_host == null:
-		return
-	for child in _shelf_host.get_children():
-		if child is CanvasItem:
-			var ci := child as CanvasItem
-			var is_focus := child.name == ("Case_%s" % pool_id)
-			ci.modulate = Color(1.0, 1.0, 1.0, 1.0) if is_focus else Color(0.42, 0.4, 0.38, 1.0)
-	var root := _shelf_host.get_node_or_null("Case_%s" % pool_id) as Control
-	if root == null:
-		return
-	root.modulate = Color(1.45, 1.28, 0.85, 1.0)
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(root, "modulate", Color(1.22, 1.14, 0.98, 1.0), 0.55)
-
-
-## Rebuild the Package B trophy board from live pool data (also after pool editor save).
-func rebuild_board() -> void:
-	var hall = _rooms.get("hall", null)
-	if hall == null:
-		return
-	var rules := _biome_rules()
-	var state := _campaign_shell_state()
-	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
-		state = _campaign_shell.state
-	var held: Array = []
-	for raw in _bank_hold.keys():
-		held.append(str(raw))
-	if _trophy_board == null or not is_instance_valid(_trophy_board):
-		_trophy_board = preload("res://scripts/cabin/trophy_board.gd").new()
-		_trophy_board.face_changed.connect(func(i: int) -> void:
-			board_face = i
-			_save()
-		)
-		_trophy_board.wants_pan_left.connect(func() -> void:
-			if not _busy():
-				_arrow(-1)
-		)
-		_trophy_board.slot_clicked.connect(func(cid: String) -> void:
-			inspect_wanted.emit(cid)
-		)
-		_trophy_board.inspect_wanted.connect(func(cid: String) -> void:
-			inspect_wanted.emit(cid)
-		)
-		_trophy_board.hover_tip.connect(func(text: String, anchor: Control) -> void:
-			if _hover_tag == null:
-				return
-			_hover_tag.set_plain(text)
-			if anchor:
-				var g: Vector2 = anchor.get_global_rect().position
-				_hover_tag.global_position = Vector2(
-					g.x,
-					maxi(16.0, g.y - 12.0 * PX - _hover_tag.size.y)
-				)
-			_hover_tag.visible = true
-		)
-		_trophy_board.hover_clear.connect(hide_hover_tag)
-		_trophy_board.lever_pulled.connect(func(fi: int) -> void:
-			## Package D wires portal sequence. Placeholder: emit only.
-			print("trophy_board lever_pulled face=", fi)
-		)
-		if hall.has_method("attach_trophy_board"):
-			hall.attach_trophy_board(_trophy_board)
-		else:
-			hall.add_child(_trophy_board)
-	_trophy_board.reduce_motion = false
-	_trophy_board.invert_scroll = invert_scroll
-	_trophy_board.set_sfx(sfx)
-	_trophy_board.set_item_textures(tex_by_item)
-	_trophy_board.set_board_viewed(board_viewed)
-	_trophy_board.setup(rules, items_by_id, state, _hall_seen_dict(), held)
-	_trophy_board.slide_to(board_face, true)
-	## Hide legacy case host so Package A / B do not stack.
-	if _shelf_host:
-		_shelf_host.visible = false
-	if _dumbwaiter:
-		_dumbwaiter.visible = false
 
 
 func play_intro(is_replay: bool = false) -> void:
@@ -1256,7 +1044,7 @@ func play_key_ring() -> void:
 		return
 	if nib and nib.sprite_frames:
 		nib.play("idle")
-	## Right path first: hall (+ Outpost), then left study chain.
+	## Right path first: hall (Trophy Board), then left study chain.
 	## Nested helpers own gen checks before post-await side effects.
 	if not await _unlock_spot("main", "SideDoor", "hall", "", false, gen):
 		if is_instance_valid(ring):
@@ -2011,11 +1799,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			_play_station()
 			_apply_gate()
 			return
-		## Campaign win with new uniques: auto-focus hall + existing S7 ceremony.
-		## Skip when post-run progress menu already handled this return.
-		if not bank_pending.is_empty() and not (
-			has_meta("progress_menu_handled_return") and bool(get_meta("progress_menu_handled_return"))
-		):
+		if not bank_pending.is_empty():
 			await _stage_homecoming_bank()
 			if _arrive_aborted(gen):
 				return
@@ -2209,7 +1993,9 @@ func _spawn_dust_puff(at_px: Vector2) -> void:
 		puff.queue_free()
 
 
-func _fade_to_interior() -> void:
+func _fade_to_interior(target: String = "main") -> void:
+	if not rooms_unlocked.has(target):
+		target = "main"
 	_hero.visible = false
 	_set_idle_hero_visible(false)
 	_fade.visible = true
@@ -2220,20 +2006,20 @@ func _fade_to_interior() -> void:
 	await tw.finished
 	_ext_root.visible = false
 	_int_root.visible = true
-	_current_room = "main"
-	_snap_to("main")
+	_current_room = target
+	_snap_to(target)
 	_set_idle_hero_visible(false)
 	_start_interior_loops()
 	_rebuild_shelves()
-	var main_room = _rooms.get("main", null)
-	if main_room:
-		_host_hero(main_room)
+	if target == "main":
+		var main_room = _rooms.get("main", null)
+		if main_room:
+			_host_hero(main_room)
 	tw = create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_fade, "color:a", 0.0, 0.2)
 	await tw.finished
 	_fade.visible = false
-
 
 func _start_interior_loops() -> void:
 	if _fire.sprite_frames:
@@ -2276,10 +2062,6 @@ func _make_gallery_door(left: bool) -> Control:
 		pic.flip_h = left
 	pic.texture = tex
 	wrap.add_child(pic)
-	if left:
-		_prev_door = pic
-	else:
-		_next_door = pic
 	var hit := Button.new()
 	hit.set_anchors_preset(PRESET_FULL_RECT)
 	hit.focus_mode = Control.FOCUS_NONE
@@ -2375,7 +2157,7 @@ func _cut_arrive_to_interior() -> void:
 	_set_idle_hero_visible(false)
 	if _rock:
 		_rock.visible = false
-	await _fade_to_interior()
+	await _fade_to_interior(_interior_arrive_room())
 	_door_hit.disabled = true
 
 
@@ -2410,7 +2192,7 @@ func _on_door() -> void:
 			_door.texture = tex
 		await _wait(0.08)
 	_door_glow_open = true
-	await _fade_to_interior()
+	await _fade_to_interior(_interior_arrive_room())
 	_set_idle_hero_visible(false)
 	_show_empty_chair(false)
 	_start_rock()
@@ -2531,37 +2313,10 @@ func _nudge_door(pic: TextureRect) -> void:
 			pic.texture = tex
 		await _wait(0.05)
 	pic.texture = _home("cabin_door_closed")
-	if pic == _prev_door:
-		pic.flip_h = true
 
 
-func _wipe_pan(going_next: bool, nxt: int) -> void:
-	var off: float = _hole.size.x * (1.0 if going_next else -1.0)
-	if _shelf_fade:
-		_shelf_fade.visible = true
-		_shelf_fade.color.a = 0.0
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.set_parallel(true)
-	tw.tween_property(_shelf_host, "position:x", -off, 0.25)
-	if _shelf_fade:
-		tw.tween_property(_shelf_fade, "color:a", 0.55, 0.25)
-	await tw.finished
-	if not visible:
-		return
+func _wipe_pan(_going_next: bool, nxt: int) -> void:
 	_room = nxt
-	_rebuild_shelves()
-	_shelf_host.position.x = off
-	tw = create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.set_parallel(true)
-	tw.tween_property(_shelf_host, "position:x", 0.0, 0.25)
-	if _shelf_fade:
-		tw.tween_property(_shelf_fade, "color:a", 0.0, 0.25)
-	await tw.finished
-	if _shelf_fade:
-		_shelf_fade.visible = false
-	_shelf_host.position.x = 0.0
 
 
 func _play_stand() -> void:
@@ -2599,44 +2354,13 @@ func _play_chair_settle() -> void:
 		_chair_empty.texture = rest
 
 
-func _fade_shelf(out: bool) -> void:
-	if _shelf_fade == null:
-		return
-	_shelf_fade.visible = true
-	_shelf_fade.color.a = 0.0 if out else 1.0
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(_shelf_fade, "color:a", 1.0 if out else 0.0, 0.16)
-	await tw.finished
-	if not out:
-		_shelf_fade.visible = false
+func _fade_shelf(_out: bool) -> void:
+	pass
 
 
 func _rebuild_shelves() -> void:
-	if _shelf_host == null:
-		return
-	for c in _shelf_host.get_children():
-		_shelf_host.remove_child(c)
-		c.queue_free()
-	_glints.clear()
-	_case_columns.clear()
-	_case_clips.clear()
 	_collect_buckets()
-	_shelf_host.size = _hole.size if _hole else _pt(260, 160)
-	if _cordon:
-		_cordon.visible = false
-	## Package B: carousel board replaces plate cases in the hall.
 	rebuild_board()
-	_rebuild_pips()
-	_place_nav()
-	if not _bank_busy:
-		call_deferred("_offer_bank_sequence")
-
-
-func _biome_rules() -> Dictionary:
-	if _campaign_rules.is_empty():
-		_campaign_rules = CampaignShell.read_json(CampaignShell.DATA_PATH)
-	return _campaign_rules
 
 
 func _live_pool(card: Dictionary) -> String:
@@ -2647,122 +2371,77 @@ func _live_pool(card: Dictionary) -> String:
 	var b: int = BucketRules.of_card(card)
 	if b < 0:
 		return ""
-	return BiomeCabinets.pool_for_bucket(_biome_rules(), b)
+	return CampaignShell.pool_for_bucket(_biome_rules(), b)
 
 
-func _group_cards_by_pool() -> Dictionary:
-	var grouped := {}
-	for id in items_by_id.keys():
-		var card: Dictionary = items_by_id[id]
-		var pool := _live_pool(card)
-		if pool == "":
-			continue
-		if not grouped.has(pool):
-			grouped[pool] = []
-		(grouped[pool] as Array).append(card)
-	return grouped
+func focus_biome_case(pool_id: String) -> void:
+	## Package B: slide the trophy board to that biome face.
+	if _trophy_board != null and is_instance_valid(_trophy_board):
+		var want := str(pool_id)
+		var faces: Array = TrophyBoardModel.faces(_biome_rules(), items_by_id)
+		for i in faces.size():
+			if str((faces[i] as Dictionary).get("pool_id", "")) == want:
+				board_face = i
+				_trophy_board.slide_to(i, true)
+				return
 
 
-func _shown_count(pool_id: String) -> int:
-	# One ledger with Push gating: CampaignShell.cabinet_count (banked).
-	if _campaign_shell != null:
-		var n: int = CampaignShell.cabinet_count(_campaign_shell.state, pool_id)
-		# Items still in the bank reveal hold are counted in banked but not shown yet.
-		for raw in _bank_hold.keys():
-			var hid := str(raw)
-			if _live_pool(items_by_id.get(hid, {})) == pool_id:
-				n = maxi(0, n - 1)
-		return n
-	var n2 := 0
-	for id in items_by_id.keys():
-		var card: Dictionary = items_by_id[id]
-		if _live_pool(card) != pool_id:
-			continue
-		var sid := str(card.get("id", id))
-		if bool(swiped.get(sid, false)) and not _bank_hold.has(sid):
-			n2 += 1
-	return n2
-
-
-func _campaign_shell_state() -> Dictionary:
-	var disk: Dictionary = CampaignShell.read_json(CampaignShell.SAVE_PATH)
-	if disk.is_empty():
-		return CampaignShell.fresh_state()
-	CampaignShell.normalize(disk)
-	return disk
-
-
-## Campaign bank ledger when present; hall swipes otherwise. max so neither ledger hides progress.
-func _case_collected(pool_id: String) -> int:
-	var state := _campaign_shell_state()
-	var banked: Variant = state.get("banked", {})
-	var from_swipe := _shown_count(pool_id)
-	if typeof(banked) != TYPE_DICTIONARY or (banked as Dictionary).is_empty():
-		return from_swipe
-	return maxi(CampaignShell.cabinet_count(state, pool_id), from_swipe)
-
-
-func _biome_progress_lines() -> Array:
+## Rebuild the Package B trophy board from live pool data (also after pool editor save).
+func rebuild_board() -> void:
+	var hall = _rooms.get("hall", null)
+	if hall == null:
+		return
 	var rules := _biome_rules()
-	var quota := BiomeCabinets.quota_of(rules)
-	var grouped := _group_cards_by_pool()
-	var lines: Array = []
-	for raw in BiomeCabinets.resolved_cases(rules):
-		var spec: Dictionary = raw
-		var pool := str(spec.get("id", ""))
-		var cards: Array = grouped.get(pool, [])
-		lines.append(BiomeCabinets.progress_text(_case_collected(pool), cards.size(), quota))
-	return lines
-
-
-func _fill_biome_cases() -> void:
-	_trophy_cases.clear()
-	var rules := _biome_rules()
-	var cases: Array = BiomeCabinets.resolved_cases(rules)
-	var quota := BiomeCabinets.quota_of(rules)
 	var state := _campaign_shell_state()
-	var grouped := _group_cards_by_pool()
-	var banked := _hall_banked_dict()
-	var seen_map := _hall_seen_dict()
-	for i in cases.size():
-		var spec: Dictionary = cases[i]
-		var pool_id := str(spec.get("id", ""))
-		var cards: Array = BiomeCabinets.fixed_slots(grouped.get(pool_id, []))
-		var slot_ids: Array = []
-		for raw in cards:
-			slot_ids.append(str((raw as Dictionary).get("id", "")))
-		var claimed := _case_collected(pool_id)
-		var cst: int = BiomeCabinets.case_state(rules, state, pool_id, slot_ids, _claimed_subset(slot_ids, banked))
-		var page := int(_case_page.get(pool_id, -1))
-		if page < 0:
-			page = BiomeCabinets.default_page(slot_ids, banked)
-		_case_page[pool_id] = page
-		var tc = preload("res://scripts/cabin/trophy_case.gd").new()
-		tc.setup(self, i, spec, cards, banked, seen_map, cst, claimed, quota, page)
-		tc.case_hovered.connect(_on_trophy_case_hover)
-		tc.case_unhovered.connect(hide_hover_tag)
-		tc.case_clicked.connect(_on_trophy_case_clicked)
-		tc.peg_hovered.connect(_on_trophy_peg_hover)
-		tc.peg_unhovered.connect(_on_trophy_peg_unhover)
-		tc.peg_clicked.connect(_on_trophy_peg_clicked)
-		tc.page_changed.connect(func(p: String, pg: int) -> void:
-			_case_page[p] = pg
+	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
+		state = _campaign_shell.state
+	var held: Array = []
+	for raw in _bank_hold.keys():
+		held.append(str(raw))
+	if _trophy_board == null or not is_instance_valid(_trophy_board):
+		_trophy_board = preload("res://scripts/cabin/trophy_board.gd").new()
+		_trophy_board.face_changed.connect(func(i: int) -> void:
+			board_face = i
+			_save()
 		)
-		_shelf_host.add_child(tc)
-		_trophy_cases[pool_id] = tc
-		## Keep legacy dicts loosely for bank FX lookup.
-		_case_columns[pool_id] = tc
-		_case_clips[pool_id] = tc
-	_refresh_dumbwaiter()
-
-
-func _claimed_subset(slot_ids: Array, banked: Dictionary) -> Dictionary:
-	var out := {}
-	for raw in slot_ids:
-		var id := str(raw)
-		if banked.has(id):
-			out[id] = true
-	return out
+		_trophy_board.wants_pan_left.connect(func() -> void:
+			if not _busy():
+				_arrow(-1)
+		)
+		_trophy_board.slot_clicked.connect(func(cid: String) -> void:
+			inspect_wanted.emit(cid)
+		)
+		_trophy_board.inspect_wanted.connect(func(cid: String) -> void:
+			inspect_wanted.emit(cid)
+		)
+		_trophy_board.hover_tip.connect(func(text: String, anchor: Control) -> void:
+			if _hover_tag == null:
+				return
+			_hover_tag.set_plain(text)
+			if anchor:
+				var g: Vector2 = anchor.get_global_rect().position
+				_hover_tag.global_position = Vector2(
+					g.x,
+					maxi(16.0, g.y - 12.0 * PX - _hover_tag.size.y)
+				)
+			_hover_tag.visible = true
+		)
+		_trophy_board.hover_clear.connect(hide_hover_tag)
+		_trophy_board.lever_pulled.connect(func(fi: int) -> void:
+			## Package D wires portal sequence. Placeholder: emit only.
+			print("trophy_board lever_pulled face=", fi)
+		)
+		if hall.has_method("attach_trophy_board"):
+			hall.attach_trophy_board(_trophy_board)
+		else:
+			hall.add_child(_trophy_board)
+	_trophy_board.reduce_motion = false
+	_trophy_board.invert_scroll = invert_scroll
+	_trophy_board.set_sfx(sfx)
+	_trophy_board.set_item_textures(tex_by_item)
+	_trophy_board.set_board_viewed(board_viewed)
+	_trophy_board.setup(rules, items_by_id, state, _hall_seen_dict(), held)
+	_trophy_board.slide_to(board_face, true)
 
 
 func _hall_banked_dict() -> Dictionary:
@@ -2790,711 +2469,40 @@ func _hall_seen_dict() -> Dictionary:
 		out[str(id)] = true
 	return out
 
+func _interior_arrive_room() -> String:
+	return "hall" if is_room_unlocked("hall") else "main"
 
-func _refresh_dumbwaiter() -> void:
-	if _dumbwaiter == null:
-		return
-	var rules := _biome_rules()
-	var state := _campaign_shell_state()
-	var lit: Array = []
-	for i in 5:
-		lit.append(CampaignShell.pool_unlocked(rules, state, "b%d" % (i + 1)))
-	var park := 1
-	for i in range(5, 0, -1):
-		if lit[i - 1]:
-			park = i
-			break
-	_dumbwaiter.refresh(lit, park)
+func _biome_rules() -> Dictionary:
+	if _campaign_rules.is_empty():
+		_campaign_rules = CampaignShell.read_json(CampaignShell.DATA_PATH)
+	return _campaign_rules
 
 
-func _on_trophy_case_hover(pool_id: String, unlocked: bool) -> void:
-	var hit: Control = _trophy_cases.get(pool_id, null)
-	_on_case_hover(pool_id, hit if hit else self, unlocked)
+func _campaign_shell_state() -> Dictionary:
+	var disk: Dictionary = CampaignShell.read_json(CampaignShell.SAVE_PATH)
+	if disk.is_empty():
+		return CampaignShell.fresh_state()
+	CampaignShell.normalize(disk)
+	return disk
 
 
-func _on_trophy_case_clicked(pool_id: String) -> void:
-	if _hall_zooming or _bank_busy:
-		return
-	var rules := _biome_rules()
-	var state := _campaign_shell_state()
-	if not CampaignShell.pool_unlocked(rules, state, pool_id):
-		KIT.cue(sfx, &"cabin.locked")
-		return
-	_open_hall_zoom(pool_id)
-
-
-func _on_trophy_peg_hover(item_id: String, peg: Control, peg_state: int) -> void:
-	_show_lore_panel(item_id, peg, peg_state)
-
-
-func _on_trophy_peg_unhover() -> void:
-	_hide_lore_panel()
-
-
-func _on_trophy_peg_clicked(item_id: String) -> void:
-	inspect_wanted.emit(item_id)
-
-
-func _build_biome_case(_spec: Dictionary, _cards: Array, _quota: int, _glass: Rect2, _unlocked: bool = true) -> void:
-	## Retired — hall builds TrophyCase via _fill_biome_cases.
+func _show_lore_panel(_item_id: String, _peg: Control, _peg_state: int) -> void:
 	pass
 
 
-func consume_map_focus_pool() -> String:
-	var p := _map_focus_pool
-	_map_focus_pool = ""
-	return p
-
-
-func _ensure_dumbwaiter(hall: Node) -> void:
-	if hall == null:
-		return
-	if _dumbwaiter != null and is_instance_valid(_dumbwaiter):
-		return
-	var accents: Array = []
-	for raw in BiomeCabinets.CASES:
-		accents.append(str((raw as Dictionary).get("accent", "7dae62")))
-	_dumbwaiter = preload("res://scripts/cabin/dumbwaiter.gd").new()
-	_dumbwaiter.setup(self, accents)
-	_dumbwaiter.stop_chosen.connect(_on_dumbwaiter_stop)
-	_dumbwaiter.stop_hovered.connect(_on_dumbwaiter_hover)
-	_dumbwaiter.stop_unhovered.connect(hide_hover_tag)
-	_dumbwaiter.lever_hovered.connect(func() -> void:
-		show_hover_tag("cabin.hall.lift_lever", _dumbwaiter)
-	)
-	_dumbwaiter.map_focus_wanted.connect(func(pool: String) -> void:
-		_map_focus_pool = pool
-	)
-	## Sign uses STUB copy key.
-	if _dumbwaiter._sign:
-		_dumbwaiter._sign.text = COPY.text("cabin.hall.lift_sign", "LIFT")
-	hall.add_child(_dumbwaiter)
-
-
-func _ensure_hall_zoom_dim(hall: Node) -> void:
-	## Dim lives under `_hole` so TrophyCase z_index can sit above it.
-	if _hall_zoom_dim != null or _hole == null:
-		return
-	_hall_zoom_dim = ColorRect.new()
-	_hall_zoom_dim.name = "ZoomDim"
-	_hall_zoom_dim.color = Color("0b0706", 0.0)
-	_hall_zoom_dim.position = Vector2.ZERO
-	_hall_zoom_dim.size = _hole.size
-	_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hall_zoom_dim.z_index = 10
-	_hall_zoom_dim.visible = false
-	_hall_zoom_dim.gui_input.connect(_on_zoom_dim_input)
-	_hole.add_child(_hall_zoom_dim)
-
-
-func _on_dumbwaiter_hover(pool: String, lit: bool) -> void:
-	if not lit:
-		show_hover_tag("cabin.hall.locked", _dumbwaiter)
-		return
-	var rules := _biome_rules()
-	var biome_name := pool
-	for raw in BiomeCabinets.resolved_cases(rules):
-		if str((raw as Dictionary).get("id", "")) == pool:
-			biome_name = str((raw as Dictionary).get("name", pool))
-			break
-	## Biome display name from data — no new copy key.
-	if _hover_tag == null:
-		return
-	if _hover_tag.has_method("set_raw"):
-		_hover_tag.set_raw(biome_name)
-	elif _hover_tag.has_method("set_text"):
-		_hover_tag.set_text(biome_name)
-	_hover_tag.visible = true
-	if _dumbwaiter:
-		_hover_tag.global_position = _dumbwaiter.get_global_rect().position + Vector2(8, -36)
-
-
-func _on_dumbwaiter_stop(pool: String) -> void:
-	_map_focus_pool = pool
-	var tc = _trophy_cases.get(pool, null)
-	if tc != null and tc.has_method("flare_lamp"):
-		tc.flare_lamp()
-	focus_biome_case(pool)
-	## Tray silhouette = first unclaimed in fixed order.
-	var grouped := _group_cards_by_pool()
-	var slots: Array = BiomeCabinets.fixed_slots(grouped.get(pool, []))
-	var banked := _hall_banked_dict()
-	var tray_id := ""
-	for raw in slots:
-		var id := str((raw as Dictionary).get("id", ""))
-		if id != "" and not banked.has(id):
-			tray_id = id
-			break
-	if _dumbwaiter == null:
-		return
-	if tray_id == "":
-		## Complete — show crest at 0.5.
-		var rules := _biome_rules()
-		for raw2 in BiomeCabinets.resolved_cases(rules):
-			if str((raw2 as Dictionary).get("id", "")) == pool:
-				var crest: Texture2D = BiomeCabinets.trophy_texture(raw2 as Dictionary, false)
-				_dumbwaiter.set_tray_tex(crest, false)
-				if _dumbwaiter._tray:
-					_dumbwaiter._tray.modulate = Color(1, 1, 1, 0.5)
-				return
-	var tex: Texture2D = tex_by_item.get(tray_id, null)
-	if tex == null and art != null:
-		tex = art.item_tex(tray_id)
-	_dumbwaiter.set_tray_tex(tex, true)
-
-
-func _hall_flip_to_item(pool: String, item_id: String, ceremony_gen: int = -1) -> void:
-	## Always resolve the cabinet from the card's pool tag so a page-2 Crystal
-	## item never flips Verdant (or a stale session page) by mistake.
-	## ceremony_gen < 0: non-ceremony callers (unchanged). >=0: owner-only after awaits.
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	var card: Dictionary = items_by_id.get(item_id, {})
-	var resolved := _live_pool(card)
-	if resolved == "":
-		resolved = pool
-	var tc = _trophy_cases.get(resolved, null)
-	if tc == null and pool != "" and pool != resolved:
-		tc = _trophy_cases.get(pool, null)
-		if tc != null:
-			resolved = pool
-	if tc == null:
-		return
-	var idx := -1
-	## Prefer the live TrophyCase slot list (same order as fixed_slots).
-	var slot_ids: Array = []
-	if "_slot_ids" in tc:
-		slot_ids = tc._slot_ids
-	if slot_ids.is_empty():
-		var grouped := _group_cards_by_pool()
-		for raw in BiomeCabinets.fixed_slots(grouped.get(resolved, [])):
-			slot_ids.append(str((raw as Dictionary).get("id", "")))
-	for i in slot_ids.size():
-		if str(slot_ids[i]) == item_id:
-			idx = i
-			break
-	if idx < 0:
-		return
-	var page := BiomeCabinets.slot_page(idx)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	_case_page[resolved] = page
-	if tc.has_method("flip_to_page"):
-		await tc.flip_to_page(page, true)
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			return
-
-
-func _case_opened_beat(pool_id: String, ceremony_gen: int = -1) -> void:
-	## ceremony_gen < 0 preserves non-ceremony callers. Owned path: no lamp/crest/sheet/
-	## dumbwaiter/rebuild/ride mutations after a cancelled await.
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	var tc = _trophy_cases.get(pool_id, null)
-	if tc == null:
-		if ceremony_gen < 0 or _owns_bank_ceremony(ceremony_gen):
-			_rebuild_shelves()
-		return
-	## Door swing + lamp on, crest stays grey briefly.
-	if tc.has_method("play_open_door"):
-		tc.play_open_door()
-	if tc.has_method("set_crest_grey"):
-		tc.set_crest_grey(true)
-	if tc._lamp:
-		tc._lamp.play("on")
-		tc._lamp.visible = true
-		## flicker
-		tc._lamp.modulate = Color(1.4, 1.4, 1.4)
-		await _wait(0.06, true)
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			return
-		tc._lamp.modulate = Color(0.4, 0.4, 0.4)
-		await _wait(0.06, true)
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			return
-		tc._lamp.modulate = Color.WHITE
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	if tc._lamp_glow:
-		tc._lamp_glow.visible = true
-		tc._lamp_glow.modulate.a = 0.0
-		var gtw := create_tween()
-		gtw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		if ceremony_gen >= 0:
-			_track_bank_ceremony_tween(gtw)
-		gtw.tween_property(tc._lamp_glow, "modulate:a", 0.5, 0.15)
-	await _wait(0.15, true)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	## Crest colour + glint
-	if tc.has_method("set_crest_grey"):
-		tc.set_crest_grey(false)
-	KIT.cue(sfx, &"cabin.glint")
-	## Next case sheet slides off.
-	var bi := BiomeCabinets.case_index(pool_id)
-	var next_pool := "b%d" % (bi + 2)
-	var next_tc = _trophy_cases.get(next_pool, null)
-	if next_tc != null and next_tc.has_method("slide_sheet_off"):
-		next_tc.slide_sheet_off()
-		KIT.cue(sfx, &"cabin.glint")
-	if _dumbwaiter != null:
-		_dumbwaiter.light_stop(bi + 2, true)
-		_dumbwaiter._park = bi + 2
-	await _wait(0.35, true)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	_rebuild_shelves()
-	if _dumbwaiter != null:
-		await _dumbwaiter.ride_to(bi + 2)
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			return
-
-
-func _on_zoom_dim_input(event: InputEvent) -> void:
-	if not _hall_zooming:
-		return
-	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
-			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
-		_close_hall_zoom()
-		accept_event()
-
-
-func _open_hall_zoom(pool_id: String) -> void:
-	var hall = _rooms.get("hall")
-	var tc = _trophy_cases.get(pool_id, null)
-	if hall == null or tc == null or _hall_zooming:
-		return
-	_hall_zooming = true
-	_hall_zoom_pool = pool_id
-	_hall_pre_zoom_pos = hall.position
-	_hall_pre_zoom_scale = hall.scale
-	## Pivot at room origin so 2× scale matches the locked Camera2D framing.
-	hall.pivot_offset = Vector2.ZERO
-	var case_center: Vector2 = tc.position + tc.size * 0.5
-	## Offset is relative to the hall's layout seat (e.g. x=6720). Clamping the
-	## absolute position to [-ROOM_W,0] used to yank the room off-screen.
-	var target: Vector2 = BiomeCabinets.hall_zoom_target(
-		_hall_pre_zoom_pos, case_center, Vector2(ROOM_W * 0.5, ROOM_H * 0.5), Vector2(ROOM_W, ROOM_H)
-	)
-	if _hall_zoom_dim:
-		_hall_zoom_dim.visible = true
-		_hall_zoom_dim.color.a = 0.0
-		_hall_zoom_dim.z_index = 10
-		_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	tc.z_index = 12
-	if tc.has_method("set_zoomed"):
-		tc.set_zoomed(true)
-	if _dumbwaiter and _dumbwaiter.has_method("set_input_enabled"):
-		_dumbwaiter.set_input_enabled(false)
-	if _hall_zoom_tw:
-		_hall_zoom_tw.kill()
-	var tw := create_tween()
-	_hall_zoom_tw = tw
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.set_trans(Tween.TRANS_QUAD)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(hall, "scale", Vector2(2, 2), 0.35)
-	tw.parallel().tween_property(hall, "position", target, 0.35)
-	if _hall_zoom_dim:
-		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.25, 0.35)
-	await tw.finished
-	if _hall_zoom_tw == tw:
-		_hall_zoom_tw = null
-
-
-func _close_hall_zoom() -> void:
-	if not _hall_zooming or _hall_zoom_closing:
-		return
-	var hall = _rooms.get("hall")
-	if hall == null:
-		_finish_hall_zoom_closed()
-		return
-	_hall_zoom_closing = true
-	_hide_lore_panel()
-	if _hall_zoom_tw:
-		var opening := _hall_zoom_tw
-		_hall_zoom_tw = null
-		opening.kill()
-	var tc = _trophy_cases.get(_hall_zoom_pool, null)
-	var tw := create_tween()
-	_hall_zoom_tw = tw
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.set_trans(Tween.TRANS_QUAD)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(hall, "scale", _hall_pre_zoom_scale, 0.25)
-	tw.parallel().tween_property(hall, "position", _hall_pre_zoom_pos, 0.25)
-	if _hall_zoom_dim:
-		tw.parallel().tween_property(_hall_zoom_dim, "color:a", 0.0, 0.25)
-	await tw.finished
-	if _hall_zoom_tw != tw:
-		return
-	_finish_hall_zoom_closed(tc)
-
-
-func _snap_hall_zoom_closed() -> void:
-	if not _hall_zooming and not _hall_zoom_closing:
-		return
-	if _hall_zoom_tw:
-		var tw := _hall_zoom_tw
-		_hall_zoom_tw = null
-		tw.kill()
-	var hall = _rooms.get("hall")
-	if hall:
-		hall.scale = _hall_pre_zoom_scale
-		hall.position = _hall_pre_zoom_pos
-	_finish_hall_zoom_closed(_trophy_cases.get(_hall_zoom_pool, null))
-
-
-func _finish_hall_zoom_closed(tc = null) -> void:
-	if tc == null:
-		tc = _trophy_cases.get(_hall_zoom_pool, null)
-	if _hall_zoom_dim:
-		_hall_zoom_dim.color.a = 0.0
-		_hall_zoom_dim.visible = false
-		_hall_zoom_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if tc:
-		tc.z_index = 0
-		if tc.has_method("set_zoomed"):
-			tc.set_zoomed(false)
-	if _dumbwaiter and _dumbwaiter.has_method("set_input_enabled"):
-		_dumbwaiter.set_input_enabled(true)
-	_hall_zoom_pool = ""
-	_hall_zooming = false
-	_hall_zoom_closing = false
-	_hall_zoom_tw = null
-	_hide_lore_panel()
-
-
-func _show_lore_panel(item_id: String, peg: Control, peg_state: int) -> void:
-	_hide_lore_panel()
-	var card: Dictionary = items_by_id.get(item_id, {})
-	_lore_panel = Control.new()
-	_lore_panel.name = "LorePanel"
-	_lore_panel.z_index = 110
-	_lore_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_lore_panel)
-	var panel := Panel.new()
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("efe0b6")
-	sb.border_color = Color("1a120e")
-	sb.set_border_width_all(4)
-	sb.content_margin_left = 20
-	sb.content_margin_right = 20
-	sb.content_margin_top = 16
-	sb.content_margin_bottom = 16
-	sb.shadow_color = Color("0b0706")
-	sb.shadow_offset = Vector2(0, 6)
-	sb.shadow_size = 0
-	panel.add_theme_stylebox_override("panel", sb)
-	panel.size = Vector2(520, 200)
-	_lore_panel.add_child(panel)
-	## Brass corners
-	for corner in [
-		[Vector2(0, 0), false, false],
-		[Vector2(520 - 24, 0), true, false],
-		[Vector2(0, 200 - 24), false, true],
-		[Vector2(520 - 24, 200 - 24), true, true],
-	]:
-		var c := TextureRect.new()
-		c.texture = KIT.load_tex("hall/lore_corner_brass")
-		c.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		c.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		c.stretch_mode = TextureRect.STRETCH_SCALE
-		c.size = Vector2(24, 24)
-		c.position = corner[0]
-		c.flip_h = corner[1]
-		c.flip_v = corner[2]
-		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		panel.add_child(c)
-	var vbox := VBoxContainer.new()
-	vbox.position = Vector2(24, 20)
-	vbox.size = Vector2(472, 160)
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(vbox)
-	if peg_state == BiomeCabinets.PegState.UNSEEN:
-		var locked := Label.new()
-		locked.text = COPY.text("cabin.tip.locked", "???")
-		locked.add_theme_font_size_override("font_size", 24)
-		locked.add_theme_color_override("font_color", Color("4a3020"))
-		locked.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(locked)
-		panel.size.y = 80
-	else:
-		var title := Label.new()
-		title.text = str(card.get("name", item_id))
-		title.add_theme_font_size_override("font_size", 28)
-		title.add_theme_color_override("font_color", Color("1e120c"))
-		title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(title)
-		## Package B: no depth subline and no rank chip on the lore card.
-		if peg_state == BiomeCabinets.PegState.CLAIMED:
-			var journal := ""
-			var lore_items: Variant = COPY.lore_pack.get("items", {}) if COPY.lore_pack else {}
-			if typeof(lore_items) == TYPE_DICTIONARY:
-				var entry: Variant = (lore_items as Dictionary).get(item_id, {})
-				if typeof(entry) == TYPE_DICTIONARY:
-					journal = str((entry as Dictionary).get("journal", ""))
-			if journal != "":
-				var heading := Label.new()
-				heading.text = COPY.text("cabin.tip.journal", "From Grandpa's journal:")
-				heading.add_theme_font_size_override("font_size", 16)
-				heading.add_theme_color_override("font_color", Color("6e5434"))
-				heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				vbox.add_child(heading)
-				var body := Label.new()
-				body.text = journal
-				body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				body.add_theme_font_size_override("font_size", 24)
-				body.add_theme_color_override("font_color", Color("4a3020"))
-				body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				vbox.add_child(body)
-			else:
-				var nolore := Label.new()
-				nolore.text = COPY.text("board.tip.claimed_nolore", "Home where it belongs.")
-				nolore.add_theme_font_size_override("font_size", 18)
-				nolore.add_theme_color_override("font_color", Color("4a3020"))
-				nolore.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				vbox.add_child(nolore)
-	## Place right of focused case if fits.
-	var peg_c: Vector2 = peg.get_global_rect().get_center() if peg else Vector2(840, 520)
-	var tc = _trophy_cases.get(_hall_zoom_pool, null)
-	var right_x := 840.0
-	if tc:
-		right_x = tc.get_global_rect().end.x + 24.0
-	var x := right_x
-	if x + 520.0 > 1680.0 - 24.0:
-		x = (tc.get_global_rect().position.x if tc else peg_c.x) - 520.0 - 24.0
-	var y := clampf(peg_c.y - panel.size.y * 0.5, 24.0, 1016.0 - panel.size.y)
-	_lore_panel.global_position = Vector2(x, y)
-
-
 func _hide_lore_panel() -> void:
-	if _lore_panel != null and is_instance_valid(_lore_panel):
-		_lore_panel.queue_free()
-	_lore_panel = null
-
-
-## Biome pedestal trophy for a filled case slot. Art is 96×96 (24 native ×4);
-## size with case_scale (= PX) so a 1× case never gets a full 96px icon in a 92px void.
-## Sits in the glass top (BiomeCabinets.trophy_local_rect) — not on the peg floor.
-func _place_biome_trophy(host: Control, spec: Dictionary, area: Vector2) -> void:
-	var idle: Texture2D = BiomeCabinets.trophy_texture(spec, false)
-	if idle == null:
-		return
-	var hover: Texture2D = BiomeCabinets.trophy_texture(spec, true)
-	if hover == null:
-		hover = idle
-	var case_scale: float = PX
-	var slot := BiomeCabinets.trophy_local_rect(area, case_scale)
-	var tsize: Vector2 = slot.size
-	var icon := TextureRect.new()
-	icon.name = "BiomeTrophy"
-	icon.texture = idle
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_SCALE
-	icon.custom_minimum_size = tsize
-	icon.size = tsize
-	icon.position = slot.position
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.z_index = 2
-	icon.set_meta("trophy_idle", idle)
-	icon.set_meta("trophy_hover", hover)
-	host.add_child(icon)
-	## Clip + root both receive hover; swap rim-light on either (same size → no jitter).
-	var apply_hover := func() -> void:
-		if is_instance_valid(icon):
-			icon.texture = hover
-	var apply_idle := func() -> void:
-		if is_instance_valid(icon):
-			icon.texture = idle
-	host.mouse_entered.connect(apply_hover)
-	host.mouse_exited.connect(apply_idle)
-	var clip_n := host.get_node_or_null("Clip")
-	if clip_n is Control:
-		(clip_n as Control).mouse_entered.connect(apply_hover)
-		(clip_n as Control).mouse_exited.connect(apply_idle)
-
-
-## Locked biome: chain + "?" and no item silhouettes (Doop D). Optional chain PNG; else drawn bars.
-func _paint_locked_pool(host: Control, area: Vector2, accent: Color) -> void:
-	var veil := ColorRect.new()
-	veil.name = "LockedVeil"
-	veil.color = Color(0.05, 0.04, 0.06, 0.72)
-	veil.position = Vector2.ZERO
-	veil.size = area
-	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	host.add_child(veil)
-	var chain_tex: Texture2D = _home("cabinets/case_locked_chain")
-	if chain_tex == null:
-		chain_tex = _home("shelf_locked")
-	if chain_tex:
-		var chain := TextureRect.new()
-		chain.name = "LockedChain"
-		chain.texture = chain_tex
-		chain.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		chain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		chain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		chain.modulate = Color(0.85, 0.82, 0.78, 0.9)
-		var ch: float = minf(area.y * 0.55, area.x * 1.6)
-		var cw: float = minf(area.x - 12.0, ch * (chain_tex.get_size().x / maxf(1.0, chain_tex.get_size().y)))
-		chain.size = Vector2(cw, ch)
-		chain.position = Vector2((area.x - cw) * 0.5, (area.y - ch) * 0.42)
-		chain.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		host.add_child(chain)
-	else:
-		var bar_col := Color(accent.r * 0.45 + 0.2, accent.g * 0.45 + 0.18, accent.b * 0.45 + 0.16, 0.95)
-		for i in 5:
-			var bar := ColorRect.new()
-			bar.name = "ChainBar_%d" % i
-			bar.color = bar_col
-			bar.size = Vector2(area.x * 0.78, 5.0)
-			bar.position = Vector2(area.x * 0.11, area.y * 0.22 + float(i) * (area.y * 0.1))
-			bar.rotation = 0.22 if i % 2 == 0 else -0.22
-			bar.pivot_offset = bar.size * 0.5
-			bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			host.add_child(bar)
-		for i in 3:
-			var link := ColorRect.new()
-			link.name = "ChainLink_%d" % i
-			link.color = Color(0.55, 0.5, 0.42, 0.85)
-			link.size = Vector2(14, 22)
-			link.position = Vector2(area.x * 0.5 - 7.0, area.y * 0.28 + float(i) * 48.0)
-			link.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			host.add_child(link)
-	var q := KIT.raw_label("?", 72, Color("e8dcc0"), false)
-	q.name = "LockedMark"
-	q.max_lines = 1
-	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	q.size = Vector2(area.x, 90)
-	q.position = Vector2(0, area.y * 0.38)
-	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	host.add_child(q)
-	q.fit()
-
-
-func _bind_case_scroll(node: Control, pool_id: String) -> void:
-	node.gui_input.connect(_on_case_wheel.bind(node, pool_id))
-
-
-func _on_case_wheel(event: InputEvent, node: Control, pool_id: String) -> void:
-	if not (event is InputEventMouseButton) or not (event as InputEventMouseButton).pressed:
-		return
-	var btn := event as InputEventMouseButton
-	var dir := 0
-	if btn.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-		dir = 1
-	elif btn.button_index == MOUSE_BUTTON_WHEEL_UP:
-		dir = -1
-	else:
-		return
-	_scroll_case(pool_id, dir)
-	node.accept_event()
-
-
-func _scroll_case(pool_id: String, dir: int) -> void:
-	var clip_v: Variant = _case_clips.get(pool_id, null)
-	var col_v: Variant = _case_columns.get(pool_id, null)
-	if not (clip_v is Control) or not (col_v is Control):
-		return
-	var clip := clip_v as Control
-	var col := col_v as Control
-	var max_s: float = maxf(0.0, col.size.y - clip.size.y)
-	var cur: float = clampf(float(_case_scroll.get(pool_id, 0.0)) + float(dir) * 72.0, 0.0, max_s)
-	_case_scroll[pool_id] = cur
-	col.position.y = -cur
-
-
-func _on_case_hover(pool_id: String, hit: Control, unlocked: bool = true) -> void:
-	if not unlocked:
-		show_hover_tag("cabin.hall.locked", hit)
-		return
-	var total := 0
-	var got := _case_collected(pool_id)
-	for id in items_by_id.keys():
-		if _live_pool(items_by_id[id]) == pool_id:
-			total += 1
-	var quota := BiomeCabinets.quota_of(_biome_rules())
-	if BiomeCabinets.past_gate(got, quota):
-		show_hover_tag("cabin.hall.past_gate", hit, {"n": got, "total": maxi(total, got)})
-		return
-	var need := BiomeCabinets.next_piece_need(got, quota)
-	if need > 0:
-		show_hover_tag("cabin.hall.next_piece", hit, {"n": need})
-		return
-	var key := "cabin.hall.full" if got >= total and total > 0 else "cabin.hall.gauge"
-	show_hover_tag(key, hit, {"n": got, "total": total})
-
+	pass
 
 func _offer_bank_sequence() -> void:
-	if _bank_busy or _bank_hold.is_empty():
-		return
-	## Never start mid-arrive / mid-keyring / mid-staging (would softlock or divert).
-	if _arriving or _beat == "keyring" or _beat == "arrive" or _homecoming_bank_staging:
-		return
-	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
-		return
-	if _current_room != "hall" or _int_root == null or not _int_root.visible:
-		return
-	var offer_gen: int = _begin_bank_ceremony()
-	_play_bank_sequence(offer_gen)
+	pass
 
-
-## After a win settle (and key ring if due): focus the haul's case and run S7.
 func stage_homecoming_bank() -> void:
 	await _stage_homecoming_bank()
 
 
 func _stage_homecoming_bank() -> void:
-	_restore_bank_hold_from_pending()
-	if _bank_hold.is_empty() or _bank_busy:
-		return
-	if _homecoming_kind == "loss":
-		return
-	if not is_room_unlocked("hall"):
-		return
-	if _int_root == null or not visible:
-		return
-	var staging_token: int = _claim_homecoming_staging()
-	var session: int = _begin_cabin_session()
-	## Focus the primary pool of the first pending id before FX.
-	var focus_pool := ""
-	for raw in bank_pending:
-		var sid := str(raw)
-		var pool := _live_pool(items_by_id.get(sid, {}))
-		if pool != "":
-			focus_pool = pool
-			break
-	if _current_room != "hall":
-		_pan_busy = false
-		await pan_to("hall")
-		## Stale pan: do NOT clear staging — a newer claimant may own it.
-		if not _owns_homecoming_staging(staging_token):
-			return
-		if not _owns_cabin_session(session) or not visible:
-			_clear_homecoming_staging(staging_token)
-			return
-	if not _owns_homecoming_staging(staging_token):
-		return
-	_int_root.visible = true
-	if focus_pool != "":
-		focus_biome_case(focus_pool)
-	if _bank_hold.is_empty() or _current_room != "hall":
-		_clear_homecoming_staging(staging_token)
-		return
-	## Claim ceremony gen before releasing staging so a deferred hall offer cannot double-start.
-	if _bank_busy:
-		_clear_homecoming_staging(staging_token)
-		return
-	var stage_gen: int = _begin_bank_ceremony()
-	## begin retires staging_token; no further clear from this coroutine.
-	await _play_bank_sequence(stage_gen)
+	pass
 
-
-## True only when this ceremony's haul actually includes b1 items.
-## Prevents Verdant five-finds copy on a non-b1 return while b1 is still under quota.
 func _haul_includes_pool(seq: Array, pool_id: String) -> bool:
 	for raw in seq:
 		if typeof(raw) != TYPE_DICTIONARY:
@@ -3505,137 +2513,7 @@ func _haul_includes_pool(seq: Array, pool_id: String) -> bool:
 
 
 func _play_bank_sequence(ceremony_gen: int = -1) -> void:
-	# S7 / C4: bag smoke -> rays -> per-item arcs -> loud count, then S3 map-piece handoff.
-	# FX only on the extract bank path — never Push/Nib interrupt, cheats, or death.
-	if ceremony_gen < 0:
-		ceremony_gen = _begin_bank_ceremony()
-	var quota := BiomeCabinets.quota_of(_biome_rules())
-	var pending: Array = []
-	var pools := {}
-	for raw in _bank_hold.keys():
-		var held_id := str(raw)
-		pending.append(held_id)
-		pools[held_id] = _live_pool(items_by_id.get(held_id, {}))
-	var seq: Array = BiomeCabinets.bank_sequence(pending, pools)
-	_bank_played = true
-	var from_push_block := _bank_from_push_block
-	var play_fx := (not from_push_block) and (not seq.is_empty())
-	var pool_adds: Dictionary = {}
-	var crossed: Array = []
-	var haul_has_b1: bool = _haul_includes_pool(seq, "b1")
-	## Spin handoff before flight — extract path only (Push-block keeps intentional silence).
-	if play_fx and _dialog != null and not seq.is_empty():
-		_dialog.say(["nib.home.give_home"])
-		await _dialog.finished
-		## Cancellation / reentry: gen ownership, not merely still-in-tree.
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			_release_bank_ceremony(ceremony_gen)
-			return
-	if play_fx:
-		await _bank_fx_bag_smoke(ceremony_gen)
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			_release_bank_ceremony(ceremony_gen)
-			return
-		await _bank_fx_rays(ceremony_gen)
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			_release_bank_ceremony(ceremony_gen)
-			return
-	for raw_step in seq:
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			## Do not clear a newer ceremony's locks; only retire if we still own.
-			_release_bank_ceremony(ceremony_gen)
-			return
-		var step: Dictionary = raw_step
-		var step_id := str(step.get("id", ""))
-		var pool := str(step.get("pool", ""))
-		var before := _shown_count(pool)
-		if play_fx:
-			await _hall_flip_to_item(pool, step_id, ceremony_gen)
-			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-				_release_bank_ceremony(ceremony_gen)
-				return
-			await _bank_fx_arc_to_mount(step_id, pool, ceremony_gen)
-			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-				_release_bank_ceremony(ceremony_gen)
-				return
-		## Ack only while this ceremony still owns the slot (preserves pending on cancel).
-		_ack_bank_presented(step_id, ceremony_gen)
-		if not _owns_bank_ceremony(ceremony_gen):
-			return
-		_bank_fresh = step_id
-		_rebuild_shelves()
-		pool_adds[pool] = int(pool_adds.get(pool, 0)) + 1
-		# Guard: Push interrupt, cheats, and death never queue a map piece.
-		if not from_push_block and _campaign_shell != null \
-				and BiomeCabinets.crossed_gate(before, _shown_count(pool), quota) \
-				and not crossed.has(pool):
-			crossed.append(pool)
-		await _wait(0.25 if play_fx else 0.34, true)
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			_release_bank_ceremony(ceremony_gen)
-			return
-	if not _owns_bank_ceremony(ceremony_gen):
-		return
-	_bank_fresh = ""
-	_bank_from_push_block = false
-	if is_inside_tree():
-		_rebuild_shelves()
-	if play_fx and is_inside_tree() and _owns_bank_ceremony(ceremony_gen):
-		await _bank_fx_loud_count(pool_adds, quota, ceremony_gen)
-		if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-			_release_bank_ceremony(ceremony_gen)
-			return
-	## Under-quota Verdant five-find teaching: only when THIS haul includes b1.
-	## Non-b1 returns must not teach Verdant just because b1 is still under quota.
-	if play_fx and is_inside_tree() and _owns_bank_ceremony(ceremony_gen) \
-			and _dialog != null and _campaign_shell != null and haul_has_b1:
-		var b1_shown := _shown_count("b1")
-		var gate_met := BiomeCabinets.past_gate(b1_shown, quota) or crossed.has("b1")
-		if needs_lesson("five_finds") and not gate_met:
-			mark_lesson_said("five_finds")
-			_dialog.say(["nib.lesson.five_finds"])
-			await _dialog.finished
-			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-				_release_bank_ceremony(ceremony_gen)
-				return
-	# Unlock beat then S3 map-piece ceremony when a cabinet crosses 5/5.
-	if not from_push_block and not crossed.is_empty() and _campaign_shell != null \
-			and _owns_bank_ceremony(ceremony_gen):
-		if play_fx:
-			for pool_id in crossed:
-				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-					_release_bank_ceremony(ceremony_gen)
-					return
-				await _case_opened_beat(str(pool_id), ceremony_gen)
-				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-					_release_bank_ceremony(ceremony_gen)
-					return
-		## Spin Verdant threshold line only for b1 — never bake onto other biomes.
-		if play_fx and crossed.has("b1") and _dialog != null and needs_lesson("five_threshold"):
-			mark_lesson_said("five_threshold")
-			_dialog.say(["nib.lesson.five_threshold"])
-			await _dialog.finished
-			if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-				_release_bank_ceremony(ceremony_gen)
-				return
-		for pool_id2 in crossed:
-			if not _owns_bank_ceremony(ceremony_gen):
-				return
-			cabinet_gate_crossed.emit(str(pool_id2))
-			if _map_piece_beat:
-				await _map_piece_beat.play(str(pool_id2))
-				if not _owns_bank_ceremony(ceremony_gen) or not is_inside_tree():
-					_release_bank_ceremony(ceremony_gen)
-					return
-			var bi := BiomeCabinets.case_index(str(pool_id2))
-			## Newly unlocked biome index is bi+1; emit for 2..4 (3rd–5th dungeon).
-			var unlocked_i := bi + 1
-			if unlocked_i >= 2 and unlocked_i <= 4:
-				shortcut_scene_wanted.emit("b%d" % (unlocked_i + 1))
-		if _owns_bank_ceremony(ceremony_gen):
-			_show_toast("extract.delving_improves")
-	_release_bank_ceremony(ceremony_gen)
-
+	pass
 
 func _bank_is_push_block() -> bool:
 	# S2/S3 set this before interrupt banks; absent on tips without that wire.
@@ -3644,17 +2522,7 @@ func _bank_is_push_block() -> bool:
 	return false
 
 
-func _bank_map_piece_beat() -> Variant:
-	if "_map_piece_beat" in self:
-		return get("_map_piece_beat")
-	return null
-
-
 func _bank_fx_host() -> Control:
-	if _hole != null and is_instance_valid(_hole):
-		return _hole
-	if _shelf_host != null and is_instance_valid(_shelf_host):
-		return _shelf_host
 	return self
 
 
@@ -3817,26 +2685,7 @@ func _bank_fx_rays(ceremony_gen: int = -1) -> void:
 		flash.queue_free()
 
 
-func _bank_mount_global_center(item_id: String, pool_id: String) -> Vector2:
-	var tc_v: Variant = _trophy_cases.get(pool_id, null)
-	if tc_v != null and tc_v.has_method("peg_node"):
-		var peg: Control = tc_v.peg_node(item_id)
-		if peg != null:
-			var gr: Rect2 = peg.get_global_rect()
-			return gr.position + gr.size * 0.45
-	var col_v: Variant = _case_columns.get(pool_id, null)
-	if col_v is Control:
-		var mount: Node = (col_v as Control).find_child("Peg_%s" % item_id, true, false)
-		if mount == null:
-			mount = (col_v as Control).find_child("Mount_%s" % item_id, true, false)
-		if mount is Control:
-			var gr2: Rect2 = (mount as Control).get_global_rect()
-			return gr2.position + gr2.size * 0.45
-	if _shelf_host != null:
-		var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % pool_id)
-		if case_n is Control:
-			var cr: Rect2 = (case_n as Control).get_global_rect()
-			return cr.position + Vector2(cr.size.x * 0.5, cr.size.y * 0.55)
+func _bank_mount_global_center(_item_id: String, _pool_id: String) -> Vector2:
 	var host: Control = _bank_fx_host()
 	var hr: Rect2 = host.get_global_rect()
 	return hr.position + hr.size * 0.5
@@ -3906,68 +2755,8 @@ func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int =
 		spr.queue_free()
 
 
-func _bank_fx_loud_count(pool_adds: Dictionary, quota: int, ceremony_gen: int = -1) -> void:
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	if pool_adds.is_empty() or _shelf_host == null:
-		return
-	var best_pool := ""
-	var best_n := 0
-	for raw_pool in pool_adds.keys():
-		var p := str(raw_pool)
-		var n: int = int(pool_adds[p])
-		if n > best_n:
-			best_n = n
-			best_pool = p
-	if best_pool == "" or best_n <= 0:
-		return
-	var case_n: Node = _shelf_host.get_node_or_null("Case_%s" % best_pool)
-	if not (case_n is Control):
-		return
-	var case_c := case_n as Control
-	var shown := _shown_count(best_pool)
-	var total := 0
-	for id in items_by_id.keys():
-		if _live_pool(items_by_id[id]) == best_pool:
-			total += 1
-	var gauge := BiomeCabinets.progress_text(shown, total, quota)
-	var lab := Label.new()
-	lab.text = "+%d  %s" % [best_n, gauge]
-	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lab.add_theme_font_size_override("font_size", 36)
-	lab.add_theme_color_override("font_color", Color("ffd84a"))
-	lab.add_theme_color_override("font_outline_color", Color("1c120c"))
-	lab.add_theme_constant_override("outline_size", 6)
-	lab.size = Vector2(case_c.size.x, 48)
-	lab.position = Vector2(0, case_c.size.y * 0.28)
-	lab.pivot_offset = lab.size * 0.5
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lab.z_index = 16
-	lab.scale = Vector2(0.4, 0.4)
-	case_c.add_child(lab)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_fx(lab)
-	KIT.cue(sfx, &"cabin.shelf_chime")
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_tween(tw)
-	tw.set_trans(Tween.TRANS_BACK)
-	tw.set_ease(Tween.EASE_OUT)
-	tw.tween_property(lab, "scale", Vector2(1.15, 1.15), 0.22)
-	tw.tween_property(lab, "scale", Vector2.ONE, 0.12)
-	tw.tween_interval(0.55)
-	tw.tween_property(lab, "modulate:a", 0.0, 0.2)
-	await _await_bank_ceremony_tween(tw, ceremony_gen)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		_untrack_bank_ceremony_fx(lab)
-		if is_instance_valid(lab):
-			lab.queue_free()
-		return
-	_untrack_bank_ceremony_fx(lab)
-	if is_instance_valid(lab):
-		lab.queue_free()
+func _bank_fx_loud_count(_pool_adds: Dictionary, _quota: int, _ceremony_gen: int = -1) -> void:
+	return
 
 
 func _clear_bank_anim() -> void:
@@ -3977,32 +2766,11 @@ func _clear_bank_anim() -> void:
 	_bank_played = false
 	_bank_from_push_block = false
 	_invalidate_bank_ceremony()
-	_case_scroll.clear()
 
 
-func _paint_cordon(locked: bool, origin: Vector2, grid: Vector2) -> void:
-	if _cordon == null:
-		return
-	_cordon.visible = locked
-	_cordon.set_anchors_preset(PRESET_TOP_LEFT)
-	if not locked:
-		return
-	var cover: Texture2D = _home("gallery_cordon")
-	if cover != null:
-		_cordon.texture = cover
-		_cordon.modulate = Color(1, 1, 1, 0.82)
-		_cordon.position = origin
-		_cordon.size = grid
-		_cordon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		return
-	_cordon.texture = _home("shelf_locked")
-	_cordon.modulate = Color(1, 1, 1, 0.92)
-	_cordon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	var native: Vector2 = _cordon.texture.get_size() if _cordon.texture else Vector2(512, 160)
-	var h: float = minf(native.y, maxf(grid.y * 0.38, 72.0))
-	var w: float = minf(grid.x * 0.92, native.x * (h / native.y))
-	_cordon.size = Vector2(w, h)
-	_cordon.position = origin + Vector2((grid.x - w) * 0.5, grid.y * 0.62)
+func _paint_cordon(_locked: bool, _origin: Vector2, _grid: Vector2) -> void:
+	## Package A: cabinet cordon host removed; Trophy Board owns hall chrome.
+	pass
 
 
 func _mount_stem(is_swiped: bool, is_seen: bool) -> String:
@@ -4380,7 +3148,6 @@ func _apply_defaults() -> void:
 	ending_seen = false
 	deepest_belly = 0
 	lifetime_dungeons_cleared = 0
-	mudroom_loadout = []
 	last_route = ""
 	radio_station = 0
 	gear_worn = {"head": "", "eyes": "", "belt": ""}
@@ -4430,16 +3197,24 @@ func _read_v2(parsed: Dictionary) -> void:
 		rooms_unlocked.append(str(r))
 	if rooms_unlocked.is_empty():
 		rooms_unlocked = ["main"]
-	## Outpost is right of hall — keep them unlocked as a pair.
-	if rooms_unlocked.has("mudroom") and not rooms_unlocked.has("hall"):
-		rooms_unlocked.append("hall")
-	if rooms_unlocked.has("hall") and not rooms_unlocked.has("mudroom"):
-		rooms_unlocked.append("mudroom")
-	mudroom_loadout = []
-	for raw_load in parsed.get("mudroom_loadout", []):
-		var lid := str(raw_load)
-		if lid != "":
-			mudroom_loadout.append(lid)
+
+	## Package A migration: Outpost (mudroom) removed — strip unlock + coerce room.
+	var cleaned: Array = []
+	for r2 in rooms_unlocked:
+		var rid := str(r2)
+		if rid == "mudroom" or rid == "":
+			continue
+		if not cleaned.has(rid):
+			cleaned.append(rid)
+	rooms_unlocked = cleaned
+	if rooms_unlocked.is_empty():
+		rooms_unlocked = ["main"]
+	var rr := str(parsed.get("return_room", return_room))
+	if rr == "mudroom" or not is_room_unlocked(rr):
+		rr = "hall" if rooms_unlocked.has("hall") else "main"
+	return_room = rr
+	if _current_room == "mudroom" or not is_room_unlocked(_current_room):
+		_current_room = return_room
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	board_face = int(parsed.get("board_face", 0))
@@ -4515,7 +3290,6 @@ func _save() -> void:
 	data["tutorial_done"] = tutorial_done
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
-	data["mudroom_loadout"] = mudroom_loadout
 	data["key_ring_seen"] = key_ring_seen
 	data["invert_scroll"] = invert_scroll
 	data["board_face"] = board_face
@@ -4546,10 +3320,11 @@ func _save() -> void:
 	data["lesson_five_finds_said"] = lesson_five_finds_said
 	data["lesson_five_threshold_said"] = lesson_five_threshold_said
 	data["lesson_tutorial_return_said"] = lesson_tutorial_return_said
+	data.erase("mudroom_loadout")
 	_raw_save = data
 	var f := FileAccess.open(_effective_save_path(), FileAccess.WRITE)
 	if f != null:
-		f.store_string(JSON.stringify(data, "\t"))
+		f.store_string(JSON.stringify(data, "	"))
 
 
 func _mcp_state() -> Dictionary:
@@ -4578,8 +3353,6 @@ func _mcp_state() -> Dictionary:
 		"sack_vis": _sack.visible if _sack else false,
 		"just_n": _just_mounted.size(),
 		"swiped_n": swiped.size(),
-		"biome_cases": BiomeCabinets.case_names(_biome_rules()),
-		"biome_progress": _biome_progress_lines(),
 		"buckets": buckets_open,
 		"room": _current_room,
 		"shelf_page": _room,
@@ -4711,15 +3484,6 @@ func debug_pose(beat: String) -> void:
 			if not is_room_unlocked("loft"):
 				_grant_all_rooms()
 			show_menu("loft")
-		"mudroom":
-			if not is_room_unlocked("mudroom"):
-				if not rooms_unlocked.has("hall"):
-					rooms_unlocked.append("hall")
-				rooms_unlocked.append("mudroom")
-				_save()
-				_refresh_rooms()
-			show_menu("mudroom")
-			_refresh_mudroom()
 		"ending":
 			ending_seen = false
 			play_ending()
@@ -4815,10 +3579,6 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _hall_zooming or _hall_zoom_closing:
-			_close_hall_zoom()
-			get_viewport().set_input_as_handled()
-			return
 		if _picker_open():
 			_ask_held_map()
 			get_viewport().set_input_as_handled()
@@ -4826,35 +3586,8 @@ func _input(event: InputEvent) -> void:
 		_escape()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
-			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT \
-			and (_hall_zooming or _hall_zoom_closing):
-		## A click that is not on the zoomed case only zooms out. The next click
-		## can leave the hall. This runs before door/map controls, including a
-		## neighbor room showing at the edge of the 2× frame.
-		var on_case := false
-		var tc = _trophy_cases.get(_hall_zoom_pool, null)
-		if tc is Control:
-			on_case = (tc as Control).get_global_rect().grow(12.0).has_point(get_global_mouse_position())
-		if not on_case:
-			_close_hall_zoom()
-			get_viewport().set_input_as_handled()
-			return
-	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
-			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_RIGHT \
-			and (_hall_zooming or _hall_zoom_closing):
-		_close_hall_zoom()
-		get_viewport().set_input_as_handled()
-		return
 	if _journal and _journal.visible and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 		_journal.handle_page(-1 if event.is_action_pressed("ui_left") else 1)
-		get_viewport().set_input_as_handled()
-		return
-	if _hall_zooming and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
-		var tc = _trophy_cases.get(_hall_zoom_pool, null)
-		if tc != null and tc.has_method("flip_to_page"):
-			var dir := -1 if event.is_action_pressed("ui_left") else 1
-			tc.flip_to_page(int(tc.current_page()) + dir)
 		get_viewport().set_input_as_handled()
 		return
 	## Package B: hall board consumes ←/→ / 1–5 before room pan.
@@ -4889,9 +3622,6 @@ func _input(event: InputEvent) -> void:
 
 
 func _escape() -> void:
-	if _hall_zooming:
-		_close_hall_zoom()
-		return
 	if _arriving:
 		_arrive_skip = 2
 		_kill_arrive_motion()
@@ -5111,7 +3841,6 @@ func _arrow(delta: int) -> void:
 
 func _build_rooms() -> void:
 	var scripts := {
-		"mudroom": preload("res://scripts/cabin/room_mudroom.gd"),
 		"main": preload("res://scripts/cabin/room_main.gd"),
 		"hall": preload("res://scripts/cabin/room_hall.gd"),
 		"study": preload("res://scripts/cabin/room_study.gd"),
@@ -5171,43 +3900,6 @@ func _build_rooms() -> void:
 	_chair_hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_chair_hit.gui_input.connect(_on_empty_chair_input)
 	main_room.add_child(_chair_hit)
-	var hall = _rooms.get("hall")
-	var bounds := BiomeCabinets.cases_bounds_rect()
-	_hole = Control.new()
-	_hole.position = _pt(bounds.position.x, bounds.position.y)
-	_hole.size = _pt(bounds.size.x, bounds.size.y)
-	_hole.clip_contents = false
-	## Full-room bounds used to swallow every click, including the hall doors
-	## drawn behind this layer. Cases keep their own hits. Doors must stay reachable.
-	_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hole.z_index = 3
-	hall.add_child(_hole)
-	_ensure_dumbwaiter(hall)
-	_ensure_hall_zoom_dim(hall)
-	_shelf_host = Control.new()
-	_shelf_host.position = Vector2.ZERO
-	_shelf_host.size = _hole.size
-	_shelf_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hole.add_child(_shelf_host)
-	_cordon = TextureRect.new()
-	_cordon.set_anchors_preset(PRESET_FULL_RECT)
-	_cordon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_cordon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_cordon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_cordon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_cordon.visible = false
-	_hole.add_child(_cordon)
-	_shelf_fade = ColorRect.new()
-	_shelf_fade.set_anchors_preset(PRESET_FULL_RECT)
-	_shelf_fade.color = Color(0.07, 0.05, 0.04, 0)
-	_shelf_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shelf_fade.visible = false
-	_hole.add_child(_shelf_fade)
-	## Gauge + shelf page arrows retired — plate cases are fixed; progress is hover-only.
-	_gauge = TextureProgressBar.new()
-	_gauge.visible = false
-	_gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hall.add_child(_gauge)
 
 
 func _build_chrome() -> void:
@@ -5297,9 +3989,6 @@ func _build_overlays() -> void:
 	_road_frame = preload("res://scripts/cabin/road_frame.gd").new()
 	_road_frame.setup(self)
 	add_child(_road_frame)
-	_map_piece_beat = preload("res://scripts/cabin/map_piece_beat.gd").new()
-	_map_piece_beat.setup(self)
-	add_child(_map_piece_beat)
 
 
 func attach_editor(main) -> void:
@@ -5357,8 +4046,6 @@ func _snap_to(room: String) -> void:
 
 
 func pan_to(room: String) -> void:
-	if _hall_zooming or _hall_zoom_closing:
-		_snap_hall_zoom_closed()
 	_sync_progress_doors()
 	if _pan_busy or not is_room_unlocked(room):
 		if not is_room_unlocked(room):
@@ -5398,11 +4085,7 @@ func pan_to(room: String) -> void:
 	_current_room = room
 	_pan_busy = false
 	_rooms_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if room == "mudroom":
-		_show_toast("room.mudroom.name")
-		_refresh_mudroom()
-	else:
-		_show_toast("cabin.room.%s" % room)
+	_show_toast("cabin.room.%s" % room)
 	if room == "hall":
 		call_deferred("_offer_bank_sequence")
 
@@ -5442,11 +4125,7 @@ func _pan_unlocked(room: String, owner_gen: int) -> bool:
 	_nested_mark("pan_unlocked", "apply", owner_gen)
 	_current_room = room
 	_pan_busy = false
-	if room == "mudroom":
-		_show_toast("room.mudroom.name")
-		_refresh_mudroom()
-	else:
-		_show_toast("cabin.room.%s" % room)
+	_show_toast("cabin.room.%s" % room)
 	if room == "hall":
 		call_deferred("_offer_bank_sequence")
 	return true
@@ -5542,9 +4221,6 @@ func _unlock_spot(
 	_nested_mark("unlock_spot", "apply", owner_gen)
 	if not rooms_unlocked.has(unlock_room):
 		rooms_unlocked.append(unlock_room)
-	## Trophy hall and Outpost unlock as a pair on the right path.
-	if unlock_room == "hall" and not rooms_unlocked.has("mudroom"):
-		rooms_unlocked.append("mudroom")
 	_save()
 	_refresh_rooms()
 	if hs:
@@ -5716,15 +4392,12 @@ func _busy() -> bool:
 
 
 func _on_hotspot(node_name: String, room: String = "main") -> void:
-	if _hall_zooming or _hall_zoom_closing:
-		_close_hall_zoom()
-		return
 	if _arriving and _int_root.visible:
 		if node_name == "Hero":
 			_arrive_skip = maxi(_arrive_skip, 2)
 			_kill_arrive_motion()
 			return
-		if node_name in ["RunDoor", "SideDoor", "LeftDoor", "BackDoor", "LeaveDoor", "OutDoor"]:
+		if node_name in ["SideDoor", "LeftDoor", "BackDoor"]:
 			_arrive_pending_name = node_name
 			_arrive_pending_room = room
 			_arrive_skip = maxi(_arrive_skip, 2)
@@ -5733,15 +4406,9 @@ func _on_hotspot(node_name: String, room: String = "main") -> void:
 	if _dialog and _dialog.is_open() and not _dialog.has_choices():
 		_dialog.advance()
 		return
-	if _busy() and node_name != "Nib" and not (node_name == "RunDoor" and _gate_on()):
+	if _busy() and node_name != "Nib":
 		return
 	match node_name:
-		"RunDoor":
-			_on_run_door()
-		"OutDoor", "LeaveDoor":
-			_ask_held_map()
-		"RerollJar":
-			pass
 		"SideDoor":
 			_on_side_door(room)
 		"LeftDoor":
@@ -5823,43 +4490,6 @@ func _on_spot_unhover(_n: String) -> void:
 	hide_hover_tag()
 
 
-func _on_run_door() -> void:
-	## Main's painted run door starts the rightward path (hall → Outpost → delve).
-	## Delve itself is the Outpost right/out exit — never skip the trophy hall.
-	## First-run tutorial gate is the road overlay (O1), not this door.
-	if is_room_unlocked("hall"):
-		pan_to("hall")
-		return
-	_bump()
-	KIT.cue(sfx, &"cabin.locked")
-	say_bubble("cabin.locked")
-
-
-func _play_run_door_open() -> void:
-	var room = _rooms.get("main")
-	if room == null:
-		return
-	var hs = room.spots.get("RunDoor", null)
-	if hs == null or not (hs is CabinHotspot):
-		return
-	var rels := ["doors/run_door_open_f0.png", "doors/run_door_open_f1.png", "doors/run_door_open_f2.png"]
-	if KIT.load_tex(rels[0]) == null:
-		return
-	var closed: Texture2D = hs.idle_tex
-	var ms := [100.0, 100.0, 100.0]
-	for i in rels.size():
-		var tex: Texture2D = KIT.load_tex(str(rels[i]))
-		if tex:
-			hs.texture = tex
-			hs.position = hs.origin_native * PX
-			hs.size = tex.get_size()
-		await _wait(ms[i] / 1000.0)
-	# Hold f2 briefly then restore closed for next visit.
-	await _wait(0.05)
-	if closed:
-		hs.set_idle_tex(closed)
-
-
 func _on_map() -> void:
 	_ask_held_map()
 
@@ -5878,69 +4508,6 @@ func _campaign_ref():
 	if host != null and host.get("_campaign") != null:
 		return host._campaign
 	return null
-
-
-func _mudroom_item_rows() -> Array:
-	var out: Array = []
-	for id in items_by_id.keys():
-		var card: Dictionary = items_by_id[id]
-		var st := str(card.get("status", "live"))
-		if st == "hold" or st == "retired":
-			continue
-		if BucketRules.is_token(card):
-			continue
-		if BucketRules.is_always_starter_id(str(id)):
-			continue
-		out.append({"id": str(id), "tier": int(card.get("tier", 1))})
-	return out
-
-
-func _refresh_mudroom() -> void:
-	var room = _rooms.get("mudroom")
-	if room == null:
-		return
-	var camp = _campaign_ref()
-	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
-	var state: Dictionary = camp.state if camp != null else CAMPAIGN_SHELL.fresh_state()
-	if room.has_method("refresh_map_board"):
-		room.refresh_map_board(rules, state)
-
-
-func _commit_mudroom_loadout() -> void:
-	var room = _rooms.get("mudroom")
-	var ids: Array = []
-	if room != null and room.has_method("selected_ids"):
-		ids = room.selected_ids()
-	elif room != null and room.has_method("hook_ids"):
-		ids = room.hook_ids()
-	if ids.is_empty():
-		ids = mudroom_loadout.duplicate()
-	mudroom_loadout = ids.duplicate()
-	var camp = _campaign_ref()
-	if camp != null:
-		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
-		if camp.has_method("write"):
-			camp.write()
-	_save()
-
-
-func _reroll_mudroom_hooks() -> void:
-	var camp = _campaign_ref()
-	var rules: Dictionary = camp.rules if camp != null else CAMPAIGN_SHELL.read_json("res://data/campaign.json")
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	var keep: Array = []
-	var room = _rooms.get("mudroom")
-	if room != null and room.has_method("hook_ids"):
-		keep = room.hook_ids()
-	var ids: Array = CAMPAIGN_SHELL.roll_mudroom_hooks(rules, rng, _mudroom_item_rows(), keep)
-	mudroom_loadout = ids.duplicate()
-	if camp != null:
-		CAMPAIGN_SHELL.set_mudroom_loadout(camp.state, ids)
-		if camp.has_method("write"):
-			camp.write()
-	_refresh_mudroom()
-	KIT.cue(sfx, &"cabin.scroll")
 
 
 func _picker_open() -> bool:
@@ -5989,7 +4556,6 @@ func _open_will() -> void:
 func _on_map_go(route: String) -> void:
 	last_route = route
 	_save()
-	await _play_run_door_open()
 	_leave_for_run(route)
 
 
@@ -6040,13 +4606,8 @@ func _on_cat() -> void:
 func _on_side_door(room: String) -> void:
 	await _flash_side_door_open(room, "SideDoor")
 	match room:
-		"main":
-			## Right door → trophy hall (then Outpost).
+		"main", "hall":
 			pan_to("hall")
-		"hall":
-			## Right door → Outpost.
-			_unlock_mudroom_with_hall()
-			pan_to("mudroom")
 		"study":
 			## After H-flip: SideDoor faces workshop (further left).
 			pan_to("workshop")
@@ -6079,19 +4640,8 @@ func _flash_side_door_open(room: String, node_name: String = "SideDoor") -> void
 		hs.set_idle_tex(closed)
 
 
-func _unlock_mudroom_with_hall() -> void:
-	if not is_room_unlocked("hall"):
-		return
-	if not rooms_unlocked.has("mudroom"):
-		rooms_unlocked.append("mudroom")
-		_save()
-		_refresh_rooms()
-
-
 func _on_back_door(room: String) -> void:
 	match room:
-		"mudroom":
-			pan_to("hall")
 		"hall":
 			pan_to("main")
 		"study":
@@ -6601,18 +5151,8 @@ func debug_drop_sack(frame: int = 2) -> void:
 	debug_hero_family("hero_drop_sack", clampi(frame, 0, 3), true)
 
 
-func debug_run_door_open(frame: int = 2) -> void:
-	var room = _rooms.get("main")
-	if room == null:
-		return
-	var hs = room.spots.get("RunDoor", null)
-	if hs == null or not (hs is CabinHotspot):
-		return
-	var tex: Texture2D = KIT.load_tex("doors/run_door_open_f%d.png" % clampi(frame, 0, 2))
-	if tex:
-		hs.texture = tex
-		hs.position = hs.origin_native * PX
-		hs.size = tex.get_size()
+func debug_run_door_open(_frame: int = 2) -> void:
+	pass
 
 
 func debug_side_door_open(room_id: String = "main") -> void:
@@ -6667,15 +5207,7 @@ func debug_dummy_tilt(side: String = "l") -> void:
 
 
 func debug_new_burst() -> void:
-	var hall = _rooms.get("hall")
-	if hall == null or _shelf_host == null:
-		return
-	var wrap := Control.new()
-	wrap.size = _mount_cell()
-	wrap.position = Vector2(80, 40)
-	wrap.add_to_group("debug_fx")
-	_shelf_host.add_child(wrap)
-	_play_new_burst(wrap)
+	pass
 
 
 func _item_spr_scale(tex: Texture2D, mul: float = 1.0) -> Vector2:

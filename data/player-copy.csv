@@ -202,7 +202,6 @@ Cabin,cabin.room.hall,Room-name sign that drops in on room change,Trophy Hall
 Cabin,cabin.room.study,Room-name sign that drops in on room change,The Study
 Cabin,cabin.room.workshop,Room-name sign that drops in on room change,The Workshop
 Cabin,cabin.room.loft,Room-name sign that drops in on room change,The Loft
-Cabin,cabin.hot.run_door,Hover label for the painted main-room run door (hall path),Toward the Outpost
 Cabin,cabin.hot.map,Hover label for the map hotspot,{grandpa|poss} Map
 Cabin,cabin.hot.radio,Hover label for the radio hotspot,The Melodeon
 Cabin,cabin.hot.nib,Hover label for the nib hotspot,{nib}
@@ -224,9 +223,7 @@ Cabin,cabin.hot.back,Hover label for the back hotspot,Cabin
 Cabin,cabin.hot.hatch,Hover label for the hatch hotspot,Workshop
 Cabin,cabin.hot.cabinet,Hover label for the cabinet hotspot,The Cabinet
 Cabin,cabin.hot.door_locked,Hover label for the door_locked hotspot,Locked
-Cabin,cabin.hot.gauge,Hover label for the gauge hotspot,Cabinet progress
 Cabin,cabin.hot.door_hall,Hover label on an unlocked door,Trophy Hall
-Cabin,cabin.hot.door_outpost,Hover label for Hall → Outpost right door,Outpost
 Cabin,cabin.hot.door_study,Hover label on an unlocked door,Study
 Cabin,cabin.hot.door_workshop,Hover label on an unlocked door,Workshop
 Cabin,cabin.hot.door_loft,Hover label on an unlocked door,The Loft
@@ -237,12 +234,6 @@ Cabin,cabin.gear.rope,Gear rack piece hover label,Coil of Rope
 Cabin,cabin.gear.wear,Gear hover hint when on the peg,Wear it
 Cabin,cabin.gear.hang,Gear hover hint when worn (click the hero or the empty peg),Hang it up
 Cabin,cabin.gear.flavour,Gear hover sub-line,Just for looks. {grandpa} would approve.
-Cabin,cabin.hall.gauge,Trophy hall gauge tooltip,{n} of {total} curiosities home
-Cabin,cabin.hall.full,Trophy hall gauge tooltip when complete,Every shelf full!
-Cabin,cabin.hall.past_gate,Biome case crown sub-line after the 5/5 gate,{n} of {total} found
-Cabin,cabin.hall.locked,Biome case when the pool is still locked,pool locked
-Cabin,cabin.hall.next_piece,Biome case hover while under the 5/5 map-piece gate,{n} more for the next map piece
-Cabin,cabin.hall.sign_outpost,Hall Outpost door sign (replaces hidden SignStudy art),To the Outpost
 Cabin,cabin.tip.journal,"Trophy tooltip, header above Grandpa's entry",From {grandpa|poss} journal:
 Cabin,cabin.tip.new,Trophy tooltip tag on a never-clicked new item,New!
 Cabin,cabin.tip.locked,Trophy tooltip on an item still in the mountain,Still somewhere in {the_grumble}.
@@ -474,7 +465,6 @@ Tutorial,tutorial.space_hint,Floating white Space hint whenever a talk beat wait
 Title,challenge.pick_hover,Challenge pick-two hover hint,Pick one. Hover to read it.
 Playtest,map.prefer_note,,"Which mode did you like more, and why? (test note)"
 Playtest,cabin.hot.back_main,,Cabin
-Playtest,cabin.hot.back_hall,Outpost back door hover → Trophy Hall,Trophy Hall
 Playtest,cabin.hot.back_study,,Study
 Playtest,cabin.locked.first,,That door stays shut until you bring a haul home. Try the map again?
 Playtest,cabin.locked.try,,Try again
@@ -551,18 +541,7 @@ Extract,rank.weak,Haul / rank chip for internal tier 1. Never say Tier.,Weak
 Extract,rank.tough,Haul / rank chip for internal tier 2. Never say Tier.,Tough
 Extract,rank.deadly,Haul / rank chip for internal tier 3. Never say Tier.,Deadly
 Extract,rank.curse,Inspect rank for curse items. Never say Weak or Tier.,Curse
-Nib,nib.piece.squint,Map-piece ceremony beat 1,Hold on. What's that stuck to the haul?
 Sprout,sprout.piece.huh,Map-piece ceremony beat 2,…?
-Nib,nib.piece.grandpa,Map-piece ceremony beat 3,That's {grandpa|poss}! Next belly of the mountain — onto the map with you.
-Nib,nib.piece.stamped,Map-piece ceremony beat 4 after THUNK,There. Official now. {next} is stamped — open the map and peel it when you're ready.
-Campaign,room.mudroom.name,Outpost room-name toast,Outpost
-Campaign,cabin.room.mudroom,Outpost room-name toast alias,Outpost
-Campaign,mudroom.hook.hover,Mudroom peg hover,{item}
-Campaign,mudroom.jar,Mudroom reroll jar title,Reroll jar · {n}
-Campaign,mudroom.jar.sub,Mudroom reroll jar sub,+1 each time {nib} stamps a new biome
-Campaign,mudroom.exit.cabin,Mudroom back door hover,Back to cabin
-Campaign,mudroom.exit.out,Outpost wall map hotspot,Map in hands
-Campaign,mudroom.space,Outpost Space / wall helper,Space or wall — map in hands
 Campaign,map.endless.sealed,Held map Endless sealed label,ENDLESS · SEALED
 Campaign,map.endless.sealed_sub,Held map Endless sealed sub,Opens when all five cabinets are full
 Campaign,map.endless.open,Held map Endless open tip,Endless
@@ -600,7 +579,6 @@ Map,map.start.pin,Start badge title,START HERE
 Map,map.start.sub,Start badge sub,Gatehouse → Verdant Hollow · a normal run
 Map,map.subtitle,Held map subtitle,"(Mostly Accurate.) Five bellies, each meaner than the last."
 Map,map.title.spin,Held map title (Spin lock),{grandpa|poss} Map of {mountain}
-Nib,nib.piece.stamped_short,Map-piece ceremony one-liner alternate,There. Official now.
 Pause,pause.start_over,Escape menu label,Start over
 Playtest,playtest.voice_chip,Playtest chip,Keep a phone voice memo running. Talk out loud at every interaction.
 Campaign,rope.campaign.bank_sub,Extract Bank home sub,End the run and keep what you extracted.
@@ -611,14 +589,6 @@ Title,title.lose_sub,Defeat subtitle,"Thievery never pays. Or rather, it pays in
 Title,title.sub,Title parchment subtitle,"Use it, Lose it, or Lose your head"
 Title,title.win_sub,Victory subtitle,Now I just need a place to store this stuff.
 Warns,warn.crossbow,Crossbow cannot fire,Can't — no soft neighbor who can take a bolt.
-Cabin,cabin.hall.plaque,Trophy Hall brass plaque + lore sub-line,Wares of the {ordinal} Depth and below
-Cabin,cabin.hall.ordinal_1,Trophy Hall plaque ordinal,1st
-Cabin,cabin.hall.ordinal_2,Trophy Hall plaque ordinal,2nd
-Cabin,cabin.hall.ordinal_3,Trophy Hall plaque ordinal,3rd
-Cabin,cabin.hall.ordinal_4,Trophy Hall plaque ordinal,4th
-Cabin,cabin.hall.ordinal_5,Trophy Hall plaque ordinal,5th
-Cabin,cabin.hall.lift_sign,Dumbwaiter header,LIFT
-Cabin,cabin.hall.lift_lever,Dumbwaiter lever hover,Pull
 Cabin,cabin.hall.lore_claimed,Lore panel footer when claimed,Claimed
 Splash,splash.chrome.biome,Biome-enter splash · top-left plate (biome name),{name}
 Splash,splash.chrome.dungeon,Biome-enter splash · top-left stat,Dungeon {n}
@@ -756,43 +726,3 @@ Tutorial,tutorial.line.B49.1,Tutorial · B49 · line 1,Let's slay this dragon. E
 Tutorial,tutorial.line.B50.1,Tutorial · B50 · line 1,"Every choice can make or break you in these dungeons, so let me give you one last piece of advice:"
 Tutorial,tutorial.line.B50.2,Tutorial · B50 · line 2,Plan ahead. Find Item combos and Monster counters. Expect the best Spins...but prepare for the worst.
 Tutorial,tutorial.line.B50.3,Tutorial · B50 · line 3,"But for now, let's take you home. Or rather, to the new home you will inherit if you complete your grandfather's will. Come, let's go."
-PostRun,postrun.title,Post-run progress menu title,Run Results
-PostRun,postrun.tab.overview,Post-run progress menu tab,Overview
-PostRun,postrun.tab.collection,Post-run progress menu tab,Collection
-PostRun,postrun.tab.next_target,Post-run progress menu tab,Next Goal
-PostRun,postrun.skip,Skip presentation fast-forward; never skips ledger/ack,Skip Recap
-PostRun,postrun.next,Advance automatic presentation step; never auto-launches a run,Next
-PostRun,postrun.cabin,Optional cabin entry from progress menu,Visit Cabin
-PostRun,postrun.new_run,Open destination picker / start flow,New Run
-PostRun,postrun.summary.success_new,Win return: count of newly committed distinct banked IDs this return (not visible cards),New item types added: {count}.
-PostRun,postrun.summary.success_none,Win return with zero new banked types (duplicates-only / empty haul),Made it home. No new item types added.
-PostRun,postrun.summary.death,Death/loss return; no fake credit,Run ended in {area}. No collection progress from this return.
-PostRun,postrun.summary.tutorial,Completed tutorial return only (not Skip); zero bank,Tutorial complete. Tutorial items don't count toward collection progress.
-PostRun,postrun.summary.tutorial_skipped,Tutorial Skip/decline return; zero bank; not Yes-complete,Tutorial skipped.
-PostRun,postrun.collection.area_count,Area tab: collected distinct / full roster total (not unlock threshold),{area} collection: {count}/{total}
-PostRun,postrun.collection.total,Overview overall unique item-type aggregate across authoritative pools (not unlock quota),Item types collected: {count}/{total}
-PostRun,postrun.collection.item_missing,Missing-item state label (icon+name still shown),Not yet collected
-PostRun,postrun.collection.item_new,Just-banked this return,New!
-PostRun,postrun.collection.item_collected,Already-owned non-new item state label,Collected
-PostRun,postrun.collection.area_locked,Locked-area badge,Locked
-PostRun,postrun.requirement.bring_home,Generic threshold requirement where rule is collection quota,Bring home {required} different item types from {area} to unlock {destination}.
-PostRun,postrun.requirement.verdant,Verdant/b1 unlock teaching; matches existing five-distinct rule,Bring home 5 different item types from successful Verdant Hollow runs to open the way deeper. They don't all have to come home together.
-PostRun,postrun.requirement.met,Threshold crossed / destination unlocked this return or already,{destination} unlocked
-PostRun,postrun.next_target.prompt,Next progression target headline,Next goal: {destination}
-PostRun,postrun.next_target.progress,Progress toward next unlock quota,Progress: {count}/{required} different item types
-PostRun,postrun.destination.route,Informational route text only — not a continue-run button; D2 same-run ≠ fresh start,Reach {destination} by starting in {start_area} and continuing during the same run.
-PostRun,postrun.shortcut.requirement,Fresh-start shortcut lock copy,Unlock {required_area} to start new runs in {start_area}.
-PostRun,postrun.shortcut.unlocked,Fresh-start shortcut just unlocked,New starting point: {start_area}
-PostRun,postrun.button.start_at,Start button only when can_start for that area,Start New Run in {start_area}
-PostRun,postrun.button.start_default,Default start when only default destination available,Start New Run
-PostRun,postrun.hand_note,"Verified: campaign starter_item_mix [3,2,1]=6 from unlocked pools",Each new run starts with 6 random items from unlocked pools.
-Cabin,board.tip.unseen,"Hover, unseen trophy slot",Yet to be seen.
-Cabin,board.tip.claimed_nolore,"Hover, claimed with no journal",Home where it belongs.
-Cabin,board.lights.tip,"Hover, lights",One light for each different find from {biome}. Five lights open the way deeper.
-Cabin,board.locked.tip,"Hover, padlock on locked face",Five different finds from {prev} open this one.
-Cabin,board.lever.locked,"Hover, locked lever",Light all five first.
-Cabin,board.lever.ready,"Hover, ready lever",Pull it.
-Cabin,board.lever.spent,"Hover, spent lever",The way to {next} is open.
-Cabin,board.dot.tip,"Hover, biome dot",{biome}
-Cabin,board.skip,Homecoming skip button,Skip
-Cabin,board.continue,Map beat continue,Onward
