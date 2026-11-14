@@ -2459,14 +2459,104 @@
 		{
 			"cat": "Nib",
 			"key": "nib.push_block.1",
-			"text": "Whoa, whoa. Not down there. Your {biome} cabinet's only at {n} of 5. You're not ready for what's below. Let me take you home?",
-			"where": "Hover Push deeper while biome cabinet under 5/5"
+			"text": "Whoa, whoa. Not down there. Your {biome} board only has {n} lights. You're not ready for what's below. Let me take you home?",
+			"where": "Hover Push deeper while biome board under 5 lights"
 		},
 		{
 			"cat": "Nib",
 			"key": "nib.push_block.yes",
 			"text": "Yes, take me home",
 			"where": "Push-block interrupt CTA (only choice)"
+		},
+		{
+			"cat": "Nib",
+			"key": "nib.push_block.lever",
+			"text": "Not yet. There's a lever at home with your name on it. Pull it, then we go deeper.",
+			"where": "Hover Push deeper at 5 lights before the lever is pulled"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.1",
+			"text": "Did you feel that? Something just opened up in {the_grumble}.",
+			"where": "Portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.2",
+			"text": "There's a new way through, past {prev}. {next} is down there waiting.",
+			"where": "Portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.map",
+			"text": "There. {next}, right on his map. You'll still start in Verdant Hollow, mind. Fight your way down to it.",
+			"where": "Portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.reveal.1",
+			"text": "This is what lives down in {next}.",
+			"where": "Portal new-pool reveal line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.reveal.2",
+			"text": "From now on, any of it can turn up on your way down. Keep your eyes open.",
+			"where": "Portal new-pool reveal line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless",
+			"text": "That was the bottom. Was. Something deeper just woke up.",
+			"where": "Shadow Abyss lever → Endless"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.1",
+			"text": "Every last thing from {biome}. Every one, {hero}.",
+			"where": "Board 100% gild"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.2",
+			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
+			"where": "Shortcut splash"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.3",
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
+			"where": "Shortcut map path"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.complete_final",
+			"text": "That's everything. Every last thing he owned is home.",
+			"where": "Shadow Abyss board at 100%"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.lever_ready.1",
+			"text": "Five lights, {hero}. Five different finds from {biome}.",
+			"where": "Lever ready prompt"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.lever_ready.2",
+			"text": "Give that lever a pull. Go on. He never let me touch it.",
+			"where": "Lever ready prompt 2"
 		},
 		{
 			"cat": "Nib",

@@ -42,9 +42,10 @@ func _initialize() -> void:
 	) or failed
 	failed = _check(failed, "fresh.b2.no_hit", (await _press_launch(map, "b2")).is_empty()) or failed
 
-	# --- D2 unlocked destination, still not startable (design C) ---
+	# --- D2 Known (portal open), still not startable ---
 	var d2: Dictionary = SHELL.fresh_state()
 	_fill_pool(rules, d2, "b1", 5)
+	SHELL.open_portal(rules, d2, "b1")
 	_seed_telegraphs(d2, {"b1": ["goblin"], "b2": ["bandit"], "b3": ["dragon"]})
 	failed = _check(failed, "shell.d2.unlocked", SHELL.biome_unlocked(rules, d2, 1)) or failed
 	failed = _check(failed, "shell.d2.not_start", not SHELL.can_start(rules, d2, 1)) or failed
@@ -64,10 +65,13 @@ func _initialize() -> void:
 		got_d1.size() == 3 and int(got_d1[0]) == 0
 	) or failed
 
-	# --- D3 unlock: previous dungeon (D2) becomes launchable shortcut ---
+	# --- Shortcut grant: b2 becomes launchable ---
 	var d3: Dictionary = SHELL.fresh_state()
 	_fill_pool(rules, d3, "b1", 5)
 	_fill_pool(rules, d3, "b2", 5)
+	SHELL.open_portal(rules, d3, "b1")
+	SHELL.open_portal(rules, d3, "b2")
+	SHELL.grant_shortcut(rules, d3, "b2")
 	_seed_telegraphs(d3, {"b1": ["goblin"], "b2": ["bandit"], "b3": ["dragon"]})
 	failed = _check(failed, "shell.d3.can_start_d2", SHELL.can_start(rules, d3, 1)) or failed
 	failed = _check(failed, "shell.d3.not_start_d3", not SHELL.can_start(rules, d3, 2)) or failed

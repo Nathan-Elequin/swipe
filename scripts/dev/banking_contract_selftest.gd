@@ -10,11 +10,12 @@ const OK_MARK := "BANKING_CONTRACT_OK"
 const FAIL_MARK := "BANKING_CONTRACT_FAIL"
 
 ## Audit §3.3 / plan fixtures (revalidated against catalog at tip). Distinct ids.
-const A: Array = ["net", "sai", "shield", "spinning_top", "throwing_knife"]
-const F := "flying_saucer"
-const FOUR: Array = ["net", "sai", "shield", "spinning_top"] ## A minus throwing_knife
+## spinning_top→b3 / flying_saucer→b2 / breastplate→b1 at current tip — use live b1/b2 ids.
+const A: Array = ["net", "sai", "shield", "da_boot", "throwing_knife"]
+const F := "fangs"
+const FOUR: Array = ["net", "sai", "shield", "da_boot"] ## A minus throwing_knife
 const KNIFE := "throwing_knife"
-const BREASTPLATE := "breastplate"
+const B2_ITEM := "helmet"
 const SMOKE := "smoke_bomb"
 const BRACERS := "bracers"
 
@@ -45,15 +46,15 @@ func _init() -> void:
 	var pools_by_id: Dictionary = _pools_from_catalog(catalog, Bucket, Shell, rules)
 	failed = _assert(
 		case_rows, failed, "ATTR.catalog_b1_openers",
-		"net/sai/shield/spinning_top/throwing_knife/flying_saucer → b1",
+		"net/sai/shield/da_boot/throwing_knife/fangs → b1",
 		_all_pool(pools_by_id, A + [F], "b1"),
 		"pools=%s" % _subset(pools_by_id, A + [F])
 	) or failed
 	failed = _assert(
-		case_rows, failed, "ATTR.breastplate_is_b2",
-		"breastplate catalog pool → b2 (item origin, not delve location)",
-		str(pools_by_id.get(BREASTPLATE, "")) == "b2",
-		"pool=%s" % str(pools_by_id.get(BREASTPLATE, ""))
+		case_rows, failed, "ATTR.helmet_is_b2",
+		"helmet catalog pool → b2 (item origin, not delve location)",
+		str(pools_by_id.get(B2_ITEM, "")) == "b2",
+		"pool=%s" % str(pools_by_id.get(B2_ITEM, ""))
 	) or failed
 	failed = _assert(
 		case_rows, failed, "ATTR.smoke_bomb_catalog_b1",
@@ -115,10 +116,10 @@ func _init() -> void:
 	var r6: Dictionary = Shell.bank(rules, s6, haul6, pools_by_id)
 	failed = _assert(
 		case_rows, failed, "B3.six_held_A_plus_F",
-		"bank A+F → +6 b1, Crystal Cavern destination open; fresh-start stays D1 (INTENDED 0→6)",
+		"bank A+F → +6 b1; portal still shut until lever; fresh-start stays D1",
 		_same_id_multiset(r6.get("added", []), haul6)
 		and Shell.cabinet_count(s6, "b1") == 6
-		and Shell.biome_unlocked(rules, s6, 1)
+		and not Shell.biome_unlocked(rules, s6, 1)
 		and not Shell.can_start(rules, s6, 1)
 		and Shell.can_start(rules, s6, 0)
 		and not Shell.cabinets_complete(rules, s6),
@@ -201,10 +202,10 @@ func _init() -> void:
 	var ru1: Dictionary = Shell.bank(rules, su1, [KNIFE], pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U1.four_to_five_unlocks",
-		"4→5 via throwing_knife unlocks Crystal Cavern destination; fresh-start stays D1; Pool1 complete still false",
+		"4→5 via throwing_knife credits 5; portal still shut until lever; start stays D1",
 		(ru1.get("added", []) as Array) == [KNIFE]
 		and Shell.cabinet_count(su1, "b1") == 5
-		and Shell.biome_unlocked(rules, su1, 1)
+		and not Shell.biome_unlocked(rules, su1, 1)
 		and not Shell.can_start(rules, su1, 1)
 		and Shell.can_start(rules, su1, 0)
 		and not Shell.cabinets_complete(rules, su1),
@@ -220,9 +221,9 @@ func _init() -> void:
 	Shell.bank(rules, su2a, A, pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U2.zero_to_five_first_return",
-		"first successful return with A (5) unlocks dungeon2 destination; start stays D1 (INTENDED)",
+		"first return with A (5) banks 5; destination opens only after open_portal; start stays D1",
 		Shell.cabinet_count(su2a, "b1") == 5
-		and Shell.biome_unlocked(rules, su2a, 1)
+		and not Shell.biome_unlocked(rules, su2a, 1)
 		and not Shell.can_start(rules, su2a, 1)
 		and Shell.can_start(rules, su2a, 0),
 		"b1=%s dest1=%s can_start1=%s" % [
@@ -231,13 +232,20 @@ func _init() -> void:
 			Shell.can_start(rules, su2a, 1),
 		]
 	) or failed
+	Shell.open_portal(rules, su2a, "b1")
+	failed = _assert(
+		case_rows, failed, "U2.lever_opens_destination",
+		"open_portal after 5 unlocks Crystal Cavern destination; start stays D1",
+		Shell.biome_unlocked(rules, su2a, 1) and not Shell.can_start(rules, su2a, 1),
+		"dest1=%s can_start1=%s" % [Shell.biome_unlocked(rules, su2a, 1), Shell.can_start(rules, su2a, 1)]
+	) or failed
 	var su2b: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, su2b, A + [F], pools_by_id)
 	failed = _assert(
 		case_rows, failed, "U2.zero_to_six_first_return",
-		"first successful return with A+F (6) unlocks destination; start stays D1; six openers vs quota five INTENDED",
+		"first return with A+F (6) banks 6; portal still shut; start stays D1",
 		Shell.cabinet_count(su2b, "b1") == 6
-		and Shell.biome_unlocked(rules, su2b, 1)
+		and not Shell.biome_unlocked(rules, su2b, 1)
 		and not Shell.can_start(rules, su2b, 1)
 		and Shell.can_start(rules, su2b, 0),
 		"b1=%s dest1=%s can_start1=%s" % [
@@ -249,20 +257,20 @@ func _init() -> void:
 
 	var su3: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, su3, A, pools_by_id)
-	var stamp1: Dictionary = Shell.stamp_map_piece(rules, su3, "b1")
+	var stamp1: Dictionary = Shell.open_portal(rules, su3, "b1")
 	failed = _assert(
 		case_rows, failed, "U3.stamp_first_after_threshold",
-		"stamp after 5 → first Crystal Cavern piece",
+		"open_portal after 5 → first Crystal Cavern piece",
 		str(stamp1.get("id", "")) == "b2" and bool(stamp1.get("first", false))
 		and Shell.map_piece_count(su3) == 1,
 		"stamp=%s pieces=%s" % [stamp1, Shell.map_piece_count(su3)]
 	) or failed
 	var ru3_dup: Dictionary = Shell.bank(rules, su3, A, pools_by_id)
 	var ru3_new: Dictionary = Shell.bank(rules, su3, [F], pools_by_id)
-	var stamp2: Dictionary = Shell.stamp_map_piece(rules, su3, "b1")
+	var stamp2: Dictionary = Shell.open_portal(rules, su3, "b1")
 	failed = _assert(
 		case_rows, failed, "U3.later_bank_no_repeated_unlock_stamp",
-		"repeat A → +0; new F → +1; stamp again not first; destination unlock stays; start stays D1",
+		"repeat A → +0; new F → +1; portal again not first; destination stays; start stays D1",
 		(ru3_dup.get("added", []) as Array).is_empty()
 		and (ru3_new.get("added", []) as Array) == [F]
 		and Shell.cabinet_count(su3, "b1") == 6
@@ -334,22 +342,22 @@ func _init() -> void:
 	## --- L1 / per-origin ---
 	var sl: Dictionary = Shell.fresh_state()
 	Shell.bank(rules, sl, A, pools_by_id)
-	var rl: Dictionary = Shell.bank(rules, sl, [BREASTPLATE], pools_by_id)
+	var rl: Dictionary = Shell.bank(rules, sl, [B2_ITEM], pools_by_id)
 	failed = _assert(
-		case_rows, failed, "L1.breastplate_credits_b2_not_location",
-		"breastplate with catalog pool credits b2; b1 retained",
-		(rl.get("added", []) as Array) == [BREASTPLATE]
+		case_rows, failed, "L1.helmet_credits_b2_not_location",
+		"helmet with catalog pool credits b2; b1 retained",
+		(rl.get("added", []) as Array) == [B2_ITEM]
 		and Shell.cabinet_count(sl, "b1") == 5
 		and Shell.cabinet_count(sl, "b2") == 1
-		and str((sl["banked"] as Dictionary).get(BREASTPLATE, "")) == "b2",
+		and str((sl["banked"] as Dictionary).get(B2_ITEM, "")) == "b2",
 		"b1=%s b2=%s attr=%s" % [
 			Shell.cabinet_count(sl, "b1"),
 			Shell.cabinet_count(sl, "b2"),
-			(sl["banked"] as Dictionary).get(BREASTPLATE, ""),
+			(sl["banked"] as Dictionary).get(B2_ITEM, ""),
 		]
 	) or failed
 	var mix: Dictionary = Shell.fresh_state()
-	Shell.bank(rules, mix, ["net", "sai", BREASTPLATE], pools_by_id)
+	Shell.bank(rules, mix, ["net", "sai", B2_ITEM], pools_by_id)
 	failed = _assert(
 		case_rows, failed, "L1.per_origin_counters",
 		"per-origin cabinet_count: b1=2, b2=1 independently",

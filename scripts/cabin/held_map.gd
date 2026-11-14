@@ -66,8 +66,10 @@ const TIP_START := "START HERE"
 ## Bright-red banner measured on map_in_hands_living.png (1680×1040).
 const START_BANNER := Rect2(805, 163, 280, 54)
 const TIP_ENDLESS_SEALED := "ENDLESS · SEALED"
-const TIP_ENDLESS_SEALED_SUB := "Opens when all five cabinets are full"
+const TIP_ENDLESS_SEALED_SUB := "Opens when you pull the last lever"
 const LABEL_UNMAPPED := "%s · unmapped"
+const KNOWN_MODULATE := Color(0.62, 0.58, 0.52)
+const START_BANNER_BOTTOM := Vector2(945, 217)
 
 var _sheet: Control
 var _ink: RouteInk
@@ -84,6 +86,10 @@ var _lane_rng := RandomNumberGenerator.new()
 ## Living/ChatGPT plate already paints biome names, START HERE, and Endless sealed.
 ## Skip always-on code name Labels that would smear over that paint.
 var _plate_paints_names: bool = false
+var _reveal_pool: String = ""
+var _shortcut_reveal: String = ""
+var _reduce_motion: bool = false
+var _path_lines: Array = []
 
 
 func setup() -> void:
@@ -211,6 +217,9 @@ func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = 
 	_state = state
 	_monsters_by_id = monsters_by_id
 	_read_only = bool(opts.get("read_only", false))
+	_reveal_pool = str(opts.get("reveal", ""))
+	_shortcut_reveal = str(opts.get("shortcut_reveal", ""))
+	_reduce_motion = bool(opts.get("reduce_motion", false))
 	_going = false
 	_hide_tip()
 	_rebuild()
@@ -222,14 +231,24 @@ func present(rules: Dictionary, state: Dictionary, monsters_by_id: Dictionary = 
 	var focus_pool := str(opts.get("focus_pool", ""))
 	if focus_pool != "":
 		call_deferred("_pulse_focus_stamp", focus_pool)
+	if _reveal_pool != "":
+		call_deferred("_play_reveal_fog", _reveal_pool)
+	if _shortcut_reveal != "":
+		call_deferred("_play_shortcut_reveal", _shortcut_reveal)
 
 
 func _rebuild() -> void:
+	## Kill looping glow/badge tweens before freeing pins (avoids set_loops errors).
 	for c in _pins.get_children():
 		_kill_peel_tween(c)
+		if c.has_meta("loop_tw"):
+			var loop_tw: Variant = c.get_meta("loop_tw")
+			if loop_tw is Tween and is_instance_valid(loop_tw):
+				(loop_tw as Tween).kill()
 		_pins.remove_child(c)
 		c.queue_free()
 	_clear_monsters()
+	_clear_path_lines()
 	var solid := 1
 	for i in range(1, 5):
 		if SHELL.biome_unlocked(_rules, _state, i):
@@ -258,16 +277,20 @@ func _rebuild() -> void:
 		var b: Dictionary = biomes[i]
 		var pool := str(b.get("id", "b%d" % (i + 1)))
 		var spot: Vector2 = TRAIL[i + 1]
-		## Destination visibility (biome_unlocked) is separate from fresh-start
-		## launch (can_start / one-behind). Unlocked D2 stays on the map with
-		## pool monsters even when it is not yet a start floor.
+		## Three states (Package D): unknown / known / shortcut-startable.
 		var unlocked: bool = SHELL.biome_unlocked(_rules, _state, i)
 		var launchable: bool = SHELL.can_start(_rules, _state, i)
-		if unlocked:
-			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false, launchable)
+		if not unlocked:
+			_add_fog_unknown(spot, str(b.get("name", pool)), pool)
+		elif launchable:
+			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false, true)
 			_spawn_pool_monsters(pool, spot)
+			_maybe_add_shortcut_chrome(pool, spot, i)
+			_maybe_add_static_path(pool, i)
 		else:
-			_add_locked(spot, str(b.get("name", pool)), pool)
+			## Known: flat ink, no hit, no hover affordance.
+			_add_stamp(spot, str(b.get("name", pool)), pool, WAX.get(pool, KIT.INK), i, false, false)
+			_spawn_pool_monsters(pool, spot)
 	var endless_name := str(_rules.get("endless", {}).get("name", "Endless"))
 	if bool(_state.get("endless_unlocked", false)):
 		_add_stamp(ENDLESS_AT, endless_name, "endless", WAX["endless"], 0, true, true)
@@ -285,13 +308,16 @@ func _rebuild() -> void:
 	else:
 		var sealed: String = KIT.copy_text("map.endless.sealed")
 		if sealed.strip_edges() == "":
-			sealed = "ENDLESS · SEALED"
+			sealed = TIP_ENDLESS_SEALED
 		_add_locked(ENDLESS_AT, sealed, "endless")
 		## Plate paints "ENDLESS - SEALED / opens when…"; skip duplicate always-on.
 		var sealed_sub: String = KIT.copy_text("map.endless.sealed_sub")
+		if sealed_sub.strip_edges() == "":
+			sealed_sub = TIP_ENDLESS_SEALED_SUB
 		if sealed_sub.strip_edges() != "" and not _plate_paints_names:
 			_add_name(ENDLESS_AT + Vector2(-110, 28), sealed_sub, false)
-	## Painted red "START HERE" banner (living plate). Not a dungeon stamp.
+	## Painted red "START HERE" banner (living plate). Always launches Verdant
+	## until a shortcut is earned — still the earliest launchable index.
 	_add_start_banner()
 
 
@@ -414,7 +440,12 @@ func _add_stamp(
 	seal.set_meta("pool_id", pool)
 	seal.set_meta("destination_visible", true)
 	seal.set_meta("launchable", launchable and not _read_only)
+	## Known (unlocked, not startable): flat ink, no peel / hover.
+	if not launchable and not endless:
+		seal.modulate = KNOWN_MODULATE
 	_pins.add_child(seal)
+	if launchable and not endless and not _read_only:
+		_add_node_glow(spot, pool)
 	var name_at := spot + Vector2(36, 8)
 	if endless:
 		name_at = spot + Vector2(-90, 36)
@@ -464,8 +495,11 @@ func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 	_add_name(spot + Vector2(28, -8) if not endless else spot + Vector2(-90, 36), label, false)
 	if endless and not _read_only:
 		var hit := _hit_button(Rect2(spot + Vector2(-100, -40), Vector2(220, 130)))
-		## Sealed status was always-on; keep it on hover when the plate paints it.
-		var sealed_tip := TIP_ENDLESS_SEALED if _plate_paints_names else TIP_ENDLESS_SEALED_SUB
+		## Reworded away from cabinets (Package D).
+		var sealed_sub: String = KIT.copy_text("map.endless.sealed_sub")
+		if sealed_sub.strip_edges() == "":
+			sealed_sub = TIP_ENDLESS_SEALED_SUB
+		var sealed_tip := TIP_ENDLESS_SEALED if _plate_paints_names else sealed_sub
 		hit.mouse_entered.connect(func() -> void:
 			_show_tip_at(spot + Vector2(0, -48), sealed_tip)
 		)
@@ -473,6 +507,242 @@ func _add_locked(spot: Vector2, biome_name: String, pool: String) -> void:
 			_hide_tip()
 		)
 		_pins.add_child(hit)
+
+
+## Unknown biome: fog bank, no hit, no hover.
+func _add_fog_unknown(spot: Vector2, biome_name: String, pool: String) -> void:
+	var slug := str(POOL_SLUG.get(pool, pool))
+	## ASSETS D1 uses crystal/ashen/cinder/shadow — map from pool.
+	var fog_slug: String = str({
+		"b2": "crystal", "b3": "ashen", "b4": "cinder", "b5": "shadow",
+	}.get(pool, "crystal"))
+	var fog := TextureRect.new()
+	fog.name = "Fog_%s" % pool
+	fog.texture = KIT.ui_tex("map/trophy/fog_%s.png" % fog_slug)
+	if fog.texture == null:
+		## Flat placeholder when art is missing.
+		var ph := ColorRect.new()
+		ph.name = "Fog_%s" % pool
+		ph.color = Color(0.72, 0.70, 0.64, 0.85)
+		ph.size = Vector2(192, 128)
+		ph.position = spot + Vector2(-96, -64)
+		ph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ph.set_meta("pool_id", pool)
+		ph.set_meta("destination_visible", false)
+		ph.set_meta("launchable", false)
+		_pins.add_child(ph)
+		_add_locked(spot, biome_name, pool)
+		return
+	fog.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	fog.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fog.stretch_mode = TextureRect.STRETCH_KEEP
+	fog.size = Vector2(192, 128)
+	fog.position = spot + Vector2(-96, -64)
+	fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fog.set_meta("pool_id", pool)
+	fog.set_meta("destination_visible", false)
+	fog.set_meta("launchable", false)
+	_pins.add_child(fog)
+	## Soft drift.
+	var tw := create_tween()
+	tw.set_loops()
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	var base_x: float = fog.position.x
+	tw.tween_property(fog, "position:x", base_x + 2.0, 3.0)
+	tw.tween_property(fog, "position:x", base_x - 2.0, 3.0)
+	## Keep a locked meta pin so destination_visible probes still work.
+	_add_locked(spot, biome_name, pool)
+	## Hide the dark blob under fog — fog is the read.
+	var locked := _pins.get_node_or_null("Locked_%s" % pool)
+	if locked is CanvasItem:
+		(locked as CanvasItem).modulate.a = 0.0
+
+
+func _add_node_glow(spot: Vector2, pool: String) -> void:
+	var glow := TextureRect.new()
+	glow.name = "Glow_%s" % pool
+	glow.texture = KIT.ui_tex("map/trophy/node_glow_f0.png")
+	glow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glow.stretch_mode = TextureRect.STRETCH_KEEP
+	glow.size = Vector2(160, 160)
+	glow.position = spot + Vector2(-80, -80)
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.z_index = -1
+	glow.modulate = Color(1, 1, 1, 0.75)
+	_pins.add_child(glow)
+	if _reduce_motion:
+		return
+	var frames: Array = []
+	for i in 4:
+		var t: Texture2D = KIT.ui_tex("map/trophy/node_glow_f%d.png" % i)
+		if t != null:
+			frames.append(t)
+	if frames.size() >= 2:
+		glow.texture = frames[0]
+	var tw := create_tween()
+	glow.set_meta("loop_tw", tw)
+	tw.set_loops()
+	## Property tween so set_loops has non-zero duration (Godot 4.7).
+	tw.tween_property(glow, "modulate:a", 0.55, 0.5)
+	tw.tween_property(glow, "modulate:a", 0.85, 0.5)
+	if frames.size() >= 2:
+		tw.tween_callback(func() -> void:
+			if is_instance_valid(glow):
+				var cur: int = int(glow.get_meta("glow_frame", 0))
+				cur = (cur + 1) % frames.size()
+				glow.set_meta("glow_frame", cur)
+				glow.texture = frames[cur]
+		)
+
+
+func _maybe_add_shortcut_chrome(pool: String, spot: Vector2, index: int) -> void:
+	if index <= 0:
+		return
+	var fresh: Array = _state.get("shortcut_fresh", [])
+	var badge_seen: Array = _state.get("shortcut_badge_seen", [])
+	if typeof(fresh) != TYPE_ARRAY:
+		fresh = []
+	if typeof(badge_seen) != TYPE_ARRAY:
+		badge_seen = []
+	if not fresh.has(pool) or badge_seen.has(pool):
+		return
+	## Bouncing pointer + Start here badge.
+	var pointer := TextureRect.new()
+	pointer.name = "Pointer_%s" % pool
+	pointer.texture = KIT.ui_tex("map/trophy/start_pointer.png")
+	pointer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	pointer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pointer.stretch_mode = TextureRect.STRETCH_KEEP
+	pointer.size = Vector2(48, 64)
+	pointer.position = spot + Vector2(-24, -96)
+	pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pointer.z_index = 9
+	_pins.add_child(pointer)
+	var badge := TextureRect.new()
+	badge.name = "Badge_%s" % pool
+	badge.texture = KIT.ui_tex("map/trophy/badge_start_here.png")
+	badge.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	badge.stretch_mode = TextureRect.STRETCH_KEEP
+	badge.size = Vector2(160, 48)
+	badge.position = spot + Vector2(-80, 40)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.z_index = 9
+	_pins.add_child(badge)
+	var lab := Label.new()
+	lab.text = KIT.copy_text("map.badge.start_here")
+	if lab.text.strip_edges() == "":
+		lab.text = "Start here"
+	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lab.add_theme_font_size_override("font_size", 22)
+	lab.add_theme_color_override("font_color", KIT.INK)
+	lab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(lab)
+	if _reduce_motion:
+		return
+	var base_y: float = pointer.position.y
+	var tw := create_tween()
+	pointer.set_meta("loop_tw", tw)
+	tw.set_loops()
+	tw.set_trans(Tween.TRANS_SINE)
+	tw.tween_property(pointer, "position:y", base_y - 8.0, 0.31)
+	tw.tween_property(pointer, "position:y", base_y, 0.31)
+
+
+func _maybe_add_static_path(pool: String, index: int) -> void:
+	if index <= 0:
+		return
+	var shorts: Variant = _state.get("shortcuts", [])
+	if typeof(shorts) != TYPE_ARRAY and typeof(shorts) != TYPE_PACKED_STRING_ARRAY:
+		return
+	if not (shorts as Array).has(pool):
+		return
+	var line := preload("res://scripts/cabin/map_path_line.gd").new()
+	var dash: Texture2D = KIT.ui_tex("map/trophy/path_dash.png")
+	line.setup(START_BANNER_BOTTOM, TRAIL[index + 1], dash)
+	line.set_reduce_motion(true)
+	line.appear_whole()
+	var fresh: Array = _state.get("shortcut_fresh", [])
+	if typeof(fresh) == TYPE_ARRAY and fresh.has(pool) and not _reduce_motion:
+		line.set_reduce_motion(false)
+		line._march = true
+	_sheet.add_child(line)
+	_path_lines.append(line)
+
+
+func _clear_path_lines() -> void:
+	for raw in _path_lines:
+		if is_instance_valid(raw):
+			(raw as Node).queue_free()
+	_path_lines.clear()
+
+
+func _play_reveal_fog(pool: String) -> void:
+	var fog := _pins.get_node_or_null("Fog_%s" % pool) as CanvasItem
+	if fog == null:
+		return
+	if _reduce_motion:
+		var tw := create_tween()
+		tw.tween_property(fog, "modulate:a", 0.0, 0.3)
+		await tw.finished
+		fog.visible = false
+		return
+	for i in 6:
+		if fog is TextureRect:
+			var tex: Texture2D = KIT.ui_tex("map/trophy/fog_clear_f%d.png" % i)
+			if tex != null:
+				(fog as TextureRect).texture = tex
+		await get_tree().create_timer(0.1).timeout
+	fog.visible = false
+	KIT.cue(_find_sfx(), &"cabin.map_pin")
+
+
+func _play_shortcut_reveal(pool: String) -> void:
+	var biomes: Array = SHELL.biomes_of(_rules)
+	var idx := -1
+	for i in biomes.size():
+		if str((biomes[i] as Dictionary).get("id", "")) == pool:
+			idx = i
+			break
+	if idx < 0:
+		return
+	var spot: Vector2 = TRAIL[idx + 1]
+	var line := preload("res://scripts/cabin/map_path_line.gd").new()
+	var dash: Texture2D = KIT.ui_tex("map/trophy/path_dash.png")
+	line.setup(START_BANNER_BOTTOM, spot, dash)
+	line.set_reduce_motion(_reduce_motion)
+	_sheet.add_child(line)
+	_path_lines.append(line)
+	KIT.cue(_find_sfx(), &"board.path_draw")
+	await line.play_draw_in(1.2, true)
+	## Ensure startable chrome is present after rebuild opts.
+	_maybe_add_shortcut_chrome(pool, spot, idx)
+	var pointer := _pins.get_node_or_null("Pointer_%s" % pool) as Control
+	var badge := _pins.get_node_or_null("Badge_%s" % pool) as Control
+	if pointer != null and not _reduce_motion:
+		pointer.scale = Vector2.ZERO
+		var tw := create_tween()
+		tw.set_trans(Tween.TRANS_BOUNCE)
+		tw.tween_property(pointer, "scale", Vector2.ONE, 0.3)
+	if badge != null:
+		badge.scale = Vector2.ZERO
+		var tw2 := create_tween()
+		tw2.tween_property(badge, "scale", Vector2(1.1, 1.1), 0.15)
+		tw2.tween_property(badge, "scale", Vector2.ONE, 0.15)
+
+
+func _find_sfx():
+	var n: Node = self
+	while n:
+		var bank = n.get("sfx")
+		if bank != null:
+			return bank
+		n = n.get_parent()
+	return null
 
 
 func _clear_monsters() -> void:
@@ -615,6 +885,12 @@ func _start_from_stamp(seal: WaxStamp, index: int, endless: bool) -> void:
 	if endless:
 		start_asked.emit(0, false, true)
 	else:
+		## Clear fresh shortcut badge on first launch from this node.
+		var biomes: Array = SHELL.biomes_of(_rules)
+		if index >= 0 and index < biomes.size():
+			var pool := str((biomes[index] as Dictionary).get("id", ""))
+			SHELL.note_shortcut_launched(_state, pool)
+		## Second arg is always true for a stamp press (selftest + begin_run contract).
 		start_asked.emit(index, true, false)
 
 
