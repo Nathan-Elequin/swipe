@@ -98,6 +98,7 @@ const PLAYTEST_HUB := preload("res://scripts/playtest_hub.gd")
 const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
 const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
+const PLAYTEST_TELEMETRY := preload("res://scripts/playtest_telemetry.gd")
 const SESSION_LOG := preload("res://scripts/session_log.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
@@ -957,6 +958,7 @@ var playtest_hub
 var playtest_feedback
 var playtest_tier
 var playtest_inbox
+var playtest_telemetry
 var playtest_intro
 var playtest_teaser
 var playtest_fab: Button
@@ -2981,6 +2983,8 @@ func _begin_six_seat_run(long_drop: bool) -> void:
 	phase = "draft"
 	draft_action = "busy"
 	_log("on_click", "Challenge Mode" if long_drop else "Adventure Mode")
+	_telem("mode", {"step": "challenge" if long_drop else "adventure", "kind": "challenge" if long_drop else "adventure"})
+	_telem("run_start", {"mode": "challenge" if long_drop else "adventure", "hp": hp})
 	_log("var", "HP %s" % hp)
 	_log("on_draft", "Dungeon 1")
 	_refresh()
@@ -3064,6 +3068,7 @@ func _enter_dungeon_clear() -> void:
 		_flash_screen(Color("e8c36a"), 0.28)
 		phase = "victory"
 		_log("end", "cleared")
+		_telem("run_end", {"outcome": "win", "tutorial": true, "hp": hp})
 		## D1 Dragon clear → keep rails on B50+. D2 free-play clear → B53 wrap.
 		if _tut_free and tut != null:
 			call_deferred("_tut_on_free_dungeon_clear")
@@ -3075,6 +3080,7 @@ func _enter_dungeon_clear() -> void:
 		_player_play("victory", 2)
 		_flash_screen(Color("e8c36a"), 0.28)
 		_log("end", "cleared")
+		_telem("run_end", {"outcome": "win", "mode": "classic", "hp": hp})
 		await _classic_swipe_home()
 		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
@@ -3106,6 +3112,7 @@ func _commit_dungeon_clear() -> void:
 			home_cabin.note_dungeon_clear()
 		_advance_bucket_counter()
 		_log("end", "dungeon %s" % dungeons_cleared)
+		_telem("dungeon_cleared", {"n": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
 		## Tip final-clear eligibility: real clear commit on last tip biome only.
 		## Leave/bank alone must not recognize final_dungeon_cleared.
 		if _campaign_on and _campaign != null:
@@ -3206,6 +3213,7 @@ func _adventure_leave() -> void:
 	if rope_exit:
 		rope_exit.hide_exit()
 	_log("end", "leave")
+	_telem("run_end", {"outcome": "leave", "dungeons": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter. No splash. Music calls unchanged.
@@ -4082,6 +4090,7 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 	_sync_biome_ambient("", true)
 	if _campaign != null:
 		_sync_dungeon_biome()
+	_telem("funnel", {"step": "cabin", "kind": kind, "walk_in": walk_in})
 	home_cabin.open_cabin(items_by_id, tex_by_item, _buckets_revealed, walk_in, kind, new_ids, held_ids)
 	if overlay:
 		overlay.visible = false
@@ -4440,6 +4449,7 @@ func _adventure_continue() -> void:
 		return
 	_prep_next_dungeon()
 	_log("on_draft", "Dungeon %s" % dungeon_index)
+	_telem("funnel", {"step": "dungeon_enter", "n": dungeon_index})
 	_refresh()
 	_reset_moves()
 	_fill_challenge_pools()
@@ -6286,6 +6296,7 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 			b.custom_minimum_size = Vector2(236, 340)
 			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		challenge_draft_ui.present(title, sub, a, b, pair[0], ib)
+		_telem("draft_offered", {"kind": "challenge", "offered": _telem_offered(pair)})
 		var charges := _campaign_rerolls() if allow_reroll else 0
 		if challenge_draft_ui.has_method("set_reroll"):
 			challenge_draft_ui.set_reroll(charges > 0, "Reroll (%s left)" % charges)
@@ -6352,6 +6363,11 @@ func _challenge_offer_pick(title: String, sub: String, tier: int, replace_if_ful
 				break
 		if picked.is_empty() and not pair_snap.is_empty():
 			picked = pair_snap[0]
+		_telem("draft_picked", {
+			"id": str(picked.get("card_id", "")),
+			"kind": "item",
+			"offered": _telem_offered(pair_snap),
+		})
 		break
 	FRAME_METRICS.span_begin("draft_to_hotbar")
 	await _challenge_commit_item(picked, replace_if_full, flyer)
@@ -6481,6 +6497,12 @@ func _challenge_vacate(index: int) -> void:
 		"mimic_gift": str(m.get("card_id", "")) == "mimic" and not enemy_attacked,
 	}
 	_log("on_remove_slice", str(m.get("name", "?")))
+	_telem("fight_end", {
+		"id": str(m.get("card_id", "")),
+		"outcome": "win",
+		"hp": hp,
+		"blk": blk,
+	})
 	mobs_defeated += 1
 	if int(m.get("died_seq", 0)) <= 0:
 		_note_death(m)
@@ -7173,6 +7195,10 @@ func _draw_offer(kind: String) -> void:
 		_log("on_draft", "%s  %s" % [PLAYER_COPY.tier_name(int(pending_monster.get("pack_tier", 1))), pending_monster.get("name", "?")])
 		if not pending_item.is_empty():
 			_log("on_draft", "pack item  %s" % pending_item.get("name", "?"))
+		_telem("draft_offered", {
+			"kind": "starter",
+			"offered": _telem_offered([pending_monster, pending_item]),
+		})
 		if sfx:
 			sfx.play("book", -10.0)
 		return
@@ -7191,6 +7217,10 @@ func _draw_offer(kind: String) -> void:
 	_log("on_draft", "%s lure" % PLAYER_COPY.tier_name(pack_t))
 	if not pending_item.is_empty():
 		_log("on_draft", "relic  %s" % pending_item.get("name", "?"))
+	_telem("draft_offered", {
+		"kind": "mill",
+		"offered": _telem_offered([pending_monster, pending_item]),
+	})
 	if sfx:
 		sfx.play("book", -10.0)
 
@@ -8726,6 +8756,9 @@ func _build_playtest() -> void:
 	add_child(playtest_inbox)
 	playtest_inbox.setup()
 	playtest_inbox.finished.connect(_on_playtest_sent)
+	playtest_telemetry = PLAYTEST_TELEMETRY.new()
+	add_child(playtest_telemetry)
+	playtest_telemetry.setup()
 	playtest_hub = PLAYTEST_HUB.new()
 	add_child(playtest_hub)
 	playtest_hub.setup()
@@ -8903,7 +8936,27 @@ func _playtest_intro_fab(on: bool) -> void:
 	_sync_playtest_chrome()
 
 
+func _telem(event_name: String, props: Dictionary = {}) -> void:
+	if playtest_telemetry == null:
+		return
+	if phase == "devtest" or _authoring():
+		return
+	playtest_telemetry.capture(event_name, props)
+
+
+func _telem_offered(cards: Array) -> Array:
+	var ids: Array = []
+	for it in cards:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var cid: String = str(it.get("card_id", "")).strip_edges()
+		if cid != "":
+			ids.append(cid)
+	return ids
+
+
 func _playtest_brand_new() -> void:
+	_telem("funnel", {"step": "hub_brand_new"})
 	if playtest_hub:
 		playtest_hub.close_hub()
 	_close_playtest_teaser()
@@ -8913,6 +8966,7 @@ func _playtest_brand_new() -> void:
 
 
 func _playtest_middle() -> void:
+	_telem("funnel", {"step": "hub_middle"})
 	if playtest_hub:
 		playtest_hub.close_hub()
 	_close_playtest_teaser()
@@ -8938,6 +8992,7 @@ func _playtest_middle() -> void:
 
 
 func _playtest_continue() -> void:
+	_telem("funnel", {"step": "hub_continue"})
 	if playtest_hub:
 		playtest_hub.close_hub()
 	_close_playtest_teaser()
@@ -9510,6 +9565,12 @@ func _commit_place(index: int, open_next: bool = true) -> void:
 	m["spin_locked"] = false
 	wheel[index] = m
 	_log("on_place", "%s → %s" % [m["name"], m["slot"]])
+	_telem("draft_picked", {
+		"id": str(m.get("card_id", "")),
+		"kind": "monster",
+		"offered": _telem_offered([m, pending_item]),
+		"slot": str(m.get("slot", "")),
+	})
 	if sfx:
 		sfx.play("drop", -8.0)
 		sfx.play("confirm", -14.0, 1.08)
@@ -9517,6 +9578,11 @@ func _commit_place(index: int, open_next: bool = true) -> void:
 		FRAME_METRICS.span_begin("draft_to_hotbar")
 		hotbar.append(pending_item.duplicate(true))
 		_log("on_place", "item  %s" % pending_item.get("name", "?"))
+		_telem("draft_picked", {
+			"id": str(pending_item.get("card_id", "")),
+			"kind": "item",
+			"offered": _telem_offered([m, pending_item]),
+		})
 		FRAME_METRICS.span_end("draft_to_hotbar")
 	pending_monster = {}
 	pending_item = {}
@@ -9762,6 +9828,13 @@ func _on_spin() -> void:
 	_log_user_hid = false
 	_sync_log_panel()
 	_log("on_spin", str(m["name"]))
+	_telem("fight_start", {
+		"id": str(m.get("card_id", "")),
+		"hp": int(m.get("hp", 0)),
+		"atk": int(m.get("atk", 0)),
+		"player_hp": hp,
+		"hand": hotbar.size(),
+	})
 	_log("var", "enemy ATK %s   HP %s" % [m["atk"], m["hp"]])
 	_log("var", "BLK 0")
 	_log("var", "items this combat 0")
@@ -10480,6 +10553,13 @@ func _player_down(skip_pose: bool = false) -> void:
 		_advance_bucket_counter()
 	phase = "defeat"
 	_log("end", "dead")
+	_telem("run_end", {
+		"outcome": "dead",
+		"dungeons": dungeons_cleared,
+		"hp": 0,
+		"hand": hotbar.size(),
+		"tutorial": in_tutorial,
+	})
 	# Spotlight sequence owns the blackout — no red flash over it.
 	if sfx:
 		if sfx.has_method("music_hold_for_undo"):
@@ -24727,6 +24807,11 @@ func _log_begin_item(it: Dictionary, used: bool = true) -> void:
 		return
 	if used:
 		_log_flush()
+		_telem("item_used", {
+			"id": str(it.get("card_id", "")),
+			"phase": phase,
+			"hp": hp,
+		})
 	var id: String = str(it.get("card_id", ""))
 	var cat: Dictionary = items_by_id.get(id, {})
 	var hint: String = _log_hint_of(it)

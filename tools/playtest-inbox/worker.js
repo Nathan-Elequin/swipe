@@ -29,7 +29,9 @@ function clip(s, n) {
 }
 
 function authorized(request, env) {
-  const token = request.headers.get("x-swipe-playtest") || "";
+  const url = new URL(request.url);
+  const token =
+    request.headers.get("x-swipe-playtest") || url.searchParams.get("k") || "";
   return Boolean(env.PLAYTEST_TOKEN) && token === env.PLAYTEST_TOKEN;
 }
 
@@ -225,6 +227,142 @@ async function summary(env) {
   };
 }
 
+async function ensureTelemetry(env) {
+  await env.TIER_DB.prepare(
+    "CREATE TABLE IF NOT EXISTS telemetry_events (id INTEGER PRIMARY KEY AUTOINCREMENT, received_at TEXT NOT NULL, anon_id TEXT NOT NULL, session_id TEXT NOT NULL, source TEXT, build TEXT, is_test INTEGER NOT NULL DEFAULT 0, name TEXT NOT NULL, t_client INTEGER, payload TEXT)"
+  ).run();
+  await env.TIER_DB.prepare(
+    "CREATE INDEX IF NOT EXISTS telemetry_name ON telemetry_events (name, is_test, received_at)"
+  ).run();
+  await env.TIER_DB.prepare(
+    "CREATE INDEX IF NOT EXISTS telemetry_anon ON telemetry_events (anon_id, received_at)"
+  ).run();
+}
+
+function clipPayload(raw) {
+  const s = typeof raw === "string" ? raw : JSON.stringify(raw || {});
+  return clip(s, 4000);
+}
+
+async function insertTelemetry(env, payload) {
+  if (!env.TIER_DB) return { error: "no-d1" };
+  await ensureTelemetry(env);
+  const events = Array.isArray(payload.events) ? payload.events : [];
+  if (events.length === 0) return { error: "events" };
+  const received = new Date().toISOString();
+  const anon = clip(payload.anon_id, 80) || "anon";
+  const session = clip(payload.session_id, 80) || "session";
+  const source = clip(payload.source, 40) || "unknown";
+  const build = clip(payload.build, 120);
+  const isTest =
+    payload.is_test === true ||
+    payload.is_test === 1 ||
+    source === "editor";
+  const stmt = env.TIER_DB.prepare(
+    `INSERT INTO telemetry_events (received_at, anon_id, session_id, source, build, is_test, name, t_client, payload)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  const batch = [];
+  for (const ev of events.slice(0, 40)) {
+    if (!ev || typeof ev !== "object") continue;
+    const name = clip(ev.name, 64);
+    if (!name) continue;
+    batch.push(
+      stmt.bind(
+        received,
+        anon,
+        session,
+        source,
+        build,
+        isTest ? 1 : 0,
+        name,
+        Number(ev.t) || 0,
+        clipPayload(ev.props || {})
+      )
+    );
+  }
+  if (batch.length === 0) return { error: "events" };
+  await env.TIER_DB.batch(batch);
+  return { ok: true, stored: batch.length, is_test: isTest };
+}
+
+function bump(map, key, field) {
+  if (!key) return;
+  if (!map[key]) map[key] = { id: key, n: 0, win: 0, pick: 0, offered: 0, used: 0 };
+  map[key][field] = (map[key][field] || 0) + 1;
+}
+
+async function telemetrySummary(env) {
+  await ensureTelemetry(env);
+  const rows = await env.TIER_DB.prepare(
+    `SELECT received_at, anon_id, session_id, source, is_test, name, payload
+     FROM telemetry_events ORDER BY id DESC LIMIT 4000`
+  ).all();
+  const live = (rows.results || []).filter((r) => !r.is_test);
+  const counts = {};
+  const drafts = {};
+  const items = {};
+  const monsters = {};
+  const funnel = {};
+  let sessions = {};
+  let runWin = 0;
+  let runLoss = 0;
+  let runLeave = 0;
+  for (const r of live) {
+    counts[r.name] = (counts[r.name] || 0) + 1;
+    sessions[r.session_id] = true;
+    let props = {};
+    try {
+      props = JSON.parse(r.payload || "{}") || {};
+    } catch (e) {
+      props = {};
+    }
+    if (r.name === "draft_offered") {
+      const offered = Array.isArray(props.offered) ? props.offered : [];
+      for (const id of offered) bump(drafts, String(id || ""), "offered");
+    }
+    if (r.name === "draft_picked") bump(drafts, String(props.id || ""), "pick");
+    if (r.name === "item_used") bump(items, String(props.id || ""), "used");
+    if (r.name === "fight_start") bump(monsters, String(props.id || ""), "n");
+    if (r.name === "fight_end" && props.outcome === "win") bump(monsters, String(props.id || ""), "win");
+    if (r.name === "run_end") {
+      if (props.outcome === "win") runWin += 1;
+      else if (props.outcome === "dead") runLoss += 1;
+      else if (props.outcome === "leave") runLeave += 1;
+    }
+    if (r.name === "funnel" || r.name === "cabin" || r.name === "mode") {
+      const step = String(props.step || props.kind || r.name);
+      funnel[step] = (funnel[step] || 0) + 1;
+    }
+  }
+  const asRows = (map) =>
+    Object.values(map)
+      .map((c) => {
+        const offered = c.offered || 0;
+        return {
+          id: c.id,
+          offered,
+          picked: c.pick || 0,
+          pick_rate: offered ? Math.round((1000 * (c.pick || 0)) / offered) / 10 : null,
+          used: c.used || 0,
+          fights: c.n || 0,
+          wins: c.win || 0,
+        };
+      })
+      .sort((a, b) => (b.offered || b.used || b.fights) - (a.offered || a.used || a.fights));
+  return {
+    counted: "live itch Sends only (not F5 / editor)",
+    sessions: Object.keys(sessions).length,
+    events: live.length,
+    counts,
+    runs: { win: runWin, dead: runLoss, leave: runLeave },
+    funnel,
+    drafts: asRows(drafts),
+    items: asRows(items),
+    monsters: asRows(monsters),
+  };
+}
+
 async function setDiscard(env, listId, discarded) {
   const id = Number(listId);
   if (!id) return { error: "list_id" };
@@ -280,6 +418,9 @@ export default {
       if (view === "tier" || view === "summary") {
         return json(await summary(env), 200, request);
       }
+      if (view === "telemetry") {
+        return json(await telemetrySummary(env), 200, request);
+      }
       return json({ error: "view" }, 400, request);
     }
 
@@ -289,12 +430,23 @@ export default {
 
     let payload = {};
     try {
-      payload = await request.json();
+      const text = await request.text();
+      payload = text ? JSON.parse(text) : {};
     } catch (e) {
       return json({ error: "json" }, 400, request);
     }
 
     const kind = String(payload.kind || "").trim();
+
+    if (kind === "telemetry") {
+      try {
+        const result = await insertTelemetry(env, payload);
+        if (result.error) return json(result, 400, request);
+        return json(result, 201, request);
+      } catch (e) {
+        return json({ error: "d1", detail: clip(String(e && e.message), 200) }, 500, request);
+      }
+    }
 
     if (kind === "ranks" || kind === "tier_import") {
       try {

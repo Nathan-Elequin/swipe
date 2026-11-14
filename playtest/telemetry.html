@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playtest telemetry</title>
+<style>
+  :root { --bg:#1a1612; --ink:#f3e6c8; --muted:#b9a88a; --card:#241e18; --line:#3a322b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); }
+  header, .pad { padding: 20px 24px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; color: var(--muted); max-width: 54em; }
+  .cfg { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  input { background: #2c251e; color: var(--ink); border: 1px solid var(--line); padding: 6px 8px; min-width: 16em; }
+  button { background: #3a2e22; color: var(--ink); border: 1px solid #c4a574; padding: 6px 12px; cursor: pointer; }
+  .status { color: #8dcb8d; min-height: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 0 0 28px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { color: #e8c36a; font-weight: normal; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  h2 { font-size: 18px; margin: 24px 0 8px; color: #e8c36a; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 20px; }
+  .stat { background: var(--card); padding: 12px 16px; min-width: 8em; border: 1px solid var(--line); }
+  .stat b { display: block; font-size: 22px; color: #e8c36a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Playtest telemetry</h1>
+  <p>Silent events from the itch playtest (and F5, marked test and left out of these tables). Same Worker as F2. Open this file in Zen.</p>
+  <div class="cfg">
+    <input id="url" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
+    <input id="token" placeholder="shared Send token" type="password">
+    <button id="load">Load live</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="pad" id="board"></div>
+<script>
+const $ = (id) => document.getElementById(id);
+$("url").value = localStorage.getItem("swipe_pt_url") || "https://swipe-playtest-inbox.vaelequin.workers.dev";
+$("token").value = localStorage.getItem("swipe_pt_token") || "";
+$("load").onclick = loadLive;
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+function table(title, rows, cols) {
+  if (!rows || !rows.length) return `<h2>${esc(title)}</h2><p>None yet.</p>`;
+  const head = cols.map((c) => `<th class="${c.num ? "num" : ""}">${esc(c.label)}</th>`).join("");
+  const body = rows.map((r) => {
+    const tds = cols.map((c) => {
+      let v = r[c.key];
+      if (v == null) v = "—";
+      return `<td class="${c.num ? "num" : ""}">${esc(v)}</td>`;
+    }).join("");
+    return `<tr>${tds}</tr>`;
+  }).join("");
+  return `<h2>${esc(title)}</h2><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+async function loadLive() {
+  const url = $("url").value.trim().replace(/\/$/, "");
+  const token = $("token").value.trim();
+  localStorage.setItem("swipe_pt_url", url);
+  localStorage.setItem("swipe_pt_token", token);
+  $("status").textContent = "Loading…";
+  try {
+    const res = await fetch(url + "?view=telemetry", {
+      headers: { "X-Swipe-Playtest": token },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    render(data);
+    $("status").textContent = "Live. " + (data.counted || "");
+  } catch (e) {
+    $("status").textContent = "Could not load: " + e.message;
+  }
+}
+
+function render(data) {
+  const runs = data.runs || {};
+  const funnel = Object.entries(data.funnel || {}).map(([step, n]) => ({ step, n }));
+  const counts = Object.entries(data.counts || {}).map(([name, n]) => ({ name, n }));
+  $("board").innerHTML = `
+    <div class="cards">
+      <div class="stat"><span>Sessions</span><b>${esc(data.sessions || 0)}</b></div>
+      <div class="stat"><span>Events</span><b>${esc(data.events || 0)}</b></div>
+      <div class="stat"><span>Wins</span><b>${esc(runs.win || 0)}</b></div>
+      <div class="stat"><span>Deaths</span><b>${esc(runs.dead || 0)}</b></div>
+      <div class="stat"><span>Leaves</span><b>${esc(runs.leave || 0)}</b></div>
+    </div>
+    ${table("Funnel", funnel, [{ key: "step", label: "Step" }, { key: "n", label: "Count", num: true }])}
+    ${table("Draft pick rate (offered → taken)", data.drafts, [
+      { key: "id", label: "Card" },
+      { key: "offered", label: "Offered", num: true },
+      { key: "picked", label: "Taken", num: true },
+      { key: "pick_rate", label: "Take %", num: true },
+    ])}
+    ${table("Items used", data.items, [
+      { key: "id", label: "Item" },
+      { key: "used", label: "Uses", num: true },
+    ])}
+    ${table("Fights (by faced monster)", data.monsters, [
+      { key: "id", label: "Monster" },
+      { key: "fights", label: "Fights", num: true },
+      { key: "wins", label: "Player wins", num: true },
+    ])}
+    ${table("Raw event counts", counts, [
+      { key: "name", label: "Event" },
+      { key: "n", label: "Count", num: true },
+    ])}
+  `;
+}
+</script>
+</body>
+</html>

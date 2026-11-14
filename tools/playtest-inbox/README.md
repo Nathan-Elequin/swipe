@@ -108,6 +108,12 @@ F2 **Send** on the ranking board posts `kind: "ranks"`. The Worker stores that i
 - Open `playtest/tier-lists.html` in Zen to see histograms and discard a Send.
 - Refresh the local snapshot: `tools\playtest-inbox\pull-tier-lists.ps1`
 
+## Silent telemetry (picks, fights, wins)
+
+The same Worker also stores quiet events (`kind: "telemetry"`) in D1. The game only sends them when `data/playtest-inbox.json` has `"telemetry": true`. F5 is marked test and stays out of the live tables. Friends never see a prompt.
+
+Open `playtest/telemetry.html` in Zen, paste the Worker URL and the shared token, Load live.
+
 After `wrangler d1 create swipe-tier-lists`, put the database id in `wrangler.toml`, then:
 
 ```
