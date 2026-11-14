@@ -1084,7 +1084,7 @@
         "loop": false,
         "resume_position": false,
         "outro_style": "splice",
-        "outro_lead_s": 0.030,
+        "outro_lead_s": 0.03,
         "loop_out_start": "bar",
         "loop_out_frac": 0.024801245573667,
         "note": "Crystal Cavern (b2) dungeon-clear one-shot. Clip has baked 30 ms linear fade-in + −9.7 dB; engine gain_db 0. Splice hybrid: start at T−0.030 at full gain; hold A/B/C through the lead; linear 1→0 over loop_out_frac×bar (~50 ms) from T. Do not use lead_in_frac or splice_out_s. Finished → between_dungeons soft 0.8s. Timing: design/audio/demo_report_crystal_cavern_victory.json."
@@ -7330,6 +7330,21 @@
       "max_voices": 2,
       "priority": 1,
       "doc": "Package E react cue; aliases speech.nib_gasp until Reel delivers dedicated variants."
+    },
+    "portal.fizzle": {
+      "files": [
+        "cab_locked"
+      ],
+      "bus": "SFX",
+      "db": -8,
+      "pitch": [
+        0.85,
+        0.92
+      ],
+      "cooldown_ms": 250,
+      "max_voices": 1,
+      "priority": 1,
+      "note": "Dead portal click. Falls back to cabin.locked sample (cab_locked)."
     }
   },
   "radio": {

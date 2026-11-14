@@ -79,8 +79,16 @@ var _hatch: TextureRect
 var _climb_wipe: ColorRect
 var _ladder_rest: Vector2 = Vector2.ZERO
 var _climb_hot_tw: Tween
+var _gate_shake_tw: Tween
 ## Chip next biome id (b1–b5). Empty → sealed portal.
 var _next_biome_id: String = ""
+## Portal awake (lever pulled) vs dead stone arch.
+var _portal_alive: bool = false
+## Placed uniques on this biome's board (0..5). Arch lights.
+var _arch_lights_lit: int = 0
+var _arch_lights: Array = []
+var _floor_satchel: Control = null
+var _loot_strip: Control = null
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
 var _socket_filled_tex: Texture2D
 ## Dynamic wall tallies (TALLY-SPEC.md). Driven by lifetime clears, not per-run.
@@ -104,6 +112,10 @@ const GATE_PLATE := Rect2(1180, 379, 384, 512)
 const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 ## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
+## Floor satchel by the portal (left of arch feet).
+const SATCHEL_FLOOR := Rect2(1088, 860, 144, 120)
+## Bottom carried-item strip (hotbar-like).
+const LOOT_STRIP := Rect2(80, 968, 1520, 56)
 ## Climb hits: full ladder column + floor rope coil (same Climb handler).
 const LADDER_HIT := Rect2(721, 0, 200, 920)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
@@ -112,6 +124,8 @@ const HOT_IDLE := Color(1, 1, 1, 1)
 const LADDER_IDLE_FPS := 1000.0 / 220.0
 const LADDER_HOT_FPS := 1000.0 / 110.0
 const WIPE_COLOR := Color("080605")
+const NATIVE_ICON := 32.0
+const STRIP_GAP := 12.0
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -246,6 +260,8 @@ func _build_cavern_props() -> void:
 	add_child(_gate_portal)
 	_gate_portal.configure(aperture, floor_shadow)
 	_gate_portal.set_next_biome("")
+	if _gate_portal.has_method("set_alive"):
+		_gate_portal.set_alive(false)
 	# Gate frame PNG is 384×512; posts floor-planted (option A — was mid-air at y 180).
 	# z=1 (above portal z=0) so the arch alpha-masks void + particles.
 	_gate_frame = _plate_rect(
@@ -255,6 +271,7 @@ func _build_cavern_props() -> void:
 		"GateFrame"
 	)
 	add_child(_gate_frame)
+	_build_arch_lights(gate_rect)
 	_gate_open = _plate_rect(
 		"overlays/rope_exit_gate_open.png",
 		gate_rect,
@@ -330,6 +347,53 @@ func _apply_gate_locked(_locked: bool) -> void:
 		_gate_chains.visible = false
 	if _gate_open:
 		_gate_open.visible = false
+
+
+## Five small lights over the arch — same lit/dark art as the trophy board.
+func _build_arch_lights(gate_rect: Rect2) -> void:
+	_arch_lights.clear()
+	var host := Control.new()
+	host.name = "ArchLights"
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.z_index = 2
+	add_child(host)
+	var light_w := 32.0
+	var light_h := 40.0
+	var gap := 10.0
+	var total_w := 5.0 * light_w + 4.0 * gap
+	var x0 := gate_rect.position.x + (gate_rect.size.x - total_w) * 0.5
+	var y0 := gate_rect.position.y + 18.0
+	for k in 5:
+		var lr := Rect2(x0 + float(k) * (light_w + gap), y0, light_w, light_h)
+		var light := TextureRect.new()
+		light.name = "ArchLight%d" % k
+		light.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		light.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		light.stretch_mode = TextureRect.STRETCH_SCALE
+		light.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		light.position = lr.position
+		light.size = lr.size
+		var tex: Texture2D = KIT.ui_tex("trophy_board/light_off")
+		if tex != null:
+			light.texture = tex
+		else:
+			light.modulate = Color("2b1a12")
+		host.add_child(light)
+		_arch_lights.append(light)
+	_set_arch_lights(0)
+
+
+func _set_arch_lights(lit: int) -> void:
+	_arch_lights_lit = clampi(lit, 0, 5)
+	for i in _arch_lights.size():
+		var node: Control = _arch_lights[i]
+		var on: bool = i < _arch_lights_lit
+		var tex: Texture2D = KIT.ui_tex("trophy_board/light_on" if on else "trophy_board/light_off")
+		if node is TextureRect and tex != null:
+			(node as TextureRect).texture = tex
+			(node as TextureRect).modulate = Color.WHITE
+		elif node is TextureRect:
+			(node as TextureRect).modulate = Color("ffd84a") if on else Color("2b1a12")
 
 
 func _build_tally_wall() -> void:
@@ -600,6 +664,8 @@ func hide_exit() -> void:
 func _clear_loot() -> void:
 	_loot_tips.clear()
 	_hide_haul_pointers()
+	_floor_satchel = null
+	_loot_strip = null
 	if _loot_host == null:
 		return
 	for c in _loot_host.get_children():
@@ -607,82 +673,145 @@ func _clear_loot() -> void:
 
 
 func _show_loot(loot: Array) -> void:
+	## Satchel on the floor by the portal (≤3 peeks) + bottom strip of every carried item.
+	## No wall grid, no "New unique" text, no rank labels. Gold star for new uniques.
 	_clear_loot()
 	if _loot_host == null:
 		return
-	var i: int = 0
+	var rows: Array = []
 	for row in loot:
 		if typeof(row) != TYPE_DICTIONARY:
 			continue
-		var tex: Texture2D = row.get("tex", null)
-		if tex == null:
+		if row.get("tex", null) == null and str(row.get("id", "")) == "":
 			continue
-		var col: int = i % 6
-		var rw: int = int(i / 6)
-		var origin := Vector2(520.0 + float(col) * 72.0, 240.0 + float(rw) * 96.0)
-		var is_new: bool = bool(row.get("is_new", false))
-		var tier: int = int(row.get("tier", 1))
+		rows.append(row)
+	_loot_count = rows.size()
+	_build_floor_satchel(rows)
+	_build_loot_strip(rows)
+
+
+func _build_floor_satchel(rows: Array) -> void:
+	_floor_satchel = Control.new()
+	_floor_satchel.name = "FloorSatchel"
+	_floor_satchel.position = SATCHEL_FLOOR.position
+	_floor_satchel.size = SATCHEL_FLOOR.size
+	_floor_satchel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_floor_satchel.z_index = 5
+	_loot_host.add_child(_floor_satchel)
+	var bag := TextureRect.new()
+	bag.name = "Bag"
+	bag.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	bag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bag.stretch_mode = TextureRect.STRETCH_SCALE
+	bag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bag.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	var bag_tex: Texture2D = KIT.ui_tex("trophy_board/satchel_idle")
+	if bag_tex == null:
+		bag_tex = KIT.load_tex("loot_sack_dropped.png")
+	if bag_tex != null:
+		bag.texture = bag_tex
+	else:
+		bag.modulate = Color("5c3a22")
+	_floor_satchel.add_child(bag)
+	## Up to 3 icons peeking from the mouth.
+	var peek_n: int = mini(3, rows.size())
+	for i in peek_n:
+		var row: Dictionary = rows[i]
+		var tex: Texture2D = row.get("tex", null)
+		var peek := TextureRect.new()
+		peek.name = "Peek%d" % i
+		peek.texture = tex
+		peek.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		peek.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		peek.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		peek.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		peek.size = Vector2(NATIVE_ICON, NATIVE_ICON)
+		peek.position = Vector2(36.0 + float(i) * 28.0, 18.0 - float(i % 2) * 6.0)
+		peek.rotation_degrees = float(i - 1) * 8.0
+		_floor_satchel.add_child(peek)
+		if bool(row.get("is_new", false)):
+			_add_gold_star(peek, Vector2(NATIVE_ICON - 10.0, -4.0))
+
+
+func _build_loot_strip(rows: Array) -> void:
+	_loot_strip = Control.new()
+	_loot_strip.name = "LootStrip"
+	_loot_strip.position = LOOT_STRIP.position
+	_loot_strip.size = LOOT_STRIP.size
+	_loot_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loot_strip.z_index = 12
+	_loot_host.add_child(_loot_strip)
+	var n: int = rows.size()
+	if n <= 0:
+		return
+	var icon := NATIVE_ICON
+	var gap := STRIP_GAP
+	var total := float(n) * icon + float(maxi(0, n - 1)) * gap
+	var x0 := maxf(0.0, (LOOT_STRIP.size.x - total) * 0.5)
+	var y0 := maxf(0.0, (LOOT_STRIP.size.y - icon) * 0.5)
+	for i in n:
+		var row: Dictionary = rows[i]
 		var cell := Control.new()
-		cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		cell.position = origin
-		cell.size = Vector2(64, 92)
-		_loot_host.add_child(cell)
-		if is_new:
-			## Bottom-left of this icon. Two lines so the words stay on the icon
-			## (haul columns are 72px apart). Larger type and a dark plate.
-			var chip_w := 76.0
-			var chip_h := 36.0
-			var chip_at := Vector2(origin.x - 6.0, origin.y + 64.0 - chip_h)
-			var plate := ColorRect.new()
-			plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			plate.color = Color("100e0cf0")
-			plate.position = chip_at
-			plate.size = Vector2(chip_w, chip_h)
-			plate.z_index = 14
-			_loot_host.add_child(plate)
-			var nu: FitLabelBox = KIT.fit_label(
-				"extract.new_unique",
-				Rect2(chip_at, Vector2(chip_w, chip_h)),
-				18,
-				14,
-				2,
-				Color("ffd84a"),
-				HORIZONTAL_ALIGNMENT_CENTER,
-				VERTICAL_ALIGNMENT_CENTER,
-				15
-			)
-			nu.set_outline(Color("100e0c"), 5)
-			_loot_host.add_child(nu)
+		cell.name = "Strip_%d" % i
+		cell.position = Vector2(x0 + float(i) * (icon + gap), y0)
+		cell.size = Vector2(icon, icon)
+		cell.mouse_filter = Control.MOUSE_FILTER_STOP
+		cell.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var spr := TextureRect.new()
-		spr.texture = tex
+		spr.texture = row.get("tex", null)
 		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		spr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		spr.size = Vector2(64, 64)
-		spr.pivot_offset = Vector2(32, 32)
-		spr.position = Vector2.ZERO
-		spr.modulate = Color("fff3d6") if is_new else Color("c4a574")
+		spr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		spr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cell.add_child(spr)
-		var rank: FitLabelBox = KIT.fit_label(
-			_rank_key(tier),
-			Rect2(origin.x - 4.0, origin.y + 64.0, 72, 18),
-			16,
-			11,
-			1,
-			_rank_color(tier),
-			HORIZONTAL_ALIGNMENT_CENTER,
-			VERTICAL_ALIGNMENT_CENTER,
-			13
-		)
-		rank.set_outline(Color("100e0c"), 3)
-		_loot_host.add_child(rank)
-		## Just under the rank word, so the arrowhead meets the stack without covering it.
-		_loot_tips.append(origin + Vector2(32.0, 88.0))
-		var tw := create_tween()
-		tw.set_loops(4)
-		tw.tween_property(spr, "modulate:a", 0.55, 0.45)
-		tw.tween_property(spr, "modulate:a", 1.0, 0.45)
-		i += 1
+		if bool(row.get("is_new", false)):
+			_add_gold_star(cell, Vector2(icon - 10.0, -4.0))
+		var cid := str(row.get("id", ""))
+		var tip_name := str(row.get("name", cid))
+		cell.mouse_entered.connect(_on_loot_icon_hover.bind(cid, tip_name, cell))
+		cell.mouse_exited.connect(_on_loot_icon_unhover)
+		_loot_strip.add_child(cell)
+		_loot_tips.append(cell.position + LOOT_STRIP.position + Vector2(icon * 0.5, icon))
+
+
+func _add_gold_star(parent: Control, at: Vector2) -> void:
+	var star := Label.new()
+	star.name = "NewStar"
+	star.text = "★"
+	star.add_theme_font_size_override("font_size", 14)
+	star.add_theme_color_override("font_color", Color("ffd84a"))
+	star.add_theme_color_override("font_outline_color", Color("100e0c"))
+	star.add_theme_constant_override("outline_size", 4)
+	star.position = at
+	star.size = Vector2(16, 16)
+	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	star.z_index = 2
+	parent.add_child(star)
+
+
+func _on_loot_icon_hover(card_id: String, tip_name: String, cell: Control) -> void:
+	## Prefer the existing cabin/item fly tip when Main is wired; else parchment name.
+	if cabin != null and cabin.has_signal("item_hovered") and card_id != "":
+		cabin.item_hovered.emit(card_id, cell)
+		return
+	if tip_name != "":
+		_show_exit_tip_plain(tip_name, cell)
+
+
+func _on_loot_icon_unhover() -> void:
+	if cabin != null and cabin.has_signal("item_unhovered"):
+		cabin.item_unhovered.emit()
+	_hide_exit_tip()
+
+
+func _show_exit_tip_plain(plain: String, hit: Control) -> void:
+	if _hover_tip == null or hit == null:
+		return
+	_hover_tip.set_plain(plain)
+	_hover_tip_hit = hit
+	_place_hover_tip(hit)
+	_hover_tip.visible = true
 
 
 func set_chrome_visible(on: bool) -> void:
@@ -713,7 +842,8 @@ func _on_deeper() -> void:
 	if _interrupt_open or _busy:
 		return
 	if _campaign_mode and not _can_push:
-		_try_push_interrupt()
+		## Dead portal: fizzle + shake. No dialogue, no progress block.
+		_fizzle_dead_portal()
 		return
 	_do_deeper()
 
@@ -978,7 +1108,8 @@ func _hide_haul_pointers() -> void:
 func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = false, chip: Dictionary = {}, endless: bool = false) -> void:
 	_campaign_mode = campaign
 	_can_push = (not campaign) or can_push
-	_push_interrupt = campaign and push_interrupt
+	## Nib never blocks progress. Keep the flag for tests, but do not fire a blocking interrupt.
+	_push_interrupt = false
 	_interrupt_fired = false
 	_chip_biome_name = str(chip.get("biome", ""))
 	_chip_n = int(chip.get("n", 0))
@@ -990,9 +1121,17 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	_next_name = str(chip.get("next", ""))
 	_next_biome_id = str(chip.get("next_id", "")).strip_edges()
 	_show_next_carry = bool(chip.get("show_next", false)) and _next_name != ""
-	if _gate_portal and _gate_portal.has_method("set_next_biome"):
-		# Adventure / non-campaign / end-of-line / endless → sealed (no bright swirl).
-		_gate_portal.set_next_biome(_next_biome_id if campaign else "")
+	_portal_alive = bool(chip.get("portal_alive", _can_push))
+	var lights: int = int(chip.get("lights_lit", _chip_n))
+	if _portal_alive:
+		lights = 5
+	_set_arch_lights(lights)
+	if _gate_portal:
+		if _gate_portal.has_method("set_next_biome"):
+			# Palette for alive swirl; dead portal still learns the next id for later.
+			_gate_portal.set_next_biome(_next_biome_id if campaign else "")
+		if _gate_portal.has_method("set_alive"):
+			_gate_portal.set_alive(campaign and _portal_alive and _next_biome_id != "")
 	_apply_banner()
 	_apply_sub_line()
 	# Climb/Delve planks gone — diegetic ladder + gate hotspots always drive both doors.
@@ -1005,6 +1144,12 @@ func apply_exit_mode(campaign: bool, can_push: bool, push_interrupt: bool = fals
 	if _hole_glow:
 		_hole_glow.visible = _legacy_decor_visible and _hole_glow.sprite_frames != null and _hole_glow.sprite_frames.get_frame_count("g") > 0
 	_refresh_chips()
+	## First visit near a dead portal: Nib comments once, never blocks Climb/Leave.
+	if campaign and not _portal_alive and not bool(endless):
+		call_deferred("_maybe_dead_portal_comment")
+	## Silence unused push_interrupt so callers stay compatible.
+	if push_interrupt:
+		pass
 
 
 ## Fill campaign chip / next-carry copy with vars, then show. Never show raw `{biome}` / `{n}`.
@@ -1093,26 +1238,101 @@ func _set_delve_hot(on: bool, hit: Control = null) -> void:
 				_hole_glow.play("g")
 	if _gate_frame:
 		_gate_frame.modulate = HOT_MOD if on else HOT_IDLE
-	if _gate_portal and _gate_portal.has_method("set_hot"):
+	## Only heat the swirl when the portal is alive.
+	if _gate_portal and _gate_portal.has_method("set_hot") and _portal_alive:
 		_gate_portal.set_hot(on)
 	if on:
 		KIT.cue(cabin.sfx if cabin else null, &"cabin.hover")
-		# Spin-locked Delve strings. {n} = next dungeon = cleared + 1.
-		_show_exit_tip("rope.next", "rope.next.sub", {"n": _cleared + 1}, hit)
-		if _push_interrupt:
-			_try_push_interrupt()
+		if _portal_alive:
+			# Spin-locked Delve strings. {n} = next dungeon = cleared + 1.
+			_show_exit_tip("rope.next", "rope.next.sub", {"n": _cleared + 1}, hit)
+		else:
+			## Dead portal: no delve tip that promises a way through.
+			_hide_exit_tip()
 	elif hit == null or hit == _hover_tip_hit:
 		_hide_exit_tip()
 
 
-func _try_push_interrupt() -> void:
-	if not _push_interrupt or _interrupt_fired or _interrupt_open or _busy:
+## Dead portal click: dull fizzle + short arch shake. No text. Never blocks.
+func _fizzle_dead_portal() -> void:
+	var sfx = cabin.sfx if cabin else null
+	if sfx != null and sfx.has_method("play_event"):
+		## portal.fizzle falls back to cabin.locked sample when mapped.
+		if _has_sfx_cue(sfx, "portal.fizzle"):
+			sfx.play_event(&"portal.fizzle")
+		else:
+			sfx.play_event(&"cabin.locked")
+	else:
+		KIT.cue(sfx, &"cabin.locked")
+	_shake_gate(0.2)
+	## Observability for selftests.
+	set_meta("last_portal_fizzle", true)
+
+
+func _has_sfx_cue(sfx, id: String) -> bool:
+	if sfx == null:
+		return false
+	if sfx.has_method("has_cue"):
+		return bool(sfx.has_cue(StringName(id)))
+	var map = sfx.get("_cues") if sfx.get("_cues") != null else null
+	if typeof(map) == TYPE_DICTIONARY:
+		return (map as Dictionary).has(id)
+	return true
+
+
+func _shake_gate(seconds: float) -> void:
+	if _gate_frame == null:
 		return
-	_interrupt_fired = true
-	_interrupt_open = true
-	_hide_exit_tip()
-	push_blocked.emit()
-	_show_nib_interrupt()
+	var reduce := false
+	if cabin != null and "reduce_motion" in cabin:
+		reduce = bool(cabin.get("reduce_motion"))
+	if reduce:
+		## Static highlight instead of shake.
+		_gate_frame.modulate = Color(0.85, 0.88, 0.95, 1.0)
+		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tw.tween_interval(seconds / maxf(0.001, Engine.time_scale))
+		tw.tween_callback(func() -> void:
+			if is_instance_valid(_gate_frame):
+				_gate_frame.modulate = HOT_IDLE
+		)
+		return
+	if _gate_shake_tw != null and _gate_shake_tw.is_valid():
+		_gate_shake_tw.kill()
+	var origin: Vector2 = _gate_frame.position
+	_gate_shake_tw = create_tween()
+	_gate_shake_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var steps := 4
+	var step_s := seconds / float(steps)
+	for i in steps:
+		var amp: float = 4.0 if i % 2 == 0 else -4.0
+		_gate_shake_tw.tween_property(_gate_frame, "position:x", origin.x + amp, step_s / maxf(0.001, Engine.time_scale))
+	_gate_shake_tw.tween_property(_gate_frame, "position", origin, 0.01)
+
+
+## One-time non-blocking Nib comment near a dead portal.
+func _maybe_dead_portal_comment() -> void:
+	if cabin == null:
+		return
+	if "portal_cold_said" in cabin and bool(cabin.get("portal_cold_said")):
+		return
+	if "portal_cold_said" in cabin:
+		cabin.portal_cold_said = true
+	if cabin.has_method("_save"):
+		cabin.call("_save")
+	## Comment only — do not open interrupt / push_home / lock Climb.
+	if _dialog != null and _dialog.has_method("say"):
+		_dialog.say(
+			["nib.portal.cold"],
+			[],
+			{},
+			{"nib.portal.cold": "That arch is stone cold. I wonder what it'd take to wake it up."}
+		)
+
+
+func _try_push_interrupt() -> void:
+	## Retired: Nib never blocks the portal. Kept as a no-op for older callers/tests.
+	return
 
 
 func _show_nib_interrupt() -> void:

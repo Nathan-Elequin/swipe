@@ -16,10 +16,13 @@ const TWEEN_S := 0.22
 
 var _biome_id: String = ""
 var _hot: bool = false
+## Alive = swirling vortex (lever pulled). Dead = dark stone + cold mist, no swirl.
+var _alive: bool = false
 var _void: TextureRect
 var _core: TextureRect
 var _floor_shadow: TextureRect
 var _spiral: CPUParticles2D
+var _mist: CPUParticles2D
 var _hot_tw: Tween
 var _dot_tex: Texture2D
 
@@ -32,6 +35,7 @@ func _ready() -> void:
 	_dot_tex = _make_dot(3)
 	_build_stack()
 	set_next_biome("")
+	set_alive(false)
 
 
 ## aperture: screen-space fill inside the posts. floor_shadow: soft contact on room floor.
@@ -46,12 +50,25 @@ func configure(aperture: Rect2, floor_shadow: Rect2) -> void:
 	_layout_inner()
 
 
-## next_id: "b1"…"b5". Empty / unknown / endless → dim sealed portal.
+## next_id: "b1"…"b5". Used for swirl palette when alive. Empty → sealed palette.
 func set_next_biome(next_id: String) -> void:
 	_biome_id = str(next_id).strip_edges()
 	_layout_inner()
 	_apply_biome_look()
 	_apply_hot_visual(false, true)
+
+
+## Dead portal: dark stone arch interior + faint cold mist, NO swirl.
+## Alive: existing swirling vortex (requires a known biome id).
+func set_alive(on: bool) -> void:
+	_alive = on
+	_layout_inner()
+	_apply_biome_look()
+	_apply_hot_visual(false, true)
+
+
+func is_alive() -> bool:
+	return _alive
 
 
 func _layout_inner() -> void:
@@ -132,49 +149,93 @@ func _build_stack() -> void:
 	_spiral.speed_scale = IDLE_SPEED
 	add_child(_spiral)
 
+	## Cold mist for dead portal — slow upward drift, never a swirl.
+	_mist = CPUParticles2D.new()
+	_mist.name = "ColdMist"
+	_mist.texture = _dot_tex
+	_mist.fixed_fps = 20
+	_mist.local_coords = true
+	_mist.emitting = false
+	_mist.explosiveness = 0.0
+	_mist.randomness = 0.7
+	_mist.lifetime = 2.8
+	_mist.preprocess = 1.5
+	_mist.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	_mist.emission_rect_extents = Vector2(40, 8)
+	_mist.direction = Vector2(0.0, -1.0)
+	_mist.spread = 28.0
+	_mist.gravity = Vector2(0, -6)
+	_mist.initial_velocity_min = 6.0
+	_mist.initial_velocity_max = 14.0
+	_mist.orbit_velocity_min = 0.0
+	_mist.orbit_velocity_max = 0.0
+	_mist.tangential_accel_min = 0.0
+	_mist.tangential_accel_max = 0.0
+	_mist.scale_amount_min = 1.5
+	_mist.scale_amount_max = 3.0
+	_mist.amount = 10
+	_mist.speed_scale = 0.55
+	_mist.z_index = 1
+	add_child(_mist)
+
 
 func _apply_biome_look() -> void:
-	var sealed := not AMBIENT.BIOMES.has(_biome_id)
-	var cfg: Dictionary = AMBIENT.BIOMES.get(_biome_id, {}) if not sealed else {}
-	var mist: Color = cfg.get("mist", Color("12141a")) if not sealed else Color("12141a")
-	var canopy: Color = cfg.get("canopy", Color("0a0c10")) if not sealed else Color("0a0c10")
-	var far_b: Color = cfg.get("far_b", Color("6a7080")) if not sealed else Color("3a4048")
-	var accent: Color = cfg.get("accent_color", Color("c8d0dc")) if not sealed else Color("4a5058")
-	var accent_b: Color = cfg.get("accent_color_b", accent) if not sealed else accent
+	var has_biome := AMBIENT.BIOMES.has(_biome_id)
+	var alive := _alive and has_biome
+	var cfg: Dictionary = AMBIENT.BIOMES.get(_biome_id, {}) if has_biome else {}
+	var mist: Color = cfg.get("mist", Color("12141a")) if alive else Color("0e1218")
+	var canopy: Color = cfg.get("canopy", Color("0a0c10")) if alive else Color("080a0e")
+	var accent: Color = cfg.get("accent_color", Color("c8d0dc")) if alive else Color("3a4858")
+	var accent_b: Color = cfg.get("accent_color_b", accent) if alive else Color("2a3848")
 
 	# Soft vertical oval void — darker rim, deep centre (reads as depth in the arch).
-	var void_a: float = 0.92 if not sealed else 0.72
-	_void.texture = _radial_void(canopy, mist, void_a, sealed)
-	_floor_shadow.texture = _floor_blob(Color(0.02, 0.02, 0.04, 0.55 if not sealed else 0.35))
+	var void_a: float = 0.92 if alive else 0.78
+	_void.texture = _radial_void(canopy, mist, void_a, not alive)
+	_floor_shadow.texture = _floor_blob(Color(0.02, 0.02, 0.04, 0.55 if alive else 0.40))
 
-	_core.texture = _radial_core(accent if not sealed else Color(0.25, 0.28, 0.32), 0.55 if not sealed else 0.12)
-	_core.modulate = Color(1, 1, 1, 1.0 if not sealed else 0.35)
+	_core.texture = _radial_core(accent if alive else Color(0.18, 0.22, 0.28), 0.55 if alive else 0.08)
+	_core.modulate = Color(1, 1, 1, 1.0 if alive else 0.22)
 	_core.visible = true
 
 	_spiral.color = accent
-	_spiral.color_ramp = _mote_alpha_ramp(0.85 if not sealed else 0.0)
-	_spiral.color_initial_ramp = _color_pair(accent, accent_b if not sealed else accent)
-	if sealed:
-		_spiral.emitting = false
-		_spiral.visible = false
-		modulate = Color(0.72, 0.74, 0.78, 1.0)
-	else:
+	_spiral.color_ramp = _mote_alpha_ramp(0.85 if alive else 0.0)
+	_spiral.color_initial_ramp = _color_pair(accent, accent_b)
+	if _mist:
+		_mist.color = Color(0.55, 0.62, 0.72, 0.55)
+		_mist.color_ramp = _mote_alpha_ramp(0.45)
+		_mist.position = size * 0.5 + Vector2(0, size.y * 0.18)
+		_mist.emission_rect_extents = Vector2(maxi(24.0, size.x * 0.22), 10.0)
+	if alive:
 		_spiral.visible = true
 		_spiral.amount = maxi(1, IDLE_AMOUNT)
 		_spiral.speed_scale = IDLE_SPEED
 		_spiral.emitting = true
+		if _mist:
+			_mist.emitting = false
+			_mist.visible = false
 		modulate = Color(1, 1, 1, 1)
+	else:
+		## Dead: no swirl. Faint cold mist only.
+		_spiral.emitting = false
+		_spiral.visible = false
+		if _mist:
+			_mist.visible = true
+			_mist.emitting = true
+		modulate = Color(0.62, 0.66, 0.72, 1.0)
 
 
 func _apply_hot_visual(on: bool, instant: bool) -> void:
 	if _hot_tw != null and _hot_tw.is_valid():
 		_hot_tw.kill()
 	_hot_tw = null
-	var sealed := not AMBIENT.BIOMES.has(_biome_id)
-	if sealed:
+	var alive := _alive and AMBIENT.BIOMES.has(_biome_id)
+	if not alive:
 		_spiral.emitting = false
 		_spiral.visible = false
-		_core.modulate = Color(1, 1, 1, 0.35)
+		_core.modulate = Color(1, 1, 1, 0.22)
+		if _mist:
+			_mist.visible = true
+			_mist.emitting = true
 		return
 	var target_speed: float = HOT_SPEED if on else IDLE_SPEED
 	var target_amount: int = HOT_AMOUNT if on else IDLE_AMOUNT
