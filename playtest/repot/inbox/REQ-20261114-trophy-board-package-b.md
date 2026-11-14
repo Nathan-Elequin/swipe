@@ -2,7 +2,7 @@
 id: REQ-20261114-trophy-board-package-b
 status: open
 priority: high
-tip_sha: pending
+tip_sha: bbeca0899cd5402aa31356122220119c1dc13263
 branch: cursor/trophy-board-package-b-ddb5
 created: 2026-11-14T02:30:00Z
 created_by: cloud-agent
