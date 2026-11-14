@@ -764,7 +764,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "crystal_cavern", "ashen_crypt", "shadow_abyss"]:
+	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "cinder_forge_victory", "crystal_cavern", "ashen_crypt", "shadow_abyss", "shadow_abyss_victory"] or id.ends_with("_victory"):
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
@@ -1068,35 +1068,261 @@ func _forge_exit_combat() -> void:
 func music_after_dungeon_clear() -> void:
 	# Biome victory → rest/transition: soft music_to into between_dungeons after the
 	# clear outro. Do not keep Forge A, and do not jump to title.
-	# Verdant Hollow: wait for the next bar, then one-shot outro → between_dungeons
-	# (handoff in _on_music_finished). Other biomes: music_to(between_dungeons) now.
-	# Do not start between_dungeons on rest appear before the clear outro finishes.
+	# OUTRO RULE (2026-11-13): any biome with <biome>_victory uses outro_style
+	# "crossfade" (default) or "splice". Biomes without a victory bed go straight
+	# to between_dungeons. Do not start between_dungeons on rest appear before the
+	# clear outro finishes.
 	var was_bed: StringName = _current_bed
+	var was_dungeon: StringName = _dungeon_bed
 	music_state = &"rest"
 	_between_duck = 0.0
 	_cue_duck = 0.0
 	_mix_duck(0.3)
 	_music_seq += 1
 	_clear_dungeon_bed()
-	if was_bed == &"verdant_hollow" and _beds.has("verdant_hollow_victory") and music != null and music.playing:
-		var verdant_spec: Dictionary = _music_cfg.get("beds", {}).get("verdant_hollow", {})
-		var bar: float = float(verdant_spec.get("bar_period_s", 2.440))
-		if bar <= 0.0:
-			bar = 2.440
-		var pos: float = music.get_playback_position()
-		var wait: float = bar - fmod(pos, bar)
-		if wait < 0.05:
-			wait += bar
-		var seq: int = _music_seq
-		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-		var xfade: float = float(fades.get("to_victory_outro", 0.35))
-		_after_ms(wait * 1000.0, func() -> void:
-			if _music_seq == seq and music_state == &"rest":
-				music_to(&"verdant_hollow_victory", xfade)
-		)
-		log_audio("start", "verdant_victory_scheduled", {"wait": wait, "pos": pos})
+	var biome_key: String = String(was_dungeon) if was_dungeon != &"" else String(was_bed)
+	if biome_key.ends_with("_intro"):
+		biome_key = biome_key.substr(0, biome_key.length() - "_intro".length())
+	var victory_id: String = "%s_victory" % biome_key
+	if biome_key != "" and _beds.has(victory_id) and music != null and music.playing:
+		_schedule_biome_victory_outro(biome_key, victory_id)
 		return
 	_music_to_between_dungeons("dungeon_clear")
+
+
+func _schedule_biome_victory_outro(biome_key: String, victory_id: String) -> void:
+	var beds_cfg: Dictionary = _music_cfg.get("beds", {})
+	var biome_spec: Dictionary = beds_cfg.get(biome_key, {})
+	var victory_spec: Dictionary = beds_cfg.get(victory_id, {})
+	var bar: float = float(biome_spec.get("bar_period_s", 0.0))
+	if bar <= 0.0:
+		bar = 2.4
+	var style: String = str(victory_spec.get("outro_style", "crossfade")).strip_edges().to_lower()
+	if style == "":
+		style = "crossfade"
+	var pos: float = music.get_playback_position()
+	var seq: int = _music_seq
+	if style == "splice":
+		var lead_frac: float = float(victory_spec.get("lead_in_frac", 0.5))
+		if lead_frac <= 0.0:
+			lead_frac = 0.5
+		var splice_out_s: float = float(victory_spec.get("splice_out_s", 0.04))
+		if splice_out_s <= 0.0:
+			splice_out_s = 0.04
+		var wait_to_t: float = bar - fmod(pos, bar)
+		if wait_to_t < 0.05:
+			wait_to_t += bar
+		var wait_to_lead: float = wait_to_t - bar * lead_frac
+		if wait_to_lead < 0.05:
+			wait_to_t += bar
+			wait_to_lead += bar
+		print("[music] victory_outro biome=%s style=splice wait_s=%.3f bar_period_s=%.3f" % [biome_key, wait_to_lead, bar])
+		log_audio("start", "victory_outro_scheduled", {
+			"biome": biome_key,
+			"victory": victory_id,
+			"style": "splice",
+			"wait": wait_to_lead,
+			"wait_to_t": wait_to_t,
+			"bar": bar,
+			"pos": pos,
+			"lead_frac": lead_frac,
+			"splice_out_s": splice_out_s,
+		})
+		_after_ms(wait_to_lead * 1000.0, func() -> void:
+			if _music_seq == seq and music_state == &"rest":
+				_splice_to_biome_victory(StringName(victory_id), bar, lead_frac, splice_out_s)
+		)
+		return
+	var out_frac: float = float(victory_spec.get("out_frac", 0.8))
+	var in_frac: float = float(victory_spec.get("in_frac", 0.5))
+	if out_frac <= 0.0:
+		out_frac = 0.8
+	if in_frac <= 0.0:
+		in_frac = 0.5
+	var wait: float = bar - fmod(pos, bar)
+	if wait < 0.05:
+		wait += bar
+	print("[music] victory_outro biome=%s style=crossfade wait_s=%.3f bar_period_s=%.3f" % [biome_key, wait, bar])
+	log_audio("start", "victory_outro_scheduled", {
+		"biome": biome_key,
+		"victory": victory_id,
+		"style": "crossfade",
+		"wait": wait,
+		"bar": bar,
+		"pos": pos,
+		"out_frac": out_frac,
+		"in_frac": in_frac,
+	})
+	_after_ms(wait * 1000.0, func() -> void:
+		if _music_seq == seq and music_state == &"rest":
+			_crossfade_to_biome_victory(StringName(victory_id), bar, out_frac, in_frac)
+	)
+
+
+func _victory_collect_out_layers(outgoing: AudioStreamPlayer) -> Array:
+	var out_players: Array = []
+	var out_start_db: Array = []
+	if outgoing != null and outgoing.playing:
+		out_players.append(outgoing)
+		out_start_db.append(outgoing.volume_db)
+	for p in [_forge_b, _forge_c]:
+		if p != null and p.playing and p.volume_db > FORGE_MUTE_DB + 1.0:
+			out_players.append(p)
+			out_start_db.append(p.volume_db)
+	return [out_players, out_start_db]
+
+
+func _victory_kill_layer_tweens() -> void:
+	_kill_music_stop_tweens()
+	if _xfade_tw != null:
+		_xfade_tw.kill()
+		_xfade_tw = null
+	if _forge_a_tw != null:
+		_forge_a_tw.kill()
+		_forge_a_tw = null
+	if _forge_b_tw != null:
+		_forge_b_tw.kill()
+		_forge_b_tw = null
+	if _forge_c_tw != null:
+		_forge_c_tw.kill()
+		_forge_c_tw = null
+
+
+func _victory_stop_out_layers(out_players: Array, incoming: AudioStreamPlayer) -> void:
+	for player in out_players:
+		if player != null and player != incoming:
+			player.stop()
+	for p in [_forge_b, _forge_c]:
+		if p != null and p != incoming and p.playing:
+			p.stop()
+	_forge_drums = false
+	_forge_heat = false
+
+
+func _crossfade_to_biome_victory(victory_bed: StringName, bar: float, out_frac: float, in_frac: float) -> void:
+	# Linear dual-crossfade at the bar line. Do not use equal-power music_to, and do
+	# not hard-stop forge layers with _stop_forge_layers at the cut — ramp them from
+	# their current actual volumes, then stop after the out ramp completes.
+	var id: String = String(victory_bed)
+	if not _beds.has(id):
+		log_audio("skip", "missing_victory_bed", {"bed": id})
+		_music_to_between_dungeons("missing_victory")
+		return
+	loop_stop(&"amb.radio_static", 0.25)
+	var outgoing: AudioStreamPlayer = music
+	var incoming: AudioStreamPlayer = _music_b if _music_front == 0 else _music_a
+	if outgoing == null or incoming == null:
+		_music_to_between_dungeons("victory_no_player")
+		return
+	var collected: Array = _victory_collect_out_layers(outgoing)
+	var out_players: Array = collected[0]
+	var out_start_db: Array = collected[1]
+	var spec: Dictionary = _beds[id]
+	var gain: float = float(spec.get("gain_db", 0.0))
+	_victory_kill_layer_tweens()
+	_music_front = 1 - _music_front
+	music = incoming
+	_current_bed = victory_bed
+	incoming.stream = spec["stream"]
+	incoming.bus = "Music"
+	incoming.volume_db = -80.0
+	incoming.play(0.0)
+	var out_dur: float = maxf(bar * out_frac, 0.01)
+	var in_dur: float = maxf(bar * in_frac, 0.01)
+	_xfade_tw = create_tween()
+	_xfade_tw.set_ignore_time_scale(true)
+	_xfade_tw.set_parallel(true)
+	_xfade_tw.tween_method(_set_victory_in_lin.bind(incoming, gain), 0.0, 1.0, in_dur)
+	for i in range(out_players.size()):
+		var player: AudioStreamPlayer = out_players[i]
+		var start_db: float = float(out_start_db[i])
+		_xfade_tw.tween_method(_set_victory_out_lin.bind(player, start_db), 0.0, 1.0, out_dur)
+	_xfade_tw.chain().tween_callback(func() -> void:
+		_victory_stop_out_layers(out_players, incoming)
+	)
+	log_audio("start", "victory_outro_cut", {
+		"bed": id,
+		"style": "crossfade",
+		"out_dur": out_dur,
+		"in_dur": in_dur,
+		"layers": out_players.size(),
+		"gain_db": gain,
+	})
+
+
+func _splice_to_biome_victory(victory_bed: StringName, bar: float, lead_frac: float, splice_out_s: float) -> void:
+	# Splice: start victory at full gain at the half-bar lead-in (baked fade-in in the
+	# clip). Hold loop layers until T - splice_out_s, then 40 ms linear ramp to silent
+	# exactly at the bar line T. No engine fade-in on the victory clip.
+	var id: String = String(victory_bed)
+	if not _beds.has(id):
+		log_audio("skip", "missing_victory_bed", {"bed": id})
+		_music_to_between_dungeons("missing_victory")
+		return
+	loop_stop(&"amb.radio_static", 0.25)
+	var outgoing: AudioStreamPlayer = music
+	var incoming: AudioStreamPlayer = _music_b if _music_front == 0 else _music_a
+	if outgoing == null or incoming == null:
+		_music_to_between_dungeons("victory_no_player")
+		return
+	var collected: Array = _victory_collect_out_layers(outgoing)
+	var out_players: Array = collected[0]
+	var out_start_db: Array = collected[1]
+	var spec: Dictionary = _beds[id]
+	var gain: float = float(spec.get("gain_db", 0.0))
+	_victory_kill_layer_tweens()
+	_music_front = 1 - _music_front
+	music = incoming
+	_current_bed = victory_bed
+	incoming.stream = spec["stream"]
+	incoming.bus = "Music"
+	incoming.volume_db = gain
+	incoming.play(0.0)
+	var hold_s: float = maxf(bar * lead_frac - splice_out_s, 0.0)
+	var seq: int = _music_seq
+	log_audio("start", "victory_outro_splice_in", {
+		"bed": id,
+		"style": "splice",
+		"gain_db": gain,
+		"hold_s": hold_s,
+		"splice_out_s": splice_out_s,
+		"layers": out_players.size(),
+	})
+	_after_ms(hold_s * 1000.0, func() -> void:
+		if _music_seq != seq or music_state != &"rest":
+			return
+		# Re-read current volumes in case something nudged them during the hold.
+		for i in range(out_players.size()):
+			var p: AudioStreamPlayer = out_players[i]
+			if p != null and p.playing:
+				out_start_db[i] = p.volume_db
+		_xfade_tw = create_tween()
+		_xfade_tw.set_ignore_time_scale(true)
+		_xfade_tw.set_parallel(true)
+		var out_dur: float = maxf(splice_out_s, 0.01)
+		for i in range(out_players.size()):
+			var player: AudioStreamPlayer = out_players[i]
+			var start_db: float = float(out_start_db[i])
+			_xfade_tw.tween_method(_set_victory_out_lin.bind(player, start_db), 0.0, 1.0, out_dur)
+		_xfade_tw.chain().tween_callback(func() -> void:
+			_victory_stop_out_layers(out_players, incoming)
+		)
+		log_audio("start", "victory_outro_splice_out", {
+			"bed": id,
+			"out_dur": out_dur,
+			"layers": out_players.size(),
+		})
+	)
+
+
+func _set_victory_in_lin(t: float, player: AudioStreamPlayer, gain: float) -> void:
+	# Linear amplitude 0 → 1 (not equal-power).
+	player.volume_db = gain + linear_to_db(maxf(t, 0.0001))
+
+
+func _set_victory_out_lin(t: float, player: AudioStreamPlayer, start_db: float) -> void:
+	# Linear amplitude 1 → 0 from each layer's current actual volume.
+	player.volume_db = start_db + linear_to_db(maxf(1.0 - t, 0.0001))
 
 
 func _music_to_between_dungeons(reason: String) -> void:
@@ -1463,11 +1689,12 @@ func _on_music_finished(player: AudioStreamPlayer) -> void:
 	log_audio("stop", "finished", {"player": player.name if player else ""})
 	if _current_bed == &"" or music != player:
 		return
-	# Verdant clear outro: soft handoff into shared rest bed (not silence).
-	if _current_bed == &"verdant_hollow_victory":
-		log_audio("stop", "verdant_victory_done", {})
+	# Biome clear outro: soft handoff into shared rest bed (not silence).
+	if String(_current_bed).ends_with("_victory"):
+		var done_reason: String = "%s_done" % String(_current_bed)
+		log_audio("stop", done_reason, {})
 		if music_state == &"rest":
-			_music_to_between_dungeons("verdant_victory_done")
+			_music_to_between_dungeons(done_reason)
 		else:
 			_current_bed = &""
 		return
