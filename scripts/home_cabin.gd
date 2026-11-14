@@ -811,7 +811,11 @@ func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in:
 		_set_idle_hero_visible(false)
 		if _rock:
 			_rock.visible = false
+		_hide_arrive_dev_chrome()
 		_show_exterior()
+		## Cabin bed through the whole return (exterior → unlock → hall unpack).
+		## music_to is a no-op when the cabin bed is already playing.
+		_play_station()
 		_rebuild_shelves()
 		_beat = "pan"
 		var t := get_tree().create_timer(0.02, true, true, true)
@@ -844,6 +848,7 @@ func show_menu(room: String = "main") -> void:
 	_refresh_rooms()
 	_beat = "idle"
 	_play_station()
+	_restore_arrive_dev_chrome()
 	_sync_progress_doors()
 	_start_rock()
 	if _chair_hit:
@@ -1592,11 +1597,14 @@ func _show_exterior() -> void:
 	_door_hit.disabled = false
 	_door.texture = _home("cabin_door_closed")
 	_door_glow_open = false
+	## Always plant at x=0. The old +280 pan wiped the exterior in from the right
+	## under the climb reveal and showed old Sprout parked in the void.
 	_ext_root.position = Vector2.ZERO
 	_host_hero(_ext_root)
 	_hero.flip_h = false
 	_hero.visible = false
 	_stop_rock()
+	_hide_arrive_dev_chrome()
 	if _lantern.sprite_frames:
 		_lantern.play("swing")
 	if _smoke.sprite_frames:
@@ -1604,6 +1612,20 @@ func _show_exterior() -> void:
 	_cat_state = "hold"
 	_cat_t = 0.0
 	_cat_hold = _rng.randf_range(2.0, 6.0)
+
+
+## Developer Test / Play Latest strip must stay off during climb→exterior walk-in.
+func _hide_arrive_dev_chrome() -> void:
+	if _editor_strip != null and is_instance_valid(_editor_strip):
+		_editor_strip.visible = false
+
+
+func _restore_arrive_dev_chrome() -> void:
+	if _editor_strip == null or not is_instance_valid(_editor_strip):
+		return
+	## Only restore when attach_editor populated the strip (editor builds).
+	if _editor_strip.get_child_count() > 0 and DevFlag.on():
+		_editor_strip.visible = true
 
 
 func _host_hero(host: Control) -> void:
@@ -1662,30 +1684,22 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	_set_idle_hero_visible(false)
 	if _rock:
 		_rock.visible = false
-	_beat = "pan"
+	_hide_arrive_dev_chrome()
+	## Empty exterior at x=0. No horizontal slide. Sprout stays hidden until walk.
+	_beat = "hold"
 	_host_hero(_ext_root)
 	_hero.z_index = 1
-	_hero.visible = true
+	_hero.visible = false
 	_hero.flip_h = false
 	_set_wide_offset(false)
-	_set_hero_frame(_walk_family(true), 0)
+	_ext_root.position = Vector2.ZERO
 	_place_hero(Vector2(-30, 218))
-	_ext_root.position = Vector2(280, 0)
 	if _homecoming_kind == "loss" and _arrive_skip == 0:
-		_ext_root.position = Vector2.ZERO
 		_place_hero(Vector2(140, 218))
 	if _arrive_skip == 0:
-		var pan := _make_arrive_tween()
-		pan.set_trans(Tween.TRANS_CUBIC)
-		pan.set_ease(Tween.EASE_OUT)
-		pan.tween_property(_ext_root, "position", Vector2.ZERO, 0.36 if _homecoming_kind == "loss" else 0.6)
-		if sfx:
-			sfx.play("whoosh", -14.0, 0.9)
-		await _await_arrive_tween(pan)
-		if _arrive_aborted(gen):
-			return
-	if _arrive_skip == 0:
 		_beat = "walk"
+		_hero.visible = true
+		_set_hero_frame(_walk_family(true), 0)
 		await _walk_path()
 		if _arrive_aborted(gen):
 			return
@@ -1736,6 +1750,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		_save()
 		_beat = "idle"
 		_play_station()
+		_restore_arrive_dev_chrome()
 		_apply_gate()
 		_on_hotspot(pending_n, pending_r)
 		return
@@ -1772,12 +1787,16 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		## Key ring finalizer stages pending bank (hall homecoming) when present.
 		if _arrive_aborted(gen):
 			return
-		## Nothing pending: still run empty/loss homecoming line in the hall.
-		if bank_pending.is_empty() and is_room_unlocked("hall"):
+		## BUG (pre-#507 and current): after a pending unpack drains bank_pending,
+		## this used to stage AGAIN and Nib said "Nothing new" even with a unique
+		## already on the board (gold + light). Only run empty/loss when no
+		## ceremony has played yet this return.
+		if not _bank_played and bank_pending.is_empty() and is_room_unlocked("hall"):
 			await _stage_homecoming_bank()
 		_save()
 		_beat = "idle"
 		_play_station()
+		_restore_arrive_dev_chrome()
 		_apply_gate()
 		return
 	## Hall homecoming (items, empty win line, or loss line).
@@ -1791,6 +1810,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	_save()
 	_beat = "idle"
 	_play_station()
+	_restore_arrive_dev_chrome()
 	_apply_gate()
 
 
@@ -5085,14 +5105,40 @@ func _set_wide_offset(on: bool) -> void:
 			layer.offset = _hero.offset
 
 
+## Current Sprout walk/idle (anim/player). Exterior walk-in used the old 128²
+## hero_walk_* sheets and read as the worse model in the void.
+const SPROUT_RUN := "res://assets/dungeon/anim/player/sprout_run_f%d.png"
+const SPROUT_IDLE := "res://assets/dungeon/anim/player/sprout_idle_f%d.png"
+## Old hero sheets were 128²; sprout_run is 48² → scale to match on-screen size.
+const SPROUT_WALK_SCALE := 128.0 / 48.0
+const SPROUT_IDLE_SCALE := 128.0 / 64.0
+
+
 func _set_hero_frame(family: String, i: int) -> void:
 	_ensure_hero_layers()
-	var rel: String = "hero/%s_f%d.png" % [family, i]
-	var tex: Texture2D = _home(rel)
+	var tex: Texture2D = null
+	var use_sprout := false
+	var sprout_scale := 1.0
+	if family.begins_with("hero_walk"):
+		var run_path: String = SPROUT_RUN % clampi(i, 0, 3)
+		if ResourceLoader.exists(run_path):
+			tex = load(run_path) as Texture2D
+			use_sprout = tex != null
+			sprout_scale = SPROUT_WALK_SCALE
+	elif family == "hero_idle_blink" or family == "hero_idle_loot":
+		var idle_path: String = SPROUT_IDLE % clampi(i, 0, 3)
+		if ResourceLoader.exists(idle_path):
+			tex = load(idle_path) as Texture2D
+			use_sprout = tex != null
+			sprout_scale = SPROUT_IDLE_SCALE
 	if tex == null:
-		tex = _home("%s_f%d" % [family, i])
+		var rel: String = "hero/%s_f%d.png" % [family, i]
+		tex = _home(rel)
+		if tex == null:
+			tex = _home("%s_f%d" % [family, i])
 	if tex:
 		_hero.texture = tex
+	_hero.scale = Vector2(sprout_scale, sprout_scale) if use_sprout else Vector2.ONE
 	var head: String = str(gear_worn.get("head", ""))
 	for piece in ["rope", "goggles", "cap", "helm"]:
 		var layer: Sprite2D = _hero_layers.get(piece)
@@ -5101,6 +5147,11 @@ func _set_hero_frame(family: String, i: int) -> void:
 		layer.centered = _hero.centered
 		layer.offset = _hero.offset
 		layer.flip_h = _hero.flip_h
+		layer.scale = _hero.scale
+		## Current Sprout sheets have no matching gear overlays — hide gear on them.
+		if use_sprout:
+			layer.texture = null
+			continue
 		var slot: String = str(extra.get("gear_slots", {}).get(piece, ""))
 		var worn: bool = str(gear_worn.get(slot, "")) == piece
 		if piece == "cap" or piece == "helm":

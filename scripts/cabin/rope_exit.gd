@@ -1453,6 +1453,9 @@ func _do_climb() -> void:
 		fade.tween_property(_hero, "modulate:a", 0.0, 0.28)
 		await fade.finished
 	# 3) Quick vertical wipe UP, then leave.
+	# Keep the wipe covering until Main swaps in its own full black cover.
+	# hide_exit() here used to drop the wipe for a few frames and flash HUD /
+	# Developer Test / dungeon under the transition.
 	if _climb_wipe:
 		_climb_wipe.visible = true
 		_climb_wipe.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1463,8 +1466,10 @@ func _do_climb() -> void:
 		wipe.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		wipe.tween_property(_climb_wipe, "position:y", 0.0, 0.32)
 		await wipe.finished
-	hide_exit()
 	climb.emit()
+	## Main hides the exit under its own cover. If nobody handled climb, drop us.
+	if visible:
+		hide_exit()
 
 
 func _do_deeper() -> void:
