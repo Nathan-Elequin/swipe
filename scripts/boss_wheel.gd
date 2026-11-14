@@ -182,6 +182,12 @@ var _chrome_hover: int = -1
 var _mark_hover: bool = false
 var _mark_tip: PanelContainer = null
 var ability_suppressed: bool = false
+## Direction A: hovering a poison/marked pip opens the keyword card and hides that monster's plate.
+var pip_hover_active: bool = false
+var _pip_hover_id: String = ""
+var _pip_hover_index: int = -1
+var _pip_hits: Dictionary = {} ## index -> {poison: Rect2, marked: Rect2} in local space
+var _pip_ring: TextureRect = null
 
 var _spin_tween: Tween
 var _recenter_tween: Tween
@@ -793,7 +799,7 @@ func _mount_mark_tip() -> void:
 		layer.add_child(_mark_tip)
 	_mark_tip.top_level = false
 	_mark_tip.z_index = 1
-	_mark_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Tip manages its own mouse_filter (PASS while open / STOP while pinned).
 
 
 func _cycle_stat_style() -> void:
@@ -1434,6 +1440,7 @@ func _process(delta: float) -> void:
 		_poll_tutorial_hover()
 		_sync_chrome_hover()
 		_sync_mark_hover()
+		_sync_pip_hover()
 		_sync_ability_cards()
 		# Mid-spin: `rot` setter already queue_redraws each tween tick.
 		# note_wheel lives in `_draw` (truthful, same as hall).
@@ -2455,12 +2462,91 @@ func _set_mark_hover(on: bool) -> void:
 		return
 	_mark_hover = on
 	queue_redraw()
-	if _mark_tip == null:
+	## Marked pip hover is handled by _sync_pip_hover (side-rail card).
+
+
+func _poison_badge_local(i: int, big: bool = false) -> Vector2:
+	if i < 0 or i >= slices.size():
+		return Vector2.ZERO
+	var sp: Dictionary = _spoke(i)
+	var hp_pos: Vector2 = sp.get("hp", sp.get("port", Vector2.ZERO))
+	return hp_pos + Vector2(26.0 if big else 22.0, -16.0 if big else -14.0)
+
+
+func _sync_pip_hover() -> void:
+	if spinning or busy:
+		_clear_pip_hover()
 		return
-	if on:
-		_mark_tip.show_def_at_cursor(UxStyle.def_of("marked"), "marked")
-	elif _mark_tip.has_method("hide_def"):
-		_mark_tip.hide_def()
+	var local: Vector2 = get_local_mouse_position()
+	var hit_id := ""
+	var hit_i := -1
+	var hit_rect := Rect2()
+	for i in slices.size():
+		if str(slices[i].get("kind", "")) != "monster":
+			continue
+		var big: bool = i == facing_index
+		if _poison_n(slices[i]) > 0:
+			var ppos: Vector2 = _poison_badge_local(i, big)
+			var pr := Rect2(ppos - Vector2(14, 14), Vector2(28, 28))
+			if pr.has_point(local):
+				hit_id = "poison"
+				hit_i = i
+				hit_rect = pr
+				break
+		if bool(slices[i].get("hunter_mark", false)):
+			var font: Font = ThemeDB.fallback_font
+			var sp: Dictionary = _spoke(i)
+			var chip: Rect2 = _mark_chip_rect(sp, font).grow(4.0)
+			if chip.has_point(local):
+				hit_id = "marked"
+				hit_i = i
+				hit_rect = chip
+				break
+	if hit_id == "":
+		_clear_pip_hover()
+		return
+	pip_hover_active = true
+	_pip_hover_id = hit_id
+	_pip_hover_index = hit_i
+	_show_pip_ring(hit_rect)
+	if _mark_tip != null:
+		var global_r := Rect2(get_global_transform() * hit_rect.position, hit_rect.size)
+		if _mark_tip.has_method("offer_teach"):
+			_mark_tip.offer_teach(hit_id, null, "pip")
+		if _mark_tip.has_method("show_def_at"):
+			_mark_tip.show_def_at(global_r, UxStyle.def_of(hit_id), hit_id, "pip")
+		elif _mark_tip.has_method("show_def"):
+			_mark_tip.show_def(UxStyle.def_of(hit_id), null, hit_id, "pip")
+
+
+func _clear_pip_hover() -> void:
+	if not pip_hover_active and _pip_hover_id == "":
+		if _pip_ring:
+			_pip_ring.visible = false
+		return
+	pip_hover_active = false
+	_pip_hover_id = ""
+	_pip_hover_index = -1
+	if _pip_ring:
+		_pip_ring.visible = false
+	if _mark_tip != null and not bool(_mark_tip.get("_pinned")) and not bool(_mark_tip.get("_teach_dismiss_pending")):
+		if _mark_tip.has_method("hide_def"):
+			_mark_tip.hide_def()
+
+
+func _show_pip_ring(local_rect: Rect2) -> void:
+	if _pip_ring == null:
+		_pip_ring = TextureRect.new()
+		_pip_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_pip_ring.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_pip_ring.stretch_mode = TextureRect.STRETCH_KEEP
+		_pip_ring.z_index = 40
+		if ResourceLoader.exists("res://assets/ui/keyword/kw_pip_ring.png"):
+			_pip_ring.texture = load("res://assets/ui/keyword/kw_pip_ring.png") as Texture2D
+		add_child(_pip_ring)
+	_pip_ring.visible = true
+	_pip_ring.position = local_rect.get_center() - Vector2(14, 14)
+	_pip_ring.size = Vector2(28, 28)
 
 
 func _item_held() -> bool:

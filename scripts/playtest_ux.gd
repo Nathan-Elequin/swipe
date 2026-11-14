@@ -16,15 +16,16 @@ static func hover_examples() -> PackedStringArray:
 
 
 static func keyword_tip_min_size() -> Vector2:
-	return Vector2(280, 80)
+	## Direction A parchment card: fixed width 296, min height 96.
+	return Vector2(296, 96)
 
 
 static func keyword_tip_title_font() -> Vector2i:
-	return Vector2i(18, 14)
+	return Vector2i(20, 16)
 
 
 static func keyword_tip_body_font() -> Vector2i:
-	return Vector2i(16, 13)
+	return Vector2i(17, 14)
 
 
 static func caption_align_while_typing() -> int:

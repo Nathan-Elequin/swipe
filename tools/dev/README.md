@@ -21,6 +21,16 @@ After a pull: press F5 (reload if the game is already running). The label reads 
 
 Editor export (Web or Web Playtest) bakes the same string through `addons/build_stamp`. You do not hand-edit the SHA.
 
+## Keyword definitions (Nathan)
+
+Keyword tip bodies live in `data/keyword-defs.json` (`{ "<id>": { "title", "body" } }`). The game reads them through `KeywordDefs` / `UxStyle.def_of()` with a hot reload.
+
+Two ways to edit:
+1. **In game (dev / authoring):** press **F1** (F7 is the campaign map). Pick a keyword, edit title/body, watch the live parchment preview, then **Save** or **Revert**. **Preview first-sighting** plays the teach animation for the selected id.
+2. **In the repo:** edit `data/keyword-defs.json` directly (pretty-printed, stable key order). Reload the running game (Stop Play, F5) so it picks up the file.
+
+Do not invent new definition wording in chat — leave Nathan's strings alone.
+
 ## Pre-commit guard (`tools/hooks/pre-commit`)
 
 It blocks a commit, with a one-line reason, when the staged changes:

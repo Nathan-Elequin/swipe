@@ -3,6 +3,7 @@ class_name UxStyle
 ## Shared combat chrome. Chips, plates, and kind colors — not player copy.
 
 const COPY := preload("res://scripts/player_copy.gd")
+const KeywordDefs := preload("res://scripts/keyword_defs.gd")
 
 const INK := Color("f4ede3")
 const INK_DIM := Color("c9b9a8")
@@ -432,63 +433,56 @@ static func def_id_of(piece: String) -> String:
 
 
 static func def_of(id: String) -> String:
-	## Spin-locked keyword bodies (Direction A aura kit) — exact strings, no rewrites.
-	match id:
-		"any":
-			return "You may choose any Monster on the wheel, not only the one you are facing."
-		"eject":
-			return "remove them from the dungeon immediately, placing them on the bottom of the Dungeon Deck"
-		"across":
-			return "across on the opposite side of the wheel."
-		"bear_trap":
-			return "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it"
-		"move":
-			return "shift to a Neighbor without Spinning"
-		"flee":
-			return "If you are facing them, Spin the wheel at random. They are not removed."
-		"defeated":
-			return "They leave the wheel. Flee is different — they stay. Escaped means you took the hit and lived."
-		"marked":
-			return "upon Defeat, Trapper gains +2 HP and ATK"
-		"poison":
-			return "When you Spin that monster, they lose that much HP immediately, then the mark clears. Other marked monsters keep theirs. Your Poison pays first on a Spin. Not Attack."
-		"spin":
-			return "The wheel lands on a random living monster."
-		"always":
-			return "Always: cannot be changed in any other way"
-		"swap":
-			return COPY.text("keyword.swap_body", "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).")
-		"loaded":
-			return COPY.text("status.sling_loaded_tip", "Loaded: your next Attack can hit any monster.")
-		"unplayable":
-			return "You cannot click this."
-		"rust":
-			return "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust."
-		"decay":
-			return "If you Use this, Keep it and Discard all other Items with Decay."
-		"gaze":
-			return "Marks up to three Items. Using one Petrifies the others while the Basilisk remains."
-		"petrify":
-			return "Makes an Item Unplayable until its source ends."
-		"curse":
-			return "A harmful Item forced into your hand."
-		"shroud":
-			return "Hidden until Defeated, or until you resolve combat while facing them"
-		"toll":
-			return "Unplayable. −1 on each Item Use. At 0, you Die."
-		"hex":
-			return "Unplayable. −1 each Spin. At 0, Defeat the landed enemy."
-		"beggar":
-			return "Marks a random Item. Spinning this Beggar discards it."
-		_:
-			return ""
+	## Bodies live in data/keyword-defs.json (KeywordDefs). Hot-reloads on mtime.
+	return KeywordDefs.def_of(id)
 
 
-static func with_def_link(shown: String, piece: String) -> String:
+static func paper_ink_for(id: String, dark_hex: String) -> String:
+	## Talk-paper inks (panel_beige). Defeat family / unplayable / gold defaults.
+	var kid: String = id.strip_edges().to_lower()
+	if kid == "unplayable":
+		return "#5A564E"
+	if kid == "defeated" or kid.begins_with("defeat"):
+		return "#4E1C86"
+	if dark_hex == VAR or kid.find("defeat") >= 0:
+		return "#4E1C86"
+	return "#6A3C00"
+
+
+static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool = false) -> String:
+	## Direction A icon chip: 24×24 kw_<id> + colored word + underline @45%.
+	var kid: String = id.strip_edges().to_lower()
+	if kid == "":
+		return word
+	var ink: String = ink_hex.strip_edges()
+	if ink == "":
+		ink = ALWAYS
+	if paper:
+		ink = paper_ink_for(kid, ink)
+	var icon: String = KeywordDefs.icon_path(kid)
+	var word_shown: String = word.strip_edges()
+	if not ResourceLoader.exists(icon):
+		return "[url=kw:%s underline=never][u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, ink, ink, word_shown]
+	return "[url=kw:%s underline=never][img=24x24 valign=center,center]%s[/img] [u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, icon, ink, ink, word_shown]
+
+
+static func with_def_link(shown: String, piece: String, ink_hex: String = "", paper: bool = false) -> String:
 	var id: String = def_id_of(piece)
 	if id == "" or shown.find("[url=") >= 0:
 		return shown
-	return "[url=kw:%s]%s[/url]" % [id, shown]
+	## When paint already wrapped via chip_bbcode, shown is plain or old chip — rebuild.
+	var word: String = shown
+	## Strip prior outline/color/bold wrappers to recover the display word.
+	var rx := RegEx.new()
+	if rx.compile("\\[/?[^\\]]+\\]") == OK:
+		word = rx.sub(shown, "", true)
+	word = word.strip_edges()
+	if word == "":
+		word = piece.strip_edges()
+	var ink: String = ink_hex
+	if ink == "":
+		ink = ALWAYS if id != "unplayable" else UNPLAYABLE
+	return chip_bbcode(word, id, ink, paper)
 
 
 static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null) -> void:
@@ -507,23 +501,29 @@ static func wire_def_hover(rtl: RichTextLabel, tip: Node, anchor: Control = null
 static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip == null:
 		return
+	if bool(tip.get("_pinned")):
+		return
 	var id: String = str(meta).trim_prefix("kw:")
+	## Phoenix still uses callout pack text on the parchment (no keyword-defs row).
 	if id == "phoenix" or id == "phoenix_egg":
 		var main: Node = tip.get_tree().root.get_node_or_null("Main")
 		if main != null and main.has_method("keyword_monster_callout") and tip.has_method("show_callout"):
 			tip.show_callout(main.keyword_monster_callout(id), anchor, id)
 			return
-	if id == "rust":
-		var main_i: Node = tip.get_tree().root.get_node_or_null("Main")
-		if main_i != null and main_i.has_method("keyword_item_callout") and tip.has_method("show_callout"):
-			tip.show_callout(main_i.keyword_item_callout("rust"), anchor, id)
-			return
-	if tip.has_method("show_def"):
+	## Unseen keywords: first-sighting teach owns the open (queues if busy).
+	if tip.has_method("offer_teach") and tip.has_method("_has_seen") and not tip.call("_has_seen", id):
+		tip.offer_teach(id, anchor)
+		return
+	if tip.has_method("show_def_hover"):
+		tip.show_def_hover(def_of(id), anchor, id)
+	elif tip.has_method("show_def"):
 		tip.show_def(def_of(id), anchor, id)
 
 
 static func _on_def_unhover(_meta: Variant, tip: Node, anchor: Control = null) -> void:
 	if tip != null and bool(tip.get("_pinned")):
+		return
+	if tip != null and bool(tip.get("_teach_dismiss_pending")):
 		return
 	if anchor != null and bool(anchor.get("_pin_always")) and anchor.has_method("pin_always_def"):
 		anchor.pin_always_def()
@@ -735,7 +735,7 @@ static func legend_bb() -> String:
 	return "%s  %s  %s  %s" % [chip("Attack", ATK), chip("Block", BLK), chip("HP", HP), chip("Defeat", VAR)]
 
 
-static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false, prose: bool = false, keyword_limit: bool = false, keyword_ids: PackedStringArray = PackedStringArray(), keyword_deny: PackedStringArray = PackedStringArray()) -> String:
+static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A", output_kind: String = "", formula: bool = false, prose: bool = false, keyword_limit: bool = false, keyword_ids: PackedStringArray = PackedStringArray(), keyword_deny: PackedStringArray = PackedStringArray(), paper_inks: bool = false) -> String:
 	var t: String = raw.strip_edges()
 	if t == "" or t.find("[color") >= 0 or t.find("[bgcolor") >= 0:
 		return raw
@@ -864,10 +864,16 @@ static func paint(raw: String, colored: bool = true, num_hex: String = "#E07A7A"
 			if fam == "" or keyword_deny.has(fam) or not (keyword_ids.has(fam) or marked):
 				continue
 		var shown: String = _format_keyword(piece)
-		if colored:
-			var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k)
+		var hex: String = _paint_hex(piece, t, a2, b2, num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases, out_k) if colored else ""
+		var kid: String = def_id_of(piece)
+		if kid != "" and kid != "phoenix" and kid != "phoenix_egg":
+			## Direction A: icon chip + url. Attack/HP stems without a def stay chip-only.
+			shown = with_def_link(shown, piece, hex if hex != "" else ALWAYS, paper_inks)
+		elif colored:
 			shown = chip(shown, hex)
-		shown = with_def_link(shown, piece)
+			shown = with_def_link(shown, piece)
+		else:
+			shown = with_def_link(shown, piece)
 		out = out.substr(0, a2) + shown + out.substr(b2)
 	return out
 

@@ -49,6 +49,16 @@ if [[ "$CODE" -ne 0 ]]; then
   exit "$CODE"
 fi
 
+# Direction A keyword tips (defs round-trip + keep-out + parchment API).
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/keyword_tips_selftest.gd
+KW=$?
+set -e
+if [[ "$KW" -ne 0 ]]; then
+  echo "KEYWORD_TIPS_SMOKE failed (exit $KW)" >&2
+  exit "$KW"
+fi
+
 # Phantom Shroud presentation (full-black curse veil) — headless card check.
 set +e
 "$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/phantom_shroud_selftest.gd

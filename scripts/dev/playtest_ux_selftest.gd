@@ -20,8 +20,11 @@ func _init() -> void:
 	for id in ["wizard", "golem", "goblin", "bandit", "commander"]:
 		failed = _check("example_%s" % id, examples.has(id)) or failed
 	var tip_sz: Vector2 = UX.keyword_tip_min_size()
-	failed = _check("tip_min_w", tip_sz.x >= 280.0) or failed
-	failed = _check("tip_min_h", tip_sz.y >= 72.0) or failed
+	failed = _check("tip_min_w", tip_sz.x >= 296.0) or failed
+	failed = _check("tip_min_h", tip_sz.y >= 96.0) or failed
+	## Direction A: def_of reads keyword-defs.json
+	failed = _check("def_of_flee", UxStyle.def_of("flee").find("Spin") >= 0) or failed
+	failed = _check("defs_json_exists", FileAccess.file_exists("res://data/keyword-defs.json")) or failed
 	failed = _check("ltr_align", UX.caption_align_while_typing() == HORIZONTAL_ALIGNMENT_LEFT) or failed
 	failed = _check("choice_reserve", UX.dialog_choice_reserve_px() > 0.0) or failed
 	failed = _check("arrow_pad", UX.move_arrow_outer_pad() >= 64.0) or failed
