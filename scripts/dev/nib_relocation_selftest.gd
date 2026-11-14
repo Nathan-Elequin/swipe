@@ -28,11 +28,19 @@ func _run() -> void:
 	var cues: Dictionary = sfx_map.get("cues", {}) if typeof(sfx_map.get("cues", {})) == TYPE_DICTIONARY else {}
 	for id in [
 		"amb.trophy_room", "nib.react", "board.slide", "board.poof", "board.whoosh",
-		"board.satchel_in", "board.light_chime", "board.lever_clunk", "board.rumble",
+		"board.satchel_in", "board.light_chime", "board.light_chime_1", "board.light_chime_5",
+		"board.lever_clunk", "board.rumble",
 		"sting.portal_open", "sting.shortcut", "board.path_draw", "board.fog_clear",
 		"board.badge_pop",
 	]:
 		failed = _check(rows, failed, "cue.%s" % id, cues.has(id)) or failed
+	## Reel #503: amb file is real (not fire-loop alias).
+	var amb: Dictionary = cues.get("amb.trophy_room", {})
+	var amb_files: Array = amb.get("files", []) if typeof(amb) == TYPE_DICTIONARY else []
+	failed = _check(
+		rows, failed, "cue.amb.trophy_file",
+		amb_files.has("amb_trophy_room")
+	) or failed
 
 	var CabinScr = load("res://scripts/home_cabin.gd")
 	failed = _check(rows, failed, "cabin_loads", CabinScr != null) or failed
@@ -128,15 +136,35 @@ func _run() -> void:
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	failed = _check(rows, failed, "main.reduce_wire", main_src.find("_on_reduce_motion_toggled") >= 0) or failed
 	var home_src := FileAccess.get_file_as_string("res://scripts/cabin/homecoming.gd")
+	## Primary chime is board.light_chime_N (#503); cabin.shelf_chime may remain as fallback only.
+	failed = _check(
+		rows, failed, "homecoming.light_chime_index",
+		home_src.find("board.light_chime_%d") >= 0
+	) or failed
 	failed = _check(
 		rows, failed, "homecoming.no_cabin_primary",
-		home_src.find('_cue("cabin.') < 0 and home_src.find("play_event(&\"cabin.shelf_chime\"") < 0
+		home_src.find('_cue("cabin.') < 0
 	) or failed
 	var cabin_src := FileAccess.get_file_as_string("res://scripts/home_cabin.gd")
 	failed = _check(rows, failed, "cabin.nib_host", cabin_src.find("nib_host.gd") >= 0) or failed
 	failed = _check(rows, failed, "cabin.relocate", cabin_src.find("_relocate_nib_to_hall") >= 0) or failed
 	failed = _check(rows, failed, "cabin.catchup", cabin_src.find("_maybe_catchup_nib_hall") >= 0) or failed
 	failed = _check(rows, failed, "cabin.amb", cabin_src.find("amb.trophy_room") >= 0) or failed
+	failed = _check(
+		rows, failed, "cabin.amb.loop_start",
+		cabin_src.find("loop_start(&\"amb.trophy_room\"") >= 0
+		or cabin_src.find('loop_start(&"amb.trophy_room"') >= 0
+	) or failed
+	failed = _check(
+		rows, failed, "cabin.amb.loop_stop",
+		cabin_src.find("loop_stop(&\"amb.trophy_room\"") >= 0
+		or cabin_src.find('loop_stop(&"amb.trophy_room"') >= 0
+	) or failed
+	var seq_src := FileAccess.get_file_as_string("res://scripts/cabin/board_sequences.gd")
+	failed = _check(
+		rows, failed, "seq.no_manual_rumble_duck",
+		seq_src.find("duck_music(-8)") < 0
+	) or failed
 	var hall_src := FileAccess.get_file_as_string("res://scripts/cabin/room_hall.gd")
 	failed = _check(rows, failed, "hall.nib_sprite", hall_src.find("NibSprite") >= 0) or failed
 	var board_src := FileAccess.get_file_as_string("res://scripts/cabin/trophy_board.gd")

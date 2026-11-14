@@ -2011,15 +2011,16 @@ func _start_interior_loops() -> void:
 	_sync_trophy_room_ambience()
 
 
-## Package E: trophy-room bed starts on hall enter and fades out on leave.
+## Package E / Reel #503: trophy-room bed on hall enter; fade out on leave.
+## Volume rides the Ambience bus (settings); cue db is 0 (file already −26 LUFS).
 func _sync_trophy_room_ambience() -> void:
 	if sfx == null:
 		return
 	var in_hall: bool = _int_root != null and _int_root.visible and _current_room == "hall"
 	if in_hall:
 		if sfx.has_method("loop_start"):
-			## ASSETS: −14 dB under cabin music; crossfade 0.8 s.
-			sfx.loop_start(&"amb.trophy_room", 0.8, -14.0)
+			## SCREEN/ASSETS: loop_start with fade; do not force a db override.
+			sfx.loop_start(&"amb.trophy_room", 0.8)
 	else:
 		if sfx.has_method("loop_stop"):
 			sfx.loop_stop(&"amb.trophy_room", 0.8)

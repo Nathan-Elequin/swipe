@@ -6900,301 +6900,12 @@
       "max_voices": 1,
       "priority": 1
     },
-    "board.slide": {
-      "files": [
-        "cab_item_whoosh"
-      ],
-      "bus": "SFX",
-      "db": -11,
-      "pitch": [
-        0.95,
-        1.08
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.item_whoosh until Reel delivers."
-    },
-    "board.bump": {
-      "files": [
-        "cab_locked"
-      ],
-      "bus": "UI",
-      "db": -12,
-      "pitch": [
-        0.97,
-        1.03
-      ],
-      "cooldown_ms": 300,
-      "max_voices": 1,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.locked until Reel delivers."
-    },
-    "board.hover_slot": {
-      "files": [
-        "ui_hover_soft_a",
-        "ui_hover_soft_b"
-      ],
-      "bus": "UI",
-      "db": -18,
-      "pitch": [
-        0.95,
-        1.05
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 1,
-      "priority": 0,
-      "doc": "Package E placeholder alias of ui.hover_menu until Reel delivers."
-    },
-    "board.satchel_in": {
-      "files": [
-        "cab_item_pop_a",
-        "cab_item_pop_b"
-      ],
-      "bus": "SFX",
-      "db": -9,
-      "pitch": [
-        0.92,
-        1.12
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
-    },
-    "board.satchel_rustle": {
-      "files": [
-        "cab_item_pop_a",
-        "cab_item_pop_b"
-      ],
-      "bus": "SFX",
-      "db": -9,
-      "pitch": [
-        0.92,
-        1.12
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
-    },
-    "board.satchel_out": {
-      "files": [
-        "cab_item_pop_a",
-        "cab_item_pop_b"
-      ],
-      "bus": "SFX",
-      "db": -11,
-      "pitch": [
-        0.92,
-        1.12
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
-    },
-    "board.rise_glint": {
-      "files": [
-        "cabin_glint"
-      ],
-      "bus": "UI",
-      "db": -18,
-      "pitch": [
-        0.95,
-        1.1
-      ],
-      "cooldown_ms": 400,
-      "max_voices": 1,
-      "priority": 0,
-      "doc": "Package E placeholder alias of cabin.glint until Reel delivers."
-    },
-    "board.whoosh": {
-      "files": [
-        "cab_item_whoosh"
-      ],
-      "bus": "SFX",
-      "db": -11,
-      "pitch": [
-        0.95,
-        1.08
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Package E placeholder alias of cabin.item_whoosh until Reel delivers."
-    },
-    "board.poof": {
-      "files": [
-        "cab_item_burst"
-      ],
-      "bus": "SFX",
-      "db": -8,
-      "pitch": [
-        0.97,
-        1.05
-      ],
-      "cooldown_ms": 90,
-      "max_voices": 2,
-      "priority": 2,
-      "doc": "Package E placeholder alias of cabin.item_burst until Reel delivers."
-    },
-    "board.light_chime": {
-      "files": [
-        "cab_shelf_chime"
-      ],
-      "bus": "SFX",
-      "db": -9,
-      "pitch": [
-        0.98,
-        1.06
-      ],
-      "cooldown_ms": 90,
-      "max_voices": 2,
-      "priority": 2,
-      "doc": "Package E placeholder alias of cabin.shelf_chime until Reel delivers."
-    },
-    "board.lever_ready": {
-      "files": [
-        "sting_unlock"
-      ],
-      "bus": "Stings",
-      "db": -6,
-      "pitch": [
-        1.0,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 3,
-      "doc": "Package E placeholder alias of sting.unlock until Reel delivers."
-    },
-    "board.lever_clunk": {
-      "files": [
-        "cab_seal_stamp"
-      ],
-      "bus": "SFX",
-      "db": -8,
-      "pitch": [
-        0.92,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 3,
-      "doc": "Placeholder alias of cabin.stamp_thunk until Reel delivers."
-    },
-    "board.rumble": {
-      "files": [
-        "cab_hole_rumble"
-      ],
-      "bus": "SFX",
-      "db": -6,
-      "pitch": [
-        0.95,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 2,
-      "doc": "Placeholder alias of cabin.hole_rumble until Reel delivers."
-    },
-    "board.complete_chime": {
-      "files": [
-        "sting_unlock"
-      ],
-      "bus": "Stings",
-      "db": -6,
-      "pitch": [
-        1.0,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 3,
-      "doc": "Placeholder alias of sting.unlock until Reel delivers."
-    },
-    "board.path_draw": {
-      "files": [
-        "cab_map_pin"
-      ],
-      "bus": "SFX",
-      "db": -10,
-      "pitch": [
-        0.95,
-        1.08
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 1,
-      "priority": 1,
-      "doc": "Placeholder alias of cabin.map_pin until Reel delivers."
-    },
-    "board.fog_clear": {
-      "files": [
-        "cab_item_whoosh"
-      ],
-      "bus": "SFX",
-      "db": -12,
-      "pitch": [
-        0.95,
-        1.08
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 3,
-      "priority": 1,
-      "doc": "Placeholder alias of cabin.item_whoosh until Reel delivers."
-    },
-    "board.badge_pop": {
-      "files": [
-        "cab_map_pin"
-      ],
-      "bus": "UI",
-      "db": -10,
-      "pitch": [
-        0.95,
-        1.08
-      ],
-      "cooldown_ms": 60,
-      "max_voices": 1,
-      "priority": 1,
-      "doc": "Placeholder alias of cabin.map_pin until Reel delivers."
-    },
-    "sting.portal_open": {
-      "files": [
-        "sting_unlock"
-      ],
-      "bus": "Stings",
-      "db": -4,
-      "pitch": [
-        1.0,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 3,
-      "doc": "Placeholder alias of sting.unlock until Reel delivers."
-    },
-    "sting.shortcut": {
-      "files": [
-        "sting_unlock"
-      ],
-      "bus": "Stings",
-      "db": -4,
-      "pitch": [
-        1.0,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 3,
-      "doc": "Placeholder alias of sting.unlock until Reel delivers."
-    },
     "amb.trophy_room": {
       "files": [
-        "cabin_fire_loop"
+        "amb_trophy_room"
       ],
       "bus": "Ambience",
-      "db": -20,
+      "db": 0,
       "pitch": [
         1.0,
         1.0
@@ -7203,7 +6914,382 @@
       "max_voices": 1,
       "priority": 1,
       "loop": true,
-      "doc": "Package E placeholder alias of amb.fire at -20 until Reel delivers trophy-room bed."
+      "doc": "48.000 s seamless hall bed at −26 LUFS in the file. Start with sfx.loop_start(&\"amb.trophy_room\", fade) on hall enter; loop_stop / 0.8 s crossfade out on leave. db 0 — do not apply the map default −8."
+    },
+    "board.slide": {
+      "files": [
+        "board_slide"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Heavy wooden panel sliding on a rail, cog click at the end (0.38 s). Replaces Package C placeholder alias of cabin.item_whoosh."
+    },
+    "board.bump": {
+      "files": [
+        "board_bump"
+      ],
+      "bus": "UI",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 300,
+      "max_voices": 1,
+      "priority": 1,
+      "doc": "Wood knock at the end of travel (0.15 s). Replaces placeholder alias of cabin.locked."
+    },
+    "board.hover_slot": {
+      "files": [
+        "board_hover_slot"
+      ],
+      "bus": "UI",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 1,
+      "priority": 0,
+      "doc": "Tiny glass tick (0.05 s). cooldown_ms 60 per ASSETS.md. Replaces placeholder alias of ui.hover_menu."
+    },
+    "board.satchel_in": {
+      "files": [
+        "board_satchel_in"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.96,
+        1.06
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Leather bag lifted and set down (0.40 s). Replaces placeholder alias of cabin.item_pop."
+    },
+    "board.satchel_rustle": {
+      "files": [
+        "board_satchel_rustle"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.96,
+        1.06
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Leather flap and rummage (0.30 s). Replaces placeholder alias of cabin.item_pop."
+    },
+    "board.satchel_out": {
+      "files": [
+        "board_satchel_out"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.96,
+        1.06
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Bag set aside (0.30 s). Replaces placeholder alias of cabin.item_pop."
+    },
+    "board.rise_glint": {
+      "files": [
+        "board_rise_glint"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.05
+      ],
+      "cooldown_ms": 400,
+      "max_voices": 1,
+      "priority": 0,
+      "doc": "Rising shimmer (0.50 s). Bus is SFX per ASSETS.md (placeholder had been UI via cabin.glint). pitch ±5%."
+    },
+    "board.whoosh": {
+      "files": [
+        "board_whoosh"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Soft airy flight (0.50 s). Replaces placeholder alias of cabin.item_whoosh."
+    },
+    "board.poof": {
+      "files": [
+        "board_poof"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Dusty poof with a small sparkle tail (0.30 s). Replaces placeholder alias of cabin.item_burst."
+    },
+    "board.light_chime_1": {
+      "files": [
+        "board_light_chime_1"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Bell chime C5 (523.25 Hz), 0.8 s, −16 dBFS peak. Play for light 1; do not also pitch-shift."
+    },
+    "board.light_chime_2": {
+      "files": [
+        "board_light_chime_2"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Bell chime D5 (587.33 Hz). Play for light 2."
+    },
+    "board.light_chime_3": {
+      "files": [
+        "board_light_chime_3"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Bell chime E5 (659.26 Hz). Play for light 3."
+    },
+    "board.light_chime_4": {
+      "files": [
+        "board_light_chime_4"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Bell chime G5 (783.99 Hz). Play for light 4."
+    },
+    "board.light_chime_5": {
+      "files": [
+        "board_light_chime_5"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Bell chime A5 (880.00 Hz). Play for light 5."
+    },
+    "board.light_chime": {
+      "files": [
+        "board_light_chime_1"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 90,
+      "max_voices": 2,
+      "priority": 2,
+      "doc": "Fallback for the existing board.light_chime cue (homecoming.gd currently plays this with chromatic pitch_mul +1 semitone per light). That path will not land on the pentatonic C–D–E–G–A set. Prefer board.light_chime_1..5 with pitch [1,1]. File here is chime 1 (C5) only, so leftover pitch_mul does not double-pitch a pre-tuned D/E/G/A file."
+    },
+    "board.lever_ready": {
+      "files": [
+        "board_lever_ready"
+      ],
+      "bus": "Stings",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "doc": "Warm ta-da glow swell when the 5th light lands (1.0 s). Replaces placeholder alias of sting.unlock."
+    },
+    "board.lever_clunk": {
+      "files": [
+        "board_lever_clunk"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "doc": "Big brass lever thrown, ratchet and clunk (0.50 s). Replaces placeholder alias of cabin.stamp_thunk."
+    },
+    "board.rumble": {
+      "files": [
+        "board_rumble"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2,
+      "duck_music": {
+        "db": -8,
+        "attack_s": 0.05,
+        "release_s": 0.6
+      },
+      "doc": "Deep earth rumble with falling grit and a beam groan (1.70 s). duck_music −8 (attack 0.05 s, release 0.6 s) per ASSETS.md. board_sequences.gd also calls sfx.duck_music(-8) in code — keep both or drop the manual call once the cue flag is wired, but do not double-duck."
+    },
+    "sting.portal_open": {
+      "files": [
+        "sting_portal_open"
+      ],
+      "bus": "Stings",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "duck_music": {
+        "db": -8,
+        "attack_s": 0.05,
+        "release_s": 0.6
+      },
+      "doc": "Portal stinger 3.60 s at −20 LUFS with a mid scoop for Nib lines. Unresolved open chord; no melody peak after 1.5 s. duck_music −8."
+    },
+    "board.complete_chime": {
+      "files": [
+        "board_complete_chime"
+      ],
+      "bus": "Stings",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "doc": "Gold-leaf shimmer sweep and resolved C-major chime for a 100% board (1.50 s). Replaces placeholder alias of sting.unlock."
+    },
+    "sting.shortcut": {
+      "files": [
+        "sting_shortcut"
+      ],
+      "bus": "Stings",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 3,
+      "duck_music": {
+        "db": -8,
+        "attack_s": 0.05,
+        "release_s": 0.6
+      },
+      "doc": "Playful secret-found pluck figure and a door-creak tail (2.40 s). duck_music −8."
+    },
+    "board.path_draw": {
+      "files": [
+        "board_path_draw"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 1,
+      "priority": 1,
+      "doc": "Quill scratching across parchment (1.20 s). Replaces placeholder alias of cabin.map_pin."
+    },
+    "board.fog_clear": {
+      "files": [
+        "board_fog_clear"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Breathy wind dissolve (0.90 s). Replaces placeholder whoosh alias."
+    },
+    "board.badge_pop": {
+      "files": [
+        "board_badge_pop"
+      ],
+      "bus": "UI",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 1,
+      "priority": 1,
+      "doc": "Paper tag pinned (0.20 s). Replaces placeholder alias of cabin.map_pin."
     },
     "nib.react": {
       "files": [
@@ -7218,7 +7304,7 @@
       "cooldown_ms": 80,
       "max_voices": 2,
       "priority": 1,
-      "doc": "Package E placeholder until Reel delivers nib.react variants (aliases speech.nib_gasp)."
+      "doc": "Package E react cue; aliases speech.nib_gasp until Reel delivers dedicated variants."
     }
   },
   "radio": {

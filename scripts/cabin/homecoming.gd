@@ -375,12 +375,19 @@ func _flash_light(face_i: int, light_index: int, light_n: int) -> void:
 
 
 func _chime_light(light_n: int) -> void:
-	## +1 semitone per light (1→5). pitch_mul = 2^((n-1)/12)
-	var mul: float = pow(2.0, float(clampi(light_n, 1, 5) - 1) / 12.0)
+	## Baked pentatonic chimes (C5–D5–E5–G5–A5). Light i plays board.light_chime_i.
+	var n: int = clampi(light_n, 1, 5)
+	var numbered: String = "board.light_chime_%d" % n
 	if sfx != null and sfx.has_method("play_event"):
-		sfx.play_event(&"board.light_chime", {"pitch_mul": mul})
+		if _has_cue(numbered):
+			sfx.play_event(StringName(numbered))
+			return
+		if _has_cue("board.light_chime"):
+			sfx.play_event(&"board.light_chime")
+			return
+		sfx.play_event(&"cabin.shelf_chime")
 		return
-	_cue("board.light_chime")
+	_cue(numbered, "cabin.shelf_chime")
 
 
 func _maybe_light_bubble(light_n: int) -> void:
