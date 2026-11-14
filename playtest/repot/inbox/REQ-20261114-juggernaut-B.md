@@ -38,6 +38,7 @@ Nathan locked Juggernaut monster art B. Cloud replaced the 17 tip PNG paths unde
 - All rows shot at 1680×1040 (or note viewport).
 - Face, hair, and blue heater are readable without guessing in 01–05.
 - Old tip grey plate / bucket-helm Juggernaut must not appear.
+- Skin must read as normal tan, with no red/maroon on the face or limbs.
 - `RESULT.md` marks each id pass/fail with one line of evidence.
 
 ## Outbox path
