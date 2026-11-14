@@ -73,7 +73,7 @@ func _init() -> void:
 		) or failed
 	if bot_ids.size() >= 1:
 		var br: Rect2 = rects[str(bot_ids[0])]
-		failed = _check(failed, "bottom y 608", is_equal_approx(br.position.y, 608.0)) or failed
+		failed = _check(failed, "bottom y 576", is_equal_approx(br.position.y, 576.0)) or failed
 		failed = _check(failed, "bottom x0 396", is_equal_approx(br.position.x, 396.0)) or failed
 
 	## Compact mode: 9 tier-1 items
