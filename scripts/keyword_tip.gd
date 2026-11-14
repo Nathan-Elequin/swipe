@@ -48,6 +48,8 @@ var _tween: Tween
 var _tutorial_layer: CanvasLayer = null
 var _font_title: Font
 var _font_body: Font
+## Gold teach pulse lives off the card so card modulate.a=0 cannot hide it.
+var _teach_halo: TextureRect = null
 
 
 func setup() -> void:
@@ -301,6 +303,7 @@ func hide_def() -> void:
 		_star.visible = false
 	if _leader:
 		_leader.visible = false
+	_hide_teach_halo()
 	set_process(false)
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	_release_active()
@@ -689,7 +692,8 @@ func _pump_teach() -> void:
 
 
 func _pulse_then_open_star() -> void:
-	## 3 gold pulses on the card chrome, then fade the parchment in + new_star.
+	## 3 gold pulses on the chip / pip, then fade the parchment in + new_star.
+	## Halo is NOT a child of this card — card modulate.a stays 0 during pulses.
 	## Tweens use TWEEN_PAUSE_PROCESS so they run while the tree is paused.
 	if _tween:
 		_tween.kill()
@@ -700,37 +704,112 @@ func _pulse_then_open_star() -> void:
 	visible = true
 	_star.visible = false
 	var halo: TextureRect = _ensure_teach_halo()
+	_sync_teach_halo_rect()
 	halo.visible = true
 	halo.modulate = Color("E8C36A", 0.0)
 	_tween = create_tween()
 	_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	## Three gold pulses (0→1→0 each TEACH_PULSE seconds).
+	## Three gold pulses (0→1→0 each TEACH_PULSE seconds) on the chip/pip halo.
 	for _i in TEACH_PULSES:
 		_tween.tween_property(halo, "modulate:a", 1.0, TEACH_PULSE * 0.45)
 		_tween.tween_property(halo, "modulate:a", 0.0, TEACH_PULSE * 0.55)
+	_tween.tween_callback(_hide_teach_halo)
 	_tween.tween_callback(_fade_open)
 	_tween.tween_callback(_pop_star)
-	_tween.tween_callback(func() -> void:
-		if halo != null:
-			halo.visible = false
-	)
+
+
+func _halo_host() -> Node:
+	## Prefer Main so the halo paints with the fight HUD, not under card alpha.
+	## Never parent under this card — card modulate.a=0 would hide the pulse.
+	if not is_inside_tree():
+		return null
+	var main: Node = get_tree().root.get_node_or_null("Main")
+	if main != null:
+		return main
+	var p: Node = get_parent()
+	if p == null:
+		return null
+	## Window/Viewport is a poor Control host in headless; use a sibling layer.
+	var existing: Node = p.get_node_or_null("KeywordTeachHaloHost")
+	if existing != null:
+		return existing
+	var host := Control.new()
+	host.name = "KeywordTeachHaloHost"
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.z_index = 142
+	host.process_mode = Node.PROCESS_MODE_ALWAYS
+	p.add_child(host)
+	return host
+
+
+func _chip_pulse_rect() -> Rect2:
+	## Spec §4: pulses play on the chip or wheel pip being taught.
+	var r := Rect2()
+	if _anchor != null and is_instance_valid(_anchor) and _anchor.visible:
+		r = _anchor.get_global_rect()
+		if r.size.x < 8.0:
+			r.size = _anchor.get_combined_minimum_size()
+	elif _anchor_rect.size.x > 0.0:
+		r = _anchor_rect
+	else:
+		## Preview / no chip: a chip-sized pad beside the docked card.
+		var card := get_global_rect()
+		if card.size.x < 8.0:
+			card = Rect2(Vector2(200, 200), Vector2(CARD_W, CARD_MIN_H))
+		r = Rect2(card.position + Vector2(-56, 8), Vector2(48, 32))
+	## Halo margins (~6–8 px) and a readable minimum.
+	r = r.grow(8.0)
+	if r.size.x < 36.0 or r.size.y < 28.0:
+		var c: Vector2 = r.get_center()
+		var w: float = maxf(r.size.x, 36.0)
+		var h: float = maxf(r.size.y, 28.0)
+		r = Rect2(c - Vector2(w, h) * 0.5, Vector2(w, h))
+	return r
+
+
+func _sync_teach_halo_rect() -> void:
+	if _teach_halo == null or not is_instance_valid(_teach_halo):
+		return
+	var r: Rect2 = _chip_pulse_rect()
+	_teach_halo.global_position = r.position
+	_teach_halo.size = r.size
+
+
+func _hide_teach_halo() -> void:
+	if _teach_halo == null or not is_instance_valid(_teach_halo):
+		return
+	_teach_halo.visible = false
+	_teach_halo.modulate.a = 0.0
+
+
+func _free_teach_halo() -> void:
+	if _teach_halo != null and is_instance_valid(_teach_halo):
+		_teach_halo.queue_free()
+	_teach_halo = null
 
 
 func _ensure_teach_halo() -> TextureRect:
-	var existing: Node = get_node_or_null("TeachHalo")
-	if existing is TextureRect:
-		return existing as TextureRect
+	## Drop a leftover child halo from older builds (would inherit card alpha).
+	var legacy: Node = get_node_or_null("TeachHalo")
+	if legacy != null:
+		remove_child(legacy)
+		legacy.queue_free()
+	if _teach_halo != null and is_instance_valid(_teach_halo):
+		var host: Node = _halo_host()
+		if host != null and _teach_halo.get_parent() != host:
+			_teach_halo.reparent(host)
+		_sync_teach_halo_rect()
+		return _teach_halo
 	var halo := TextureRect.new()
 	halo.name = "TeachHalo"
 	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	halo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	halo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	halo.offset_left = -8
-	halo.offset_top = -8
-	halo.offset_right = 8
-	halo.offset_bottom = 8
+	halo.top_level = true
+	halo.z_index = 142
+	halo.process_mode = Node.PROCESS_MODE_ALWAYS
 	halo.modulate = Color("E8C36A", 0.0)
-	halo.show_behind_parent = true
+	halo.visible = false
 	if ResourceLoader.exists("res://assets/ui/keyword/kw_chip_halo_9.png"):
 		halo.texture = load("res://assets/ui/keyword/kw_chip_halo_9.png") as Texture2D
 		halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -742,8 +821,15 @@ func _ensure_teach_halo() -> TextureRect:
 		halo.texture = ImageTexture.create_from_image(img)
 		halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		halo.stretch_mode = TextureRect.STRETCH_SCALE
-	add_child(halo)
-	move_child(halo, 0)
+	var host2: Node = _halo_host()
+	if host2 != null:
+		host2.add_child(halo)
+	else:
+		add_child(halo)
+	_teach_halo = halo
+	if not tree_exiting.is_connected(_free_teach_halo):
+		tree_exiting.connect(_free_teach_halo)
+	_sync_teach_halo_rect()
 	return halo
 
 
@@ -768,6 +854,7 @@ func _finish_teach_dismiss() -> void:
 	_first_sight = false
 	if _star:
 		_star.visible = false
+	_hide_teach_halo()
 	call_deferred("_pump_teach")
 
 
