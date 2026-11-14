@@ -32,6 +32,7 @@ const VIEW_FRAME := preload("res://scripts/ui/view_frame.gd")
 ## Left of fireplace: study → workshop → loft. Right: trophy hall.
 const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall"]
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
+const HOMECOMING_SCR := preload("res://scripts/cabin/homecoming.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 const RUG_SECRET_ID := "poison_flask"
 const RUG_COPY := {
@@ -54,6 +55,8 @@ var tutorial_declined: bool = false
 var rooms_unlocked: Array = ["main"]
 var key_ring_seen: bool = false
 var invert_scroll: bool = false
+## Package E wires the settings toggle. Package C reads this defensively.
+var reduce_motion: bool = false
 var ending_seen: bool = false
 var deepest_belly: int = 0
 ## Lifetime dungeon clears across runs (Nathan lock). Drives Rope Exit wall tallies.
@@ -844,7 +847,12 @@ func show_menu(room: String = "main") -> void:
 
 
 func _resume_pending_bank_if_idle() -> void:
-	pass
+	if _busy() or _arriving or bank_pending.is_empty():
+		return
+	if not is_room_unlocked("hall"):
+		return
+	await _stage_homecoming_bank()
+
 
 func hide_for_run() -> void:
 	item_unhovered.emit()
@@ -1689,69 +1697,22 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			return
 		if _arrive_skip == 1:
 			_arrive_skip = 0
-	if _arrive_skip >= 2:
-		await _sit_into_chair(true)
-	else:
-		_set_idle_hero_visible(false)
-		_show_empty_chair(true)
-		_hero.z_index = 4
-		_hero.visible = true
-		_hero.flip_h = true
-		var start_in := Vector2(220, 205) if _homecoming_kind == "loss" else Vector2(388, 205)
-		var int_spd: float = ARRIVE_INT_SPEED * (1.4 if _homecoming_kind == "loss" else 1.0)
-		_place_hero(start_in)
-		_set_hero_frame(_walk_family(true), 0)
-		_beat = "int_walk"
-		await _walk_hero(start_in, Vector2(70, 205), true, true, -1.0, int_spd)
-		if _arrive_aborted(gen):
-			return
-		if _arrive_skip >= 2:
-			await _sit_into_chair(true)
-		else:
-			_beat = "drop"
-			if _homecoming_kind == "loss":
-				await _play_sack_shake()
-			else:
-				_set_hero_frame("hero_idle_loot", 0)
-				await _wait(0.5)
-				_set_hero_frame("hero_idle_loot", 1)
-				await _wait(0.5)
-				await _play_sack_dump()
-				await _play_cheer()
-			if _arrive_aborted(gen):
-				return
-			if _homecoming_kind != "loss":
-				_sack.visible = true
-				_sack.texture = _home("loot_sack_dropped")
-				_sack.flip_h = true
-				_place_sack(Vector2(70, 205))
-			await _wait(0.3)
-			if _arrive_skip >= 2:
-				await _sit_into_chair(true)
-			else:
-				_beat = "to_chair"
-				await _walk_hero(Vector2(70, 205), Vector2(10, 205), false, true, -1.0, ARRIVE_INT_SPEED)
-				if _arrive_aborted(gen):
-					return
-				_hero.flip_h = false
-				_place_hero(Vector2(10, 205))
-				_beat = "sit"
-				await _play_sit()
-				if _arrive_aborted(gen):
-					return
-				_settle_arrive_chair()
 	if _arrive_aborted(gen):
 		return
+	## Package C: exterior click fades straight into the trophy hall (or main for
+	## key-ring / locked hall). Skip the old main-room sack/chair walk when landing
+	## in the hall — Left from the board still pans to main.
 	_arriving = false
 	_door_busy = false
 	_door_hit.disabled = true
+	_hero.visible = false
+	_set_idle_hero_visible(false)
 	_show_empty_chair(false)
 	if _arrive_pending_name != "":
 		var pending_n: String = _arrive_pending_name
 		var pending_r: String = _arrive_pending_room
 		_arrive_pending_name = ""
 		_arrive_pending_room = ""
-		## Interrupted arrive: credit counters + door recovery; key-ring may wait until a quieter beat.
 		_credit_homecoming_counters()
 		_save()
 		_beat = "idle"
@@ -1760,50 +1721,54 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		_on_hotspot(pending_n, pending_r)
 		return
 	var want_key_ring: bool = _credit_homecoming_counters()
-	if _homecoming_kind == "loss":
-		pass
-	else:
-		_beat = "idle"
-		if _first_speech_ready():
-			await _say_first_speech()
-			if _arrive_aborted(gen):
-				return
-		## Tutorial clear → cabin with zero bank credit. Teach shelves once; never fake a haul.
-		if _held_ids.is_empty() and _new_ids.is_empty() and tutorial_done and not tutorial_declined \
-				and needs_lesson("tutorial_return") and _dialog != null:
-			mark_lesson_said("tutorial_return")
-			_dialog.say(["nib.lesson.tutorial_return"])
-			await _dialog.finished
-			if _arrive_aborted(gen):
-				return
-		var p: Vector2i = cabinet_progress()
-		if p.y > 0:
-			var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
-			for m in [25, 50, 75]:
-				if pct >= m and not milestones_said.has(m):
-					milestones_said.append(m)
-					if _dialog:
-						_dialog.say(["nib.milestone.%d" % m])
-			if pct >= 100 and not ending_seen:
-				_save()
-				await play_ending()
-				return
-		## First successful full dungeon return (0+ new uniques) starts the key-ring tour.
-		if want_key_ring:
-			_save()
-			await play_key_ring()
-			## Key ring finalizer stages pending bank when present.
-			if _arrive_aborted(gen):
-				return
-			_save()
-			_beat = "idle"
-			_play_station()
-			_apply_gate()
+	_beat = "idle"
+	if _first_speech_ready() and _current_room == "main":
+		await _say_first_speech()
+		if _arrive_aborted(gen):
 			return
-		if not bank_pending.is_empty():
+	## Tutorial clear → cabin with zero bank credit. Teach once; never fake a haul.
+	if _held_ids.is_empty() and _new_ids.is_empty() and tutorial_done and not tutorial_declined \
+			and needs_lesson("tutorial_return") and _dialog != null:
+		mark_lesson_said("tutorial_return")
+		_dialog.say(["nib.lesson.tutorial_return"])
+		await _dialog.finished
+		if _arrive_aborted(gen):
+			return
+	var p: Vector2i = cabinet_progress()
+	if p.y > 0 and _homecoming_kind != "loss":
+		var pct: int = int(round(100.0 * float(p.x) / float(p.y)))
+		for m in [25, 50, 75]:
+			if pct >= m and not milestones_said.has(m):
+				milestones_said.append(m)
+				if _dialog:
+					_dialog.say(["nib.milestone.%d" % m])
+		if pct >= 100 and not ending_seen:
+			_save()
+			await play_ending()
+			return
+	## First successful full dungeon return starts the key-ring tour in main.
+	if want_key_ring:
+		_save()
+		await play_key_ring()
+		## Key ring finalizer stages pending bank (hall homecoming) when present.
+		if _arrive_aborted(gen):
+			return
+		## Nothing pending: still run empty/loss homecoming line in the hall.
+		if bank_pending.is_empty() and is_room_unlocked("hall"):
 			await _stage_homecoming_bank()
-			if _arrive_aborted(gen):
-				return
+		_save()
+		_beat = "idle"
+		_play_station()
+		_apply_gate()
+		return
+	## Hall homecoming (items, empty win line, or loss line).
+	if is_room_unlocked("hall"):
+		if _current_room != "hall":
+			_snap_to("hall")
+			rebuild_board()
+		await _stage_homecoming_bank()
+		if _arrive_aborted(gen):
+			return
 	_save()
 	_beat = "idle"
 	_play_station()
@@ -2435,7 +2400,7 @@ func rebuild_board() -> void:
 			hall.attach_trophy_board(_trophy_board)
 		else:
 			hall.add_child(_trophy_board)
-	_trophy_board.reduce_motion = false
+	_trophy_board.reduce_motion = reduce_motion
 	_trophy_board.invert_scroll = invert_scroll
 	_trophy_board.set_sfx(sfx)
 	_trophy_board.set_item_textures(tex_by_item)
@@ -2531,6 +2496,10 @@ func _hall_seen_dict() -> Dictionary:
 	return out
 
 func _interior_arrive_room() -> String:
+	## First successful return: main for the key-ring tour (SCREEN §6 / §9).
+	## Otherwise fade straight into the trophy hall, skipping the main walk.
+	if counts_as_successful_dungeon_return() and not key_ring_seen:
+		return "main"
 	return "hall" if is_room_unlocked("hall") else "main"
 
 func _biome_rules() -> Dictionary:
@@ -2555,14 +2524,36 @@ func _hide_lore_panel() -> void:
 	pass
 
 func _offer_bank_sequence() -> void:
-	pass
+	## swipe_ids defers here. Only stage when the cabin is already idle in-hall.
+	if _arriving or _bank_busy or _homecoming_bank_staging or _bank_from_push_block:
+		return
+	if bank_pending.is_empty() or not is_room_unlocked("hall"):
+		return
+	if not _int_root.visible:
+		return
+	call_deferred("_stage_homecoming_bank")
+
 
 func stage_homecoming_bank() -> void:
 	await _stage_homecoming_bank()
 
 
 func _stage_homecoming_bank() -> void:
-	pass
+	## Pan to hall if needed, then run Package C Homecoming (satchel timeline).
+	## Empty pending still runs (Nib empty/loss line). Push-block skips FX.
+	if _bank_busy or _bank_from_push_block:
+		return
+	if not is_room_unlocked("hall"):
+		return
+	var tok: int = _claim_homecoming_staging()
+	if _current_room != "hall":
+		_snap_to("hall")
+		rebuild_board()
+	if not _owns_homecoming_staging(tok):
+		return
+	_clear_homecoming_staging(tok)
+	await _play_bank_sequence()
+
 
 func _haul_includes_pool(seq: Array, pool_id: String) -> bool:
 	for raw in seq:
@@ -2573,251 +2564,32 @@ func _haul_includes_pool(seq: Array, pool_id: String) -> bool:
 	return false
 
 
-func _play_bank_sequence(ceremony_gen: int = -1) -> void:
-	pass
+func _play_bank_sequence(_ceremony_gen: int = -1) -> void:
+	## Package C: TrophyBoard homecoming owns the timeline (and ceremony gen).
+	## After items, Homecoming prompts lever READY then hands off to BoardSequences
+	## via _maybe_run_board_complete_sequences (Package D — do not duplicate).
+	rebuild_board()
+	_ensure_board_sequences()
+	if _trophy_board == null or not is_instance_valid(_trophy_board):
+		return
+	if _trophy_board.has_method("set_hold"):
+		_trophy_board.set_hold(bank_pending)
+	if _board_sequences != null and is_instance_valid(_board_sequences):
+		_board_sequences.reduce_motion = reduce_motion
+	await HOMECOMING_SCR.run(_trophy_board, self, sfx)
+	_bank_played = true
+	_bank_fresh = ""
+	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("board_viewed"):
+		## Do not mark fresh claims viewed during the ceremony — pips stay until dwell.
+		board_viewed = _trophy_board.board_viewed()
+	_save()
+
 
 func _bank_is_push_block() -> bool:
 	# S2/S3 set this before interrupt banks; absent on tips without that wire.
 	if "_bank_from_push_block" in self:
 		return bool(get("_bank_from_push_block"))
 	return false
-
-
-func _bank_fx_host() -> Control:
-	return self
-
-
-func _bank_bag_origin_local(host: Control) -> Vector2:
-	if host == null:
-		return Vector2.ZERO
-	return Vector2(host.size.x * 0.5, host.size.y * 0.78)
-
-
-func _bank_fx_bag_smoke(ceremony_gen: int = -1) -> void:
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	var host: Control = _bank_fx_host()
-	var origin: Vector2 = _bank_bag_origin_local(host)
-	KIT.cue(sfx, &"cabin.sack")
-	var smoke_sf := _frames(
-		"bag_smoke",
-		["smoke_puff_f0", "smoke_puff_f1", "smoke_puff_f2"],
-		1000.0 / 140.0,
-		false
-	)
-	if smoke_sf.get_frame_count("bag_smoke") == 0:
-		var dust := ["fx/dust_puff_f0.png", "fx/dust_puff_f1.png", "fx/dust_puff_f2.png"]
-		if KIT.load_tex(dust[0]) != null:
-			var puff: AnimatedSprite2D = KIT.anim_sprite(dust, "dust", 1000.0 / 90.0, false, Vector2.ZERO)
-			puff.centered = true
-			puff.position = origin
-			puff.z_index = 12
-			host.add_child(puff)
-			if ceremony_gen >= 0:
-				_track_bank_ceremony_fx(puff)
-			if puff.sprite_frames and puff.sprite_frames.get_frame_count("dust") > 0:
-				puff.play("dust")
-				await _await_bank_ceremony_node_signal(puff.animation_finished, ceremony_gen)
-			if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-				_untrack_bank_ceremony_fx(puff)
-				if is_instance_valid(puff):
-					puff.queue_free()
-				return
-			_untrack_bank_ceremony_fx(puff)
-			if is_instance_valid(puff):
-				puff.queue_free()
-			return
-		# Code-only fallback when no puff art is available.
-		var blob := ColorRect.new()
-		blob.color = Color("c8b89a", 0.55)
-		blob.size = Vector2(96, 72)
-		blob.pivot_offset = blob.size * 0.5
-		blob.position = origin - blob.pivot_offset
-		blob.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		blob.z_index = 12
-		host.add_child(blob)
-		if ceremony_gen >= 0:
-			_track_bank_ceremony_fx(blob)
-		var tw := create_tween()
-		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		if ceremony_gen >= 0:
-			_track_bank_ceremony_tween(tw)
-		tw.set_parallel(true)
-		tw.tween_property(blob, "scale", Vector2(1.6, 1.6), 0.28)
-		tw.tween_property(blob, "modulate:a", 0.0, 0.28)
-		await _await_bank_ceremony_tween(tw, ceremony_gen)
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			_untrack_bank_ceremony_fx(blob)
-			if is_instance_valid(blob):
-				blob.queue_free()
-			return
-		_untrack_bank_ceremony_fx(blob)
-		if is_instance_valid(blob):
-			blob.queue_free()
-		return
-	var smoke := AnimatedSprite2D.new()
-	smoke.centered = true
-	smoke.position = origin
-	smoke.scale = Vector2(1.35, 1.35)
-	smoke.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	smoke.sprite_frames = smoke_sf
-	smoke.z_index = 12
-	host.add_child(smoke)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_fx(smoke)
-	smoke.play("bag_smoke")
-	await _await_bank_ceremony_node_signal(smoke.animation_finished, ceremony_gen)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		_untrack_bank_ceremony_fx(smoke)
-		if is_instance_valid(smoke):
-			smoke.queue_free()
-		return
-	_untrack_bank_ceremony_fx(smoke)
-	if is_instance_valid(smoke):
-		smoke.queue_free()
-
-
-func _bank_fx_rays(ceremony_gen: int = -1) -> void:
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	var host: Control = _bank_fx_host()
-	var origin: Vector2 = _bank_bag_origin_local(host)
-	KIT.cue(sfx, &"cabin.item_burst")
-	var rays: Array = []
-	var n := 8
-	for i in n:
-		var ray := ColorRect.new()
-		ray.color = Color("ffd84a", 0.72)
-		ray.size = Vector2(5.0, 140.0)
-		ray.pivot_offset = Vector2(2.5, 0.0)
-		ray.position = origin - ray.pivot_offset
-		ray.rotation = TAU * float(i) / float(n) + 0.12
-		ray.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		ray.z_index = 11
-		var mat := CanvasItemMaterial.new()
-		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		ray.material = mat
-		host.add_child(ray)
-		rays.append(ray)
-		if ceremony_gen >= 0:
-			_track_bank_ceremony_fx(ray)
-		var tw := create_tween()
-		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		if ceremony_gen >= 0:
-			_track_bank_ceremony_tween(tw)
-		## Rays do not await these tweens (bounded `_wait` below); track so kill frees them.
-		tw.set_parallel(true)
-		tw.tween_property(ray, "size:y", 220.0, 0.22)
-		tw.tween_property(ray, "modulate:a", 0.0, 0.32).set_delay(0.08)
-	# Soft gold flash behind the rays.
-	var flash := ColorRect.new()
-	flash.color = Color("fff3d6", 0.35)
-	flash.size = Vector2(160, 160)
-	flash.pivot_offset = flash.size * 0.5
-	flash.position = origin - flash.pivot_offset
-	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	flash.z_index = 10
-	host.add_child(flash)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_fx(flash)
-	var ftw := create_tween()
-	ftw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_tween(ftw)
-	ftw.set_parallel(true)
-	ftw.tween_property(flash, "scale", Vector2(1.8, 1.8), 0.3)
-	ftw.tween_property(flash, "modulate:a", 0.0, 0.3)
-	await _wait(0.34, true)
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		for r0 in rays:
-			_untrack_bank_ceremony_fx(r0 as Node)
-			if is_instance_valid(r0):
-				(r0 as Node).queue_free()
-		_untrack_bank_ceremony_fx(flash)
-		if is_instance_valid(flash):
-			flash.queue_free()
-		return
-	for r in rays:
-		_untrack_bank_ceremony_fx(r as Node)
-		if is_instance_valid(r):
-			(r as Node).queue_free()
-	_untrack_bank_ceremony_fx(flash)
-	if is_instance_valid(flash):
-		flash.queue_free()
-
-
-func _bank_mount_global_center(_item_id: String, _pool_id: String) -> Vector2:
-	var host: Control = _bank_fx_host()
-	var hr: Rect2 = host.get_global_rect()
-	return hr.position + hr.size * 0.5
-
-
-func _bank_fx_arc_to_mount(item_id: String, pool_id: String, ceremony_gen: int = -1) -> void:
-	## ceremony_gen < 0: debug/non-ceremony path (no ownership). Owned path: kill tween on
-	## invalidate; never play item_pop or leave callbacks mutating after cancel.
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		return
-	var host: Control = _bank_fx_host()
-	var from_local: Vector2 = _bank_bag_origin_local(host)
-	var to_global: Vector2 = _bank_mount_global_center(item_id, pool_id)
-	var to_local: Vector2 = host.get_global_transform_with_canvas().affine_inverse() * to_global
-	var tex: Texture2D = tex_by_item.get(item_id, null)
-	if tex == null and art != null:
-		tex = art.item_tex(item_id)
-	var spr := Sprite2D.new()
-	spr.centered = true
-	spr.position = from_local
-	spr.z_index = 14
-	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	if tex != null:
-		spr.texture = tex
-		spr.scale = _item_spr_scale(tex, 0.85)
-	else:
-		# Tiny stand-in chip when the item texture is missing.
-		var chip := ColorRect.new()
-		chip.color = Color("ffd84a")
-		chip.size = Vector2(28, 28)
-		chip.position = Vector2(-14, -14)
-		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		spr.add_child(chip)
-	host.add_child(spr)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_fx(spr)
-	_attach_fly_fx(spr)
-	KIT.cue(sfx, &"cabin.item_whoosh")
-	var peak: Vector2 = Vector2(
-		(from_local.x + to_local.x) * 0.5,
-		minf(from_local.y, to_local.y) - 64.0
-	)
-	var start_scale: Vector2 = spr.scale
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	if ceremony_gen >= 0:
-		_track_bank_ceremony_tween(tw)
-	tw.tween_method(func(t: float) -> void:
-		if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-			return
-		if is_instance_valid(spr):
-			spr.position = _quad_bez(from_local, peak, to_local, t)
-	, 0.0, 1.0, 0.38)
-	tw.parallel().tween_property(spr, "scale", start_scale * 1.2, 0.2)
-	tw.parallel().tween_property(spr, "scale", start_scale * 0.95, 0.18).set_delay(0.2)
-	## Cancel-safe: kill() does not emit finished — race abort pulse.
-	await _await_bank_ceremony_tween(tw, ceremony_gen)
-	## Stale / killed tween: no late pop cue (spr already freed on invalidate).
-	if ceremony_gen >= 0 and not _owns_bank_ceremony(ceremony_gen):
-		_untrack_bank_ceremony_fx(spr)
-		if is_instance_valid(spr):
-			spr.queue_free()
-		return
-	KIT.cue(sfx, &"cabin.item_pop")
-	_untrack_bank_ceremony_fx(spr)
-	if is_instance_valid(spr):
-		spr.queue_free()
-
-
-func _bank_fx_loud_count(_pool_adds: Dictionary, _quota: int, _ceremony_gen: int = -1) -> void:
-	return
 
 
 func _clear_bank_anim() -> void:
@@ -3278,6 +3050,7 @@ func _read_v2(parsed: Dictionary) -> void:
 		_current_room = return_room
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
+	reduce_motion = bool(parsed.get("reduce_motion", false))
 	board_face = int(parsed.get("board_face", 0))
 	board_viewed.clear()
 	var bv: Variant = parsed.get("board_viewed", {})
@@ -3353,6 +3126,7 @@ func _save() -> void:
 	data["rooms_unlocked"] = rooms_unlocked
 	data["key_ring_seen"] = key_ring_seen
 	data["invert_scroll"] = invert_scroll
+	data["reduce_motion"] = reduce_motion
 	data["board_face"] = board_face
 	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("board_viewed"):
 		board_viewed = _trophy_board.board_viewed()

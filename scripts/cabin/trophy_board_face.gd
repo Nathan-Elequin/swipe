@@ -155,6 +155,22 @@ func slot_node(card_id: String) -> TrophyBoardSlot:
 func flash_light(light_index: int) -> void:
 	if light_index < 0 or light_index >= _lights.size():
 		return
+	if reduce_motion:
+		_set_light(light_index, true)
+		return
+	## Fire-and-forget flash frames (4 @ 16 fps). Caller does not await.
+	_play_light_flash(light_index)
+
+
+func _play_light_flash(light_index: int) -> void:
+	for fi in 4:
+		if light_index < 0 or light_index >= _lights.size():
+			return
+		var tex: Texture2D = KIT.ui_tex("trophy_board/light_flash_f%d" % fi)
+		var node: Control = _lights[light_index]
+		if node is TextureRect and tex != null:
+			(node as TextureRect).texture = tex
+		await get_tree().create_timer((1.0 / 16.0) / maxf(Engine.time_scale, 0.001)).timeout
 	_set_light(light_index, true)
 
 

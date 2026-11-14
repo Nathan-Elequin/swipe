@@ -7214,6 +7214,34 @@
 			"key": "will.witness",
 			"text": "Witnessed: {nib} (his mark)",
 			"where": "Will witness line"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "nib.board.empty.1",
+			"text": "Nothing new this time. The board can wait. It's very patient. It's a board.",
+			"where": "Win homecoming, nothing new"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "nib.board.empty.2",
+			"text": "Only things we already had. Still, you came back. That's the important bit.",
+			"where": "Win homecoming, nothing new"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.light.say.1",
+			"text": "There's a light!",
+			"where": "Bubble, 1st board light"
+		},
+		{
+			"cat": "Cabin",
+			"draft": true,
+			"key": "board.light.say.5",
+			"text": "Five! That's all five!",
+			"where": "Bubble, 5th board light"
 		}
 	],
 	"updated": "2026-11-08"
