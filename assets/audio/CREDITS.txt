@@ -514,10 +514,13 @@ item_use_victory_flask.ogg (0.35 s)
 Suno biome beds (drop-in OGGs; not rebuilt by build_audio.py)
 ------------------------------------------------------------
 music_verdant_hollow_intro.ogg / music_verdant_hollow_loop.ogg — Verdant Hollow — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-29
+music_verdant_hollow_victory.ogg (6.313 s) — Verdant Hollow — Victory outro (cut from Extend @40.247s, 6.3s) — Suno instrumental by Nathan (Dungeon Loop / refinedpolonaise473), 2026-10-30
 music_cinder_forge_a.ogg / music_cinder_forge_b.ogg / music_cinder_forge_c.ogg — Cinder Forge Approach F — Suno Forge Motif https://suno.com/s/mhvMHyfv72JqOpjX — loop trim 8.169s→73.629s (65.460s, 121 BPM) — Nathan (refinedpolonaise473), 2026-10-29
+music_cinder_forge_victory.ogg (6.792 s, 48 kHz stereo) — Cinder Forge — Victory outro (baked 0.992 s linear fade-in; loudness-matched to boss-combat forge mix) — Nathan Elequin original via Suno (Nathan-owned), 2026-11-13
 music_crystal_cavern_a.ogg / music_crystal_cavern_b.ogg / music_crystal_cavern_c.ogg — Crystal Cavern Approach F (b2; replaces sunken_mire music keys) — 119 BPM — Nathan (refinedpolonaise473), 2026-10-30
 music_ashen_crypt_a.ogg / music_ashen_crypt_b.ogg / music_ashen_crypt_c.ogg — Ashen Crypt Approach F (b3) — 113 BPM — map gain_db -2 (A+B+C stack ~1.5 dB Music-bus headroom) — Nathan (refinedpolonaise473), 2026-10-30
 music_shadow_abyss_a.ogg / _b / _c — Shadow Abyss Approach F (b5) — 200 BPM — A/B -2 dB, C +6 dB — Nathan (refinedpolonaise473), 2026-10-30
+music_shadow_abyss_victory.ogg (6.660 s, 48 kHz stereo) — Shadow Abyss — Victory outro (loudness-matched to Abyss A/B/C combat mix) — Nathan Elequin original via Suno (Nathan-owned), 2026-11-13
 music_between_dungeons.ogg (~67.447 s, ~142 BPM) — shared between-dungeon hold bed (all biomes) — Suno instrumental by Nathan (refinedpolonaise473), 2026-11-01
 
 Defeat sting (2026-11-02)
