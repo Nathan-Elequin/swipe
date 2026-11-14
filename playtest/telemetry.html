@@ -4,90 +4,254 @@
 <meta charset="utf-8">
 <title>Playtest telemetry</title>
 <style>
-  :root { --bg:#1a1612; --ink:#f3e6c8; --muted:#b9a88a; --card:#241e18; --line:#3a322b; }
+  :root {
+    --bg:#14110e; --ink:#f3e6c8; --muted:#9a8b74; --card:#1f1a16;
+    --line:#3a322b; --gold:#e8c36a; --grey:#2a241c;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.4 Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); }
-  header, .pad { padding: 20px 24px; }
-  h1 { font-size: 22px; margin: 0 0 6px; }
-  p { margin: 0 0 10px; color: var(--muted); max-width: 54em; }
-  .cfg { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  input { background: #2c251e; color: var(--ink); border: 1px solid var(--line); padding: 6px 8px; min-width: 16em; }
-  button { background: #3a2e22; color: var(--ink); border: 1px solid #c4a574; padding: 6px 12px; cursor: pointer; }
-  .status { color: #8dcb8d; min-height: 1.2em; }
-  table { border-collapse: collapse; width: 100%; margin: 0 0 28px; }
-  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
-  th { color: #e8c36a; font-weight: normal; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
-  h2 { font-size: 18px; margin: 24px 0 8px; color: #e8c36a; }
-  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 20px; }
-  .stat { background: var(--card); padding: 12px 16px; min-width: 8em; border: 1px solid var(--line); }
-  .stat b { display: block; font-size: 22px; color: #e8c36a; }
+  body { margin: 0; font: 15px/1.35 Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); }
+  header { padding: 14px 20px 8px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 18px; margin: 0 0 8px; font-weight: normal; color: var(--gold); }
+  .cfg { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  input[type="text"], input[type="password"] {
+    background: #2c251e; color: var(--ink); border: 1px solid var(--line); padding: 5px 8px; min-width: 14em;
+  }
+  button, .tab {
+    background: #3a2e22; color: var(--ink); border: 1px solid #c4a574; padding: 5px 12px; cursor: pointer; font: inherit;
+  }
+  .tab.on { background: #5a4630; color: #ffe3a5; }
+  .status { color: #8dcb8d; min-height: 1.1em; margin: 8px 0 0; font-size: 13px; }
+  label { color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .tabs { display: flex; gap: 6px; padding: 10px 20px 0; }
+  .hint { color: var(--muted); font-size: 13px; padding: 4px 20px 10px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 8px 20px 28px; }
+  .col { background: var(--card); border: 1px solid var(--line); min-height: 12em; }
+  .col h2 { margin: 0; padding: 8px 10px; font-size: 14px; font-weight: normal; color: var(--gold); border-bottom: 1px solid var(--line); }
+  .band { padding: 8px 8px 4px; color: var(--muted); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 8px 12px; }
+  .cell {
+    width: 56px; height: 56px; position: relative; background: var(--grey);
+    border: 1px solid #100e0c; image-rendering: pixelated;
+  }
+  .cell img {
+    width: 48px; height: 48px; position: absolute; left: 4px; top: 4px;
+    image-rendering: pixelated; pointer-events: none;
+  }
+  .cell .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); text-align: center; padding: 4px; }
+  .tip {
+    position: fixed; z-index: 20; max-width: 22em; padding: 8px 10px;
+    background: #100e0c; border: 1px solid var(--gold); color: var(--ink);
+    font-size: 13px; pointer-events: none; display: none;
+  }
+  .tip b { color: var(--gold); }
 </style>
 </head>
 <body>
 <header>
-  <h1>Playtest telemetry</h1>
-  <p>Campaign dungeons only. Pick-two take rate, survive-with-item, claimed-on-win, monster presence vs survive — each compared inside its tier. Opening six are held, never picks. Rope home after a clear is still a dungeon win.</p>
+  <h1>Playtest board</h1>
   <div class="cfg">
-    <input id="url" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
-    <input id="token" placeholder="shared Send token" type="password">
-    <label style="color:var(--muted);display:flex;align-items:center;gap:6px"><input id="test" type="checkbox" checked style="min-width:auto"> Include F5</label>
-    <button id="load">Load live</button>
-    <button id="example">Show worked example</button>
+    <input id="url" type="text" placeholder="https://swipe-playtest-inbox.vaelequin.workers.dev">
+    <input id="token" type="password" placeholder="shared Send token">
+    <label><input id="test" type="checkbox" checked> Include F5</label>
+    <button id="load" type="button">Load live</button>
+    <button id="example" type="button">Example</button>
   </div>
   <p class="status" id="status"></p>
 </header>
-<div class="pad" id="board"></div>
+<div class="tabs">
+  <button type="button" class="tab on" data-sec="survive" title="Of dungeons that included this card, how often the player lived. Items and monsters. Compared only inside Weak, Tough, or Deadly.">Survive</button>
+  <button type="button" class="tab" data-sec="popularity" title="When this item was one of two pick-two cards, how often they took it. Rerolls count as a miss. Opening six do not count.">Popularity</button>
+  <button type="button" class="tab" data-sec="keep" title="Of wins where they had this item, how often it was still in a hotbar seat. Spent still counts.">Keep</button>
+</div>
+<p class="hint" id="hint"></p>
+<div class="board" id="board"></div>
+<div class="tip" id="tip"></div>
+<script src="telemetry-art.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
+const ART = window.ART || {};
+const N_MIN = 8;
+const TIER_NAME = { 1: "Weak", 2: "Tough", 3: "Deadly" };
+const HINT = {
+  survive: "Survive — lived the dungeon. Grey until 8 samples in that tier. Red is worse for the player than the rest of this column.",
+  popularity: "Popularity — took it from pick-two. Opening six are not here. Grey until 8 offers.",
+  keep: "Keep — still in a hotbar seat when they won. Spent still counts. Grey until 8 wins with it.",
+};
+const TIPS = {
+  survive_item: (r, v) => `<b>Survive ${fmt(v)}</b><br>Of dungeons where this was in the hand (opening six, a pick, or carried in), how often they lived. ${r.held || 0} dungeons, ${r.held_win || 0} lived.`,
+  survive_mon: (r, v) => `<b>Survive ${fmt(v)}</b><br>Of dungeons where this sat on the wheel, how often they lived. ${r.seated || 0} dungeons, ${r.seated_win || 0} lived.`,
+  popularity: (r, v) => `<b>Take ${fmt(v)}</b><br>When this was one of two pick-two cards, how often they took it. Rerolls count as a miss. ${r.taken || 0} of ${r.offered || 0} offers.`,
+  keep: (r, v) => `<b>Keep ${fmt(v)}</b><br>Of wins where they had this, how often it was still in a hotbar seat (spent still counts). ${r.claimed || 0} of ${r.held_win || 0} wins.`,
+};
+
 $("url").value = localStorage.getItem("swipe_pt_url") || "https://swipe-playtest-inbox.vaelequin.workers.dev";
 $("token").value = localStorage.getItem("swipe_pt_token") || "";
 $("load").onclick = loadLive;
 $("example").onclick = showExample;
+document.querySelectorAll(".tab").forEach((b) => b.onclick = () => setSec(b.dataset.sec));
+
+let DATA = null;
+let SEC = "survive";
 
 const EXAMPLE = {
-  counted: "made-up teaching set — not real players",
+  counted: "invented example",
   sessions: 12,
   events: 90,
-  counts: { dungeon_start: 20, dungeon_end: 20, draft_trial: 40, monster_seated: 24 },
-  dungeons: { win: 12, dead: 8 },
-  funnel: { hub_brand_new: 4, hub_middle: 3, hub_continue: 5, campaign: 10 },
+  dungeons: { win: 14, dead: 8 },
   items: [
     { id: "healing_potion", tier: 1, offered: 18, taken: 15, pick_rate: 83.3, held: 16, held_win: 12, win_rate: 75, claimed: 11, claim_rate: 91.7 },
-    { id: "net", tier: 1, offered: 14, taken: 9, pick_rate: 64.3, held: 10, held_win: 7, win_rate: 70, claimed: 6, claim_rate: 85.7 },
-    { id: "da_boot", tier: 1, offered: 12, taken: 4, pick_rate: 33.3, held: 6, held_win: 3, win_rate: 50, claimed: 3, claim_rate: 100 },
-    { id: "sledgehammer", tier: 2, offered: 8, taken: 7, pick_rate: 87.5, held: 7, held_win: 6, win_rate: 85.7, claimed: 5, claim_rate: 83.3 },
-    { id: "hex", tier: 2, offered: 6, taken: 5, pick_rate: 83.3, held: 5, held_win: 4, win_rate: 80, claimed: 0, claim_rate: 0 },
-    { id: "grimoire", tier: 3, offered: 4, taken: 2, pick_rate: 50, held: 3, held_win: 2, win_rate: 66.7, claimed: 2, claim_rate: 100 },
+    { id: "net", tier: 1, offered: 14, taken: 9, pick_rate: 64.3, held: 12, held_win: 8, win_rate: 66.7, claimed: 7, claim_rate: 87.5 },
+    { id: "da_boot", tier: 1, offered: 16, taken: 4, pick_rate: 25, held: 10, held_win: 4, win_rate: 40, claimed: 4, claim_rate: 100 },
+    { id: "shield", tier: 1, offered: 12, taken: 8, pick_rate: 66.7, held: 11, held_win: 8, win_rate: 72.7, claimed: 8, claim_rate: 100 },
+    { id: "sledgehammer", tier: 2, offered: 10, taken: 9, pick_rate: 90, held: 9, held_win: 8, win_rate: 88.9, claimed: 6, claim_rate: 75 },
+    { id: "hex", tier: 2, offered: 9, taken: 7, pick_rate: 77.8, held: 9, held_win: 8, win_rate: 75, claimed: 0, claim_rate: 0 },
+    { id: "longbow", tier: 2, offered: 8, taken: 5, pick_rate: 62.5, held: 8, held_win: 5, win_rate: 62.5, claimed: 5, claim_rate: 100 },
+    { id: "grimoire", tier: 3, offered: 8, taken: 3, pick_rate: 37.5, held: 8, held_win: 4, win_rate: 50, claimed: 4, claim_rate: 100 },
+    { id: "napalm", tier: 3, offered: 8, taken: 7, pick_rate: 87.5, held: 8, held_win: 7, win_rate: 87.5, claimed: 6, claim_rate: 85.7 },
   ],
   monsters: [
     { id: "goblin", tier: 1, seated: 14, seated_win: 12, survive_rate: 85.7 },
-    { id: "hornet", tier: 2, seated: 8, seated_win: 4, survive_rate: 50 },
-    { id: "dragon", tier: 3, seated: 3, seated_win: 0, survive_rate: 0 },
+    { id: "skeleton", tier: 1, seated: 10, seated_win: 7, survive_rate: 70 },
+    { id: "hornet_swarm", tier: 2, seated: 9, seated_win: 4, survive_rate: 44.4 },
+    { id: "golem", tier: 2, seated: 8, seated_win: 5, survive_rate: 62.5 },
+    { id: "dragon", tier: 3, seated: 8, seated_win: 1, survive_rate: 12.5 },
+    { id: "lich", tier: 3, seated: 8, seated_win: 4, survive_rate: 50 },
   ],
 };
 
-function showExample() {
-  render(EXAMPLE);
-  $("status").textContent = "Worked example. This is invented so you can read the tables. Load live for the real database.";
+function fmt(v) {
+  if (v == null || Number.isNaN(v)) return "—";
+  return Math.round(v) + "%";
 }
 
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function mean(nums) {
+  if (!nums.length) return 0;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
 }
 
-function table(title, rows, cols) {
-  if (!rows || !rows.length) return `<h2>${esc(title)}</h2><p>None yet.</p>`;
-  const head = cols.map((c) => `<th class="${c.num ? "num" : ""}">${esc(c.label)}</th>`).join("");
-  const body = rows.map((r) => {
-    const tds = cols.map((c) => {
-      let v = r[c.key];
-      if (v == null) v = "—";
-      return `<td class="${c.num ? "num" : ""}">${esc(v)}</td>`;
-    }).join("");
-    return `<tr>${tds}</tr>`;
-  }).join("");
-  return `<h2>${esc(title)}</h2><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+function sd(nums, m) {
+  if (nums.length < 2) return 12;
+  const v = nums.reduce((a, b) => a + (b - m) * (b - m), 0) / nums.length;
+  return Math.max(8, Math.sqrt(v));
+}
+
+function heatColor(value, m, spread, enough) {
+  if (!enough || value == null) return "var(--grey)";
+  const t = Math.max(-1, Math.min(1, (value - m) / spread));
+  const red = [160, 64, 48];
+  const mid = [42, 36, 28];
+  const green = [56, 140, 78];
+  const from = t < 0 ? red : mid;
+  const to = t < 0 ? mid : green;
+  const u = t < 0 ? t + 1 : t;
+  const mix = (a, b) => Math.round(a + (b - a) * u);
+  return `rgb(${mix(from[0], to[0])},${mix(from[1], to[1])},${mix(from[2], to[2])})`;
+}
+
+function setSec(sec) {
+  SEC = sec;
+  document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
+  $("hint").textContent = HINT[sec] || "";
+  if (DATA) draw();
+}
+
+function metric(row, kind) {
+  if (SEC === "survive") {
+    const v = kind === "monster" ? row.survive_rate : row.win_rate;
+    const n = kind === "monster" ? row.seated : row.held;
+    return { value: v, n: n || 0, tip: kind === "monster" ? "survive_mon" : "survive_item" };
+  }
+  if (SEC === "popularity") return { value: row.pick_rate, n: row.offered || 0, tip: "popularity" };
+  return { value: row.claim_rate, n: row.held_win || 0, tip: "keep" };
+}
+
+function sortRows(rows, kind) {
+  const copy = rows.slice();
+  copy.sort((a, b) => {
+    const am = metric(a, kind).value;
+    const bm = metric(b, kind).value;
+    if (am == null && bm == null) return 0;
+    if (am == null) return 1;
+    if (bm == null) return -1;
+    if (SEC === "popularity") return bm - am;
+    return am - bm;
+  });
+  return copy;
+}
+
+function cell(row, kind, m, spread) {
+  const met = metric(row, kind);
+  const el = document.createElement("div");
+  el.className = "cell";
+  el.style.background = heatColor(met.value, m, spread, met.n >= N_MIN);
+  const src = ART[row.id];
+  if (src) {
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = row.id;
+    el.appendChild(img);
+  } else {
+    const ph = document.createElement("div");
+    ph.className = "ph";
+    ph.textContent = row.id;
+    el.appendChild(ph);
+  }
+  el.addEventListener("pointerenter", (ev) => {
+    const fn = TIPS[met.tip];
+    $("tip").innerHTML = fn(row, met.value);
+    $("tip").style.display = "block";
+    moveTip(ev);
+  });
+  el.addEventListener("pointermove", moveTip);
+  el.addEventListener("pointerleave", () => { $("tip").style.display = "none"; });
+  return el;
+}
+
+function moveTip(ev) {
+  const t = $("tip");
+  t.style.left = Math.min(ev.clientX + 14, window.innerWidth - 280) + "px";
+  t.style.top = Math.min(ev.clientY + 14, window.innerHeight - 120) + "px";
+}
+
+function band(title, rows, kind) {
+  const wrap = document.createElement("div");
+  const lab = document.createElement("div");
+  lab.className = "band";
+  lab.textContent = title;
+  wrap.appendChild(lab);
+  const grid = document.createElement("div");
+  grid.className = "grid";
+  const usable = sortRows(rows, kind);
+  const vals = usable.map((r) => metric(r, kind).value).filter((v) => v != null);
+  const m = mean(vals);
+  const spread = Math.max(12, sd(vals, m) * 1.25);
+  usable.forEach((r) => grid.appendChild(cell(r, kind, m, spread)));
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+function draw() {
+  const board = $("board");
+  board.innerHTML = "";
+  const items = DATA.items || [];
+  const mons = DATA.monsters || [];
+  for (const t of [1, 2, 3]) {
+    const col = document.createElement("div");
+    col.className = "col";
+    const h = document.createElement("h2");
+    h.textContent = TIER_NAME[t];
+    h.title = "Only compared to other " + TIER_NAME[t] + " cards. Never mixed with the other columns.";
+    col.appendChild(h);
+    const it = items.filter((r) => Number(r.tier) === t);
+    const mo = mons.filter((r) => Number(r.tier) === t);
+    if (SEC === "survive") {
+      col.appendChild(band("Items", it, "item"));
+      col.appendChild(band("Monsters", mo, "monster"));
+    } else {
+      col.appendChild(band("Items", it, "item"));
+    }
+    board.appendChild(col);
+  }
 }
 
 async function loadLive() {
@@ -103,63 +267,21 @@ async function loadLive() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.status);
-    render(data);
+    DATA = data;
+    draw();
     $("status").textContent = "Live. " + (data.counted || "");
   } catch (e) {
     $("status").textContent = "Could not load: " + e.message;
   }
 }
 
-function byTier(rows, tier) {
-  return (rows || []).filter((r) => Number(r.tier) === tier);
+function showExample() {
+  DATA = EXAMPLE;
+  draw();
+  $("status").textContent = "Example. Invented so you can read the heat. Load live after an F5 campaign dungeon.";
 }
 
-function itemTables(rows) {
-  const cols = [
-    { key: "id", label: "Item" },
-    { key: "offered", label: "Pick-two offered", num: true },
-    { key: "taken", label: "Taken", num: true },
-    { key: "pick_rate", label: "Take %", num: true },
-    { key: "held", label: "Dungeons held", num: true },
-    { key: "held_win", label: "Those survived", num: true },
-    { key: "win_rate", label: "Survive % with it", num: true },
-    { key: "claimed", label: "Still in hand on win", num: true },
-    { key: "claim_rate", label: "Keep % on win", num: true },
-  ];
-  return [1, 2, 3].map((t) => table("Items · tier " + t, byTier(rows, t), cols)).join("");
-}
-
-function monsterTables(rows) {
-  const cols = [
-    { key: "id", label: "Monster" },
-    { key: "seated", label: "Dungeons on the wheel", num: true },
-    { key: "seated_win", label: "Those survived", num: true },
-    { key: "survive_rate", label: "Survive %", num: true },
-  ];
-  return [1, 2, 3].map((t) => table("Monsters · tier " + t, byTier(rows, t), cols)).join("");
-}
-
-function render(data) {
-  const dungeons = data.dungeons || data.runs || {};
-  const funnel = Object.entries(data.funnel || {}).map(([step, n]) => ({ step, n }));
-  const counts = Object.entries(data.counts || {}).map(([name, n]) => ({ name, n }));
-  $("board").innerHTML = `
-    <div class="cards">
-      <div class="stat"><span>Sessions</span><b>${esc(data.sessions || 0)}</b></div>
-      <div class="stat"><span>Events</span><b>${esc(data.events || 0)}</b></div>
-      <div class="stat"><span>Dungeon wins</span><b>${esc(dungeons.win || 0)}</b></div>
-      <div class="stat"><span>Dungeon deaths</span><b>${esc(dungeons.dead || 0)}</b></div>
-    </div>
-    ${itemTables(data.items)}
-    ${monsterTables(data.monsters)}
-    ${table("Funnel", funnel, [{ key: "step", label: "Step" }, { key: "n", label: "Count", num: true }])}
-    ${table("Raw event counts", counts, [
-      { key: "name", label: "Event" },
-      { key: "n", label: "Count", num: true },
-    ])}
-  `;
-}
-
+setSec("survive");
 showExample();
 </script>
 </body>
