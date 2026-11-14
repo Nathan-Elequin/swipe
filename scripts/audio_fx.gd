@@ -879,7 +879,8 @@ func dungeon_bed_for_biome(biome_id: String) -> StringName:
 
 
 ## Enter a biome dungeon: play intro once (if registered) then loop. Cabin return clears this.
-func music_biome_dungeon(biome_id: String) -> void:
+## Optional fade_s override (portal splash uses ~1.5s). Negative → map default.
+func music_biome_dungeon(biome_id: String, fade_s: float = -1.0) -> void:
 	var bed: StringName = dungeon_bed_for_biome(biome_id)
 	_dungeon_bed = bed
 	if bed == &"":
@@ -888,7 +889,7 @@ func music_biome_dungeon(biome_id: String) -> void:
 	_between_duck = 0.0
 	_mix_duck(0.3)
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-	var fade_s: float = float(fades.get("default", 0.8))
+	var use_fade: float = fade_s if fade_s >= 0.0 else float(fades.get("default", 0.8))
 	var intro_id: String = "%s_intro" % String(bed)
 	if _beds.has(intro_id):
 		# Already mid-dungeon on this bed or its intro — do not restart the intro.
@@ -896,9 +897,9 @@ func music_biome_dungeon(biome_id: String) -> void:
 			if music != null and music.playing:
 				return
 		_bed_pos.erase(String(bed))
-		music_to(StringName(intro_id), fade_s)
+		music_to(StringName(intro_id), use_fade)
 		return
-	music_to(bed, fade_s)
+	music_to(bed, use_fade)
 
 
 func _combat_or_dungeon_bed() -> StringName:

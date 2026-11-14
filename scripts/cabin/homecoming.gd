@@ -202,6 +202,11 @@ func _start_first_pulse(card_id: String) -> void:
 		cabin.board_pulse_id = card_id
 	if board != null and board.has_method("set_pulse_id"):
 		board.set_pulse_id(card_id)
+	## Hover-to-learn: pointer from talk bar to the pulsed slot.
+	if cabin != null and cabin.has_method("show_nib_pointer_at") and board != null and board.has_method("slot_node"):
+		var slot = board.slot_node(card_id)
+		if slot is Control:
+			cabin.show_nib_pointer_at(slot as Control)
 	if cabin.has_method("_save"):
 		cabin.call("_save")
 
@@ -472,7 +477,13 @@ func _play_first_light_scene(face_i: int) -> void:
 		cabin.first_light_seen = true
 		if cabin.has_method("_save"):
 			cabin.call("_save")
+	## Gesture at the first lit arch light, then at the lever.
+	var light_anchor: Control = _light_anchor(face_i, 0)
+	if cabin != null and cabin.has_method("show_nib_pointer_at") and light_anchor != null:
+		cabin.show_nib_pointer_at(light_anchor)
 	await _say_keys(["nib.board.first_light.1"], {})
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	_show_lever_ring(true)
 	await _say_keys(["nib.board.first_light.2"], {})
 	## Keep a faint lever glow from now until READY (5 lights).
@@ -488,15 +499,35 @@ func _play_first_light_scene(face_i: int) -> void:
 		pass
 
 
+func _light_anchor(face_i: int, light_index: int) -> Control:
+	if board == null:
+		return null
+	var faces = board.get("_face_nodes")
+	if typeof(faces) != TYPE_ARRAY or face_i < 0 or face_i >= faces.size():
+		return null
+	var face_n = faces[face_i]
+	if face_n == null:
+		return null
+	var lights = face_n.get("_lights")
+	if typeof(lights) != TYPE_ARRAY or light_index < 0 or light_index >= lights.size():
+		return null
+	return lights[light_index] as Control
+
+
 func _show_lever_ring(on: bool) -> void:
 	if not on:
 		if _lever_ring != null and is_instance_valid(_lever_ring):
 			_free_fx(_lever_ring)
 		_lever_ring = null
+		if cabin != null and cabin.has_method("clear_nib_pointer"):
+			cabin.clear_nib_pointer()
 		return
 	var anchor: Control = null
 	if board != null and board.has_method("lever_node"):
 		anchor = board.lever_node()
+	## Tutorial pointer + pulse ring from Nib's talk bar to the lever.
+	if cabin != null and cabin.has_method("show_nib_pointer_at") and anchor != null:
+		cabin.show_nib_pointer_at(anchor)
 	_lever_ring = Control.new()
 	_lever_ring.name = "LeverAuraRing"
 	_lever_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE

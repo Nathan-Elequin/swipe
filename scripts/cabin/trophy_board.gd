@@ -333,15 +333,16 @@ func _build_shell() -> void:
 	_rail_r = _make_rail(false)
 	add_child(_rail_l)
 	add_child(_rail_r)
+	var arrow_y: float = 396.0 - MODEL.BOARD_RAISE_PX
 	_arrow_l = _tex_or_box(
 		"ArrowL",
-		Rect2(Vector2(176, 396) - MODEL.BOARD_OUTER.position, Vector2(48, 80)),
+		Rect2(Vector2(176, arrow_y) - MODEL.BOARD_OUTER.position, Vector2(48, 80)),
 		"trophy_board/arrow_l_idle",
 		Color("c4a574")
 	)
 	_arrow_r = _tex_or_box(
 		"ArrowR",
-		Rect2(Vector2(1456, 396) - MODEL.BOARD_OUTER.position, Vector2(48, 80)),
+		Rect2(Vector2(1456, arrow_y) - MODEL.BOARD_OUTER.position, Vector2(48, 80)),
 		"trophy_board/arrow_r_idle",
 		Color("c4a574")
 	)
@@ -356,10 +357,11 @@ func _build_shell() -> void:
 	_cog_r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_cog_l)
 	add_child(_cog_r)
-	## Dots on bottom band: absolute x 712+k*56, y 764
+	## Dots on bottom band: absolute x 712+k*56, y 764 − raise
+	var dot_y: float = 764.0 - MODEL.BOARD_RAISE_PX
 	for k in 5:
 		var dr := Rect2(
-			Vector2(712 + k * 56, 764) - MODEL.BOARD_OUTER.position,
+			Vector2(712 + k * 56, dot_y) - MODEL.BOARD_OUTER.position,
 			Vector2(32, 32)
 		)
 		var hit := Control.new()
@@ -466,7 +468,8 @@ func _update_chrome() -> void:
 
 
 func _make_rail(left: bool) -> Control:
-	var abs_r := Rect2(176, 128, 48, 616) if left else Rect2(1456, 128, 48, 616)
+	var rail_y: float = 128.0 - MODEL.BOARD_RAISE_PX
+	var abs_r := Rect2(176, rail_y, 48, 616) if left else Rect2(1456, rail_y, 48, 616)
 	var hit := Control.new()
 	hit.name = "RailL" if left else "RailR"
 	hit.position = abs_r.position - MODEL.BOARD_OUTER.position

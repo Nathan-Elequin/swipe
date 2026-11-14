@@ -22,8 +22,8 @@ const LEVER_HIT := Vector2(192, 224)
 const LEVER_PIVOT := Vector2(62, 196) ## (15.5, 49) native ×4
 const LEVER_GLOW_SIZE := Vector2(288, 320)
 const LEVER_GLOW_OFFSET := Vector2(-32, -56) ## relative to lever art origin
-## Nib feet screen y = 172×4 + 32×4 = 816. FACE_VIEWPORT.y = 128 → local 688.
-const LEVER_FEET_LOCAL_Y := 688.0
+## Lever feet share HALL_FLOOR_Y with Nib. Local = floor − face viewport top.
+const LEVER_FEET_LOCAL_Y := MODEL.HALL_FLOOR_Y - MODEL.FACE_VIEWPORT.position.y
 const LEVER_PULL_FPS := 12.0
 
 var face: Dictionary = {}
