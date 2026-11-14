@@ -88,7 +88,7 @@ var _portal_alive: bool = false
 var _arch_lights_lit: int = 0
 var _arch_lights: Array = []
 var _floor_satchel: Control = null
-var _loot_strip: Control = null
+var _loot_grid: Control = null
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
 var _socket_filled_tex: Texture2D
 ## Dynamic wall tallies (TALLY-SPEC.md). Driven by lifetime clears, not per-run.
@@ -112,14 +112,13 @@ const GATE_PLATE := Rect2(1180, 379, 384, 512)
 const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 ## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
-## Floor satchel by the portal (left of arch feet). Final art 256×192.
-const SATCHEL_FLOOR := Rect2(980, 820, 256, 192)
-## Mouth rect inside satchel_floor.png (shipped): (32,56)→(224,112).
-const SATCHEL_MOUTH := Rect2(32, 56, 192, 56)
-const SATCHEL_ICON := 64.0 ## 16 native ×4
-## Bottom carried-item strip (9-slice wood trough). Tall enough for 64px icons + margins.
-const LOOT_STRIP := Rect2(80, 920, 1520, 104)
-const STRIP_MARGINS := Vector4(24, 20, 24, 20) ## L T R B shipped
+## Open satchel by the dead portal (left of arch feet). Prefer satchel_open art.
+const SATCHEL_FLOOR := Rect2(980, 780, 256, 192)
+## Spill grid sits on the floor plane in front of the satchel (screen space).
+const SATCHEL_GRID_ORIGIN := Vector2(1108, 900) ## center of first row
+const SATCHEL_CELL := 56.0
+const SATCHEL_GRID_GAP := 8.0
+const SATCHEL_GRID_COLS := 5
 ## Climb hits: full ladder column + floor rope coil (same Climb handler).
 const LADDER_HIT := Rect2(721, 0, 200, 920)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
@@ -128,9 +127,8 @@ const HOT_IDLE := Color(1, 1, 1, 1)
 const LADDER_IDLE_FPS := 1000.0 / 220.0
 const LADDER_HOT_FPS := 1000.0 / 110.0
 const WIPE_COLOR := Color("080605")
-const NATIVE_ICON := 64.0
-const STRIP_GAP := 16.0
-const UNIQUE_STAR := Vector2(40, 40)
+const UNIQUE_STAR := Vector2(16, 16)
+const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -673,7 +671,7 @@ func _clear_loot() -> void:
 	_loot_tips.clear()
 	_hide_haul_pointers()
 	_floor_satchel = null
-	_loot_strip = null
+	_loot_grid = null
 	if _loot_host == null:
 		return
 	for c in _loot_host.get_children():
@@ -681,8 +679,8 @@ func _clear_loot() -> void:
 
 
 func _show_loot(loot: Array) -> void:
-	## Satchel on the floor by the portal (≤3 peeks) + bottom strip of every carried item.
-	## No wall grid, no "New unique" text, no rank labels. Gold star for new uniques.
+	## Open satchel by the dead portal; every carried item spills onto the floor grid.
+	## No bottom strip, no "New unique" text, no rank labels. Gold star for new uniques.
 	_clear_loot()
 	if _loot_host == null:
 		return
@@ -694,11 +692,11 @@ func _show_loot(loot: Array) -> void:
 			continue
 		rows.append(row)
 	_loot_count = rows.size()
-	_build_floor_satchel(rows)
-	_build_loot_strip(rows)
+	_build_open_satchel()
+	_build_satchel_floor_grid(rows)
 
 
-func _build_floor_satchel(rows: Array) -> void:
+func _build_open_satchel() -> void:
 	_floor_satchel = Control.new()
 	_floor_satchel.name = "FloorSatchel"
 	_floor_satchel.position = SATCHEL_FLOOR.position
@@ -713,95 +711,71 @@ func _build_floor_satchel(rows: Array) -> void:
 	bag.stretch_mode = TextureRect.STRETCH_SCALE
 	bag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bag.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	## Floor satchel only — never the homecoming satchel_* set.
-	var bag_tex: Texture2D = KIT.load_tex("overlays/satchel_floor.png")
+	## Prefer Pixel's open satchel; fall back to closed floor satchel.
+	var bag_tex: Texture2D = KIT.ui_tex("rope_exit/satchel_open")
+	if bag_tex == null:
+		bag_tex = KIT.load_tex("overlays/satchel_floor.png")
 	if bag_tex != null:
 		bag.texture = bag_tex
 	else:
 		bag.modulate = Color("5c3a22")
 	_floor_satchel.add_child(bag)
-	## Mouth-shadow fill covers painted placeholders; real icons draw on top.
-	var mouth_fill := ColorRect.new()
-	mouth_fill.name = "MouthShadow"
-	mouth_fill.color = Color(0.20, 0.12, 0.08, 1.0)
-	mouth_fill.position = SATCHEL_MOUTH.position
-	mouth_fill.size = SATCHEL_MOUTH.size
-	mouth_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mouth_fill.z_index = 1
-	_floor_satchel.add_child(mouth_fill)
-	var peek_n: int = mini(3, rows.size())
-	var icon_sz := SATCHEL_ICON
-	var my1: float = SATCHEL_MOUTH.position.y + SATCHEL_MOUTH.size.y
-	for i in peek_n:
-		var row: Dictionary = rows[i]
-		var tex: Texture2D = row.get("tex", null)
-		var peek := TextureRect.new()
-		peek.name = "Peek%d" % i
-		peek.texture = tex
-		peek.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		peek.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		peek.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		peek.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		peek.size = Vector2(icon_sz, icon_sz)
-		## Lower part sits in the mouth (peek); top clears mouth.y by 8px.
-		peek.position = Vector2(
-			SATCHEL_MOUTH.position.x + float(i) * icon_sz,
-			my1 - icon_sz
-		)
-		peek.z_index = 2
-		_floor_satchel.add_child(peek)
-		if bool(row.get("is_new", false)):
-			_add_gold_star(peek, Vector2(icon_sz - UNIQUE_STAR.x * 0.55, -UNIQUE_STAR.y * 0.35))
 
 
-func _build_loot_strip(rows: Array) -> void:
-	_loot_strip = Control.new()
-	_loot_strip.name = "LootStrip"
-	_loot_strip.position = LOOT_STRIP.position
-	_loot_strip.size = LOOT_STRIP.size
-	_loot_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_loot_strip.z_index = 12
-	_loot_host.add_child(_loot_strip)
-	## Wood trough 9-slice (margins L24 T20 R24 B20 shipped).
-	var trough: NinePatchRect = KIT.ui_nine(
-		"trophy_board/carried_strip_9",
-		int(STRIP_MARGINS.x), int(STRIP_MARGINS.y), int(STRIP_MARGINS.z), int(STRIP_MARGINS.w)
-	)
-	trough.name = "StripTrough"
-	trough.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	_loot_strip.add_child(trough)
+func _build_satchel_floor_grid(rows: Array) -> void:
+	_loot_grid = Control.new()
+	_loot_grid.name = "SatchelFloorGrid"
+	_loot_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loot_grid.z_index = 12
+	_loot_host.add_child(_loot_grid)
 	var n: int = rows.size()
-	if n <= 0:
-		return
-	var icon := NATIVE_ICON
-	var gap := STRIP_GAP
-	var total := float(n) * icon + float(maxi(0, n - 1)) * gap
-	var x0 := maxf(0.0, (LOOT_STRIP.size.x - total) * 0.5)
-	var y0 := maxf(0.0, (LOOT_STRIP.size.y - icon) * 0.5)
+	var positions: Array = MODEL.satchel_grid_positions(n, SATCHEL_CELL, SATCHEL_GRID_COLS, SATCHEL_GRID_GAP)
+	var cell_tex: Texture2D = KIT.ui_tex("rope_exit/floor_grid_cell")
 	for i in n:
 		var row: Dictionary = rows[i]
+		var local: Vector2 = positions[i] if i < positions.size() else Vector2.ZERO
 		var cell := Control.new()
-		cell.name = "Strip_%d" % i
-		cell.position = Vector2(x0 + float(i) * (icon + gap), y0)
-		cell.size = Vector2(icon, icon)
+		cell.name = "Spill_%d" % i
+		cell.position = SATCHEL_GRID_ORIGIN + local
+		cell.size = Vector2(SATCHEL_CELL, SATCHEL_CELL)
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP
 		cell.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		## Soft floor shadow under each item.
+		var shadow := ColorRect.new()
+		shadow.name = "Shadow"
+		shadow.color = Color(0.05, 0.03, 0.02, 0.35)
+		shadow.position = Vector2(6, SATCHEL_CELL - 10)
+		shadow.size = Vector2(SATCHEL_CELL - 12, 8)
+		shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cell.add_child(shadow)
+		if cell_tex != null:
+			var pad := TextureRect.new()
+			pad.name = "CellPad"
+			pad.texture = cell_tex
+			pad.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			pad.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pad.stretch_mode = TextureRect.STRETCH_SCALE
+			pad.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+			pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			cell.add_child(pad)
 		var spr := TextureRect.new()
+		spr.name = "Icon"
 		spr.texture = row.get("tex", null)
 		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		spr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		spr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		spr.position = Vector2(4, 0)
+		spr.size = Vector2(SATCHEL_CELL - 8, SATCHEL_CELL - 8)
 		spr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cell.add_child(spr)
 		if bool(row.get("is_new", false)):
-			_add_gold_star(cell, Vector2(icon - UNIQUE_STAR.x * 0.55, -UNIQUE_STAR.y * 0.35))
+			_add_gold_star(cell, Vector2(SATCHEL_CELL - UNIQUE_STAR.x - 2.0, 0.0))
 		var cid := str(row.get("id", ""))
 		var tip_name := str(row.get("name", cid))
 		cell.mouse_entered.connect(_on_loot_icon_hover.bind(cid, tip_name, cell))
 		cell.mouse_exited.connect(_on_loot_icon_unhover)
-		_loot_strip.add_child(cell)
-		_loot_tips.append(cell.position + LOOT_STRIP.position + Vector2(icon * 0.5, icon))
+		_loot_grid.add_child(cell)
+		_loot_tips.append(cell.position + Vector2(SATCHEL_CELL * 0.5, SATCHEL_CELL))
 
 
 func _add_gold_star(parent: Control, at: Vector2) -> void:

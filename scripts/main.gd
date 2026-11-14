@@ -24693,6 +24693,9 @@ func _log_begin_item(it: Dictionary, used: bool = true) -> void:
 			"phase": phase,
 			"hp": hp,
 		})
+		## Hotbar gold star clears permanently the first time this card is used.
+		if home_cabin != null and home_cabin.has_method("note_used"):
+			home_cabin.note_used(str(it.get("card_id", "")))
 	var id: String = str(it.get("card_id", ""))
 	var cat: Dictionary = items_by_id.get(id, {})
 	var hint: String = _log_hint_of(it)
@@ -29484,11 +29487,15 @@ func _sync_hotbar() -> void:
 	_maybe_queue_new_mark_lesson()
 
 
-## Journey A — local New! / banked-repeat badge from shared projection (no new spend modal).
+## Journey A — gold star on never-used uniques (no New! text, no sheen loop).
 func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 	var cid: String = str(it.get("card_id", ""))
-	if cid == "" or BucketRules.is_token(items_by_id.get(cid, {})):
+	## Always clear legacy New! text badge — star replaces it.
+	if card.has_method("set_cabinet_badge"):
 		card.set_cabinet_badge(false, "", "")
+	if cid == "" or BucketRules.is_token(items_by_id.get(cid, {})):
+		if card.has_method("set_new_star"):
+			card.set_new_star(false)
 		return
 	var banked: Dictionary = {}
 	var seen_map: Dictionary = {}
@@ -29509,13 +29516,14 @@ func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
 		if hid != "":
 			held.append(hid)
 	var st: String = TrophyBoardModel.item_status(cid, seen_map, banked, held)
-	## Only unbanked held (or draft) gets New! — banked repeats stay ordinary.
-	var fresh: bool = st == TrophyBoardModel.STATUS_CARRIED
-	card.set_cabinet_badge(
-		fresh,
-		PLAYER_COPY.text("cabin.tip.new", "New!"),
-		PLAYER_COPY.text("cabin.tip.seen", "Seen in {the_grumble}. Not home yet.")
-	)
+	## Star: unbanked held unique that has never been used. Clears on first use / bank.
+	var already_used: bool = home_cabin != null and home_cabin.is_used(cid)
+	var fresh: bool = st == TrophyBoardModel.STATUS_CARRIED and not already_used
+	if card.has_method("set_new_star"):
+		card.set_new_star(fresh)
+	elif card.has_method("set_cabinet_badge"):
+		## Fallback only if star helper missing — still no shimmer text preference.
+		card.set_cabinet_badge(fresh, "*", "")
 
 
 func _dim_hot_empty_slots() -> void:

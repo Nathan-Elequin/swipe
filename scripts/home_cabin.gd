@@ -49,6 +49,8 @@ const RUG_COPY := {
 var seen: Dictionary = {}
 var swiped: Dictionary = {}
 var new_unseen: Dictionary = {}
+## Card ids the player has actually used in combat. Clears the hotbar new-star.
+var used: Dictionary = {}
 var intro_seen: bool = false
 var intro_pack: int = 1
 var nib_first_done: bool = false
@@ -285,6 +287,22 @@ func note_seen(id: String) -> void:
 	_save()
 
 
+func note_used(id: String) -> void:
+	var sid: String = str(id)
+	if sid == "" or sid == "spider_egg":
+		return
+	if bool(used.get(sid, false)):
+		return
+	used[sid] = true
+	## Seen/used data stay compatible — using an item also counts as seen.
+	seen[sid] = true
+	_save()
+
+
+func is_used(id: String) -> bool:
+	return bool(used.get(str(id), false))
+
+
 func bind_campaign(shell) -> void:
 	_campaign_shell = shell
 	if shell != null and typeof(shell.rules) == TYPE_DICTIONARY:
@@ -356,6 +374,7 @@ func swipe_ids(ids: Array) -> Array:
 		if BucketRules.is_token(items_by_id.get(sid, {})):
 			continue
 		seen[sid] = true
+		used[sid] = true
 		if not bool(swiped.get(sid, false)):
 			swiped[sid] = true
 			_just_mounted.append(sid)
@@ -2430,11 +2449,12 @@ func rebuild_board() -> void:
 				_arrow(-1)
 		)
 		_trophy_board.slot_clicked.connect(func(cid: String) -> void:
-			inspect_wanted.emit(cid)
+			## Board opens its own parchment tag — do not forward to combat fly tip.
 			if board_pulse_id != "" and str(cid) == board_pulse_id:
 				_clear_board_pulse()
 		)
 		_trophy_board.inspect_wanted.connect(func(cid: String) -> void:
+			## Legacy signal kept for callers; board click no longer emits it.
 			inspect_wanted.emit(cid)
 		)
 		_trophy_board.hover_tip.connect(func(text: String, anchor: Control) -> void:
@@ -3021,6 +3041,7 @@ func _load_save() -> void:
 	seen.clear()
 	swiped.clear()
 	new_unseen.clear()
+	used.clear()
 	met_monsters.clear()
 	_clear_bank_anim()
 	_raw_save.clear()
@@ -3100,6 +3121,13 @@ func _migrate_v1() -> void:
 func _read_v2(parsed: Dictionary) -> void:
 	for id in parsed.get("new_unseen", []):
 		new_unseen[str(id)] = true
+	used.clear()
+	for uid in parsed.get("used", []):
+		used[str(uid)] = true
+	## Compat: already-banked items count as used so the hotbar star stays cleared.
+	for sid in swiped.keys():
+		if bool(swiped[sid]):
+			used[str(sid)] = true
 	intro_seen = bool(parsed.get("intro_seen", false))
 	intro_pack = int(parsed.get("intro_pack", 0))
 	if intro_pack < 1:
@@ -3207,6 +3235,7 @@ func _save() -> void:
 	data["seen"] = seen.keys()
 	data["swiped"] = swiped.keys()
 	data["new_unseen"] = new_unseen.keys()
+	data["used"] = used.keys()
 	data["intro_seen"] = intro_seen
 	data["intro_pack"] = intro_pack
 	data["nib_first_done"] = nib_first_done
@@ -3619,6 +3648,7 @@ func clear_to_fresh_save() -> void:
 	seen.clear()
 	swiped.clear()
 	new_unseen.clear()
+	used.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
 	_clear_bank_anim()
@@ -3639,6 +3669,7 @@ func fill_middle_save() -> void:
 	seen.clear()
 	swiped.clear()
 	new_unseen.clear()
+	used.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
 	_clear_bank_anim()
@@ -3699,6 +3730,7 @@ func fill_complete_save() -> void:
 	seen.clear()
 	swiped.clear()
 	new_unseen.clear()
+	used.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
 	_clear_bank_anim()

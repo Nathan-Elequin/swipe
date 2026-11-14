@@ -91,22 +91,22 @@ func _run() -> void:
 				has_new_unique_label = true
 	failed = _check(rows, failed, "rope.no_new_unique_text", not has_new_unique_label) or failed
 	failed = _check(rows, failed, "rope.has_satchel", rope.get("_floor_satchel") != null) or failed
-	failed = _check(rows, failed, "rope.has_strip", rope.get("_loot_strip") != null) or failed
-	## Final art: satchel_floor + carried_strip_9 + arch_light_* present.
+	failed = _check(rows, failed, "rope.has_floor_grid", rope.get("_loot_grid") != null) or failed
+	## Open satchel + spilled floor grid (no bottom strip).
 	var satchel_n = rope.get("_floor_satchel")
 	failed = _check(
-		rows, failed, "rope.satchel_floor_tex",
+		rows, failed, "rope.satchel_bag_tex",
 		satchel_n != null and satchel_n.get_node_or_null("Bag") != null
 		and (satchel_n.get_node("Bag") as TextureRect).texture != null
 	) or failed
+	var grid_n = rope.get("_loot_grid")
 	failed = _check(
-		rows, failed, "rope.satchel_mouth_shadow",
-		satchel_n != null and satchel_n.get_node_or_null("MouthShadow") != null
+		rows, failed, "rope.floor_grid_spills",
+		grid_n != null and grid_n.get_child_count() == 2
 	) or failed
-	var strip_n = rope.get("_loot_strip")
 	failed = _check(
-		rows, failed, "rope.strip_ninepatch",
-		strip_n != null and strip_n.get_node_or_null("StripTrough") is NinePatchRect
+		rows, failed, "rope.no_loot_strip",
+		rope.get("_loot_strip") == null and (loot_host == null or loot_host.get_node_or_null("LootStrip") == null)
 	) or failed
 	## Dead portal plate + mist loop on the gate.
 	var gp = rope.get("_gate_portal")
@@ -264,10 +264,12 @@ func _run() -> void:
 	## Source guards: no Tier/ATK in new rope loot path.
 	var rope_src := FileAccess.get_file_as_string("res://scripts/cabin/rope_exit.gd")
 	failed = _check(rows, failed, "src.no_new_unique_label", rope_src.find("extract.new_unique") < 0 or rope_src.find("_show_loot") >= 0) or failed
-	## After rewrite, extract.new_unique should not be called from _show_loot.
+	## Open satchel + floor spill grid; no extract.new_unique chip path.
 	failed = _check(
 		rows, failed, "src.show_loot_no_unique_chip",
-		rope_src.find("FloorSatchel") >= 0 and rope_src.find("LootStrip") >= 0
+		rope_src.find("FloorSatchel") >= 0
+		and rope_src.find("SatchelFloorGrid") >= 0
+		and rope_src.find("extract.new_unique") < 0
 	) or failed
 	failed = _check(rows, failed, "src.fizzle", rope_src.find("_fizzle_dead_portal") >= 0) or failed
 	var home_src := FileAccess.get_file_as_string("res://scripts/cabin/homecoming.gd")
@@ -313,7 +315,12 @@ func _run() -> void:
 	failed = _check(rows, failed, "asset.lever_glow", _png_size_ok("res://assets/ui/trophy_board/lever_glow.png", 288, 320)) or failed
 	failed = _check(rows, failed, "asset.portal_dead", _png_size_ok("res://assets/dungeon/home/overlays/portal_dead.png", 256, 448)) or failed
 	failed = _check(rows, failed, "asset.satchel_floor", _png_size_ok("res://assets/dungeon/home/overlays/satchel_floor.png", 256, 192)) or failed
-	failed = _check(rows, failed, "asset.carried_strip", _png_size_ok("res://assets/ui/trophy_board/carried_strip_9.png", 96, 64)) or failed
+	## Bottom strip retired — open satchel + floor grid. Legacy strip art may remain on disk.
+	failed = _check(
+		rows, failed, "asset.unique_star_or_new_star",
+		_png_size_ok("res://assets/ui/trophy_board/unique_star.png", 40, 40)
+		or ResourceLoader.exists("res://assets/ui/hud/new_star.png")
+	) or failed
 	failed = _check(rows, failed, "asset.unique_star", _png_size_ok("res://assets/ui/trophy_board/unique_star.png", 40, 40)) or failed
 	failed = _check(rows, failed, "asset.fog_clear", _png_size_ok("res://assets/ui/map/trophy/fog_clear_f0.png", 192, 128)) or failed
 	for mi in 6:

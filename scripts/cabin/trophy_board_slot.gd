@@ -1,6 +1,6 @@
 class_name TrophyBoardSlot
 extends Control
-## One pyramid slot: recess + item sprite + claimed aura.
+## One pyramid slot: plinth + item sprite + claimed glow. No nameplates.
 
 
 signal hovered(card_id: String, state: StringName)
@@ -10,18 +10,20 @@ signal clicked(card_id: String, state: StringName)
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 
+## Pixel drop paths (Nearest). Fall back to legacy recess frames when missing.
+const PLINTH_CLAIMED := "trophy/plinth_claimed"
+const PLINTH_EMPTY := "trophy/plinth_empty"
+
 var card_id: String = ""
-var slot_state: StringName = &"unseen"
+var slot_state: StringName = &"unclaimed"
 var item_tex: Texture2D = null
 var reduce_motion: bool = false
 
 var _recess: Control
+var _glow: ColorRect
 var _aura: TextureRect
 var _sprite: TextureRect
-var _twinkle: TextureRect
-var _twinkle_t: float = 0.0
-var _aura_i: int = 0
-var _aura_t: float = 0.0
+var _shine: ColorRect
 var _compact: bool = false
 var _gentle_pulse: bool = false
 var _pulse_tw: Tween = null
@@ -40,8 +42,20 @@ func setup(p_id: String, rect: Rect2, compact: bool) -> void:
 func _build() -> void:
 	for c in get_children():
 		c.queue_free()
-	_recess = _make_recess()
+	_recess = _make_plinth(false)
 	add_child(_recess)
+	_glow = ColorRect.new()
+	_glow.name = "ClaimGlow"
+	_glow.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_glow.offset_left = 8
+	_glow.offset_top = 8
+	_glow.offset_right = -8
+	_glow.offset_bottom = -8
+	_glow.color = Color(1.0, 0.88, 0.45, 0.22)
+	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glow.visible = false
+	_glow.z_index = 0
+	add_child(_glow)
 	_aura = TextureRect.new()
 	_aura.name = "Aura"
 	_aura.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -61,27 +75,29 @@ func _build() -> void:
 	_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sprite.z_index = 1
 	add_child(_sprite)
-	_twinkle = TextureRect.new()
-	_twinkle.name = "Twinkle"
-	_twinkle.size = Vector2(32, 32)
-	_twinkle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_twinkle.stretch_mode = TextureRect.STRETCH_SCALE
-	_twinkle.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_twinkle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_twinkle.visible = false
-	_twinkle.z_index = 2
-	add_child(_twinkle)
-	_twinkle_t = randf_range(3.0, 6.0)
-	_apply_recess_art(false)
+	_shine = ColorRect.new()
+	_shine.name = "ClickShine"
+	_shine.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_shine.color = Color(1, 1, 1, 0)
+	_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shine.z_index = 3
+	_shine.visible = false
+	add_child(_shine)
+	_apply_plinth_art(false)
 	_load_aura_frame(0)
 
 
-func _make_recess() -> Control:
-	var tex_name := "trophy_board/slot_recess_dark_s" if _compact else "trophy_board/slot_recess_dark"
-	var tex: Texture2D = KIT.ui_tex(tex_name)
+func _make_plinth(claimed: bool) -> Control:
+	var plinth_stem := PLINTH_CLAIMED if claimed else PLINTH_EMPTY
+	var tex: Texture2D = KIT.ui_tex(plinth_stem)
+	if tex == null:
+		var tex_name := "trophy_board/slot_recess_lit" if claimed else "trophy_board/slot_recess_dark"
+		if _compact:
+			tex_name += "_s"
+		tex = KIT.ui_tex(tex_name)
 	if tex != null:
 		var tr := TextureRect.new()
-		tr.name = "Recess"
+		tr.name = "Plinth"
 		tr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_SCALE
@@ -90,13 +106,13 @@ func _make_recess() -> Control:
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		return tr
 	var box := Panel.new()
-	box.name = "Recess"
+	box.name = "Plinth"
 	box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1e120c")
-	sb.border_color = Color("4a2f1f")
-	sb.set_border_width_all(2)
+	sb.bg_color = Color("5c3a22") if claimed else Color("1e120c")
+	sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
+	sb.set_border_width_all(3 if claimed else 2)
 	box.add_theme_stylebox_override("panel", sb)
 	return box
 
@@ -107,25 +123,33 @@ func set_item_texture(tex: Texture2D) -> void:
 		_sprite.texture = tex
 
 
-func apply_state(st: StringName, force_unseen := false) -> void:
-	slot_state = &"unseen" if force_unseen else st
+func apply_state(st: StringName, force_silhouette := false) -> void:
+	## Locked faces force silhouette; unlocked faces are unclaimed or claimed only.
+	if force_silhouette:
+		slot_state = &"unclaimed"
+	elif st == &"claimed":
+		slot_state = &"claimed"
+	else:
+		## Map legacy unseen/seen → unclaimed.
+		slot_state = &"unclaimed"
 	var claimed := slot_state == &"claimed"
-	_apply_recess_art(claimed)
+	_apply_plinth_art(claimed)
+	if _glow:
+		_glow.visible = claimed
+		_glow.color = Color(1.0, 0.88, 0.45, 0.28 if claimed else 0.0)
 	if _sprite:
 		_sprite.visible = true
 		if item_tex != null:
 			_sprite.texture = item_tex
-		if slot_state == &"unseen":
-			_sprite.modulate = MODEL.SILHOUETTE
+		if claimed:
+			_sprite.modulate = Color(1.08, 1.06, 1.02, 1.0)
 		else:
-			_sprite.modulate = Color.WHITE
+			_sprite.modulate = MODEL.SILHOUETTE
 	if _aura:
-		_aura.visible = claimed and not reduce_motion
-		if claimed and reduce_motion:
-			_aura.visible = true
+		_aura.visible = claimed
+		if claimed:
 			_load_aura_frame(0)
-	if _twinkle:
-		_twinkle.visible = false
+			_aura.modulate = Color(1, 1, 1, 0.55)
 
 
 func play_claim_pop() -> void:
@@ -137,7 +161,32 @@ func play_claim_pop() -> void:
 	var tw := create_tween()
 	tw.set_parallel(true)
 	tw.tween_property(_sprite, "scale", Vector2.ONE, 0.18 / maxf(Engine.time_scale, 0.001))
-	tw.tween_property(_sprite, "modulate", Color.WHITE, 0.5 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_sprite, "modulate", Color(1.08, 1.06, 1.02, 1.0), 0.5 / maxf(Engine.time_scale, 0.001))
+
+
+## Tiny one-shot shine on claimed plinth (~0.3 s white sweep).
+func play_click_shine() -> void:
+	if slot_state != &"claimed" or _shine == null:
+		return
+	if reduce_motion:
+		_shine.visible = true
+		_shine.color = Color(1, 1, 1, 0.35)
+		var tw0 := create_tween()
+		tw0.tween_property(_shine, "color:a", 0.0, 0.2 / maxf(Engine.time_scale, 0.001))
+		tw0.tween_callback(func() -> void:
+			if is_instance_valid(_shine):
+				_shine.visible = false
+		)
+		return
+	_shine.visible = true
+	_shine.color = Color(1, 1, 1, 0.0)
+	var tw := create_tween()
+	tw.tween_property(_shine, "color:a", 0.55, 0.08 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_shine, "color:a", 0.0, 0.22 / maxf(Engine.time_scale, 0.001))
+	tw.tween_callback(func() -> void:
+		if is_instance_valid(_shine):
+			_shine.visible = false
+	)
 
 
 ## First-return: pulse gently until hovered once. Reduce motion → static brighten.
@@ -149,31 +198,36 @@ func set_gentle_pulse(on: bool) -> void:
 	if _sprite == null:
 		return
 	if not on:
-		_sprite.modulate = Color.WHITE if slot_state != &"unseen" else MODEL.SILHOUETTE
+		_sprite.modulate = Color(1.08, 1.06, 1.02, 1.0) if slot_state == &"claimed" else MODEL.SILHOUETTE
 		return
 	if reduce_motion:
 		_sprite.modulate = Color(1.35, 1.25, 0.9, 1.0)
 		return
 	_pulse_tw = create_tween().set_loops(24)
 	_pulse_tw.tween_property(_sprite, "modulate", Color(1.45, 1.35, 0.95, 1.0), 0.55 / maxf(Engine.time_scale, 0.001))
-	_pulse_tw.tween_property(_sprite, "modulate", Color.WHITE, 0.55 / maxf(Engine.time_scale, 0.001))
+	_pulse_tw.tween_property(_sprite, "modulate", Color(1.08, 1.06, 1.02, 1.0), 0.55 / maxf(Engine.time_scale, 0.001))
 
 
-func _apply_recess_art(lit: bool) -> void:
+func _apply_plinth_art(claimed: bool) -> void:
 	if _recess == null:
 		return
-	var stem := "trophy_board/slot_recess_lit" if lit else "trophy_board/slot_recess_dark"
-	if _compact:
-		stem += "_s"
+	var plinth_stem := PLINTH_CLAIMED if claimed else PLINTH_EMPTY
+	var tex: Texture2D = KIT.ui_tex(plinth_stem)
+	if tex == null:
+		var stem := "trophy_board/slot_recess_lit" if claimed else "trophy_board/slot_recess_dark"
+		if _compact:
+			stem += "_s"
+		tex = KIT.ui_tex(stem)
 	if _recess is TextureRect:
-		var tex: Texture2D = KIT.ui_tex(stem)
 		if tex != null:
 			(_recess as TextureRect).texture = tex
+		## Claimed plinth reads brighter even on the legacy recess fallback.
+		(_recess as TextureRect).modulate = Color(1.15, 1.08, 0.95, 1.0) if claimed else Color.WHITE
 	elif _recess is Panel:
 		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color("5c3a22") if lit else Color("1e120c")
-		sb.border_color = Color("e8c36a") if lit else Color("4a2f1f")
-		sb.set_border_width_all(3 if lit else 2)
+		sb.bg_color = Color("6a4228") if claimed else Color("1e120c")
+		sb.border_color = Color("e8c36a") if claimed else Color("4a2f1f")
+		sb.set_border_width_all(3 if claimed else 2)
 		(_recess as Panel).add_theme_stylebox_override("panel", sb)
 
 
@@ -187,29 +241,6 @@ func _load_aura_frame(i: int) -> void:
 	else:
 		_aura.texture = null
 		_aura.modulate = Color(1, 0.85, 0.3, 0.35)
-
-
-func _process(delta: float) -> void:
-	if slot_state != &"claimed" or reduce_motion:
-		return
-	_aura_t += delta * Engine.time_scale
-	if _aura_t >= 1.0 / 8.0:
-		_aura_t = 0.0
-		_aura_i = (_aura_i + 1) % 6
-		_load_aura_frame(_aura_i)
-	_twinkle_t -= delta * Engine.time_scale
-	if _twinkle_t <= 0.0 and _twinkle != null:
-		_twinkle_t = randf_range(3.0, 6.0)
-		var tex: Texture2D = KIT.ui_tex("trophy_board/twinkle_f0")
-		_twinkle.texture = tex
-		_twinkle.position = Vector2(randf_range(0, maxf(0, size.x - 32)), randf_range(0, maxf(0, size.y - 32)))
-		_twinkle.visible = true
-		var tw := create_tween()
-		tw.tween_interval(0.25 / maxf(Engine.time_scale, 0.001))
-		tw.tween_callback(func() -> void:
-			if is_instance_valid(_twinkle):
-				_twinkle.visible = false
-		)
 
 
 func _gui_input(event: InputEvent) -> void:

@@ -127,12 +127,12 @@ func _diagram(face: Dictionary, state: Dictionary, seen: Dictionary, scenario: S
 	var rects: Dictionary = lay.get("rects", {})
 	for id in rects.keys():
 		var r: Rect2 = rects[id]
-		var st: StringName = &"unseen" if locked else MODEL.slot_state(seen, state, str(id), [])
+		var st: StringName = &"unclaimed" if locked else MODEL.slot_state(seen, state, str(id), [])
 		var col := Color("100e0c")
-		if st == &"seen":
-			col = Color("9c978c")
-		elif st == &"claimed":
+		if st == &"claimed":
 			col = Color("e8c36a")
+		else:
+			col = Color("1e120c") ## unclaimed silhouette plinth
 		_fill_rect(img, Rect2i(int(r.position.x), int(r.position.y), int(r.size.x), int(r.size.y)), col)
 	## Dots
 	for k in 5:
