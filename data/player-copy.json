@@ -2396,6 +2396,20 @@
 		{
 			"cat": "Nib",
 			"draft": true,
+			"key": "nib.first.map_point",
+			"text": "Welcome in! Your first run starts at the map, right over there.",
+			"where": "First cabin visit, Nib in entryway pointing at the map (return flow v2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.return.continue_mission",
+			"text": "Found the keys, and every room's open! Now keep the mission going: bring home unique finds for the trophy cabinet. The map's waiting.",
+			"where": "First return after keys/room unlock; Nib gestures at the map (return flow v2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
 			"key": "nib.lesson.five_threshold",
 			"text": "Five different finds! There's a way beyond Verdant Hollow now. Head through the Hollow to reach it.",
 			"where": "After S7 celebration when b1 cabinet first crosses 5/5"
