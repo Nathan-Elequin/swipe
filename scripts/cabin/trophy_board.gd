@@ -82,6 +82,12 @@ func board_viewed() -> Dictionary:
 	return _board_viewed.duplicate()
 
 
+## Homecoming drains bank_pending one id at a time; keep hold in sync for lights/pips.
+func set_hold(hold: Array) -> void:
+	_hold = hold.duplicate() if hold is Array else []
+	_update_chrome()
+
+
 func refresh() -> void:
 	_faces_data = MODEL.faces(_rules, _items_by_id)
 	_rebuild_faces()
@@ -143,11 +149,19 @@ func slide_to(index: int, instant := false) -> void:
 
 
 func slot_global_center(card_id: String) -> Vector2:
+	var slot = slot_node(card_id)
+	if slot != null:
+		return slot.get_global_rect().get_center()
+	return get_global_rect().get_center()
+
+
+## Live slot Control for a card id (any face). Null if missing.
+func slot_node(card_id: String):
 	for face_n in _face_nodes:
 		var slot = (face_n as TrophyBoardFace).slot_node(card_id)
 		if slot != null:
-			return slot.get_global_rect().get_center()
-	return get_global_rect().get_center()
+			return slot
+	return null
 
 
 func place_claimed(card_id: String, fx := true) -> void:

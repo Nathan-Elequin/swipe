@@ -726,3 +726,9 @@ Tutorial,tutorial.line.B49.1,Tutorial · B49 · line 1,Let's slay this dragon. E
 Tutorial,tutorial.line.B50.1,Tutorial · B50 · line 1,"Every choice can make or break you in these dungeons, so let me give you one last piece of advice:"
 Tutorial,tutorial.line.B50.2,Tutorial · B50 · line 2,Plan ahead. Find Item combos and Monster counters. Expect the best Spins...but prepare for the worst.
 Tutorial,tutorial.line.B50.3,Tutorial · B50 · line 3,"But for now, let's take you home. Or rather, to the new home you will inherit if you complete your grandfather's will. Come, let's go."
+Cabin,nib.board.empty.1,Win homecoming nothing new,"Nothing new this time. The board can wait. It's very patient. It's a board."
+Cabin,nib.board.empty.2,Win homecoming nothing new,"Only things we already had. Still, you came back. That's the important bit."
+Cabin,board.light.say.1,Bubble 1st board light,There's a light!
+Cabin,board.light.say.5,Bubble 5th board light,Five! That's all five!
+Cabin,nib.board.lever_ready.1,Lever ready after homecoming,"Five lights, {hero}. Five different finds from {biome}."
+Cabin,nib.board.lever_ready.2,Lever ready after homecoming,"Give that lever a pull. Go on. He never let me touch it."
