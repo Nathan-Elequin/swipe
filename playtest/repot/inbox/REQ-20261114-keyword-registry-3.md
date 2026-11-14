@@ -4,7 +4,7 @@ status: open
 priority: high
 pr: 523
 branch: cursor/keyword-registry-3-4b75
-tip_sha: 5ddad1f2
+tip_sha: c110d173
 created: 2026-11-14T10:50:00Z
 created_by: cloud-agent
 viewport: 1680x1040
