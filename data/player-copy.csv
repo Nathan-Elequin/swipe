@@ -786,3 +786,13 @@ PostRun,postrun.shortcut.unlocked,Fresh-start shortcut just unlocked,New startin
 PostRun,postrun.button.start_at,Start button only when can_start for that area,Start New Run in {start_area}
 PostRun,postrun.button.start_default,Default start when only default destination available,Start New Run
 PostRun,postrun.hand_note,"Verified: campaign starter_item_mix [3,2,1]=6 from unlocked pools",Each new run starts with 6 random items from unlocked pools.
+Cabin,board.tip.unseen,"Hover, unseen trophy slot",Yet to be seen.
+Cabin,board.tip.claimed_nolore,"Hover, claimed with no journal",Home where it belongs.
+Cabin,board.lights.tip,"Hover, lights",One light for each different find from {biome}. Five lights open the way deeper.
+Cabin,board.locked.tip,"Hover, padlock on locked face",Five different finds from {prev} open this one.
+Cabin,board.lever.locked,"Hover, locked lever",Light all five first.
+Cabin,board.lever.ready,"Hover, ready lever",Pull it.
+Cabin,board.lever.spent,"Hover, spent lever",The way to {next} is open.
+Cabin,board.dot.tip,"Hover, biome dot",{biome}
+Cabin,board.skip,Homecoming skip button,Skip
+Cabin,board.continue,Map beat continue,Onward

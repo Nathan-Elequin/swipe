@@ -647,6 +647,22 @@
     "hover": null,
     "z": 3,
     "note": "_shelf_host / hole aligned to Doop plate case bounds"
+   },
+   {
+    "node": "TrophyBoard",
+    "file": null,
+    "origin": [
+     44,
+     10
+    ],
+    "size": [
+     332,
+     194
+    ],
+    "hotspot": null,
+    "hover": null,
+    "z": 4,
+    "note": "Package B carousel board (1328×776 px). Hosted by room_hall / TrophyBoard."
    }
   ],
   "study": [
@@ -1635,7 +1651,13 @@
       121
      ]
     ],
-    "flame": []
+    "flame": [],
+    "board": [
+     44,
+     10,
+     332,
+     194
+    ]
    },
    "study": {
     "back_door": [
@@ -1746,6 +1768,7 @@
   "lucky_geode_mantel": [
    68,
    105
-  ]
+  ],
+  "hall_plate": "rooms/room_trophy.png"
  }
 }

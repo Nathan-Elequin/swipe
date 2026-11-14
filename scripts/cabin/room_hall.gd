@@ -1,15 +1,21 @@
 extends "res://scripts/cabin/cabin_room.gd"
-## Trophy hall. Cabin reparents _hole / _shelf_host here.
-## Doop ship-strip cabinets wall (1680×1040) is the room plate north star.
-## Live biome overlays are hit-only + slot icons — no second case frames.
+## Trophy hall — hosts TrophyBoard (Package B). Cabin reparents hole/shelf here.
+## Package A removes cabinets / Outpost door in parallel; this file stays board-first.
 
 
+const ROOM_TROPHY := "rooms/room_trophy.png"
+const ROOM_HALL := "rooms/room_hall.png"
 const CABINETS_WALL := "rooms/cabinets_wall.png"
+
+var trophy_board: Control = null
 
 
 func _build_special() -> void:
-	## Prefer Doop cabinets wall plate when present; else classic room_hall.
-	if ResourceLoader.exists(KIT.HOME + CABINETS_WALL):
+	## Prefer new trophy plate when present; else hall / cabinets wall.
+	if ResourceLoader.exists(KIT.HOME + ROOM_TROPHY):
+		_bg_rel = ROOM_TROPHY
+		_loaded_bg = false
+	elif ResourceLoader.exists(KIT.HOME + CABINETS_WALL):
 		_bg_rel = CABINETS_WALL
 		_loaded_bg = false
 	var flames: Array = extra.get("anchors", {}).get("hall", {}).get("flame", [])
@@ -18,35 +24,46 @@ func _build_special() -> void:
 			_candle(Vector2(float(f[0]), float(f[1])))
 	_hide_retired_chrome()
 	_fit_hall_light()
+	## Placeholder host name Package A looks for; B attaches the real board.
+	if get_node_or_null("TrophyBoard") == null:
+		var marker := Label.new()
+		marker.name = "TrophyBoard"
+		marker.text = ""
+		marker.visible = false
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(marker)
 
 
 func _apply_bg() -> void:
-	var plate: Texture2D = KIT.load_tex(CABINETS_WALL)
+	var plate: Texture2D = KIT.load_tex(ROOM_TROPHY)
+	if plate:
+		bg.texture = plate
+		_bg_rel = ROOM_TROPHY
+		_loaded_bg = true
+		_fit_hall_light()
+		return
+	plate = KIT.load_tex(CABINETS_WALL)
 	if plate:
 		bg.texture = plate
 		_bg_rel = CABINETS_WALL
 		_loaded_bg = true
 		_fit_hall_light()
 		return
-	bg.texture = KIT.load_tex("rooms/room_hall.png")
-	_bg_rel = "rooms/room_hall.png"
+	bg.texture = KIT.load_tex(ROOM_HALL)
+	_bg_rel = ROOM_HALL
 	_loaded_bg = bg.texture != null
 	_fit_hall_light()
 
 
 func _fit_hall_light() -> void:
-	## room_hall_glow is the old round-window plate. On the cabinets wall it
-	## lands on the left and covers the top of the first case. Case lamps
-	## light the glass instead.
 	var g = spots.get("room_hall_glow", null)
-	if g is CanvasItem and _bg_rel == CABINETS_WALL:
+	if g is CanvasItem and (_bg_rel == CABINETS_WALL or _bg_rel == ROOM_TROPHY):
 		(g as CanvasItem).visible = false
 
 
 func _hide_retired_chrome() -> void:
-	## Shelf page arrows + gauge retired (five fixed plate cases).
-	## SignOutpost (right door → Outpost) stays visible — do not hide it here.
-	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge"]:
+	## Shelf arrows + gauge retired. SideDoor stays until Package A removes Outpost.
+	for hide_name in ["ShelfPrev", "ShelfNext", "Gauge", "Shelf"]:
 		var n = spots.get(hide_name, null)
 		if n is CanvasItem:
 			(n as CanvasItem).visible = false
@@ -56,9 +73,23 @@ func _hide_retired_chrome() -> void:
 				(n as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+func attach_trophy_board(board: Control) -> void:
+	trophy_board = board
+	var marker = get_node_or_null("TrophyBoard")
+	if marker != null and marker != board:
+		marker.name = "TrophyBoardMarker"
+		marker.visible = false
+	if board.get_parent() != self:
+		if board.get_parent() != null:
+			board.get_parent().remove_child(board)
+		add_child(board)
+	board.name = "TrophyBoard"
+	board.z_index = 4
+	_refresh_doors()
+
+
 func _refresh_doors() -> void:
 	var mud_open: bool = cabin != null and cabin.is_room_unlocked("hall")
-	## Right door → Outpost (mudroom). Unlocks with the hall.
 	var side = spots.get("SideDoor", null)
 	if side is CabinHotspot:
 		side.tag_key = "cabin.hot.door_outpost" if mud_open else "cabin.hot.door_locked"
@@ -74,7 +105,6 @@ func _refresh_doors() -> void:
 	if back is CabinHotspot:
 		back.tag_key = "cabin.hot.back_main"
 		back.set_locked(false)
-	## The case layer covers the whole room. Keep travel doors in front of it.
 	for door_name in ["BackDoor", "SideDoor", "SignOutpost"]:
 		var door = spots.get(door_name, null)
 		if door is CanvasItem:
@@ -84,4 +114,6 @@ func _refresh_doors() -> void:
 			if (door as CabinHotspot)._hit:
 				(door as CabinHotspot)._hit.mouse_filter = Control.MOUSE_FILTER_STOP
 			move_child(door, -1)
+	if trophy_board != null and is_instance_valid(trophy_board):
+		move_child(trophy_board, -1)
 	_hide_retired_chrome()
