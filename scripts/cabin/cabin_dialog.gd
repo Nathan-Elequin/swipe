@@ -2,6 +2,7 @@ extends Control
 ## Nib talk box and a small non-blocking bubble. Copy keys only.
 
 signal finished(choice: int)
+signal line_advanced(line_index: int)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
@@ -257,12 +258,17 @@ func advance() -> void:
 		_next.visible = true
 		return
 	_line_i += 1
+	line_advanced.emit(_line_i)
 	if _line_i >= _keys.size():
+		if cabin != null and cabin.has_method("clear_nib_pointer"):
+			cabin.clear_nib_pointer()
 		if _choice_keys.size() > 0:
 			_show_choices()
 			return
 		_close(-1)
 		return
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	_show_line()
 
 
@@ -446,6 +452,14 @@ func _show_choices() -> void:
 		tw.tween_property(b, "scale", Vector2.ONE, 0.12)
 
 
+func talk_bar_anchor() -> Vector2:
+	## Top-center-ish of the talk bar — pointer origin for hall gestures.
+	if _box != null and is_instance_valid(_box):
+		var g: Rect2 = _box.get_global_rect()
+		return g.position + Vector2(g.size.x * 0.55, 10.0)
+	return Vector2(840, 900)
+
+
 func dismiss() -> void:
 	if not _open and not visible:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -456,6 +470,8 @@ func dismiss() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_choices.visible = false
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	if _shade:
 		_shade.visible = true
 		_shade.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -467,6 +483,8 @@ func _close(choice: int) -> void:
 	_typing = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_refresh_gate()
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	if cabin and cabin.has_method("nib_talk"):
 		cabin.nib_talk(false)
 	var tw := create_tween()

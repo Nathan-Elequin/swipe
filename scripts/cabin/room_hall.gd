@@ -5,8 +5,11 @@ extends "res://scripts/cabin/cabin_room.gd"
 
 const ROOM_TROPHY := "rooms/room_trophy.png"
 const ROOM_HALL := "rooms/room_hall.png"
-## SCREEN §2 / §9 — idle spot right of the board (native).
-const NIB_IDLE_NATIVE := Vector2(386, 172)
+const NIB_HOST := preload("res://scripts/cabin/nib_host.gd")
+const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
+const BOARD_DAIS_PATH := "res://assets/ui/trophy/board_dais.png"
+## SCREEN §2 / §9 — idle spot right of the board (native). Prefer NIB_HOST.hall_idle_native().
+const NIB_IDLE_NATIVE := Vector2(386, 164)
 
 ## Depth layers (full 1680×1040 plates). See assets/ui/trophy_board/depth/LAYERS.md.
 const DEPTH_BEHIND := [
@@ -21,6 +24,7 @@ const DEPTH_FRONT := [
 
 var trophy_board: Control = null
 var nib: AnimatedSprite2D = null
+var board_dais: Control = null
 var _depth_nodes: Array = []
 
 
@@ -35,6 +39,7 @@ func _build_special() -> void:
 			_candle(Vector2(float(f[0]), float(f[1])))
 	_hide_retired_chrome()
 	_fit_hall_light()
+	_ensure_board_dais()
 	_ensure_depth_layers()
 	## Placeholder host name Package A looks for; B attaches the real board.
 	if get_node_or_null("TrophyBoard") == null:
@@ -47,13 +52,58 @@ func _build_special() -> void:
 	_build_hall_nib()
 
 
+func _ensure_board_dais() -> void:
+	## Named host for future dais art. Dark wood placeholder until Pixel drops the PNG.
+	board_dais = get_node_or_null("BoardDais") as Control
+	if board_dais == null:
+		board_dais = Control.new()
+		board_dais.name = "BoardDais"
+		add_child(board_dais)
+	board_dais.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_dais.z_index = 3
+	var outer: Rect2 = MODEL.BOARD_OUTER
+	var floor_y: float = MODEL.HALL_FLOOR_Y
+	board_dais.position = Vector2(outer.position.x, outer.end.y)
+	board_dais.size = Vector2(outer.size.x, maxf(24.0, floor_y - outer.end.y))
+	## Clear prior children then load art or placeholder.
+	for c in board_dais.get_children():
+		c.queue_free()
+	if ResourceLoader.exists(BOARD_DAIS_PATH):
+		var tr := TextureRect.new()
+		tr.name = "BoardDaisArt"
+		tr.texture = load(BOARD_DAIS_PATH) as Texture2D
+		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_SCALE
+		tr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		board_dais.add_child(tr)
+	else:
+		var wood := ColorRect.new()
+		wood.name = "BoardDaisPlaceholder"
+		wood.color = Color("2a1a12")
+		wood.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		wood.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		board_dais.add_child(wood)
+		var lip := ColorRect.new()
+		lip.name = "BoardDaisLip"
+		lip.color = Color("3d2818")
+		lip.position = Vector2(0, 0)
+		lip.size = Vector2(board_dais.size.x, 8)
+		lip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		board_dais.add_child(lip)
+
+
 func _build_hall_nib() -> void:
 	## Package E: Nib lives here after the first successful return.
+	var idle: Vector2 = NIB_HOST.hall_idle_top_left()
+	var drawn: Vector2 = NIB_HOST.nib_drawn_size()
 	nib = AnimatedSprite2D.new()
 	nib.name = "NibSprite"
 	nib.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	nib.centered = false
-	nib.position = KIT.pt(NIB_IDLE_NATIVE.x, NIB_IDLE_NATIVE.y)
+	NIB_HOST.apply_hall_scale(nib)
+	nib.position = idle
 	## Above depth stand/pools (z 5–7) per depth/LAYERS.md — Nib + dialog sit in front.
 	nib.z_index = 8
 	var sf := SpriteFrames.new()
@@ -70,8 +120,8 @@ func _build_hall_nib() -> void:
 	if nib_hot == null:
 		nib_hot = Control.new()
 		nib_hot.name = "Nib"
-		nib_hot.position = KIT.pt(NIB_IDLE_NATIVE.x, NIB_IDLE_NATIVE.y)
-		nib_hot.size = KIT.pt(24, 32)
+		nib_hot.position = idle
+		nib_hot.size = drawn
 		nib_hot.mouse_filter = Control.MOUSE_FILTER_STOP
 		nib_hot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		nib_hot.z_index = 8
@@ -87,8 +137,8 @@ func _build_hall_nib() -> void:
 		nib_hot.hover_tex = null
 		nib_hot.press_tex = null
 		nib_hot.texture = null
-		nib_hot.position = KIT.pt(NIB_IDLE_NATIVE.x, NIB_IDLE_NATIVE.y)
-		nib_hot.size = KIT.pt(24, 32)
+		nib_hot.position = idle
+		nib_hot.size = drawn
 	## Hidden until cabin.nib_in_hall (Package E relocation).
 	var show_nib: bool = cabin != null and bool(cabin.get("nib_in_hall"))
 	nib.visible = show_nib
@@ -166,6 +216,7 @@ func attach_trophy_board(board: Control) -> void:
 		add_child(board)
 	board.name = "TrophyBoard"
 	board.z_index = 4
+	_ensure_board_dais()
 	_ensure_depth_layers()
 	_refresh_doors()
 
@@ -213,13 +264,15 @@ func _refresh_doors() -> void:
 	_hide_retired_chrome()
 	if back is CanvasItem:
 		(back as CanvasItem).z_index = 8
-	## Tree order back→front: behind depth → board → front depth → door.
+	## Tree order back→front: behind depth → board → dais → front depth → door.
 	for spec in DEPTH_BEHIND:
 		var n = get_node_or_null(str(spec["name"]))
 		if n != null:
 			move_child(n, mini(get_child_count() - 1, 1))
 	if trophy_board != null and is_instance_valid(trophy_board):
 		move_child(trophy_board, -1)
+	if board_dais != null and is_instance_valid(board_dais):
+		move_child(board_dais, -1)
 	for spec in DEPTH_FRONT:
 		var n2 = get_node_or_null(str(spec["name"]))
 		if n2 != null:

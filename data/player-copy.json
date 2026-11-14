@@ -2491,6 +2491,13 @@
 		{
 			"cat": "Nib",
 			"draft": true,
+			"key": "nib.portal.rumble_wake",
+			"text": "Hear that rumble? Something down there just woke up.",
+			"where": "After portal splash — back in trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
 			"key": "nib.portal.map",
 			"text": "There. {next}, right on his map. You'll still start in Verdant Hollow, mind. Fight your way down to it.",
 			"where": "Portal map beat"
