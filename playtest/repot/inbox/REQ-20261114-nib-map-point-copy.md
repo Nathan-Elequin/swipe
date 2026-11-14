@@ -2,8 +2,9 @@
 id: REQ-20261114-nib-map-point-copy
 status: open
 priority: normal
+pr: 521
 branch: cursor/nib-map-point-copy-bd13
-tip_sha: 04e8d168
+tip_sha: 964a8238
 created: 2026-11-14T10:15:00Z
 created_by: cloud-agent
 viewport: 1680x1040
