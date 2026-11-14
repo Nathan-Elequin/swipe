@@ -112,10 +112,14 @@ const GATE_PLATE := Rect2(1180, 379, 384, 512)
 const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 ## Soft floor contact under the arch onto the cavern floor (below plant bottom ≈ 891).
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
-## Floor satchel by the portal (left of arch feet).
-const SATCHEL_FLOOR := Rect2(1088, 860, 144, 120)
-## Bottom carried-item strip (hotbar-like).
-const LOOT_STRIP := Rect2(80, 968, 1520, 56)
+## Floor satchel by the portal (left of arch feet). Final art 256×192.
+const SATCHEL_FLOOR := Rect2(980, 820, 256, 192)
+## Mouth rect inside satchel_floor.png (shipped): (32,56)→(224,112).
+const SATCHEL_MOUTH := Rect2(32, 56, 192, 56)
+const SATCHEL_ICON := 64.0 ## 16 native ×4
+## Bottom carried-item strip (9-slice wood trough). Tall enough for 64px icons + margins.
+const LOOT_STRIP := Rect2(80, 920, 1520, 104)
+const STRIP_MARGINS := Vector4(24, 20, 24, 20) ## L T R B shipped
 ## Climb hits: full ladder column + floor rope coil (same Climb handler).
 const LADDER_HIT := Rect2(721, 0, 200, 920)
 const ROPE_COIL_HIT := Rect2(620, 820, 160, 140)
@@ -124,8 +128,9 @@ const HOT_IDLE := Color(1, 1, 1, 1)
 const LADDER_IDLE_FPS := 1000.0 / 220.0
 const LADDER_HOT_FPS := 1000.0 / 110.0
 const WIPE_COLOR := Color("080605")
-const NATIVE_ICON := 32.0
-const STRIP_GAP := 12.0
+const NATIVE_ICON := 64.0
+const STRIP_GAP := 16.0
+const UNIQUE_STAR := Vector2(40, 40)
 
 
 func setup(p_cabin, p_extra: Dictionary) -> void:
@@ -349,7 +354,7 @@ func _apply_gate_locked(_locked: bool) -> void:
 		_gate_open.visible = false
 
 
-## Five small lights over the arch — same lit/dark art as the trophy board.
+## Five arch lanterns along the wooden lintel — count placed uniques (0..5).
 func _build_arch_lights(gate_rect: Rect2) -> void:
 	_arch_lights.clear()
 	var host := Control.new()
@@ -358,11 +363,12 @@ func _build_arch_lights(gate_rect: Rect2) -> void:
 	host.z_index = 2
 	add_child(host)
 	var light_w := 32.0
-	var light_h := 40.0
-	var gap := 10.0
+	var light_h := 48.0
+	var gap := 12.0
 	var total_w := 5.0 * light_w + 4.0 * gap
 	var x0 := gate_rect.position.x + (gate_rect.size.x - total_w) * 0.5
-	var y0 := gate_rect.position.y + 18.0
+	## Lintel: gate plate y + ~8 shipped.
+	var y0 := gate_rect.position.y + 8.0
 	for k in 5:
 		var lr := Rect2(x0 + float(k) * (light_w + gap), y0, light_w, light_h)
 		var light := TextureRect.new()
@@ -373,7 +379,7 @@ func _build_arch_lights(gate_rect: Rect2) -> void:
 		light.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		light.position = lr.position
 		light.size = lr.size
-		var tex: Texture2D = KIT.ui_tex("trophy_board/light_off")
+		var tex: Texture2D = KIT.load_tex("overlays/arch_light_off.png")
 		if tex != null:
 			light.texture = tex
 		else:
@@ -388,7 +394,9 @@ func _set_arch_lights(lit: int) -> void:
 	for i in _arch_lights.size():
 		var node: Control = _arch_lights[i]
 		var on: bool = i < _arch_lights_lit
-		var tex: Texture2D = KIT.ui_tex("trophy_board/light_on" if on else "trophy_board/light_off")
+		var tex: Texture2D = KIT.load_tex(
+			"overlays/arch_light_on.png" if on else "overlays/arch_light_off.png"
+		)
 		if node is TextureRect and tex != null:
 			(node as TextureRect).texture = tex
 			(node as TextureRect).modulate = Color.WHITE
@@ -705,16 +713,25 @@ func _build_floor_satchel(rows: Array) -> void:
 	bag.stretch_mode = TextureRect.STRETCH_SCALE
 	bag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bag.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	var bag_tex: Texture2D = KIT.ui_tex("trophy_board/satchel_idle")
-	if bag_tex == null:
-		bag_tex = KIT.load_tex("loot_sack_dropped.png")
+	## Floor satchel only — never the homecoming satchel_* set.
+	var bag_tex: Texture2D = KIT.load_tex("overlays/satchel_floor.png")
 	if bag_tex != null:
 		bag.texture = bag_tex
 	else:
 		bag.modulate = Color("5c3a22")
 	_floor_satchel.add_child(bag)
-	## Up to 3 icons peeking from the mouth.
+	## Mouth-shadow fill covers painted placeholders; real icons draw on top.
+	var mouth_fill := ColorRect.new()
+	mouth_fill.name = "MouthShadow"
+	mouth_fill.color = Color(0.20, 0.12, 0.08, 1.0)
+	mouth_fill.position = SATCHEL_MOUTH.position
+	mouth_fill.size = SATCHEL_MOUTH.size
+	mouth_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouth_fill.z_index = 1
+	_floor_satchel.add_child(mouth_fill)
 	var peek_n: int = mini(3, rows.size())
+	var icon_sz := SATCHEL_ICON
+	var my1: float = SATCHEL_MOUTH.position.y + SATCHEL_MOUTH.size.y
 	for i in peek_n:
 		var row: Dictionary = rows[i]
 		var tex: Texture2D = row.get("tex", null)
@@ -725,12 +742,16 @@ func _build_floor_satchel(rows: Array) -> void:
 		peek.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		peek.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		peek.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		peek.size = Vector2(NATIVE_ICON, NATIVE_ICON)
-		peek.position = Vector2(36.0 + float(i) * 28.0, 18.0 - float(i % 2) * 6.0)
-		peek.rotation_degrees = float(i - 1) * 8.0
+		peek.size = Vector2(icon_sz, icon_sz)
+		## Lower part sits in the mouth (peek); top clears mouth.y by 8px.
+		peek.position = Vector2(
+			SATCHEL_MOUTH.position.x + float(i) * icon_sz,
+			my1 - icon_sz
+		)
+		peek.z_index = 2
 		_floor_satchel.add_child(peek)
 		if bool(row.get("is_new", false)):
-			_add_gold_star(peek, Vector2(NATIVE_ICON - 10.0, -4.0))
+			_add_gold_star(peek, Vector2(icon_sz - UNIQUE_STAR.x * 0.55, -UNIQUE_STAR.y * 0.35))
 
 
 func _build_loot_strip(rows: Array) -> void:
@@ -741,6 +762,14 @@ func _build_loot_strip(rows: Array) -> void:
 	_loot_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_loot_strip.z_index = 12
 	_loot_host.add_child(_loot_strip)
+	## Wood trough 9-slice (margins L24 T20 R24 B20 shipped).
+	var trough: NinePatchRect = KIT.ui_nine(
+		"trophy_board/carried_strip_9",
+		int(STRIP_MARGINS.x), int(STRIP_MARGINS.y), int(STRIP_MARGINS.z), int(STRIP_MARGINS.w)
+	)
+	trough.name = "StripTrough"
+	trough.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_loot_strip.add_child(trough)
 	var n: int = rows.size()
 	if n <= 0:
 		return
@@ -766,7 +795,7 @@ func _build_loot_strip(rows: Array) -> void:
 		spr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cell.add_child(spr)
 		if bool(row.get("is_new", false)):
-			_add_gold_star(cell, Vector2(icon - 10.0, -4.0))
+			_add_gold_star(cell, Vector2(icon - UNIQUE_STAR.x * 0.55, -UNIQUE_STAR.y * 0.35))
 		var cid := str(row.get("id", ""))
 		var tip_name := str(row.get("name", cid))
 		cell.mouse_entered.connect(_on_loot_icon_hover.bind(cid, tip_name, cell))
@@ -776,17 +805,29 @@ func _build_loot_strip(rows: Array) -> void:
 
 
 func _add_gold_star(parent: Control, at: Vector2) -> void:
-	var star := Label.new()
+	var star := TextureRect.new()
 	star.name = "NewStar"
-	star.text = "★"
-	star.add_theme_font_size_override("font_size", 14)
-	star.add_theme_color_override("font_color", Color("ffd84a"))
-	star.add_theme_color_override("font_outline_color", Color("100e0c"))
-	star.add_theme_constant_override("outline_size", 4)
+	star.texture = KIT.ui_tex("trophy_board/unique_star")
+	star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	star.stretch_mode = TextureRect.STRETCH_SCALE
 	star.position = at
-	star.size = Vector2(16, 16)
+	star.size = UNIQUE_STAR
 	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	star.z_index = 2
+	if star.texture == null:
+		## Fallback only if art missing — never show Tier/ATK.
+		var lab := Label.new()
+		lab.name = "NewStar"
+		lab.text = "*"
+		lab.add_theme_font_size_override("font_size", 18)
+		lab.add_theme_color_override("font_color", Color("ffd84a"))
+		lab.position = at
+		lab.size = Vector2(16, 16)
+		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lab.z_index = 2
+		parent.add_child(lab)
+		return
 	parent.add_child(star)
 
 

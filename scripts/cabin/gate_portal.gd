@@ -14,6 +14,9 @@ const HOT_AMOUNT := 36
 const SEALED_AMOUNT := 0
 const TWEEN_S := 0.22
 
+const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const DEAD_MIST_FPS := 7.0
+
 var _biome_id: String = ""
 var _hot: bool = false
 ## Alive = swirling vortex (lever pulled). Dead = dark stone + cold mist, no swirl.
@@ -23,6 +26,9 @@ var _core: TextureRect
 var _floor_shadow: TextureRect
 var _spiral: CPUParticles2D
 var _mist: CPUParticles2D
+## Final dead-portal plate + 6-frame mist loop (behind GateFrame, in GATE_APERTURE).
+var _dead_plate: TextureRect
+var _dead_mist: AnimatedSprite2D
 var _hot_tw: Tween
 var _dot_tex: Texture2D
 
@@ -78,6 +84,11 @@ func _layout_inner() -> void:
 		_spiral.position = size * 0.5
 		# Orbit stays inside the posts; sphere radius scales with aperture.
 		_spiral.emission_sphere_radius = clampf(minf(size.x, size.y) * 0.08, 12.0, 28.0)
+	if _dead_mist:
+		_dead_mist.position = Vector2.ZERO
+		## Frames are already 256×448 shipped — scale to aperture if needed.
+		if size.x > 0.0 and size.y > 0.0:
+			_dead_mist.scale = Vector2(size.x / 256.0, size.y / 448.0)
 	if _core:
 		var sealed := not AMBIENT.BIOMES.has(_biome_id)
 		var core_size := Vector2(96, 120) if not sealed else Vector2(64, 80)
@@ -102,6 +113,30 @@ func _build_stack() -> void:
 	# Draw under void inside this control's children; still behind GateFrame sibling.
 	_floor_shadow.z_index = -1
 	add_child(_floor_shadow)
+
+	## Dead portal static plate (256×448) — shown only when not alive.
+	_dead_plate = TextureRect.new()
+	_dead_plate.name = "DeadPortal"
+	_dead_plate.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_dead_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dead_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_dead_plate.stretch_mode = TextureRect.STRETCH_SCALE
+	_dead_plate.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_dead_plate.texture = KIT.load_tex("overlays/portal_dead.png")
+	_dead_plate.z_index = 0
+	add_child(_dead_plate)
+
+	_dead_mist = AnimatedSprite2D.new()
+	_dead_mist.name = "DeadMistLoop"
+	_dead_mist.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_dead_mist.centered = false
+	_dead_mist.position = Vector2.ZERO
+	_dead_mist.z_index = 1
+	var mist_rels: Array = []
+	for i in 6:
+		mist_rels.append("overlays/portal_dead_mist_f%d.png" % i)
+	_dead_mist.sprite_frames = KIT.frames(mist_rels, "mist", DEAD_MIST_FPS, true)
+	add_child(_dead_mist)
 
 	_void = TextureRect.new()
 	_void.name = "Void"
@@ -213,15 +248,36 @@ func _apply_biome_look() -> void:
 		if _mist:
 			_mist.emitting = false
 			_mist.visible = false
+		if _dead_plate:
+			_dead_plate.visible = false
+		if _dead_mist:
+			_dead_mist.visible = false
+			_dead_mist.stop()
+		if _void:
+			_void.visible = true
+		if _core:
+			_core.visible = true
 		modulate = Color(1, 1, 1, 1)
 	else:
-		## Dead: no swirl. Faint cold mist only.
+		## Dead: portal_dead plate + mist loop. No particle swirl.
 		_spiral.emitting = false
 		_spiral.visible = false
 		if _mist:
-			_mist.visible = true
-			_mist.emitting = true
-		modulate = Color(0.62, 0.66, 0.72, 1.0)
+			## Keep a faint particle drift under the plate as secondary cold air;
+			## the visible mist is the 6-frame sprite loop.
+			_mist.visible = false
+			_mist.emitting = false
+		if _dead_plate:
+			_dead_plate.visible = true
+		if _dead_mist:
+			_dead_mist.visible = true
+			if _dead_mist.sprite_frames and _dead_mist.sprite_frames.get_frame_count("mist") > 0:
+				_dead_mist.play("mist")
+		if _void:
+			_void.visible = false
+		if _core:
+			_core.visible = false
+		modulate = Color(1, 1, 1, 1)
 
 
 func _apply_hot_visual(on: bool, instant: bool) -> void:
@@ -232,10 +288,20 @@ func _apply_hot_visual(on: bool, instant: bool) -> void:
 	if not alive:
 		_spiral.emitting = false
 		_spiral.visible = false
-		_core.modulate = Color(1, 1, 1, 0.22)
+		if _core:
+			_core.visible = false
+		if _void:
+			_void.visible = false
 		if _mist:
-			_mist.visible = true
-			_mist.emitting = true
+			_mist.visible = false
+			_mist.emitting = false
+		if _dead_plate:
+			_dead_plate.visible = true
+		if _dead_mist:
+			_dead_mist.visible = true
+			if _dead_mist.sprite_frames and _dead_mist.sprite_frames.get_frame_count("mist") > 0 \
+					and not _dead_mist.is_playing():
+				_dead_mist.play("mist")
 		return
 	var target_speed: float = HOT_SPEED if on else IDLE_SPEED
 	var target_amount: int = HOT_AMOUNT if on else IDLE_AMOUNT

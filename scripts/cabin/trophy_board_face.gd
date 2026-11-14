@@ -16,6 +16,16 @@ const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 const SLOT_SCR := preload("res://scripts/cabin/trophy_board_slot.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 
+## Final brass floor lever (2026-11-13 art drop). Native 48×56 → shipped ×4.
+const LEVER_ART := Vector2(192, 224)
+const LEVER_HIT := Vector2(192, 224)
+const LEVER_PIVOT := Vector2(62, 196) ## (15.5, 49) native ×4
+const LEVER_GLOW_SIZE := Vector2(288, 320)
+const LEVER_GLOW_OFFSET := Vector2(-32, -56) ## relative to lever art origin
+## Nib feet screen y = 172×4 + 32×4 = 816. FACE_VIEWPORT.y = 128 → local 688.
+const LEVER_FEET_LOCAL_Y := 688.0
+const LEVER_PULL_FPS := 12.0
+
 var face: Dictionary = {}
 var face_index: int = 0
 var reduce_motion: bool = false
@@ -80,13 +90,14 @@ func _build_chrome() -> void:
 		light.mouse_entered.connect(func() -> void: lights_hovered.emit())
 		add_child(light)
 		_lights.append(light)
-	## Floor lever beside the board (right side, on the floor — away from sconces/lights).
-	## Art paths stay data-driven (lever_locked / lever_ready / lever_pulled); new art drop keeps names.
-	## Integer ×2 of 64×128 native → 128×256 "big brass" placeholder.
-	## Face-local: near bottom-right of the face viewport (floor line).
-	var lever_art := Vector2(128, 256)
-	var lever_hit := Vector2(160, 288)
-	var lever_pos := Vector2(size.x - lever_hit.x - 8.0, size.y - lever_hit.y - 24.0)
+	## Brass floor lever (final art): 48×56 native → 192×224 shipped.
+	## Pivot (15.5, 49) native / (62, 196) shipped. Stands on the hall floor to the
+	## right of the board, bottom-aligned with Nib's feet (screen y 816 → face-local 688).
+	## Away from wall sconces / the light strip. clip_contents is false so it may sit
+	## slightly past the face right edge.
+	var lever_art := LEVER_ART
+	var lever_hit := LEVER_HIT
+	var lever_pos := Vector2(size.x - lever_hit.x + 16.0, LEVER_FEET_LOCAL_Y - lever_hit.y)
 	_lever = _tex_or_box("Lever", Rect2(lever_pos, lever_hit), "trophy_board/lever_locked", Color("8a6a2e"))
 	_lever.mouse_filter = Control.MOUSE_FILTER_STOP
 	_lever.position = lever_pos
@@ -97,13 +108,10 @@ func _build_chrome() -> void:
 		lever_hovered.emit(_lever.get_meta("lever_state", &"locked"))
 	)
 	add_child(_lever)
-	## Ensure Art child is ×2 of the 64×128 source.
-	var art_n = _lever.get_node_or_null("Art")
-	if art_n == null and _lever.get_child_count() == 0:
-		pass
+	## Glow at lever origin − (32, 56) shipped; halo centres on the ready grip.
 	_lever_glow = _tex_or_box(
 		"LeverGlow",
-		Rect2(lever_pos - Vector2(32, 32), lever_hit + Vector2(64, 64)),
+		Rect2(lever_pos + LEVER_GLOW_OFFSET, LEVER_GLOW_SIZE),
 		"trophy_board/lever_glow",
 		Color(1, 0.85, 0.3, 0.0)
 	)
@@ -112,6 +120,7 @@ func _build_chrome() -> void:
 	_lever_glow.z_index = 5
 	add_child(_lever_glow)
 	_lever.set_meta("art_size", lever_art)
+	_lever.set_meta("pivot_shipped", LEVER_PIVOT)
 	_padlock = _tex_or_box("Padlock", Rect2((size.x - 160) * 0.5, 144 + (464 - 192) * 0.5, 160, 192), "trophy_board/padlock", Color("3a3a3e"))
 	_padlock.mouse_filter = Control.MOUSE_FILTER_STOP
 	_padlock.visible = false
@@ -272,20 +281,28 @@ func _set_light(i: int, on: bool) -> void:
 		(node as Panel).add_theme_stylebox_override("panel", sb)
 
 
-func _set_lever(st: StringName, hidden: bool) -> void:
-	_lever.visible = not hidden
-	_lever_glow.visible = false
-	_lever.set_meta("lever_state", st)
-	var stem := "trophy_board/lever_locked"
-	if st == &"ready":
-		stem = "trophy_board/lever_ready"
-		set_lever_ready_fx(true)
-	elif st == &"spent":
-		stem = "trophy_board/lever_pulled"
+func play_pull_anim() -> void:
+	## lever_pull_f0..f4 @ 12 fps, then hold pulled. Reduce-motion skips to pulled.
+	if _lever == null:
+		return
+	_kill_lever_glow_tw()
+	if _lever_glow != null:
+		_lever_glow.visible = false
+	if reduce_motion:
+		_apply_lever_tex("trophy_board/lever_pulled")
+		_lever.set_meta("lever_state", &"spent")
+		return
+	for fi in 5:
+		_apply_lever_tex("trophy_board/lever_pull_f%d" % fi)
+		await get_tree().create_timer((1.0 / LEVER_PULL_FPS) / maxf(Engine.time_scale, 0.001)).timeout
+	_apply_lever_tex("trophy_board/lever_pulled")
+	_lever.set_meta("lever_state", &"spent")
+
+
+func _apply_lever_tex(stem: String) -> void:
 	var tex: Texture2D = KIT.ui_tex(stem)
-	## Inner art: 128×256 (×2 of 64×128 source), centred in the hit rect.
-	var art_sz: Vector2 = _lever.get_meta("art_size", Vector2(128, 256))
-	var pad := (_lever.size - art_sz) * 0.5
+	var art_sz: Vector2 = _lever.get_meta("art_size", LEVER_ART) if _lever != null else LEVER_ART
+	var pad := (_lever.size - art_sz) * 0.5 if _lever != null else Vector2.ZERO
 	if _lever.get_node_or_null("Art") == null:
 		var art := TextureRect.new()
 		art.name = "Art"
@@ -305,6 +322,23 @@ func _set_lever(st: StringName, hidden: bool) -> void:
 		(art_n as TextureRect).visible = true
 	elif _lever is TextureRect and tex != null:
 		(_lever as TextureRect).texture = tex
+
+
+func _set_lever(st: StringName, hidden: bool) -> void:
+	_lever.visible = not hidden
+	_lever_glow.visible = false
+	_lever.set_meta("lever_state", st)
+	## Keep glow plate parked at lever origin − (32, 56) even if hit rect moves.
+	if _lever_glow != null:
+		_lever_glow.position = _lever.position + LEVER_GLOW_OFFSET
+		_lever_glow.size = LEVER_GLOW_SIZE
+	var stem := "trophy_board/lever_locked"
+	if st == &"ready":
+		stem = "trophy_board/lever_ready"
+		set_lever_ready_fx(true)
+	elif st == &"spent":
+		stem = "trophy_board/lever_pulled"
+	_apply_lever_tex(stem)
 	## Faint glow after first light (locked only) — bright READY glow handled above.
 	if st == &"locked" and not hidden and bool(get_meta("faint_glow", false)):
 		set_lever_faint_glow(true)
