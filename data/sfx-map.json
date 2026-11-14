@@ -1081,7 +1081,9 @@
         "gain_db": -2.0,
         "loop": true,
         "resume_position": true,
-        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom."
+        "bar_period_s": 2.1238938053097347,
+        "bar_phase_s": -0.054,
+        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom. bar_period_s = 60/113*4 (113 BPM 4/4). bar_phase_s −54 ms: loop drum downbeats sit early of a t=0 grid."
       },
       "ashen_crypt_b": {
         "file": "music_ashen_crypt_b",
@@ -1096,6 +1098,17 @@
         "loop": true,
         "resume_position": false,
         "note": "Ashen Crypt intensity C (percussion+brass heat). Synced to A; fade in on Tier-3/boss only."
+      },
+      "ashen_crypt_victory": {
+        "file": "music_ashen_crypt_victory",
+        "gain_db": 0.0,
+        "loop": false,
+        "resume_position": false,
+        "outro_style": "splice",
+        "outro_lead_s": 0.1659375,
+        "loop_out_start": "bar",
+        "loop_out_frac": 1.0,
+        "note": "Ashen Crypt (b3) dungeon-clear one-shot (v4). Clip has baked linear fade-in + −5.70 dB; engine gain_db 0. Splice hybrid: start at T−0.1659375 (preroll+1/64) at full gain; hold A/B/C through the lead; linear 1→0 over 1.0×bar from T. Finished → between_dungeons soft 0.8s. Timing: design/audio/demo_report_ashen_crypt_victory_v4.json."
       },
       "shadow_abyss": {
         "file": "music_shadow_abyss_a",

@@ -1,0 +1,93 @@
+{
+  "version": 4,
+  "tempos": {
+    "credits_and_loop_bpm": 113.0,
+    "beat_s": 0.5309734513274337,
+    "bar_production_s": 2.1238938053097347,
+    "sixtyfourth_s": 0.033185840707964605
+  },
+  "times": {
+    "sixtyfourth_exact_s": 0.033185840707964605,
+    "sixtyfourth_used_s": 0.0331875,
+    "sixtyfourth_samples": 1593,
+    "preroll_s": 0.13275,
+    "outro_lead_vs_bar_line_s": 0.1659375,
+    "combat_end_demo_s": 13.243354166666666,
+    "outro_fade_start_demo_s": 14.7013125,
+    "outro_downbeat_demo_s": 14.8340625,
+    "outro_full_demo_s": 14.8370625,
+    "loop_bar_line_demo_s": 14.86725,
+    "loop_ramp_start_demo_s": 14.86725,
+    "loop_silent_demo_s": 16.991145833333334,
+    "boom_demo_s": 16.959208333333333,
+    "file_end_demo_s": 19.977916666666665,
+    "clip_duration_s": 5.276604166666667,
+    "bar_period_s": 2.1238938053097347
+  },
+  "mix": {
+    "A_db": -2.0,
+    "A_boss_lin": 0.5,
+    "B_db": -2.0,
+    "C_db": -2.0,
+    "musical_gain_offset_db": -5.7,
+    "true_peak_pad_db": 0.0,
+    "clip_source": "music_ashen_crypt_victory_v2.wav (unchanged)"
+  },
+  "loudness": {
+    "demo_ebur128": {
+      "integrated_lufs": -19.9,
+      "lra": 4.6,
+      "true_peak_dbfs": -3.8
+    }
+  },
+  "sfx_map": {
+    "outro_style": "splice_plus_loop_bar_fade",
+    "bar_period_s": 2.1238938053097347,
+    "preroll_s": 0.13275,
+    "outro_grid_lead_s": 0.0331875,
+    "outro_grid_lead": "1/64 note earlier than the loop bar line (Nathan v3 feedback)",
+    "outro_lead_vs_bar_line_s": 0.1659375,
+    "outro_lead_vs_bar_line": "clip starts preroll_s + 1/64 before the loop bar line (0.132750 + 0.033188 = 0.165937s). The baked downbeat (extend 0.216146s) lands 0.033188s before the bar line.",
+    "outro": "Same baked clip as v2/v3 (music_ashen_crypt_victory_v2): linear fade-in, full at downbeat + 3 ms, -5.70 dB baked, engine gain 0 dB. Start the clip (preroll + 1/64) before the loop's next bar line.",
+    "loop_ramp": "Unchanged from v3: linear 1->0 over 1.0 * bar_period_s starting at the loop bar line (14.867250s), silence at 16.991146s. Loop stays full through the outro pre-roll.",
+    "loop_ramp_frac_of_bar": 1.0,
+    "loop_ramp_s": 2.1238958333333335,
+    "engine_gain_db": 0.0,
+    "true_peak_pad_db": 0.0,
+    "gain_baked_db": -5.7,
+    "note": "Because the outro (and its boom) moved 1/64 earlier, the boom now lands 31.94 ms before the loop reaches silence. Loop gain at the boom is small but not zero."
+  },
+  "loop_grid": {
+    "assumed_bar_line_demo_s": 14.86725,
+    "measured_bar7_onset_s": 14.812,
+    "measured_bar7_interpolated_s": 14.81264,
+    "measured_bar7_offset_ms": -55.25000000000091,
+    "measured_bar7_interpolated_offset_ms": -54.61000000000027,
+    "strong_bars_n": 12,
+    "strong_bars_mean_offset_ms": -53.25868055555571,
+    "strong_bars_median_offset_ms": -54.13541666666788,
+    "strong_bars_std_ms": 2.742367068132849,
+    "note": "Loop drum downbeats are consistently early of the assumed 113 BPM grid from t=0 / loop-start (phase offset, not a drifting tempo: std 2.7 ms across 12 strong bars). Bar 7 interpolated onset is 14.812640 s (-54.61 ms vs assumed 14.867250). Nathan's 1/64 shift (33.19 ms) is in the right direction but smaller than the measured ~55 ms. After v4, the outro downbeat at 14.834063 s is still ~21.4 ms later than the measured loop downbeat (about one 96th-note; bar/96 = 22.12 ms)."
+  },
+  "verify": {
+    "sum_residual_at_outro_downbeat": 0.0,
+    "loop_gain_at_loop_bar_line": 1.0,
+    "loop_gain_at_boom": 0.015027563612108441,
+    "loop_residual_at_next_bar_line": 0.0,
+    "demo_sample_peak_dbfs": -3.8442184589827777
+  },
+  "sha256": {
+    "demo_crypt_outro_v4.ogg": "927a9f2f75b20c5f46acad749b73662d376e0245d34c5d65c5c09c6249d96c58",
+    "demo_crypt_outro_v4.wav": "193dfbbac67393b53b890ffdebbe2ec76cf6c9533b0f010e0ff440ea02aed38c"
+  },
+  "samples": {
+    "clip_start_demo": 705663,
+    "outro_downbeat_demo": 712035,
+    "shift": 1593,
+    "bar_line_demo": 713628,
+    "loop_silent_demo": 815575,
+    "boom_demo": 814042,
+    "demo_len": 958940,
+    "clip_len": 253277
+  }
+}
