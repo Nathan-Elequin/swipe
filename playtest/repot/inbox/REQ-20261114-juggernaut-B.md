@@ -3,7 +3,7 @@ id: REQ-20261114-juggernaut-B
 status: open
 priority: high
 pr: 508
-tip_sha: 6335767d
+tip_sha: 5067dd6b
 branch: cursor/juggernaut-b-art-4ea0
 created: 2026-11-14T05:05:00Z
 created_by: cloud-agent
