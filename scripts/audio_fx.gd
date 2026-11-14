@@ -271,7 +271,7 @@ func _build_players() -> void:
 	_forge_c.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_forge_c)
 	music = _music_a
-	for cue_id in ["amb.fire", "amb.cat_purr", "amb.radio_static"]:
+	for cue_id in ["amb.fire", "amb.cat_purr", "amb.radio_static", "amb.trophy_room"]:
 		var lp := AudioStreamPlayer.new()
 		lp.bus = "Ambience"
 		lp.process_mode = Node.PROCESS_MODE_ALWAYS
