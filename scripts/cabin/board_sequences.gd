@@ -174,9 +174,8 @@ func shortcut(face_index: int) -> void:
 
 
 func _play_rumble() -> void:
+	## Duck comes from sfx-map board.rumble.duck_music (−8) via play_event — do not duck again here.
 	KIT.cue(sfx, &"board.rumble")
-	if sfx != null and sfx.has_method("duck_music"):
-		sfx.duck_music(-8)
 	var root: Node = cabin if cabin != null else self
 	var shake_target: Node2D = null
 	if cabin != null and cabin.get("_int_root") is Node2D:
@@ -197,8 +196,6 @@ func _play_rumble() -> void:
 			await _wait(0.4)
 	else:
 		await _shake_and_dust(shake_target, RUMBLE_S)
-	if sfx != null and sfx.has_method("unduck"):
-		sfx.unduck(0.6)
 
 
 func _shake_and_dust(target: Node2D, seconds: float) -> void:

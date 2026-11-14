@@ -547,3 +547,101 @@ shroud_shuffle.ogg (0.55 s)
 shroud_deck.ogg (0.30 s)
     <- original synth for Spinheritance Phantom shroud (2026-11-12) — CC0 1.0
 
+
+Trophy-board SFX bake (2026-11-13) — append to assets/audio/CREDITS.txt
+================================================================================
+All 24 cues are CC0 1.0 (or original synth released CC0). No NC/ND/unclear sources.
+CC0 1.0 deed: https://creativecommons.org/publicdomain/zero/1.0/
+
+Pack / source index (this bake)
+-------------------------------
+* Fireplace Sound loop — PagDev — CC0 1.0 (credit appreciated) — https://opengameart.org/content/fireplace-sound-loop
+* Kenney — Impact Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+* Kenney — Interface Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+* Kenney — RPG Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+* Kenney — Digital Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/digital-audio
+* Kenney — UI Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/ui-audio
+* Swipe trophy-board synth (Reel bake 2026-11-13) — original bells, plucks, pads, wind, whoosh, rumble — CC0 1.0
+
+Per-file ledger
+---------------
+amb_trophy_room.ogg (48.000 s, −26.0 LUFS, seamless loop)
+    <- Fireplace Sound loop / fire.wav — PagDev — CC0 1.0 — https://opengameart.org/content/fireplace-sound-loop
+    <- Kenney — Interface Sounds / Audio/tick_002.ogg — faint hall clock
+    <- Kenney — RPG Audio / Audio/creak1.ogg, creak2.ogg, creak3.ogg — occasional wood creaks
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_003.ogg — occasional soft brass ping
+    <- Swipe trophy-board synth / pink-noise wind bed — CC0 1.0 (original)
+
+board_slide.ogg (0.380 s)
+    <- Kenney — Impact Sounds / impactWood_medium_001, impactPlank_medium_001
+    <- Kenney — Interface Sounds / scratch_003
+    <- Kenney — RPG Audio / creak3, metalClick (cog at the end)
+
+board_bump.ogg (0.150 s)
+    <- Kenney — Impact Sounds / impactWood_light_002, impactSoft_medium_002
+
+board_hover_slot.ogg (0.050 s)
+    <- Kenney — Impact Sounds / impactGlass_light_001
+
+board_satchel_in.ogg (0.400 s)
+    <- Kenney — RPG Audio / handleSmallLeather, cloth2, dropLeather
+
+board_satchel_rustle.ogg (0.300 s)
+    <- Kenney — RPG Audio / handleSmallLeather2, cloth4, cloth1
+
+board_satchel_out.ogg (0.300 s)
+    <- Kenney — RPG Audio / handleSmallLeather, dropLeather, bookPlace1
+
+board_rise_glint.ogg (0.500 s)
+    <- Swipe trophy-board synth / SNES-style bells (C5–C6 arpeggio) — CC0 1.0 (original)
+    <- Kenney — Digital Audio / phaserUp3
+    <- Kenney — Interface Sounds / pluck_001
+
+board_whoosh.ogg (0.500 s)
+    <- Swipe trophy-board synth / band-passed pink-noise whoosh — CC0 1.0 (original)
+    <- Kenney — Digital Audio / spaceTrash (quiet airy layer)
+
+board_poof.ogg (0.300 s)
+    <- Kenney — Impact Sounds / impactSoft_medium_002, impactGlass_light_002
+    <- Kenney — RPG Audio / cloth3
+    <- Swipe trophy-board synth / SNES sparkle tail — CC0 1.0 (original)
+
+board_light_chime_1.ogg … board_light_chime_5.ogg (0.800 s each, −16 dBFS peak, C5–D5–E5–G5–A5)
+    <- Swipe trophy-board synth / SNES-style triangle+sine bells — CC0 1.0 (original)
+
+board_lever_ready.ogg (1.000 s)
+    <- Swipe trophy-board synth / warm C-major swell + E5 bell — CC0 1.0 (original)
+    <- Kenney — Interface Sounds / confirmation_002
+
+board_lever_clunk.ogg (0.500 s)
+    <- Kenney — UI Audio / switch21, switch24 (ratchet)
+    <- Kenney — RPG Audio / metalClick, metalLatch, beltHandle1
+    <- Kenney — Impact Sounds / impactMetal_medium_001
+
+board_rumble.ogg (1.700 s)
+    <- Swipe trophy-board synth / brown-noise + low sine cluster — CC0 1.0 (original)
+    <- Kenney — RPG Audio / creak2 (beam groan)
+    <- Kenney — Impact Sounds / footstep_wood_001–004, impactMining_002, impactSoft_heavy_001
+
+sting_portal_open.ogg (3.600 s, −20.0 LUFS, mid-scoop)
+    <- Swipe trophy-board synth / unresolved fifths/quartal pad, sub swell, high air bloom — CC0 1.0 (original)
+    <- Kenney — Digital Audio / lowDown, phaserUp (early body only)
+
+board_complete_chime.ogg (1.500 s)
+    <- Swipe trophy-board synth / resolved C-major SNES bells + reversed shimmer sweep — CC0 1.0 (original)
+    <- Kenney — Interface Sounds / confirmation_001
+
+sting_shortcut.ogg (2.400 s)
+    <- Swipe trophy-board synth / SNES pluck figure G3–C4–E4–G4–A4 + answering C5 — CC0 1.0 (original)
+    <- Kenney — RPG Audio / doorOpen_2, creak1 (door-creak tail)
+
+board_path_draw.ogg (1.200 s)
+    <- Kenney — Interface Sounds / scratch_001–005 (quill on parchment)
+    <- Kenney — RPG Audio / bookFlip2 (quiet paper underlayer)
+
+board_fog_clear.ogg (0.900 s)
+    <- Swipe trophy-board synth / breathy pink-noise wind dissolve + faint G4 undertone — CC0 1.0 (original)
+
+board_badge_pop.ogg (0.200 s)
+    <- Kenney — RPG Audio / bookPlace2, cloth4
+    <- Kenney — Interface Sounds / tick_002 (pin)
