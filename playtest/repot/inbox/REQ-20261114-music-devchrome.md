@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-music-devchrome
-status: open
+status: done
 priority: high
 tip_sha: e5b4a815
 branch: cursor/music-devchrome-79f0

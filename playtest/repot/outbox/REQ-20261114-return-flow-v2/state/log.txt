@@ -1,0 +1,7 @@
+01-first-cabin sha=a041c697* paused=true (dialog) music=music_cabin.ogg playing MusicA vol=-4 img=1550x960 plinths=plinth_empty no parchment vis
+limp-home: land trophy hall; empty-handed; paused=true; music_cabin; no unpack
+parchment Fangs: vis=true clipped; mouse-off did not hide
+06 front room: nib vis=false; map node vis=true; doors unlocked; paused=true
+second verdant: paused=false; loop at 0/1/3/6s
+F11: _authoring() gate; chrome never on
+user:// restored hashes match backup _repot_backup_20261114_return_flow_v2

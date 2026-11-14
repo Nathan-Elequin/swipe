@@ -1,0 +1,14 @@
+﻿first_map_enter (Brand New, after cabin, Verdant splash, SHA a041c697*)
+0s: MusicB playing music_verdant_hollow_intro.ogg vol=-4; MusicA music_cabin.ogg playing=false vol=-82; paused=false
+1s: MusicA playing music_verdant_hollow_loop.ogg vol=-4; MusicB intro playing=false vol=-4; paused=false
+3s: MusicA playing music_verdant_hollow_loop.ogg vol=-4; MusicB intro playing=false; paused=false
+6s: MusicA playing music_verdant_hollow_loop.ogg vol=-4; MusicB intro playing=false; paused=false
+never music_cabin playing after enter
+
+second_map_enter (after limp + cabin rooms, Verdant splash, SHA a041c697*)
+0s: MusicA playing music_verdant_hollow_loop.ogg vol=-4 pos~already looping; MusicB intro playing=false vol=-4; paused=false
+1s: MusicA playing music_verdant_hollow_loop.ogg vol=-4 pos≈15.30; cabin not playing
+3s: MusicA playing music_verdant_hollow_loop.ogg vol=-4 pos≈23.77; cabin not playing
+6s: MusicA playing music_verdant_hollow_loop.ogg vol=-4 pos≈36.44; cabin not playing
+never music_cabin playing after second enter
+note: second enter started on loop (intro already consumed on first enter this session)

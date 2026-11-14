@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-return-flow-v2
-status: open
+status: done
 priority: high
 branch: cursor/return-flow-v2-1368
 tip_sha: 25b29156
