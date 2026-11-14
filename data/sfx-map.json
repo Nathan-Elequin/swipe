@@ -6888,7 +6888,7 @@
       "cooldown_ms": 60,
       "max_voices": 3,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.item_whoosh until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_whoosh until Reel delivers."
     },
     "board.bump": {
       "files": [
@@ -6903,7 +6903,7 @@
       "cooldown_ms": 300,
       "max_voices": 1,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.locked until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.locked until Reel delivers."
     },
     "board.hover_slot": {
       "files": [
@@ -6919,7 +6919,7 @@
       "cooldown_ms": 60,
       "max_voices": 1,
       "priority": 0,
-      "doc": "Package C placeholder alias of ui.hover_menu until Reel delivers."
+      "doc": "Package E placeholder alias of ui.hover_menu until Reel delivers."
     },
     "board.satchel_in": {
       "files": [
@@ -6935,7 +6935,7 @@
       "cooldown_ms": 60,
       "max_voices": 3,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.item_pop until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
     },
     "board.satchel_rustle": {
       "files": [
@@ -6951,7 +6951,7 @@
       "cooldown_ms": 60,
       "max_voices": 3,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.item_pop until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
     },
     "board.satchel_out": {
       "files": [
@@ -6967,7 +6967,7 @@
       "cooldown_ms": 60,
       "max_voices": 3,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.item_pop until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_pop until Reel delivers."
     },
     "board.rise_glint": {
       "files": [
@@ -6982,7 +6982,7 @@
       "cooldown_ms": 400,
       "max_voices": 1,
       "priority": 0,
-      "doc": "Package C placeholder alias of cabin.glint until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.glint until Reel delivers."
     },
     "board.whoosh": {
       "files": [
@@ -6997,7 +6997,7 @@
       "cooldown_ms": 60,
       "max_voices": 3,
       "priority": 1,
-      "doc": "Package C placeholder alias of cabin.item_whoosh until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_whoosh until Reel delivers."
     },
     "board.poof": {
       "files": [
@@ -7012,7 +7012,7 @@
       "cooldown_ms": 90,
       "max_voices": 2,
       "priority": 2,
-      "doc": "Package C placeholder alias of cabin.item_burst until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.item_burst until Reel delivers."
     },
     "board.light_chime": {
       "files": [
@@ -7027,7 +7027,7 @@
       "cooldown_ms": 90,
       "max_voices": 2,
       "priority": 2,
-      "doc": "Package C placeholder alias of cabin.shelf_chime until Reel delivers."
+      "doc": "Package E placeholder alias of cabin.shelf_chime until Reel delivers."
     },
     "board.lever_ready": {
       "files": [
@@ -7042,7 +7042,7 @@
       "cooldown_ms": 0,
       "max_voices": 1,
       "priority": 3,
-      "doc": "Package C placeholder alias of sting.unlock until Reel delivers."
+      "doc": "Package E placeholder alias of sting.unlock until Reel delivers."
     },
     "board.lever_clunk": {
       "files": [
@@ -7163,6 +7163,37 @@
       "max_voices": 1,
       "priority": 3,
       "doc": "Placeholder alias of sting.unlock until Reel delivers."
+    },
+    "amb.trophy_room": {
+      "files": [
+        "cabin_fire_loop"
+      ],
+      "bus": "Ambience",
+      "db": -20,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 1,
+      "loop": true,
+      "doc": "Package E placeholder alias of amb.fire at -20 until Reel delivers trophy-room bed."
+    },
+    "nib.react": {
+      "files": [
+        "nib_gasp"
+      ],
+      "bus": "UI",
+      "db": -12,
+      "pitch": [
+        0.98,
+        1.06
+      ],
+      "cooldown_ms": 80,
+      "max_voices": 2,
+      "priority": 1,
+      "doc": "Package E placeholder until Reel delivers nib.react variants (aliases speech.nib_gasp)."
     }
   },
   "radio": {

@@ -110,12 +110,47 @@ func slide_to(index: int, instant := false) -> void:
 		return
 	var from := _current
 	_current = dest
-	if instant or reduce_motion:
+	if instant:
 		_snap_faces()
 		_update_chrome()
 		face_changed.emit(_current)
 		_arm_view_timer()
 		slide_done.emit()
+		return
+	## Package E / SCREEN §11: reduce motion → 0.15 s cross-fade, no travel, no cog.
+	if reduce_motion:
+		_sliding = true
+		_view_timer = -1.0
+		var fade_dur := 0.15 / maxf(Engine.time_scale, 0.001)
+		var outgoing: Control = null
+		var incoming: Control = null
+		if from >= 0 and from < _face_nodes.size():
+			outgoing = _face_nodes[from]
+		if dest >= 0 and dest < _face_nodes.size():
+			incoming = _face_nodes[dest]
+		_snap_faces()
+		if outgoing != null:
+			outgoing.modulate.a = 1.0
+		if incoming != null:
+			incoming.modulate.a = 0.0
+		var ftw := create_tween()
+		ftw.set_parallel(true)
+		if outgoing != null:
+			ftw.tween_property(outgoing, "modulate:a", 0.0, fade_dur)
+		if incoming != null:
+			ftw.tween_property(incoming, "modulate:a", 1.0, fade_dur)
+		await ftw.finished
+		for n in _face_nodes:
+			(n as Control).modulate.a = 1.0
+		_update_chrome()
+		face_changed.emit(_current)
+		_sliding = false
+		_arm_view_timer()
+		slide_done.emit()
+		if _queued_dir != 0:
+			var q0 := _queued_dir
+			_queued_dir = 0
+			handle_nav(q0)
 		return
 	_sliding = true
 	_view_timer = -1.0
@@ -302,8 +337,8 @@ func _build_shell() -> void:
 		hit.mouse_filter = Control.MOUSE_FILTER_STOP
 		var art := _tex_or_box("Art", Rect2(8, 8, 32, 32), "trophy_board/dot_idle", Color("c4a574"))
 		hit.add_child(art)
-		var pip := _tex_or_box("Pip", Rect2(8 + 20, 8 - 6, 16, 16), "trophy_board/dot_new_pip_f0", Color("a8322a"))
-		pip.visible = false
+		## Package E / SCREEN §2 + ASSETS B10n: blinking new-pip on biome dots.
+		var pip := _make_new_pip(Rect2(8 + 20, 8 - 6, 16, 16))
 		hit.add_child(pip)
 		var idx := k
 		hit.gui_input.connect(func(ev: InputEvent) -> void:
@@ -387,7 +422,9 @@ func _update_chrome() -> void:
 					show_pip = true
 					break
 		if i < _pips.size():
-			(_pips[i] as Control).visible = show_pip
+			var pip_n: Control = _pips[i] as Control
+			pip_n.visible = show_pip
+			_set_pip_playing(pip_n, show_pip and not reduce_motion)
 	## Refresh current face states (lights / lever)
 	if _current < _face_nodes.size():
 		(_face_nodes[_current] as TrophyBoardFace).apply_states(
@@ -438,11 +475,63 @@ func _spin_cogs(dir: int) -> void:
 
 func _bump() -> void:
 	_cue("board.bump")
+	if reduce_motion:
+		return
 	var tw := create_tween()
 	var ox := position.x
 	tw.tween_property(self, "position:x", ox + 6.0, 0.04 / maxf(Engine.time_scale, 0.001))
 	tw.tween_property(self, "position:x", ox - 6.0, 0.06 / maxf(Engine.time_scale, 0.001))
 	tw.tween_property(self, "position:x", ox, 0.05 / maxf(Engine.time_scale, 0.001))
+
+
+## ASSETS B10n — red-gold gem, 2 fps blink. Reduce motion holds f0.
+func _make_new_pip(rect: Rect2) -> Control:
+	var wrap := Control.new()
+	wrap.name = "Pip"
+	wrap.position = rect.position
+	wrap.size = rect.size
+	wrap.visible = false
+	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var anim := AnimatedSprite2D.new()
+	anim.name = "Anim"
+	anim.centered = false
+	anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	anim.position = Vector2.ZERO
+	anim.scale = Vector2(4, 4) if rect.size.x >= 16 else Vector2.ONE
+	var sf := SpriteFrames.new()
+	sf.add_animation("blink")
+	sf.set_animation_speed("blink", 2.0)
+	sf.set_animation_loop("blink", true)
+	for fi in 2:
+		var tex: Texture2D = KIT.ui_tex("trophy_board/dot_new_pip_f%d" % fi)
+		if tex != null:
+			sf.add_frame("blink", tex)
+	if sf.get_frame_count("blink") == 0:
+		## Placeholder box when art is missing.
+		var box := _tex_or_box("Art", Rect2(Vector2.ZERO, rect.size), "trophy_board/dot_new_pip_f0", Color("a8322a"))
+		wrap.add_child(box)
+		return wrap
+	anim.sprite_frames = sf
+	wrap.add_child(anim)
+	## Native 4×4 → display 16×16; AnimatedSprite2D draws at texture size × scale.
+	## If ui_tex already returns ×4 baked pixels, keep scale 1.
+	var f0: Texture2D = sf.get_frame_texture("blink", 0)
+	if f0 != null and f0.get_width() >= 12:
+		anim.scale = Vector2.ONE
+	return wrap
+
+
+func _set_pip_playing(pip: Control, playing: bool) -> void:
+	if pip == null:
+		return
+	var anim = pip.get_node_or_null("Anim")
+	if anim is AnimatedSprite2D and (anim as AnimatedSprite2D).sprite_frames:
+		var a := anim as AnimatedSprite2D
+		if playing:
+			a.play("blink")
+		else:
+			a.stop()
+			a.frame = 0
 
 
 func _arm_view_timer() -> void:

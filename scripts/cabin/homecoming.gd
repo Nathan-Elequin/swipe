@@ -196,7 +196,7 @@ func _play_one_item(card_id: String) -> void:
 		return
 	## 0.00 satchel jostle
 	_play_satchel_anim("open")
-	_cue("board.satchel_rustle", "cabin.item_pop")
+	_cue("board.satchel_rustle")
 	await _wait_step(0.10)
 	if _stale() or _skip_requested:
 		return
@@ -220,7 +220,7 @@ func _play_one_item(card_id: String) -> void:
 		_host.add_child(glint)
 		_track_fx(glint)
 		glint.play("glint")
-	_cue("board.rise_glint", "cabin.glint")
+	_cue("board.rise_glint")
 	var rise_tw := _tween()
 	rise_tw.set_parallel(true)
 	rise_tw.tween_property(spr, "position", rise_peak, _dur(0.40)).set_ease(Tween.EASE_OUT)
@@ -248,7 +248,7 @@ func _play_one_item(card_id: String) -> void:
 	var mid: Vector2 = (rise_peak + to_local) * 0.5 + Vector2(0, -FLY_LIFT)
 	var slot_scale: Vector2 = _slot_scale_for(card_id)
 	_attach_fly_spark(spr)
-	_cue("board.whoosh", "cabin.item_whoosh")
+	_cue("board.whoosh")
 	var fly_tw := _tween()
 	fly_tw.set_parallel(true)
 	fly_tw.tween_method(func(t: float) -> void:
@@ -338,9 +338,9 @@ func _skip_rest(pending: Array) -> void:
 				board.flash_light(fi, after - 1)
 	if board.has_method("slide_to"):
 		board.slide_to(last_face, true)
-	_cue("board.poof", "cabin.item_burst")
+	_cue("board.poof")
 	if any_light:
-		_cue("board.light_chime", "cabin.shelf_chime")
+		_cue("board.light_chime")
 		light_flash_count += 1
 	## Save once on skip (acks already saved per item; final sync).
 	if cabin.has_method("_save"):
@@ -366,6 +366,9 @@ func _flash_light(face_i: int, light_index: int, light_n: int) -> void:
 	_chime_light(light_n)
 	light_flash_count += 1
 	light_flashed.emit(face_i, light_index)
+	## Package E: Nib reacts on every light.
+	if cabin != null and cabin.has_method("nib_react"):
+		cabin.nib_react()
 	_maybe_light_bubble(light_n)
 	## Flash frames ~0.25s; pad a bit before next item.
 	await _wait_step(0.25)
@@ -375,12 +378,9 @@ func _chime_light(light_n: int) -> void:
 	## +1 semitone per light (1→5). pitch_mul = 2^((n-1)/12)
 	var mul: float = pow(2.0, float(clampi(light_n, 1, 5) - 1) / 12.0)
 	if sfx != null and sfx.has_method("play_event"):
-		if _has_cue("board.light_chime"):
-			sfx.play_event(&"board.light_chime", {"pitch_mul": mul})
-			return
-		sfx.play_event(&"cabin.shelf_chime", {"pitch_mul": mul})
+		sfx.play_event(&"board.light_chime", {"pitch_mul": mul})
 		return
-	_cue("board.light_chime", "cabin.shelf_chime")
+	_cue("board.light_chime")
 
 
 func _maybe_light_bubble(light_n: int) -> void:
@@ -422,7 +422,9 @@ func _after_items() -> void:
 			board.refresh()
 		if board != null and board.has_method("set_lever_ready_fx"):
 			board.set_lever_ready_fx(true)
-		_cue("board.lever_ready", "sting.unlock")
+		_cue("board.lever_ready")
+		if cabin != null and cabin.has_method("nib_react"):
+			cabin.nib_react()
 		var biome_name := str((faces[ready_face] as Dictionary).get("name", ""))
 		await _say_keys([
 			"nib.board.lever_ready.1",
@@ -473,7 +475,7 @@ func _raise_satchel() -> void:
 	_host.add_child(_satchel)
 	_track_fx(_satchel)
 	_satchel.position = Vector2(SATCHEL_RECT.position.x, SATCHEL_OFF_Y)
-	_cue("board.satchel_in", "cabin.item_pop")
+	_cue("board.satchel_in")
 	if reduce_motion:
 		_satchel.position = SATCHEL_RECT.position
 		return
@@ -486,7 +488,7 @@ func _drop_satchel() -> void:
 	if _satchel == null or not is_instance_valid(_satchel):
 		return
 	_play_satchel_anim("close")
-	_cue("board.satchel_out", "cabin.item_pop")
+	_cue("board.satchel_out")
 	if reduce_motion:
 		_free_fx(_satchel)
 		_satchel = null
@@ -575,7 +577,7 @@ func _build_skip_button() -> void:
 
 
 func _poof_at(at_local: Vector2) -> void:
-	_cue("board.poof", "cabin.item_burst")
+	_cue("board.poof")
 	var poof: AnimatedSprite2D = _ui_anim(
 		["trophy_board/poof_f0", "trophy_board/poof_f1", "trophy_board/poof_f2",
 			"trophy_board/poof_f3", "trophy_board/poof_f4"],
@@ -703,7 +705,7 @@ func _slide_board(index: int, instant: bool) -> void:
 	if cur != index:
 		face_change_count += 1
 		if not instant:
-			_cue("board.slide", "cabin.item_whoosh")
+			_cue("board.slide")
 	## Await the coroutine itself. slide_to may emit slide_done synchronously
 	## (already-on-face / instant) before a signal waiter can connect — that hung selftests.
 	await board.slide_to(index, instant or reduce_motion)
@@ -827,24 +829,24 @@ func _stale() -> bool:
 
 
 func _cue(id: String, fallback: String = "") -> void:
+	## Package E: prefer named board.* / sting.* ids. Fallback only if the primary
+	## cue is absent from the map (Reel still delivering final files).
 	if sfx == null:
 		return
 	if _has_cue(id):
 		KIT.cue(sfx, StringName(id))
 		return
-	if fallback != "":
+	if fallback != "" and _has_cue(fallback):
 		KIT.cue(sfx, StringName(fallback))
 
 
 func _has_cue(id: String) -> bool:
-	## Best-effort: AudioFx keeps cues privately; try play_event existence via map file.
-	if not ResourceLoader.exists("res://data/sfx-map.json"):
-		return false
-	## Cache-free cheap check through sfx if it exposes has_cue.
 	if sfx != null and sfx.has_method("has_cue"):
 		return bool(sfx.call("has_cue", id))
-	## Assume present once we add the keys; still fall back on miss via empty streams.
-	return true
+	## Package E registered the board.* ids in sfx-map; treat as present.
+	return id.begins_with("board.") or id.begins_with("sting.") or id.begins_with("amb.") \
+		or id.begins_with("nib.") or id.begins_with("cabin.") or id.begins_with("ui.") \
+		or id.begins_with("speech.")
 
 
 func _finish() -> void:

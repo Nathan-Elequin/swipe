@@ -29,6 +29,8 @@ var reduce_motion := false
 var last_reveal_bucket: int = -1
 var last_reveal_entries: Array = []
 var last_map_opts: Dictionary = {}
+## Package E selftest: true only when a rumble shake tween/loop actually runs.
+var last_shake_created: bool = false
 var _busy := false
 
 
@@ -128,6 +130,8 @@ func shortcut(face_index: int) -> void:
 	if board != null and board.has_method("play_gild"):
 		board.play_gild(face_index, reduce_motion)
 	KIT.cue(sfx, &"board.complete_chime")
+	if cabin != null and cabin.has_method("nib_react"):
+		cabin.nib_react()
 	await _wait(0.8 if not reduce_motion else 0.3)
 	var vars := _token_vars(face, "", str(face.get("name", "")))
 	await _nib(["nib.shortcut.1"] if face_index < 4 else ["nib.board.complete_final"], vars)
@@ -177,25 +181,34 @@ func _play_rumble() -> void:
 	KIT.cue(sfx, &"board.rumble")
 	if sfx != null and sfx.has_method("duck_music"):
 		sfx.duck_music(-8)
+	## Package E: Nib gasps during the rumble.
+	if cabin != null and cabin.has_method("nib_gasp"):
+		cabin.nib_gasp()
 	var root: Node = cabin if cabin != null else self
 	var shake_target: Node2D = null
+	## Selftests spy this: when reduce_motion, never create a shake tween.
+	last_shake_created = false
 	if cabin != null and cabin.get("_int_root") is Node2D:
 		shake_target = cabin.get("_int_root")
 	elif cabin != null and cabin is Node2D:
 		shake_target = cabin
 	if reduce_motion:
 		## Dim pulse instead of shake / dust.
-		if root is CanvasItem:
+		var tween_host: Node = self
+		if cabin is Node and (cabin as Node).is_inside_tree():
+			tween_host = cabin
+		if root is CanvasItem and tween_host.is_inside_tree():
 			var ci := root as CanvasItem
 			var base := ci.modulate
-			var tw := create_tween()
+			var tw := tween_host.create_tween()
 			tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-			tw.tween_property(ci, "modulate", base.darkened(0.25), 0.2)
-			tw.tween_property(ci, "modulate", base, 0.2)
+			tw.tween_property(ci, "modulate", base.darkened(0.25), 0.2 / maxf(0.001, Engine.time_scale))
+			tw.tween_property(ci, "modulate", base, 0.2 / maxf(0.001, Engine.time_scale))
 			await tw.finished
 		else:
 			await _wait(0.4)
 	else:
+		last_shake_created = true
 		await _shake_and_dust(shake_target, RUMBLE_S)
 	if sfx != null and sfx.has_method("unduck"):
 		sfx.unduck(0.6)
@@ -269,15 +282,17 @@ func _play_splash(
 
 
 func _present_map(opts: Dictionary, nib_keys: Array, vars: Dictionary) -> void:
-	last_map_opts = opts.duplicate(true)
+	var merged: Dictionary = opts.duplicate(true)
+	merged["reduce_motion"] = reduce_motion
+	last_map_opts = merged.duplicate(true)
 	var map = held_map
 	if map == null and cabin != null and cabin.get("held_map") != null:
 		map = cabin.held_map
 	if map == null and campaign_map != null and campaign_map.has_method("show_map"):
-		campaign_map.show_map(_rules(), _state(), {}, opts)
+		campaign_map.show_map(_rules(), _state(), {}, merged)
 		map = campaign_map.get("held") if campaign_map.get("held") != null else campaign_map
 	if map != null and map.has_method("present"):
-		map.present(_rules(), _state(), {}, opts)
+		map.present(_rules(), _state(), {}, merged)
 	await _nib(nib_keys, vars)
 	## Wait for continue / Space — read_only map closes via closed signal or button.
 	if map != null and map.has_signal("closed"):

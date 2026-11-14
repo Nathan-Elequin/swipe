@@ -414,6 +414,27 @@
     "hover": "doors/doorway_hover.png",
     "z": 8,
     "note": "back to main (left). Hit matches the painted doorway on room_hall."
+   },
+   {
+    "node": "Nib",
+    "file": "nib/nib_idle_f0.png",
+    "origin": [
+     386,
+     172
+    ],
+    "size": [
+     24,
+     32
+    ],
+    "hotspot": [
+     386,
+     172,
+     24,
+     32
+    ],
+    "hover": "nib/nib_idle_hover.png",
+    "z": 5,
+    "note": "Package E: Nib idle right of the trophy board after first return"
    }
   ],
   "study": [

@@ -1897,6 +1897,7 @@ func _build_ui() -> void:
 	settings_ui.mode_picked.connect(_on_pause_mode)
 	settings_ui.sparkles_toggled.connect(_on_sparkles_toggled)
 	settings_ui.invert_scroll_toggled.connect(_on_invert_scroll_toggled)
+	settings_ui.reduce_motion_toggled.connect(_on_reduce_motion_toggled)
 	settings_ui.quit_pressed.connect(_quit_game)
 	home_cabin = HOME_CABIN.new()
 	add_child(home_cabin)
@@ -8494,6 +8495,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var in_run: bool = phase != "title"
 	if home_cabin:
 		settings_ui.invert_scroll = bool(home_cabin.invert_scroll)
+		settings_ui.reduce_motion = bool(home_cabin.reduce_motion)
 	settings_ui.open_menu(in_run)
 	if sfx:
 		sfx.play("open", -12.0)
@@ -8514,6 +8516,16 @@ func _on_invert_scroll_toggled(on: bool) -> void:
 		return
 	home_cabin.invert_scroll = on
 	home_cabin._save()
+
+
+func _on_reduce_motion_toggled(on: bool) -> void:
+	if home_cabin == null:
+		return
+	if home_cabin.has_method("set_reduce_motion"):
+		home_cabin.set_reduce_motion(on)
+	else:
+		home_cabin.reduce_motion = on
+		home_cabin._save()
 
 
 func _on_pause_mode(mode: String) -> void:

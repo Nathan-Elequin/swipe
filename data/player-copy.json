@@ -2383,7 +2383,7 @@
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.lesson.extract_haul",
-			"text": "See those? They go in the cabinet when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together.",
+			"text": "See those? They go on the board when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together.",
 			"where": "First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only"
 		},
 		{
@@ -7228,6 +7228,20 @@
 			"key": "nib.board.empty.2",
 			"text": "Only things we already had. Still, you came back. That's the important bit.",
 			"where": "Win homecoming, nothing new"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.move.1",
+			"text": "Right. Somebody has to mind his board, and the chair's taken.",
+			"where": "First move into trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.board.move.2",
+			"text": "I'll keep watch in here from now on. Bring things home and I'll find them a spot.",
+			"where": "First move into trophy hall"
 		},
 		{
 			"cat": "Cabin",

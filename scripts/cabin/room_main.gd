@@ -36,6 +36,7 @@ func _build_special() -> void:
 	_add_anim(sf, "point", ["nib/nib_point.png"], 1.0, true)
 	_add_anim(sf, "gasp", ["nib/nib_gasp.png"], 1.0, false)
 	_add_anim(sf, "walk", ["nib/nib_walk_f0.png", "nib/nib_walk_f1.png", "nib/nib_walk_f2.png", "nib/nib_walk_f3.png"], 8.0, true)
+	_add_anim(sf, "react", ["nib/nib_react_f0.png", "nib/nib_react_f1.png", "nib/nib_react_f2.png", "nib/nib_react_f3.png"], 10.0, false)
 	nib.sprite_frames = sf
 	add_child(nib)
 	nib.play("idle")
@@ -46,6 +47,13 @@ func _build_special() -> void:
 		nib_hot.hover_tex = null
 		nib_hot.press_tex = null
 		nib_hot.texture = null
+	## Package E: main Nib hides after nib_in_hall.
+	if cabin != null and bool(cabin.get("nib_in_hall")):
+		nib.visible = false
+		if nib_hot is CanvasItem:
+			(nib_hot as CanvasItem).visible = false
+			if nib_hot is Control:
+				(nib_hot as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	prompt = KIT.nine("ui/dialog_box_9.png", Vector2(KIT.BUBBLE_PATCH_NATIVE, KIT.BUBBLE_PATCH_NATIVE))
 	prompt.z_index = 6
 	prompt.visible = false
