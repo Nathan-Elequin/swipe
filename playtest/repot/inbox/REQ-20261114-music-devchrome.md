@@ -2,7 +2,7 @@
 id: REQ-20261114-music-devchrome
 status: open
 priority: high
-tip_sha: pending
+tip_sha: e5b4a815
 branch: cursor/music-devchrome-79f0
 created: 2026-11-14T10:00:00Z
 created_by: cloud-agent
