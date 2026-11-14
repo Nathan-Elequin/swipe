@@ -2282,30 +2282,33 @@ func _build_dev_panel() -> void:
 		b.custom_minimum_size = Vector2(0, 36)
 		_dev_sort_btns[str(stage)] = b
 		sort_row.add_child(b)
+	var list_scroll := ScrollContainer.new()
+	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	list_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_scroll.custom_minimum_size = Vector2(0, 280)
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list_scroll.clip_contents = true
+	dev_panel.add_child(list_scroll)
+	var list_body := VBoxContainer.new()
+	list_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_body.add_theme_constant_override("separation", 8)
+	list_scroll.add_child(list_body)
 	dev_mon_n = Label.new()
 	dev_mon_n.add_theme_font_size_override("font_size", 16)
 	dev_mon_n.add_theme_color_override("font_color", Color("e8c36a"))
-	dev_panel.add_child(dev_mon_n)
-	var mscroll := ScrollContainer.new()
-	mscroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	mscroll.custom_minimum_size = Vector2(0, 140)
-	dev_panel.add_child(mscroll)
+	list_body.add_child(dev_mon_n)
 	dev_mon_list = VBoxContainer.new()
 	dev_mon_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dev_mon_list.add_theme_constant_override("separation", 8)
-	mscroll.add_child(dev_mon_list)
+	dev_mon_list.add_theme_constant_override("separation", 6)
+	list_body.add_child(dev_mon_list)
 	dev_item_n = Label.new()
 	dev_item_n.add_theme_font_size_override("font_size", 16)
 	dev_item_n.add_theme_color_override("font_color", Color("e8c36a"))
-	dev_panel.add_child(dev_item_n)
-	var iscroll := ScrollContainer.new()
-	iscroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	iscroll.custom_minimum_size = Vector2(0, 140)
-	dev_panel.add_child(iscroll)
+	list_body.add_child(dev_item_n)
 	dev_item_list = VBoxContainer.new()
 	dev_item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dev_item_list.add_theme_constant_override("separation", 8)
-	iscroll.add_child(dev_item_list)
+	dev_item_list.add_theme_constant_override("separation", 6)
+	list_body.add_child(dev_item_list)
 
 
 func _open_dev_test() -> void:
@@ -2419,7 +2422,8 @@ func _dev_pool_section(title: String, key: String, rows: Array, is_mon: bool) ->
 	var wrap := VBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 4)
 	var searching: bool = _dev_query.strip_edges() != ""
-	var open: bool = searching or bool(_dev_fold_open.get(key, true))
+	var default_open: bool = str(key).ends_with(":1")
+	var open: bool = searching or bool(_dev_fold_open.get(key, default_open))
 	var head := Button.new()
 	head.text = _dev_section_title(open, title, rows.size())
 	head.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -2445,7 +2449,7 @@ func _dev_pool_section(title: String, key: String, rows: Array, is_mon: bool) ->
 
 
 func _dev_section_title(open: bool, title: String, n: int) -> String:
-	var mark := "v" if open else ">"
+	var mark := char(0x25BE) if open else char(0x25B8)
 	return "%s  %s  (%s)" % [mark, title, n]
 
 
