@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-two-state-satchel
-status: open
+status: done
 priority: high
 branch: cursor/trophy-two-state-popup-hotbar-satchel-fc61
 created: 2026-11-14T06:30:00Z

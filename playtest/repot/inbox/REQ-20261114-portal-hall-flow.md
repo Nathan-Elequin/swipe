@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-portal-hall-flow
-status: open
+status: done
 priority: high
 branch: cursor/portal-hall-flow-8d6a
 created: 2026-11-14T06:00:00Z

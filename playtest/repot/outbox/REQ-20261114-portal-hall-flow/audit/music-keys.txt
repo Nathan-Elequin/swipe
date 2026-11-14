@@ -1,0 +1,11 @@
+Portal burst music keys (sfx.current_bed), playtest/latest 2c7b5865
+
+- 05-splash-crystal.png: crystal_cavern (biome bed on splash)
+- 05b-splash-hold.png: crystal_cavern
+- 01-hall-after-splash.png: cabin (after dismiss)
+- 02-nib-rumble-line.png: cabin
+
+BoardFadeWipe after land: visible=false, modulate.a=0.
+Rumble copy: Hear that rumble? Something down there just woke up.
+Lever after pull: spent. Lights: 5.
+Viewport texture captured at editor window 1550x960 then nearest-resized to 1680x1040.

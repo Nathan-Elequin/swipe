@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-trophy-art-wire
-status: open
+status: done
 priority: high
 branch: cursor/trophy-art-wire-b998
 pr: 514
