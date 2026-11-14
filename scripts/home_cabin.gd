@@ -57,7 +57,9 @@ var nib_first_done: bool = false
 var tutorial_done: bool = false
 var tutorial_declined: bool = false
 ## Start at the fireplace.
-var rooms_unlocked: Array = ["main"]
+## Trophy hall is open from the first cabin visit (Nathan lock 2026-11-14).
+## Key-ring after run 1 unlocks the other rooms only (study / workshop / loft).
+var rooms_unlocked: Array = ["main", "hall"]
 var key_ring_seen: bool = false
 ## Keyword tip first-sighting teach — ids dismissed at least once on this save.
 var seen_keywords: Array = []
@@ -692,24 +694,34 @@ func note_dungeon_clear() -> void:
 
 
 ## House rooms: first successful full dungeon return (survive + return home), even with
-## 0 new unique items. Tutorial-only arrive and death are NOT successful dungeon returns.
+## 0 new unique items. Tutorial-only arrive is NOT a successful dungeon return.
 ## Cabinet / D2 / shortcut thresholds stay in campaign shell — this gate is cabin doors only.
 func counts_as_successful_dungeon_return(kind: String = "") -> bool:
 	var k: String = kind if kind != "" else str(_homecoming_kind)
 	return k == "win" and int(lifetime_dungeons_cleared) >= 1
 
 
+## True when this walk-in is the first post-run return (win or limp-home).
+func is_first_run_return() -> bool:
+	if first_return_homecoming_done:
+		return false
+	var k := str(_homecoming_kind)
+	return k == "win" or k == "loss"
+
+
 ## Credit arrive/push-block homecoming counters. Returns true when key-ring tour is due.
-## Does not fake a haul for tutorial walk-in (kind win, lifetime clears still 0).
+## Nathan lock 2026-11-14: first limp-home OR first win both unlock the other rooms
+## AFTER the trophy-room satchel beat (hall is already open).
 func _credit_homecoming_counters() -> bool:
 	counters.homecomings = int(counters.get("homecomings", 0)) + 1
 	if _homecoming_kind == "loss":
 		counters.losses = int(counters.get("losses", 0)) + 1
-		return false
+		return not key_ring_seen
 	if counts_as_successful_dungeon_return():
 		counters.hauls = int(counters.get("hauls", 0)) + 1
 		_sync_progress_doors()
-		return int(counters.hauls) >= 1 and not key_ring_seen
+		return not key_ring_seen
+	## Non-win / non-loss (tutorial walk-in): never start the key tour.
 	return false
 
 
@@ -809,8 +821,74 @@ func _say_first_speech() -> void:
 		return
 	nib_first_done = true
 	_save()
+	## Keep Nib visible in the entryway (by the door — layout note), never hidden.
+	var main_room = _rooms.get("main")
+	if main_room != null and main_room.get("nib") != null:
+		(main_room.nib as CanvasItem).visible = true
 	_dialog.say(["nib.first.1", "nib.first.2", "nib.first.3"])
 	await _dialog.finished
+
+
+## After the welcome lines: point at Grandpa's map so the first-run prompt is clear.
+## Uses existing pointer + pulse ring. Placeholder copy key listed for the copy owner.
+func _point_map_after_first_speech() -> void:
+	var map_hit := _map_hotspot()
+	if map_hit != null:
+		show_nib_pointer_at(map_hit)
+	## Existing line that already pushes the mission; pointer carries the "click map" read.
+	## Placeholder if a dedicated map-prompt line is needed later: nib.first.map_point
+	if _dialog != null:
+		var main_room = _rooms.get("main")
+		if main_room != null and main_room.get("nib") != null and main_room.nib.sprite_frames \
+				and main_room.nib.sprite_frames.has_animation("point"):
+			main_room.nib.play("point")
+	## Leave the pointer up until the player opens the map or leaves.
+
+
+func _point_map_continue_mission() -> void:
+	## After key unlock: tell the player to keep collecting uniques, gesture at the map.
+	if _current_room != "main":
+		await pan_to("main")
+	var main_room = _rooms.get("main")
+	if main_room != null and main_room.get("nib") != null:
+		(main_room.nib as CanvasItem).visible = true
+		if main_room.nib.sprite_frames and main_room.nib.sprite_frames.has_animation("point"):
+			main_room.nib.play("point")
+	## Prefer an existing mission line; placeholder key for a dedicated continue prompt.
+	## COPY OWNER: nib.return.continue_mission — "Keep collecting unique finds for the trophy cabinet. The map is waiting."
+	if _dialog != null:
+		## Prefer a dedicated key when Jam/Nathan adds it; fall back to five_finds.
+		## COPY OWNER: nib.return.continue_mission
+		var keys: Array = ["nib.lesson.five_finds"]
+		if _copy_key_exists("nib.return.continue_mission"):
+			keys = ["nib.return.continue_mission"]
+		_dialog.say(keys)
+		await _dialog.finished
+	var map_hit := _map_hotspot()
+	if map_hit != null:
+		show_nib_pointer_at(map_hit)
+	## After the map gesture, Nib may walk to the hall (Package E idle).
+	if not nib_in_hall and key_ring_seen:
+		await _relocate_nib_to_hall(_key_ring_gen, false)
+
+
+func _map_hotspot() -> Control:
+	var main_room = _rooms.get("main")
+	if main_room == null:
+		return null
+	var spots = main_room.get("spots")
+	if typeof(spots) != TYPE_DICTIONARY:
+		return null
+	var hit = (spots as Dictionary).get("Map", null)
+	return hit as Control if hit is Control else null
+
+
+func _copy_key_exists(key: String) -> bool:
+	if key == "":
+		return false
+	var t := KIT.copy_text(key)
+	## copy_text returns the key itself when missing.
+	return t != "" and t != key
 
 
 func _sync_playtest_fab() -> void:
@@ -889,8 +967,10 @@ func show_menu(room: String = "main") -> void:
 		_chair_hit.visible = true
 		_chair_hit.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hide_limp_sack()
+	_clear_stuck_cabin_fades()
 	if _first_speech_ready():
 		await _say_first_speech()
+		await _point_map_after_first_speech()
 	_apply_gate()
 	## Reload / free cabin entry: resume unfinished reveal without re-banking.
 	## Skip while Push-block owns the hall handoff (that path mounts after its dialog).
@@ -1105,24 +1185,12 @@ func play_key_ring() -> void:
 		return
 	if nib and nib.sprite_frames:
 		nib.play("idle")
-	## Right path first: hall (Trophy Board), then left study chain.
+	## Nathan lock 2026-11-14: hall/trophy is already open. Visible Nib unlocks the
+	## other rooms only (study → workshop → loft). Never an invisible key-runner.
 	## Nested helpers own gen checks before post-await side effects.
-	if not await _unlock_spot("main", "SideDoor", "hall", "", false, gen):
-		if is_instance_valid(ring):
-			ring.queue_free()
-		return
-	if not await _pan_unlocked("hall", gen):
-		if is_instance_valid(ring):
-			ring.queue_free()
-		return
-	if not await _say_key("keyring.door.hall", gen):
-		if is_instance_valid(ring):
-			ring.queue_free()
-		return
-	if not await _pan_unlocked("main", gen):
-		if is_instance_valid(ring):
-			ring.queue_free()
-		return
+	_ensure_hall_unlocked()
+	if nib != null:
+		nib.visible = true
 	if not await _unlock_spot("main", "LeftDoor", "study", "", false, gen):
 		if is_instance_valid(ring):
 			ring.queue_free()
@@ -1179,9 +1247,7 @@ func play_key_ring() -> void:
 		return
 	key_ring_seen = true
 	_save()
-	## Package E: after the tour, Nib walks into the trophy hall and stays there.
-	if not await _relocate_nib_to_hall(gen, false):
-		return
+	## Stay in the entryway for the map-pointer beat. Relocate to the hall after.
 	if gen != _key_ring_gen:
 		return
 	_room_busy = false
@@ -1193,9 +1259,6 @@ func play_key_ring() -> void:
 			r.ensure_bg()
 	_refresh_rooms()
 	_apply_gate()
-	## First haul unlocks the hall — stage any pending S7 ceremony now.
-	if gen == _key_ring_gen and visible and not bank_pending.is_empty():
-		await _stage_homecoming_bank()
 
 
 func _key_ring_owns(gen: int) -> bool:
@@ -1537,7 +1600,9 @@ func _build() -> void:
 func _ensure_fade() -> ColorRect:
 	var wipe = get_node_or_null("BoardFadeWipe")
 	if wipe is ColorRect:
-		return wipe as ColorRect
+		var existing := wipe as ColorRect
+		existing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return existing
 	wipe = ColorRect.new()
 	wipe.name = "BoardFadeWipe"
 	wipe.color = Color("0B0706")
@@ -1548,6 +1613,25 @@ func _ensure_fade() -> ColorRect:
 	wipe.modulate.a = 0.0
 	add_child(wipe)
 	return wipe as ColorRect
+
+
+## After limp-home / portal: never leave a full-screen wipe eating clicks or the view.
+func _clear_stuck_cabin_fades() -> void:
+	if _fade != null and is_instance_valid(_fade):
+		_fade.color = Color(0, 0, 0, 0)
+		_fade.visible = false
+		_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var wipe := _ensure_fade()
+	wipe.modulate.a = 0.0
+	wipe.visible = false
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in get_children():
+		if child is ColorRect and child != _fade and child != wipe:
+			var cr := child as ColorRect
+			if cr.z_index >= 100 and cr.modulate.a > 0.05:
+				cr.modulate.a = 0.0
+				cr.visible = false
+				cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func ensure_nib_pointer() -> Control:
@@ -1838,8 +1922,13 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		return
 	var want_key_ring: bool = _credit_homecoming_counters()
 	_beat = "idle"
+	## First cabin visit (Brand New / show_menu) uses main + first speech separately.
+	## Post-run arrive always lands in the trophy hall first (see _interior_arrive_room).
 	if _first_speech_ready() and _current_room == "main":
 		await _say_first_speech()
+		if _arrive_aborted(gen):
+			return
+		await _point_map_after_first_speech()
 		if _arrive_aborted(gen):
 			return
 	## Tutorial clear → cabin with zero bank credit. Teach once; never fake a haul.
@@ -1862,26 +1951,8 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			_save()
 			await play_ending()
 			return
-	## First successful full dungeon return starts the key-ring tour in main.
-	if want_key_ring:
-		_save()
-		await play_key_ring()
-		## Key ring finalizer stages pending bank (hall homecoming) when present.
-		if _arrive_aborted(gen):
-			return
-		## BUG (pre-#507 and current): after a pending unpack drains bank_pending,
-		## this used to stage AGAIN and Nib said "Nothing new" even with a unique
-		## already on the board (gold + light). Only run empty/loss when no
-		## ceremony has played yet this return.
-		if not _bank_played and bank_pending.is_empty() and is_room_unlocked("hall"):
-			await _stage_homecoming_bank()
-		_save()
-		_beat = "idle"
-		_play_station()
-		_restore_arrive_dev_chrome()
-		_apply_gate()
-		return
-	## Hall homecoming (items, empty win line, or loss line).
+	## Nathan lock 2026-11-14: trophy explanations FIRST, then entryway key unlock.
+	_ensure_hall_unlocked()
 	if is_room_unlocked("hall"):
 		if _current_room != "hall":
 			_snap_to("hall")
@@ -1889,10 +1960,25 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		await _stage_homecoming_bank()
 		if _arrive_aborted(gen):
 			return
+	## After the trophy beat on the first return: visible Nib unlocks other rooms, then map.
+	if want_key_ring:
+		_save()
+		## Back to the entryway for the key tour (hall already open — skip that door).
+		if _current_room != "main":
+			await pan_to("main")
+		if _arrive_aborted(gen):
+			return
+		await play_key_ring()
+		if _arrive_aborted(gen):
+			return
+		await _point_map_continue_mission()
+		if _arrive_aborted(gen):
+			return
 	_save()
 	_beat = "idle"
 	_play_station()
 	_restore_arrive_dev_chrome()
+	_clear_stuck_cabin_fades()
 	_apply_gate()
 
 
@@ -2643,11 +2729,17 @@ func _hall_seen_dict() -> Dictionary:
 	return out
 
 func _interior_arrive_room() -> String:
-	## First successful return: main for the key-ring tour (SCREEN §6 / §9).
-	## Otherwise fade straight into the trophy hall, skipping the main walk.
-	if counts_as_successful_dungeon_return() and not key_ring_seen:
-		return "main"
+	## Nathan lock 2026-11-14: every post-run return lands in the trophy hall first
+	## (hall is unlocked from the start). Key-ring happens after satchel, in main.
+	_ensure_hall_unlocked()
 	return "hall" if is_room_unlocked("hall") else "main"
+
+
+func _ensure_hall_unlocked() -> void:
+	if not rooms_unlocked.has("hall"):
+		rooms_unlocked.append("hall")
+		_save()
+		_refresh_rooms()
 
 func _biome_rules() -> Dictionary:
 	if _campaign_rules.is_empty():
@@ -3130,7 +3222,7 @@ func _apply_defaults() -> void:
 	nib_first_done = false
 	tutorial_done = false
 	tutorial_declined = false
-	rooms_unlocked = ["main"]
+	rooms_unlocked = ["main", "hall"]
 	key_ring_seen = false
 	seen_keywords = []
 	nib_in_hall = false
@@ -3211,7 +3303,12 @@ func _read_v2(parsed: Dictionary) -> void:
 			cleaned.append(rid)
 	rooms_unlocked = cleaned
 	if rooms_unlocked.is_empty():
-		rooms_unlocked = ["main"]
+		rooms_unlocked = ["main", "hall"]
+	## Nathan lock 2026-11-14: trophy hall is always available (even on older saves).
+	if not rooms_unlocked.has("main"):
+		rooms_unlocked.insert(0, "main")
+	if not rooms_unlocked.has("hall"):
+		rooms_unlocked.append("hall")
 	var rr := str(parsed.get("return_room", return_room))
 	if rr == "mudroom" or not is_room_unlocked(rr):
 		rr = "hall" if rooms_unlocked.has("hall") else "main"
@@ -3486,7 +3583,7 @@ func debug_pose(beat: String) -> void:
 		"keyring", "key_ring":
 			key_ring_seen = false
 			seen_keywords = []
-			rooms_unlocked = ["main"]
+			rooms_unlocked = ["main", "hall"]
 			_refresh_rooms()
 			play_key_ring()
 		"hall", "trophy":

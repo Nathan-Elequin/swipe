@@ -181,12 +181,16 @@ static func is_face_locked(rules: Dictionary, state: Dictionary, face: Dictionar
 
 
 ## Two states only: unclaimed (dark silhouette) or claimed (full color).
-## Once a biome is unlocked every pool item counts as seen — cabin_seen / held are
-## ignored for display (kept in the signature for save/call-site compatibility).
-static func slot_state(_cabin_seen: Dictionary, state: Dictionary, id: String, _held := []) -> StringName:
+## bank_pending / held ids stay visually unclaimed until Homecoming place_claimed
+## (satchel float → land → poof, then the slot lights). Credit may already be in banked.
+static func slot_state(_cabin_seen: Dictionary, state: Dictionary, id: String, held := []) -> StringName:
 	var sid := str(id)
 	if sid == "":
 		return &"unclaimed"
+	## Still in the satchel ceremony queue — do not light the plinth early.
+	for raw in held:
+		if str(raw) == sid:
+			return &"unclaimed"
 	var banked: Dictionary = state.get("banked", {})
 	if typeof(banked) != TYPE_DICTIONARY:
 		banked = {}

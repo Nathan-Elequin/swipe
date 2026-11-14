@@ -52,21 +52,22 @@ func _build() -> void:
 		c.queue_free()
 	_recess = _make_plinth(false)
 	add_child(_recess)
+	## Soft gold wash behind claimed items (kept subtle under the pulse ring).
 	_glow = ColorRect.new()
 	_glow.name = "ClaimGlow"
 	_glow.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	_glow.offset_left = 8
-	_glow.offset_top = 8
-	_glow.offset_right = -8
-	_glow.offset_bottom = -8
-	_glow.color = Color(1.0, 0.88, 0.45, 0.22)
+	_glow.offset_left = 16
+	_glow.offset_top = 16
+	_glow.offset_right = -16
+	_glow.offset_bottom = -16
+	_glow.color = Color(1.0, 0.88, 0.45, 0.16)
 	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_glow.visible = false
 	_glow.z_index = 0
 	add_child(_glow)
+	## WIRING: pulse_ring.png centred on the slot (160×160, centre = slot centre − 80).
 	_aura = TextureRect.new()
 	_aura.name = "Aura"
-	_aura.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_aura.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_aura.stretch_mode = TextureRect.STRETCH_SCALE
 	_aura.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -74,6 +75,7 @@ func _build() -> void:
 	_aura.visible = false
 	_aura.z_index = 0
 	add_child(_aura)
+	_place_pulse_ring()
 	_sprite = TextureRect.new()
 	_sprite.name = "Sprite"
 	_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -196,7 +198,8 @@ func apply_state(st: StringName, force_silhouette := false) -> void:
 		_aura.visible = claimed
 		if claimed:
 			_load_aura_frame(0)
-			_aura.modulate = Color(1, 1, 1, 0.55)
+			_aura.modulate = Color(1, 1, 1, 0.85)
+			_place_pulse_ring()
 
 
 func play_claim_pop() -> void:
@@ -278,16 +281,31 @@ func _apply_plinth_art(claimed: bool) -> void:
 		box.add_theme_stylebox_override("panel", sb)
 
 
-func _load_aura_frame(i: int) -> void:
+func _place_pulse_ring() -> void:
 	if _aura == null:
 		return
-	var stem := "trophy_board/aura_claimed_s_f%d" % i if _compact else "trophy_board/aura_claimed_f%d" % i
-	var tex: Texture2D = KIT.ui_tex(stem)
+	## Compact cells use a scaled ring; normal cells use the 160×160 art 1:1.
+	var ring_sz: float = 100.0 if _compact else 160.0
+	var cx: float = size.x * 0.5
+	var cy: float = size.y * 0.5
+	_aura.position = Vector2(cx - ring_sz * 0.5, cy - ring_sz * 0.5)
+	_aura.size = Vector2(ring_sz, ring_sz)
+
+
+func _load_aura_frame(_i: int = 0) -> void:
+	if _aura == null:
+		return
+	## Prefer the contact-sheet pulse ring; fall back to legacy aura frames.
+	var tex: Texture2D = KIT.ui_tex("trophy/pulse_ring")
+	if tex == null:
+		var stem := "trophy_board/aura_claimed_s_f0" if _compact else "trophy_board/aura_claimed_f0"
+		tex = KIT.ui_tex(stem)
 	if tex != null:
 		_aura.texture = tex
 	else:
 		_aura.texture = null
 		_aura.modulate = Color(1, 0.85, 0.3, 0.35)
+	_place_pulse_ring()
 
 
 func _gui_input(event: InputEvent) -> void:

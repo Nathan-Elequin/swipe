@@ -313,17 +313,40 @@ func _clear_opaque_wipes() -> void:
 	var wipe := _ensure_board_fade()
 	wipe.modulate.a = 0.0
 	wipe.visible = false
-	var parent: Node = cabin if cabin != null else self
-	if parent == null:
-		return
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var roots: Array = []
+	if cabin != null:
+		roots.append(cabin)
+	roots.append(self)
+	if main_ref != null:
+		roots.append(main_ref)
+	for parent in roots:
+		if parent == null or not (parent is Node):
+			continue
+		_clear_opaque_under(parent as Node, wipe)
+
+
+func _clear_opaque_under(parent: Node, wipe: ColorRect) -> void:
 	for child in parent.get_children():
+		if child == null or not is_instance_valid(child):
+			continue
 		if child is ColorRect and child != wipe:
 			var cr := child as ColorRect
-			## Anonymous full-screen leftovers from older builds.
-			if cr.z_index >= 100 and cr.visible and cr.modulate.a > 0.05:
+			## Full-screen leftovers (named BoardFadeWipe or anonymous high-z).
+			var full: bool = cr.anchor_right >= 0.99 and cr.anchor_bottom >= 0.99
+			if (str(cr.name) == "BoardFadeWipe" or cr.z_index >= 100 or full) and cr.modulate.a > 0.05:
 				cr.modulate.a = 0.0
 				cr.visible = false
-				cr.queue_free()
+				cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				if str(cr.name) != "BoardFadeWipe" and str(cr.name) != "CabinRoomFade":
+					cr.queue_free()
+		elif child is CanvasLayer:
+			var layer := child as CanvasLayer
+			## Orphan BiomeSplash / fade layers left at full opacity.
+			if str(layer.name) == "BiomeSplash" or (layer.get_script() == SPLASH):
+				layer.visible = false
+				if layer.has_method("queue_free"):
+					layer.queue_free()
 
 
 func _hide_biome_splash() -> void:
@@ -451,17 +474,27 @@ func _fade(seconds: float, to_black: bool) -> void:
 		wipe.modulate.a = 1.0 if to_black else 0.0
 		if not to_black:
 			wipe.visible = false
+			wipe.modulate.a = 0.0
 		await _wait(seconds)
+		if not to_black:
+			_clear_opaque_wipes()
 		return
 	wipe.visible = true
+	wipe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wipe.modulate.a = 0.0 if to_black else 1.0
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(wipe, "modulate:a", 1.0 if to_black else 0.0, seconds / maxf(0.001, Engine.time_scale))
+	## Guaranteed cleanup if the tween is killed mid-crossfade (music interrupt / skip).
+	var finished_ok := false
+	tw.finished.connect(func() -> void: finished_ok = true, CONNECT_ONE_SHOT)
 	await tw.finished
-	if not to_black:
-		wipe.modulate.a = 0.0
-		wipe.visible = false
+	if not to_black or not finished_ok:
+		wipe.modulate.a = 0.0 if not to_black else wipe.modulate.a
+		if not to_black:
+			wipe.visible = false
+			wipe.modulate.a = 0.0
+			_clear_opaque_wipes()
 
 
 ## One named, reused full-screen wipe. Never spawn anonymous ColorRects.
@@ -493,7 +526,8 @@ func _wait(seconds: float) -> void:
 		tree = Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return
-	await tree.create_timer(t).timeout
+	## Cabin leaves SceneTree.paused while open — ignore_pause so portal/splash never sticks black.
+	await tree.create_timer(t, true, false, true).timeout
 
 
 func _token_vars(face: Dictionary, next_name: String, biome_or_prev: String) -> Dictionary:
