@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "style": "splice (Forge-like, short lead, loop out after the hit)",
+  "tempos": {
+    "loop_duration_s": 72.577,
+    "loop_bars_4_4": 36,
+    "bar_period_s": 2.0160277777777775,
+    "beat_s": 0.5040069444444444,
+    "bpm": 119.04597875359964,
+    "credits_bpm_nominal": 119.05,
+    "note": "bar_period_s = 72.577 / 36 so the loop wraps in exactly 36 bars. 119.05 BPM would be 2.015959681 s/bar (68 \u00b5s short)."
+  },
+  "hit": {
+    "audacity_label_s": 61.441,
+    "snapped_hit_s": 61.43835416666667,
+    "snapped_hit_samp": 2949041,
+    "snap_delta_ms": -2.645833333332348,
+    "snap": "Yes \u2014 2.65 ms before the 61.441 label, within the 15 ms window. Max 1 ms-energy rise of the cymbal/drum attack at 61.438354 s (sample 2949041). Librosa backtrack onset was 61.437333 s. The first large peak is 61.438833 s. The label sits in the middle of the attack."
+  },
+  "loop_grid": {
+    "assumed_t0_grid": "k * (72.577/36), phase 0",
+    "method": "Kick-band (30\u2013150 Hz) envelope max-rise, seeded by hop-128 STFT kick onsets on layer B.",
+    "bar8_measured_s": 16.10183333333333,
+    "bar8_offset_ms": -26.388888888888573,
+    "bar15_measured_s": 30.2201875,
+    "bar15_offset_ms": -20.229166666666668,
+    "strong_bars_mean_offset_ms": -19.575,
+    "strong_bars_median_offset_ms": -18.194,
+    "strong_bars_std_ms": 5.643,
+    "bars_8_20_median_offset_ms": -19.944,
+    "drift_note": "Slight tempo drift: early bars ~-27 ms, mid (8\u201320, this splice) ~-20 ms, late ~-17 ms. A constant bar_phase_s cannot track every bar. bar_phase_s is taken from the splice bar (bar 15, -20.23 ms), which matches the mid-loop median, so the engine T at this loop position equals the measured kick used in the demo. Residuals at the loop extremes are about 8 ms."
+  },
+  "demo": {
+    "loop_start_in_file_s": 16.10183333333333,
+    "loop_start_bar": 8,
+    "combat_end_demo_s": 13.2,
+    "crossfade_start_demo_s": 14.088354166666667,
+    "hit_demo_s": 14.118354166666666,
+    "loop_silent_demo_s": 14.168354166666667,
+    "file_end_demo_s": 26.04,
+    "preroll_s": 0.03,
+    "loop_out_s": 0.05,
+    "total_demo_s": 26.04
+  },
+  "mix": {
+    "A_db": -4.0,
+    "A_boss_lin": 0.5,
+    "A_effective_db": -10.020599913279625,
+    "B_db": -4.0,
+    "C_db": 10.0,
+    "note": "Boss/heat mix. _forge_set_heat applies FORGE_A_BOSS_LIN (0.5) to bed A on every layered biome, including Crystal Cavern, when heat is on. Dungeon-clear victory is after the boss. Layer C is a quiet stem (+10 dB still ~23 dB under A); it is included because the game plays it during heat."
+  },
+  "loudness": {
+    "loop_section_integrated_lufs": -23.0,
+    "loop_section": "boss mix, demo region, bar 8 kick through bar 15 kick",
+    "outro_body_integrated_lufs": -13.3,
+    "outro_body": "extend 61.438354\u201366.5 s (post-hit body, before the long tail fade)",
+    "musical_gain_offset_db": -9.7,
+    "headroom_pad_db": 0.0,
+    "gain_baked_db": -9.7,
+    "loop_ebur128": {
+      "integrated_lufs": -23.0,
+      "lra": 1.4,
+      "true_peak_dbfs": -7.6
+    },
+    "body_ebur128": {
+      "integrated_lufs": -13.3,
+      "lra": 0.5,
+      "true_peak_dbfs": -4.3
+    },
+    "demo_ebur128": {
+      "integrated_lufs": -23.4,
+      "lra": 2.9,
+      "true_peak_dbfs": -7.6
+    }
+  },
+  "victory_clip": {
+    "start_in_extend_s": 61.40835416666667,
+    "duration_s": 11.951645833333334,
+    "hit_offset_s": 0.03,
+    "fade_in_baked": "linear 0\u21921 over the first 30 ms, full at the hit",
+    "end_fade_s": 0.08,
+    "gain_baked_db": -9.7,
+    "engine_gain_db": 0.0
+  },
+  "sfx_map": {
+    "crystal_cavern": {
+      "bar_period_s": 2.0160277777777775,
+      "bar_phase_s": -0.020229166666666666,
+      "note": "bar_phase_s = measured bar-15 kick minus 15\u00d7bar_period_s. Negative means downbeats are early of a t=0 grid. Do not also bake this into outro_lead_s."
+    },
+    "crystal_cavern_victory": {
+      "file": "music_crystal_cavern_victory",
+      "gain_db": 0.0,
+      "loop": false,
+      "resume_position": false,
+      "outro_style": "splice",
+      "outro_lead_s": 0.03,
+      "loop_out_start": "bar",
+      "loop_out_frac": 0.024801245573666593,
+      "note": "Clip has baked 30 ms linear fade-in + -9.7 dB loudness match; engine gain_db 0. Start the clip outro_lead_s (0.030) before the engine bar line T. Hold A/B/C through the lead; linear 1\u21920 over 50 ms (loop_out_frac\u00d7bar) starting at T."
+    }
+  },
+  "wiring_maps_to_demo": {
+    "rule": "Engine T at this loop position MUST equal the demo hit. outro_lead_s is only the pre-roll. Do not add bar_phase_s a second time into the lead (Crypt #505 lesson).",
+    "engine_T": "k * bar_period_s + bar_phase_s. At loop position of bar 15, T = 15 * 2.016027777777778 + (-0.020229166666666667) = 30.2201875 s, which is the measured kick (sample 1450569).",
+    "demo_T": "14.1183541667 s = T_loop - loop_start = 30.2201875 - 16.1018333333. The snapped extend hit (61.4383541667) is placed exactly here.",
+    "engine_clip_start": "T - outro_lead_s = T - 0.030. Clip sample 0 is extend 61.4083541667; clip sample 1440 (0.030 s) is the hit, already at full baked gain.",
+    "engine_loop_out": "loop_out_start='bar' means hold_s = lead_s, so the 50 ms ramp starts at T (not at clip start, and not ending at T like Forge splice_out_s 0.04). Loop is full at the hit and silent at T+0.050.",
+    "do_not": "Do not set lead_in_frac or splice_out_s for this bed. Those are the Forge path (half-bar lead, loop silent AT T). Do not set bar_phase_s to 0 and also shift the clip. Do not apply FORGE-style 0.5 lead_in_frac."
+  },
+  "verify": {
+    "residual_at_hit": 0.0,
+    "loop_gain_at_T": 1.0,
+    "loop_gain_at_mid_ramp": 0.49979157982492706,
+    "loop_gain_at_silent": 0.0,
+    "residual_just_after_loop_silent": 0.0,
+    "clip_start_level": 0.0,
+    "clip_at_hit_peak": 0.0784287046964648,
+    "demo_sample_peak_dbfs": -7.783395716248166
+  },
+  "sha256": {
+    "demo_crystal_outro.ogg": "8796a76a2306f480cc495436696fcf1c2993bb78b59b3de9d04c95f70d9b59a0",
+    "demo_crystal_outro.wav": "474c1a7c6bf9e8a79a0c516b039f5d732d20dfca29c2421b7ce84615b6de12e8",
+    "music_crystal_cavern_victory.ogg": "9f941f4599c6419a2035ff18127dae631229703599a12a7158692acb2905bfb1",
+    "music_crystal_cavern_victory.wav": "7a67d71636f1fb99f6dad3f68af2b31bff59047d4e29a16b6857e961c01cb0b5",
+    "crystal_extend.wav": "72ae9d4831589d2df662ddf6bfeb2d670a7674b56307b14b553f9423a57c2ea1"
+  },
+  "samples": {
+    "loop_start": 772888,
+    "T_loop": 1450569,
+    "T_demo": 677681,
+    "clip_start_demo": 676241,
+    "clip_start_extend": 2947601,
+    "hit_extend": 2949041,
+    "combat_end_demo": 633600,
+    "loop_silent_demo": 680081,
+    "demo_len": 1249920,
+    "clip_len": 573679,
+    "phase_samp": -971
+  }
+}

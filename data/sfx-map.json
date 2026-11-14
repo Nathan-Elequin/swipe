@@ -1060,7 +1060,9 @@
         "gain_db": -4.0,
         "loop": true,
         "resume_position": true,
-        "note": "Crystal Cavern (b2, was sunken_mire) Approach F layer A bed. Always on during the delve."
+        "bar_period_s": 2.016027777777778,
+        "bar_phase_s": -0.020229166666667,
+        "note": "Crystal Cavern (b2, was sunken_mire) Approach F layer A bed. Always on during the delve. bar_period_s = 72.577/36 (36 bars wrap). bar_phase_s = measured bar-15 kick − 15×bar (downbeats early of t=0 grid). Victory splice uses this phase so engine T at mid-loop equals the measured kick."
       },
       "crystal_cavern_b": {
         "file": "music_crystal_cavern_b",
@@ -1075,6 +1077,17 @@
         "loop": true,
         "resume_position": false,
         "note": "Crystal Cavern intensity C (heat). Quiet stem; +10 dB. Synced to A; fade in on Tier-3/boss only."
+      },
+      "crystal_cavern_victory": {
+        "file": "music_crystal_cavern_victory",
+        "gain_db": 0.0,
+        "loop": false,
+        "resume_position": false,
+        "outro_style": "splice",
+        "outro_lead_s": 0.030,
+        "loop_out_start": "bar",
+        "loop_out_frac": 0.024801245573667,
+        "note": "Crystal Cavern (b2) dungeon-clear one-shot. Clip has baked 30 ms linear fade-in + −9.7 dB; engine gain_db 0. Splice hybrid: start at T−0.030 at full gain; hold A/B/C through the lead; linear 1→0 over loop_out_frac×bar (~50 ms) from T. Do not use lead_in_frac or splice_out_s. Finished → between_dungeons soft 0.8s. Timing: design/audio/demo_report_crystal_cavern_victory.json."
       },
       "ashen_crypt": {
         "file": "music_ashen_crypt_a",
