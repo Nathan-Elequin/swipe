@@ -2,7 +2,7 @@
 id: REQ-20261114-trophy-board-package-c
 status: open
 priority: high
-tip_sha: cd2dc307
+tip_sha: b204581a
 branch: cursor/trophy-board-package-c-6d6e
 created: 2026-11-14T03:00:00Z
 created_by: cloud-agent
