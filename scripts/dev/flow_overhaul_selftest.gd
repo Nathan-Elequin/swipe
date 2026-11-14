@@ -233,6 +233,33 @@ func _run() -> void:
 	var h_later = await HOMECOMING.run(board_u, cabin_u, null)
 	failed = _check(rows, failed, "later.not_first", h_later.first_return_branch == "") or failed
 	failed = _check(rows, failed, "later.no_first_look", not stub2.said.has("nib.board.first_look")) or failed
+	failed = _check(
+		rows, failed, "later.empty_says_nothing_new",
+		stub2.said.has("nib.board.empty.1") or stub2.said.has("nib.board.empty.2")
+	) or failed
+
+	## Later return WITH 1 new unique must unpack — never "Nothing new".
+	cabin_u.bank_pending = [id_a]
+	cabin_u._bank_hold = {id_a: true}
+	cabin_u.first_return_homecoming_done = true
+	var stub3 := _StubDialog.new()
+	cabin_u.set("_dialog", stub3)
+	root.add_child(stub3)
+	board_u.set_hold([id_a])
+	var h_later_new = await HOMECOMING.run(board_u, cabin_u, null)
+	failed = _check(rows, failed, "later.new.not_first_branch", h_later_new.first_return_branch == "") or failed
+	failed = _check(rows, failed, "later.new.placed", h_later_new.placed_order.has(id_a)) or failed
+	failed = _check(
+		rows, failed, "later.new.no_nothing_new",
+		not stub3.said.has("nib.board.empty.1") and not stub3.said.has("nib.board.empty.2")
+	) or failed
+
+	## Arrive must not re-stage empty after a pending ceremony (_bank_played guard).
+	var cabin_src := FileAccess.get_file_as_string("res://scripts/home_cabin.gd")
+	failed = _check(
+		rows, failed, "src.no_restage_after_bank_played",
+		cabin_src.find("not _bank_played and bank_pending.is_empty()") >= 0
+	) or failed
 
 	## Source guards: no Tier/ATK in new rope loot path.
 	var rope_src := FileAccess.get_file_as_string("res://scripts/cabin/rope_exit.gd")
