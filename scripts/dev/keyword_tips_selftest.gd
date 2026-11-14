@@ -190,8 +190,9 @@ func _check_wheel_returns_node() -> bool:
 	failed = _check("wheel_is_node", got is Node) or failed
 	failed = _check("wheel_is_not_array", not (got is Array)) or failed
 	failed = _check("wheel_is_wheel_view", got == wv) or failed
-	tip.queue_free()
-	main.queue_free()
+	## free() not queue_free(): a leftover Main would parent TeachHalo then wipe it.
+	tip.free()
+	main.free()
 	return failed
 
 
@@ -212,23 +213,94 @@ func _check_pin_ignores_other_show_def() -> bool:
 	return failed
 
 
+func _effective_modulate_a(node: CanvasItem) -> float:
+	## Inherited alpha = product of modulate.a * self_modulate.a up the CanvasItem chain.
+	var a: float = node.modulate.a * node.self_modulate.a
+	var p: Node = node.get_parent()
+	while p != null:
+		if p is CanvasItem:
+			var c: CanvasItem = p as CanvasItem
+			a *= c.modulate.a * c.self_modulate.a
+		p = p.get_parent()
+	return a
+
+
 func _check_teach_three_pulses_then_alpha() -> bool:
 	var failed := false
+	## Drop any stub Main left by earlier cases so TeachHalo is not parented onto it.
+	var stray_main: Node = root.get_node_or_null("Main")
+	if stray_main != null:
+		stray_main.free()
 	var tip: PanelContainer = (load("res://scripts/keyword_tip.gd") as GDScript).new()
 	root.add_child(tip)
 	tip.setup()
+	## Chip stand-in so the halo docks on a real rect (not under the card).
+	var chip := Control.new()
+	chip.name = "FakeChip"
+	chip.position = Vector2(120, 180)
+	chip.size = Vector2(48, 24)
+	root.add_child(chip)
+	tip.set("_anchor", chip)
+	tip.set("_source", "item")
 	failed = _check("teach_pulses_const", int(tip.get("TEACH_PULSES")) == 3) or failed
+	## Anchor must be set before preview so the first pulse docks on the chip.
 	tip.preview_first_sighting("spin")
 	failed = _check("teach_starts_alpha0", float(tip.modulate.a) < 0.05) or failed
-	## 3 × 0.45s pulses + open fade (~0.18) + buffer.
-	var deadline_ms: int = Time.get_ticks_msec() + 2200
-	while Time.get_ticks_msec() < deadline_ms and float(tip.modulate.a) < 0.99:
+	## During the pulse phase: card stays a≈0 while halo inherited alpha > 0.5.
+	var saw_halo_bright := false
+	var card_a0_while_bright := false
+	var pulse_deadline_ms: int = Time.get_ticks_msec() + 1400
+	while Time.get_ticks_msec() < pulse_deadline_ms:
+		var halo_mid: CanvasItem = _alive_canvas(tip.get("_teach_halo"))
+		if halo_mid == null:
+			halo_mid = _alive_canvas(tip.get_node_or_null("TeachHalo"))
+		if halo_mid == null:
+			var host: Node = root.get_node_or_null("KeywordTeachHaloHost")
+			if host != null:
+				halo_mid = _alive_canvas(host.get_node_or_null("TeachHalo"))
+		if halo_mid != null and is_instance_valid(tip) and _effective_modulate_a(halo_mid) > 0.5:
+			saw_halo_bright = true
+			card_a0_while_bright = float(tip.modulate.a) < 0.05
+			break
 		await process_frame
-	failed = _check("teach_reaches_alpha1", float(tip.modulate.a) >= 0.99) or failed
-	var star: CanvasItem = tip.get("_star") as CanvasItem
+	failed = _check("teach_halo_effective_a_gt_05_while_card_a0", saw_halo_bright and card_a0_while_bright) or failed
+	var halo: Node = _alive_node(tip.get("_teach_halo"))
+	if halo == null:
+		halo = tip.get_node_or_null("TeachHalo")
+	if halo == null:
+		var host2: Node = root.get_node_or_null("KeywordTeachHaloHost")
+		if host2 != null:
+			halo = host2.get_node_or_null("TeachHalo")
+	failed = _check("teach_halo_created", halo != null and is_instance_valid(halo)) or failed
+	failed = _check("teach_halo_not_under_card", halo != null and is_instance_valid(halo) and not tip.is_ancestor_of(halo)) or failed
+	## Finish the remaining pulses + open fade (~0.18) + buffer.
+	var deadline_ms: int = Time.get_ticks_msec() + 2200
+	while Time.get_ticks_msec() < deadline_ms and is_instance_valid(tip) and float(tip.modulate.a) < 0.99:
+		await process_frame
+	failed = _check("teach_reaches_alpha1", is_instance_valid(tip) and float(tip.modulate.a) >= 0.99) or failed
+	var star: CanvasItem = _alive_canvas(tip.get("_star")) if is_instance_valid(tip) else null
 	failed = _check("teach_star_visible", star != null and star.visible) or failed
-	## Halo should have been created and pulsed.
-	var halo: Node = tip.get_node_or_null("TeachHalo")
-	failed = _check("teach_halo_created", halo != null) or failed
-	tip.queue_free()
+	if is_instance_valid(tip):
+		tip.queue_free()
+	if is_instance_valid(chip):
+		chip.queue_free()
 	return failed
+
+
+func _alive_node(v: Variant) -> Node:
+	if v == null:
+		return null
+	if typeof(v) != TYPE_OBJECT:
+		return null
+	if not is_instance_valid(v):
+		return null
+	if v is Node:
+		return v
+	return null
+
+
+func _alive_canvas(v: Variant) -> CanvasItem:
+	var n: Node = _alive_node(v)
+	if n != null and n is CanvasItem:
+		return n
+	return null
