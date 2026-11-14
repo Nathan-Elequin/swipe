@@ -1082,8 +1082,7 @@
         "loop": true,
         "resume_position": true,
         "bar_period_s": 2.1238938053097347,
-        "bar_phase_s": -0.054,
-        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom. bar_period_s = 60/113*4 (113 BPM 4/4). bar_phase_s −54 ms: loop drum downbeats sit early of a t=0 grid."
+        "note": "Ashen Crypt (b3) Approach F layer A bed. Always on during the delve. Map -2 dB so A+B+C leave ~1.5 dB Music-bus headroom. bar_period_s = 60/113*4 (113 BPM 4/4). Victory outro v4 timing uses the plain t=0 bar grid (no bar_phase_s); outro_lead_s already places the downbeat by ear."
       },
       "ashen_crypt_b": {
         "file": "music_ashen_crypt_b",
