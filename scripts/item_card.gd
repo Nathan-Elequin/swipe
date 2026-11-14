@@ -133,6 +133,7 @@ var _aura_pulse_tw: Tween
 var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
+var _new_star: TextureRect
 var _beggar_on: bool = false
 var _beggar_lab: Label
 var _beggar_icon: TextureRect
@@ -1531,6 +1532,40 @@ func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 	lab.tooltip_text = tip
 	lab.visible = true
 	lab.position = Vector2(4.0, (SHOW_H if _showcase else CARD_H) - 16.0)
+
+
+## Tiny gold star, top-right. No loop, no text. Prefer hud/new_star, else unique_star.
+func set_new_star(on: bool) -> void:
+	if not on:
+		if _new_star != null:
+			_new_star.visible = false
+		return
+	if _new_star == null:
+		_new_star = TextureRect.new()
+		_new_star.name = "NewStar"
+		_new_star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_new_star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_new_star.stretch_mode = TextureRect.STRETCH_SCALE
+		_new_star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_new_star.z_index = 9
+		var tex: Texture2D = null
+		if ResourceLoader.exists("res://assets/ui/hud/new_star.png"):
+			tex = load("res://assets/ui/hud/new_star.png") as Texture2D
+		elif ResourceLoader.exists("res://assets/ui/trophy_board/unique_star.png"):
+			tex = load("res://assets/ui/trophy_board/unique_star.png") as Texture2D
+		_new_star.texture = tex
+		_overlay_host().add_child(_new_star)
+	var star_sz := 14.0
+	var host_w: float = SHOW_W if _showcase else CARD_W
+	_new_star.size = Vector2(star_sz, star_sz)
+	_new_star.position = Vector2(host_w - star_sz - 2.0, 2.0)
+	_new_star.visible = _new_star.texture != null
+	if _new_star.texture == null:
+		## Last-ditch glyph — never Tier/ATK text.
+		if _cabinet_badge == null or not _cabinet_badge.visible:
+			set_cabinet_badge(true, "*", "")
+			if _cabinet_badge:
+				_cabinet_badge.position = Vector2(host_w - 16.0, 2.0)
 
 
 func _ensure_corner_badge(choice: bool) -> Label:

@@ -91,15 +91,14 @@ func _compose(face: Dictionary, state: Dictionary, seen: Dictionary, rules: Dict
 	var rects: Dictionary = lay.get("rects", {})
 	for id in rects.keys():
 		var r: Rect2 = rects[id]
-		var st: StringName = &"unseen" if locked else MODEL.slot_state(seen, state, str(id), [])
+		var st: StringName = &"unclaimed" if locked else MODEL.slot_state(seen, state, str(id), [])
 		var recess := "res://assets/ui/trophy_board/slot_recess_dark.png"
 		if st == &"claimed":
 			recess = "res://assets/ui/trophy_board/slot_recess_lit.png"
 		_blit_scaled(img, recess, int(r.position.x), int(r.position.y), int(r.size.x), int(r.size.y))
-		if st == &"unseen":
+		if st != &"claimed":
+			## Unclaimed = dark silhouette only (no colored-in seen treatment).
 			_fill_rect(img, Rect2i(int(r.position.x) + 16, int(r.position.y) + 16, int(r.size.x) - 32, int(r.size.y) - 32), Color(0.04, 0.03, 0.025, 0.92))
-		elif st == &"seen":
-			_fill_rect(img, Rect2i(int(r.position.x) + 16, int(r.position.y) + 16, int(r.size.x) - 32, int(r.size.y) - 32), Color(0.45, 0.42, 0.38, 0.85))
 
 	## Painted placard 1:1, centred on x 840, top y 0
 	var pool := str(face.get("pool_id", "b1"))

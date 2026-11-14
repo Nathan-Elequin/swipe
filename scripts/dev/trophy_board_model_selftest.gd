@@ -61,9 +61,12 @@ func _init() -> void:
 	var rects: Dictionary = lay.get("rects", {})
 	var top_ids: Array = (b1.get("rows", {}) as Dictionary).get(3, [])
 	var bot_ids: Array = (b1.get("rows", {}) as Dictionary).get(1, [])
+	## Raised board (#512): pyramid tracks PYRAMID_AREA (272 − BOARD_RAISE_PX).
+	var top_y: float = MODEL.PYRAMID_AREA.position.y
+	var bot_y: float = top_y + 2.0 * (MODEL.SLOT_NORMAL + MODEL.VGAP_NORMAL)
 	if top_ids.size() >= 1:
 		var tr: Rect2 = rects[str(top_ids[0])]
-		failed = _check(failed, "top y 272", is_equal_approx(tr.position.y, 272.0)) or failed
+		failed = _check(failed, "top y raised pyramid", is_equal_approx(tr.position.y, top_y)) or failed
 		failed = _check(failed, "top x0 624", is_equal_approx(tr.position.x, 624.0)) or failed
 		var last_top: Rect2 = rects[str(top_ids[top_ids.size() - 1])]
 		failed = _check(
@@ -73,7 +76,7 @@ func _init() -> void:
 		) or failed
 	if bot_ids.size() >= 1:
 		var br: Rect2 = rects[str(bot_ids[0])]
-		failed = _check(failed, "bottom y 576", is_equal_approx(br.position.y, 576.0)) or failed
+		failed = _check(failed, "bottom y raised pyramid", is_equal_approx(br.position.y, bot_y)) or failed
 		failed = _check(failed, "bottom x0 396", is_equal_approx(br.position.x, 396.0)) or failed
 
 	## Compact mode: 9 tier-1 items
@@ -130,16 +133,17 @@ func _init() -> void:
 	) or failed
 
 	var seen := {}
+	## Two-state model: unlocked biome → unclaimed or claimed only. Old seen flags ignored.
 	failed = _check(
 		failed,
-		"slot unseen",
-		MODEL.slot_state(seen, {"banked": {}}, str(b1_ids[0]), []) == &"unseen"
+		"slot unclaimed when not banked",
+		MODEL.slot_state(seen, {"banked": {}}, str(b1_ids[0]), []) == &"unclaimed"
 	) or failed
 	seen[str(b1_ids[0])] = true
 	failed = _check(
 		failed,
-		"slot seen",
-		MODEL.slot_state(seen, {"banked": {}}, str(b1_ids[0]), []) == &"seen"
+		"slot ignores old seen flag",
+		MODEL.slot_state(seen, {"banked": {}}, str(b1_ids[0]), []) == &"unclaimed"
 	) or failed
 	failed = _check(
 		failed,
@@ -148,14 +152,28 @@ func _init() -> void:
 	) or failed
 	failed = _check(
 		failed,
-		"slot banked-in-hold is seen",
+		"slot banked-in-hold stays claimed",
 		MODEL.slot_state(
 			seen,
 			{"banked": {str(b1_ids[0]): "b1"}},
 			str(b1_ids[0]),
 			[str(b1_ids[0])]
-		) == &"seen"
+		) == &"claimed"
 	) or failed
+
+	## Satchel spill grid: 0 / 1 / 3 / 7 items.
+	failed = _check(failed, "satchel grid 0", MODEL.satchel_grid_positions(0).is_empty()) or failed
+	failed = _check(failed, "satchel grid 1 count", MODEL.satchel_grid_positions(1).size() == 1) or failed
+	failed = _check(failed, "satchel grid 3 count", MODEL.satchel_grid_positions(3).size() == 3) or failed
+	var seven: Array = MODEL.satchel_grid_positions(7, 56.0, 5, 8.0)
+	failed = _check(failed, "satchel grid 7 count", seven.size() == 7) or failed
+	if seven.size() >= 7:
+		## Second row starts after one cell+gap; first of row 2 is index 5.
+		failed = _check(
+			failed,
+			"satchel grid 7 wraps to row 2",
+			is_equal_approx((seven[5] as Vector2).y, 56.0 + 8.0)
+		) or failed
 
 	## item_status absorb
 	failed = _check(

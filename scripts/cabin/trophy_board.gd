@@ -49,6 +49,11 @@ var _cog_r: Control
 var _wheel_debounce: float = 0.0
 var _view_timer: float = 0.0
 var _sfx = null
+## Click parchment tag (name + one-line ability). No combat-card fly tip.
+var _item_tag: Control = null
+var _item_tag_title: Label = null
+var _item_tag_body: Label = null
+var _item_tag_open: bool = false
 
 
 func setup(rules, items_by_id, campaign_state, cabin_seen, hold: Array) -> void:
@@ -100,6 +105,7 @@ func current_face() -> int:
 
 
 func slide_to(index: int, instant := false) -> void:
+	hide_item_tag()
 	if _faces_data.is_empty():
 		slide_done.emit()
 		return
@@ -281,6 +287,10 @@ func handle_nav(dir: int) -> bool:
 
 
 func _build_shell() -> void:
+	_item_tag = null
+	_item_tag_title = null
+	_item_tag_body = null
+	_item_tag_open = false
 	for c in get_children():
 		c.queue_free()
 	_face_nodes.clear()
@@ -381,6 +391,7 @@ func _build_shell() -> void:
 	_trim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_trim.visible = false
 	add_child(_trim)
+	_build_item_tag()
 	_viewport.gui_input.connect(_on_viewport_gui)
 
 
@@ -596,37 +607,172 @@ func _on_viewport_gui(event: InputEvent) -> void:
 
 
 func _on_slot_hover(card_id: String, st: StringName) -> void:
+	## No nameplates on slots. Hover stays quiet while a click-tag is open.
+	if _item_tag_open:
+		return
 	var face: Dictionary = _faces_data[_current] if _current < _faces_data.size() else {}
 	var slot = (_face_nodes[_current] as TrophyBoardFace).slot_node(card_id) if _current < _face_nodes.size() else null
-	var tip := ""
-	if st == &"unseen" or MODEL.is_face_locked(_rules, _campaign_state, face):
-		tip = COPY.text("board.tip.unseen", "Yet to be seen.")
-	elif st == &"seen":
-		var card: Dictionary = _items_by_id.get(card_id, {})
-		tip = str(card.get("name", card_id))
-	else:
-		var card2: Dictionary = _items_by_id.get(card_id, {})
-		var name := str(card2.get("name", card_id))
-		var journal := _journal_for(card_id)
-		if journal == "":
-			tip = "%s\n%s" % [name, COPY.text("board.tip.claimed_nolore", "Home where it belongs.")]
-		else:
-			tip = "%s\n%s\n%s" % [
-				name,
-				COPY.text("cabin.tip.journal", "From Grandpa's journal:"),
-				journal,
-			]
-	if tip != "" and slot != null:
+	if slot == null:
+		return
+	if MODEL.is_face_locked(_rules, _campaign_state, face) or st == &"unseen":
+		hover_tip.emit(COPY.text("board.tip.unseen", "Yet to be seen."), slot)
+		return
+	## Unclaimed / claimed: name only on hover (full parchment is click).
+	var card: Dictionary = _items_by_id.get(card_id, {})
+	var tip := str(card.get("name", card_id))
+	if tip != "":
 		hover_tip.emit(tip, slot)
 
 
 func _on_slot_click(card_id: String, st: StringName) -> void:
-	if st == &"unseen":
+	var face: Dictionary = _faces_data[_current] if _current < _faces_data.size() else {}
+	if MODEL.is_face_locked(_rules, _campaign_state, face) or st == &"unseen":
 		_cue("cabin.locked")
 		_bump()
+		hide_item_tag()
 		return
 	slot_clicked.emit(card_id)
-	inspect_wanted.emit(card_id)
+	## Parchment tag replaces the lingering combat-card inspect fly tip.
+	var slot = (_face_nodes[_current] as TrophyBoardFace).slot_node(card_id) if _current < _face_nodes.size() else null
+	var anchor: Vector2 = get_global_mouse_position()
+	if slot != null:
+		var gr: Rect2 = slot.get_global_rect()
+		anchor = gr.position + Vector2(gr.size.x * 0.5, gr.size.y * 0.35)
+	show_item_tag(card_id, anchor)
+	if st == &"claimed" and slot != null and slot.has_method("play_click_shine"):
+		slot.play_click_shine()
+
+
+func _build_item_tag() -> void:
+	_item_tag = Control.new()
+	_item_tag.name = "ItemParchmentTag"
+	_item_tag.visible = false
+	_item_tag.z_index = 40
+	_item_tag.mouse_filter = Control.MOUSE_FILTER_STOP
+	_item_tag.custom_minimum_size = Vector2(160, 48)
+	add_child(_item_tag)
+	var frame: Control = null
+	var parch: Texture2D = KIT.ui_tex("trophy/parchment_tag")
+	if parch != null:
+		var nine := NinePatchRect.new()
+		nine.name = "Frame"
+		nine.texture = parch
+		nine.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		nine.patch_margin_left = 6
+		nine.patch_margin_top = 6
+		nine.patch_margin_right = 6
+		nine.patch_margin_bottom = 6
+		nine.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		nine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_item_tag.add_child(nine)
+		frame = nine
+	else:
+		var panel := Panel.new()
+		panel.name = "Frame"
+		panel.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("e8d5a8")
+		sb.border_color = Color("6b4a2b")
+		sb.set_border_width_all(2)
+		sb.content_margin_left = 10
+		sb.content_margin_right = 10
+		sb.content_margin_top = 8
+		sb.content_margin_bottom = 8
+		panel.add_theme_stylebox_override("panel", sb)
+		_item_tag.add_child(panel)
+		frame = panel
+	var col := VBoxContainer.new()
+	col.name = "Cols"
+	col.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	col.offset_left = 10
+	col.offset_top = 8
+	col.offset_right = -10
+	col.offset_bottom = -8
+	col.add_theme_constant_override("separation", 4)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_item_tag.add_child(col)
+	_item_tag_title = Label.new()
+	_item_tag_title.name = "Title"
+	_item_tag_title.add_theme_font_size_override("font_size", 18)
+	_item_tag_title.add_theme_color_override("font_color", Color("3a2414"))
+	_item_tag_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_item_tag_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_item_tag_title)
+	_item_tag_body = Label.new()
+	_item_tag_body.name = "Body"
+	_item_tag_body.add_theme_font_size_override("font_size", 14)
+	_item_tag_body.add_theme_color_override("font_color", Color("4a3220"))
+	_item_tag_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_item_tag_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_item_tag_body)
+	_item_tag.mouse_exited.connect(_on_item_tag_mouse_exited)
+	set_process_unhandled_input(true)
+
+
+func show_item_tag(card_id: String, screen_anchor: Vector2) -> void:
+	if _item_tag == null or not is_instance_valid(_item_tag):
+		_build_item_tag()
+	if _item_tag == null or not is_instance_valid(_item_tag):
+		return
+	var card: Dictionary = _items_by_id.get(card_id, {})
+	var title := str(card.get("name", card_id))
+	## Existing one-line ability only — never invent copy.
+	var body := str(card.get("ability", "")).strip_edges()
+	if body == "":
+		body = str(card.get("explainer", "")).strip_edges()
+	_item_tag_title.text = title
+	_item_tag_body.text = body
+	_item_tag_body.visible = body != ""
+	## Size to content, then clamp on screen.
+	var max_w := 280.0
+	_item_tag_title.custom_minimum_size = Vector2(max_w - 20, 0)
+	_item_tag_body.custom_minimum_size = Vector2(max_w - 20, 0)
+	var title_sz: Vector2 = _item_tag_title.get_minimum_size()
+	var body_sz: Vector2 = _item_tag_body.get_minimum_size() if _item_tag_body.visible else Vector2.ZERO
+	var w: float = clampf(maxi(title_sz.x, body_sz.x) + 24.0, 140.0, max_w)
+	var h: float = 16.0 + title_sz.y + (4.0 + body_sz.y if _item_tag_body.visible else 0.0) + 16.0
+	_item_tag.size = Vector2(w, h)
+	## Anchor at click, prefer above-right; clamp inside the 1680×1040 viewport.
+	var gp := screen_anchor + Vector2(12, -h - 8)
+	var view := Rect2(0, 0, 1680, 1040)
+	var vp := get_viewport()
+	if vp != null:
+		view = vp.get_visible_rect()
+		if view.size.x < 8.0 or view.size.y < 8.0:
+			view = Rect2(0, 0, 1680, 1040)
+	gp.x = clampf(gp.x, view.position.x + 8.0, view.position.x + view.size.x - w - 8.0)
+	gp.y = clampf(gp.y, view.position.y + 8.0, view.position.y + view.size.y - h - 8.0)
+	_item_tag.global_position = gp
+	_item_tag.visible = true
+	_item_tag_open = true
+	hover_clear.emit()
+
+
+func hide_item_tag() -> void:
+	_item_tag_open = false
+	if _item_tag:
+		_item_tag.visible = false
+
+
+func _on_item_tag_mouse_exited() -> void:
+	## Auto-hide as soon as the mouse leaves the tag.
+	if _item_tag_open:
+		hide_item_tag()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _item_tag_open:
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if (event as InputEventKey).keycode == KEY_ESCAPE:
+			hide_item_tag()
+			get_viewport().set_input_as_handled()
+			return
+	if event is InputEventMouseButton and event.pressed:
+		## Click elsewhere closes the tag.
+		if _item_tag != null and not _item_tag.get_global_rect().has_point(event.position):
+			hide_item_tag()
 
 
 func _on_lever(face_index: int) -> void:

@@ -177,22 +177,41 @@ static func is_face_locked(rules: Dictionary, state: Dictionary, face: Dictionar
 	return not _map_has(state, str(biome.get("id", "")))
 
 
-## unseen / seen / claimed for board slots.
-static func slot_state(cabin_seen: Dictionary, state: Dictionary, id: String, held := []) -> StringName:
+## Two states only: unclaimed (dark silhouette) or claimed (full color).
+## Once a biome is unlocked every pool item counts as seen — cabin_seen / held are
+## ignored for display (kept in the signature for save/call-site compatibility).
+static func slot_state(_cabin_seen: Dictionary, state: Dictionary, id: String, _held := []) -> StringName:
 	var sid := str(id)
 	if sid == "":
-		return &"unseen"
+		return &"unclaimed"
 	var banked: Dictionary = state.get("banked", {})
 	if typeof(banked) != TYPE_DICTIONARY:
 		banked = {}
-	var in_hold := _held_has(held, sid)
-	if banked.has(sid) and not in_hold:
+	if banked.has(sid):
 		return &"claimed"
-	if banked.has(sid) and in_hold:
-		return &"seen"
-	if bool(cabin_seen.get(sid, false)):
-		return &"seen"
-	return &"unseen"
+	return &"unclaimed"
+
+
+## Floor spill grid for Rope Exit open-satchel haul (rows of up to max_cols).
+## Returns local top-left positions for n cells of size cell_px.
+static func satchel_grid_positions(n: int, cell_px: float = 56.0, max_cols: int = 5, gap: float = 8.0) -> Array:
+	var out: Array = []
+	var count := maxi(0, n)
+	if count <= 0:
+		return out
+	var cols := mini(max_cols, count)
+	var rows := int(ceil(float(count) / float(maxi(1, max_cols))))
+	var i := 0
+	for row in rows:
+		var remaining := count - i
+		var row_cols := mini(cols, remaining)
+		var row_w: float = float(row_cols) * cell_px + float(maxi(0, row_cols - 1)) * gap
+		var x0: float = -row_w * 0.5
+		var y: float = float(row) * (cell_px + gap)
+		for c in row_cols:
+			out.append(Vector2(x0 + float(c) * (cell_px + gap), y))
+			i += 1
+	return out
 
 
 ## Hotbar New! badge — absorbed from CollectionJourney.item_status.

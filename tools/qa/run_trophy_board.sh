@@ -62,6 +62,23 @@ if ! grep -q 'TROPHY_BOARD_MODEL_OK' "$OUT"; then
   exit 1
 fi
 
+UX_OUT="$WORKDIR/ux.out"
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/trophy_board_ux_selftest.gd >"$UX_OUT" 2>&1
+UX=$?
+set -e
+echo "----- trophy_board_ux_selftest.gd (exit $UX) -----"
+cat "$UX_OUT"
+echo "----- end -----"
+if [[ "$UX" -ne 0 ]]; then
+  echo "TROPHY_BOARD_UX failed (exit $UX)" >&2
+  exit "$UX"
+fi
+if ! grep -q 'TROPHY_BOARD_UX_OK' "$UX_OUT"; then
+  echo "TROPHY_BOARD_UX missing OK mark" >&2
+  exit 1
+fi
+
 SHOT_OUT="$WORKDIR/shots.out"
 set +e
 "$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/trophy_board_shots.gd >"$SHOT_OUT" 2>&1
