@@ -2,7 +2,7 @@
 id: REQ-20261114-trophy-board-feedback-2
 status: open
 priority: high
-tip_sha: 151e3125
+tip_sha: da66c5ab
 branch: cursor/trophy-board-feedback-2-1592
 created: 2026-11-14T03:30:00Z
 created_by: cloud-agent
