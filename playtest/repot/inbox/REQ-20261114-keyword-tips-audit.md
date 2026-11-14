@@ -1,6 +1,6 @@
 ---
 id: REQ-20261114-keyword-tips-audit
-status: open
+status: done
 priority: high
 tip_sha: 2c7b5865
 created: 2026-11-14T07:15:00Z
