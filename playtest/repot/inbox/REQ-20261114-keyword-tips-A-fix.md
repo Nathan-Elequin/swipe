@@ -2,8 +2,8 @@
 id: REQ-20261114-keyword-tips-A-fix
 status: open
 priority: high
-pr: pending
-tip_sha: 9fec33cb
+pr: 516
+tip_sha: 8f471fb7
 branch: cursor/keyword-tips-a-runtime-fix-869d
 created: 2026-11-14T08:50:00Z
 created_by: cloud-agent
