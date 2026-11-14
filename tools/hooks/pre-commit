@@ -46,6 +46,9 @@ fi
 
 # (b) Player-facing copy: no whole-word Tier / ATK / atk in player text.
 # JSON: only the player-text keys are checked, so "key"/"where"/notes and code are never blocked.
+# data/keyword-defs.json is intentionally NOT scanned: bear_trap / marked bodies still
+# contain the legacy word ATK (flagged to the copy owner separately). Do not add that
+# file to copy_json without an allowlist for those two ids.
 copy_json='data/player-copy.json data/player-copy.additions.json data/lore.json'
 for f in $copy_json; do
 	echo "$staged" | grep -qx "$f" || continue

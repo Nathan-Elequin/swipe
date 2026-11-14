@@ -59,6 +59,8 @@ var tutorial_declined: bool = false
 ## Start at the fireplace.
 var rooms_unlocked: Array = ["main"]
 var key_ring_seen: bool = false
+## Keyword tip first-sighting teach — ids dismissed at least once on this save.
+var seen_keywords: Array = []
 ## Package E: Nib lives in the trophy hall after the first successful return.
 var nib_in_hall: bool = false
 var invert_scroll: bool = false
@@ -661,6 +663,19 @@ func note_met(monster_id: String) -> void:
 	if sid == "" or bool(met_monsters.get(sid, false)):
 		return
 	met_monsters[sid] = true
+	_save()
+
+
+func has_seen_keyword(id: String) -> bool:
+	var kid: String = id.strip_edges().to_lower()
+	return kid != "" and seen_keywords.has(kid)
+
+
+func mark_keyword_seen(id: String) -> void:
+	var kid: String = id.strip_edges().to_lower()
+	if kid == "" or seen_keywords.has(kid):
+		return
+	seen_keywords.append(kid)
 	_save()
 
 
@@ -3117,6 +3132,7 @@ func _apply_defaults() -> void:
 	tutorial_declined = false
 	rooms_unlocked = ["main"]
 	key_ring_seen = false
+	seen_keywords = []
 	nib_in_hall = false
 	invert_scroll = false
 	reduce_motion = false
@@ -3203,6 +3219,11 @@ func _read_v2(parsed: Dictionary) -> void:
 	if _current_room == "mudroom" or not is_room_unlocked(_current_room):
 		_current_room = return_room
 	key_ring_seen = bool(parsed.get("key_ring_seen", false))
+	seen_keywords = []
+	for sk in parsed.get("seen_keywords", []):
+		var sid := str(sk).strip_edges().to_lower()
+		if sid != "" and not seen_keywords.has(sid):
+			seen_keywords.append(sid)
 	nib_in_hall = bool(parsed.get("nib_in_hall", false))
 	invert_scroll = bool(parsed.get("invert_scroll", false))
 	reduce_motion = bool(parsed.get("reduce_motion", false))
@@ -3286,6 +3307,7 @@ func _save() -> void:
 	data["tutorial_declined"] = tutorial_declined
 	data["rooms_unlocked"] = rooms_unlocked
 	data["key_ring_seen"] = key_ring_seen
+	data["seen_keywords"] = seen_keywords.duplicate()
 	data["nib_in_hall"] = nib_in_hall
 	data["invert_scroll"] = invert_scroll
 	data["reduce_motion"] = reduce_motion
@@ -3463,6 +3485,7 @@ func debug_pose(beat: String) -> void:
 			show_menu("main")
 		"keyring", "key_ring":
 			key_ring_seen = false
+			seen_keywords = []
 			rooms_unlocked = ["main"]
 			_refresh_rooms()
 			play_key_ring()

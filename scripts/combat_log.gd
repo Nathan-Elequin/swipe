@@ -4,6 +4,7 @@ extends ScrollContainer
 signal hover_changed(highlight: Dictionary)
 
 const UX := preload("res://scripts/ux_style.gd")
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 
 const TAG := {
 	"on_click": {"hex": "#E8C36A", "tag": "You"},
@@ -25,8 +26,7 @@ const TAG := {
 
 var _col: VBoxContainer
 var _stack: Array = []
-var _hint_tip: PanelContainer
-var _hint_lab: Label
+var _kw_tip: PanelContainer
 var _fitting: bool = false
 var _plain: PackedStringArray = PackedStringArray()
 var _stick_bottom: bool = true
@@ -64,30 +64,9 @@ func setup() -> void:
 	var bar: VScrollBar = get_v_scroll_bar()
 	if bar != null:
 		bar.value_changed.connect(_on_bar_moved)
-	_hint_tip = PanelContainer.new()
-	_hint_tip.visible = false
-	_hint_tip.z_index = 130
-	_hint_tip.top_level = true
-	_hint_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var hsb := StyleBoxFlat.new()
-	hsb.bg_color = Color("100e0cf5")
-	hsb.border_color = Color("e8c36a")
-	hsb.set_border_width_all(2)
-	hsb.set_corner_radius_all(14)
-	hsb.content_margin_left = 14
-	hsb.content_margin_right = 14
-	hsb.content_margin_top = 8
-	hsb.content_margin_bottom = 8
-	hsb.shadow_color = Color(0.06, 0.04, 0.03, 0.55)
-	hsb.shadow_size = 8
-	_hint_tip.add_theme_stylebox_override("panel", hsb)
-	_hint_lab = Label.new()
-	_hint_lab.add_theme_font_size_override("font_size", 15)
-	_hint_lab.add_theme_color_override("font_color", Color("f0e6d8"))
-	_hint_lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_hint_lab.add_theme_constant_override("outline_size", 3)
-	_hint_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hint_tip.add_child(_hint_lab)
+	_kw_tip = KEYWORD_TIP.new()
+	add_child(_kw_tip)
+	_kw_tip.setup()
 	call_deferred("_mount_hint")
 	tree_exiting.connect(_drop_hint)
 	set_process(false)
@@ -97,7 +76,7 @@ func clear_all() -> void:
 	_stack.clear()
 	_plain.clear()
 	_stick_bottom = true
-	_hide_hint()
+	_hide_kw()
 	for c in _col.get_children():
 		_col.remove_child(c)
 		c.queue_free()
@@ -217,7 +196,7 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 		if hint != "":
 			chip.mouse_filter = Control.MOUSE_FILTER_PASS
 			chip.mouse_entered.connect(_on_hint.bind(chip, hint, hl))
-			chip.mouse_exited.connect(_hide_hint)
+			chip.mouse_exited.connect(_hide_kw)
 		head.add_child(chip)
 	else:
 		var titles := VBoxContainer.new()
@@ -242,7 +221,7 @@ func _proc_capsule(data: Dictionary) -> PanelContainer:
 		var hint: String = str(data.get("hint", "")).strip_edges()
 		if hint != "":
 			call.mouse_entered.connect(_on_hint.bind(call, hint, hl))
-			call.mouse_exited.connect(_hide_hint)
+			call.mouse_exited.connect(_hide_kw)
 		titles.add_child(call)
 		var cause: String = str(data.get("cause", "")).strip_edges()
 		if cause != "":
@@ -365,21 +344,12 @@ func _leaf_row(kind: String, msg: String, highlight: Dictionary) -> HBoxContaine
 	body.meta_underlined = false
 	if str(body.text).find("[url=") >= 0:
 		body.mouse_filter = Control.MOUSE_FILTER_PASS
-		body.meta_hover_started.connect(_on_kw_meta.bind(body))
-		body.meta_hover_ended.connect(_on_kw_meta_out)
+		UxStyle.wire_def_hover(body, _kw_tip, body)
 	else:
 		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(body)
 	return row
 
-
-func _on_kw_meta(meta: Variant, body: RichTextLabel) -> void:
-	var id: String = str(meta).trim_prefix("kw:")
-	_on_hint(body, UX.def_of(id), {})
-
-
-func _on_kw_meta_out(_meta: Variant) -> void:
-	_hide_hint()
 
 
 func _web_safe(t: String) -> String:
@@ -423,7 +393,7 @@ func _paint(raw: String) -> String:
 
 func _link_kws(t: String) -> String:
 	var rx := RegEx.new()
-	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spun|spin|always|unplayable|rust)\\b") != OK:
+	if rx.compile("(?i)\\b(fleeing|flees|fled|flee|spinning|spins|spun|spin|always|unplayable|rust|poison|decay|shroud|toll|hex|beggar|marked|defeated|across|move|eject|gaze|petrify|curse|loaded|swap)\\b") != OK:
 		return t
 	var hits: Array = rx.search_all(t)
 	var out := t
@@ -438,8 +408,8 @@ func _link_kws(t: String) -> String:
 			shown_word = "Always"
 		elif id == "unplayable":
 			shown_word = "Unplayable"
-		var hex: String = "#A8A29A" if id == "unplayable" else "#E8C36A"
-		var shown: String = "[url=kw:%s]%s[/url]" % [id, UX.chip(shown_word, hex)]
+		var hex: String = UX.UNPLAYABLE if id == "unplayable" else UX.ALWAYS
+		var shown: String = UX.chip_bbcode(shown_word, id, hex, false)
 		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 
@@ -469,42 +439,19 @@ func _on_row_in(highlight: Dictionary) -> void:
 
 func _on_hint(_ctrl: Control, hint: String, highlight: Dictionary) -> void:
 	hover_changed.emit(highlight)
-	if _hint_tip == null or _hint_lab == null:
-		return
-	_hint_lab.text = hint
-	_hint_tip.visible = true
-	_hint_tip.reset_size()
-	set_process(true)
-	_follow_hint()
+	if _kw_tip != null and _kw_tip.has_method("show_def"):
+		## Legacy chip hover (non-url rows) still opens the shared parchment.
+		_kw_tip.show_def(hint, _ctrl if _ctrl else self, "", "log")
 
 
-func _hide_hint() -> void:
-	if _hint_tip:
-		_hint_tip.visible = false
-	set_process(false)
+func _hide_kw() -> void:
+	if _kw_tip != null and _kw_tip.has_method("hide_def"):
+		_kw_tip.set("_pinned", false)
+		_kw_tip.hide_def()
 
 
 func _process(_delta: float) -> void:
-	if _hint_tip == null or not _hint_tip.visible:
-		set_process(false)
-		return
-	_follow_hint()
-
-
-func _follow_hint() -> void:
-	if _hint_tip == null:
-		return
-	_hint_tip.reset_size()
-	var sz: Vector2 = _hint_tip.get_combined_minimum_size()
-	var vp: Vector2 = get_viewport_rect().size
-	var log_r: Rect2 = get_global_rect()
-	var mouse: Vector2 = get_global_mouse_position()
-	var prefer := Vector2(log_r.position.x - sz.x - 12.0, mouse.y)
-	var below := Vector2(log_r.position.x - sz.x - 12.0, log_r.end.y + 12.0)
-	var above := Vector2(log_r.position.x - sz.x - 12.0, log_r.position.y - sz.y - 12.0)
-	var pos: Vector2 = preload("res://scripts/ui/tooltip_clamp.gd").place(vp, sz, [prefer, above, below], [log_r])
-	_hint_tip.global_position = pos
-	_hint_tip.size = sz
+	set_process(false)
 
 
 func _fit_width() -> void:
@@ -528,29 +475,29 @@ func _on_leave() -> void:
 		return
 	if get_global_rect().has_point(get_global_mouse_position()):
 		return
-	_hide_hint()
+	_hide_kw()
 	hover_changed.emit({})
 
 
 func _mount_hint() -> void:
-	if _hint_tip == null or not is_instance_valid(_hint_tip):
+	if _kw_tip == null or not is_instance_valid(_kw_tip):
 		return
 	var host: Node = get_parent()
 	if host == null:
 		return
-	if _hint_tip.get_parent() != host:
-		if _hint_tip.get_parent() != null:
-			_hint_tip.get_parent().remove_child(_hint_tip)
-		host.add_child(_hint_tip)
+	if _kw_tip.get_parent() != host:
+		if _kw_tip.get_parent() != null:
+			_kw_tip.get_parent().remove_child(_kw_tip)
+		host.add_child(_kw_tip)
 
 
 func _drop_hint() -> void:
-	if _hint_tip == null or not is_instance_valid(_hint_tip):
+	if _kw_tip == null or not is_instance_valid(_kw_tip):
 		return
-	var p: Node = _hint_tip.get_parent()
+	var p: Node = _kw_tip.get_parent()
 	if p != null and p != self:
-		p.remove_child(_hint_tip)
-		_hint_tip.queue_free()
+		p.remove_child(_kw_tip)
+		_kw_tip.queue_free()
 
 
 func _on_bar_moved(v: float) -> void:

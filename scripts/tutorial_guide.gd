@@ -3,6 +3,7 @@ extends Control
 
 const COPY := preload("res://scripts/player_copy.gd")
 const PlaytestUx := preload("res://scripts/playtest_ux.gd")
+const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 
 signal continued
 signal backed
@@ -46,6 +47,8 @@ var _face: TextureRect
 var _name
 var _body
 var _hint
+var _kw_tip: PanelContainer
+var _kw_layer: CanvasLayer
 var _go: Button
 var _back: Button
 var _back_on: bool = false
@@ -257,6 +260,15 @@ func _build_talk(art) -> void:
 	_body.add_theme_font_size_override("normal_font_size", 20)
 	_body.custom_minimum_size = Vector2(230, 48)
 	col.add_child(_body)
+	_kw_layer = CanvasLayer.new()
+	_kw_layer.layer = TALK_LAYER + 1
+	_kw_layer.name = "KeywordTipLayer"
+	add_child(_kw_layer)
+	_kw_tip = KEYWORD_TIP.new()
+	_kw_layer.add_child(_kw_tip)
+	_kw_tip.setup()
+	_kw_tip.top_level = false
+	_kw_tip.z_index = 1
 	_hint = FitLabelBox.make()
 	_hint.show_frame = false
 	_hint.padding = 0
@@ -567,6 +579,7 @@ func _apply_beat(b: Dictionary) -> void:
 	_body.clear()
 	_body.append_text(_paint_on_paper(spoken))
 	_body.visible_characters = 0 if _typing else -1
+	_wire_body_keywords()
 	_idle = 0.0
 	## Text-only overnight: suppress tip Nib VO blips on tutorial lines.
 	if vo_enabled and not rewinding and sfx and sfx.has_method("speak") and spoken != "":
@@ -807,8 +820,28 @@ func _input(event: InputEvent) -> void:
 func _paint_on_paper(spoken: String) -> String:
 	## Tutorial prose: keyword highlights only — never Mad-Libs chrome on "this one".
 	## Only stems this beat is teaching. "always" in ordinary English stays plain.
-	var bb: String = UxStyle.paint(spoken, true, "#7a2408", "", false, true, true, _taught_keyword_ids(), _denied_keyword_ids(_note_deny))
-	return UxStyle.outline_loose_colors(bb)
+	## Direction A: paper inks + icon chips (hoverable via _wire_body_keywords).
+	var bb: String = UxStyle.paint(spoken, true, "#7a2408", "", false, true, true, _taught_keyword_ids(), _denied_keyword_ids(_note_deny), true)
+	return bb
+
+
+func _wire_body_keywords() -> void:
+	if _body == null or _kw_tip == null:
+		return
+	var sample: String = _paint_on_paper(_type_full) if _type_full != "" else ""
+	var has_kw: bool = sample.find("[url=kw:") >= 0 or str(_body.text).find("[url=kw:") >= 0
+	if has_kw:
+		_body.mouse_filter = Control.MOUSE_FILTER_STOP
+		UxStyle.wire_def_hover(_body, _kw_tip, _talk if _talk else self)
+	else:
+		_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	## Next/Skip stay above the keyword card (buttons are siblings under talk box).
+	if _go:
+		_go.z_index = 5
+	if _skip:
+		_skip.z_index = 5
+	if _back:
+		_back.z_index = 5
 
 
 func _taught_keyword_ids() -> PackedStringArray:

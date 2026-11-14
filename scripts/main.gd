@@ -590,6 +590,7 @@ var play_field: Control
 var wheel_view
 var inspect
 var fly_tip
+var keyword_defs_ed
 var face_box
 var hypno_stage
 var hypno_box
@@ -8504,6 +8505,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_campaign_map()
 		get_viewport().set_input_as_handled()
 		return
+	## F1: keyword definition editor (F7 is campaign map).
+	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
+		_toggle_keyword_defs_editor()
+		get_viewport().set_input_as_handled()
+		return
 	## F10: biome ambient on/off (dev). Tip-confirmed free vs F2–F9 / F8 metrics.
 	if _authoring() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F10:
 		if biome_ambient != null:
@@ -9521,7 +9527,33 @@ func _reseat_slots() -> void:
 			wheel[i]["slot"] = str(i)
 
 
+func _notify_keyword_tip_action() -> void:
+	## First-sighting teach dismisses on the next player action (Spin/Use/Take/Move).
+	var tips: Array = []
+	if fly_tip != null and fly_tip.get("_kw_tip") != null:
+		tips.append(fly_tip.get("_kw_tip"))
+	if wheel_view != null and wheel_view.get("_mark_tip") != null:
+		tips.append(wheel_view.get("_mark_tip"))
+	if log_label != null and log_label.get("_kw_tip") != null:
+		tips.append(log_label.get("_kw_tip"))
+	if tut != null and tut.get("_kw_tip") != null:
+		tips.append(tut.get("_kw_tip"))
+	for tip in tips:
+		if tip != null and tip.has_method("notify_player_action"):
+			tip.notify_player_action()
+
+
+func _toggle_keyword_defs_editor() -> void:
+	if keyword_defs_ed == null:
+		var scr: GDScript = load("res://scripts/keyword_defs_editor.gd") as GDScript
+		keyword_defs_ed = scr.new()
+		add_child(keyword_defs_ed)
+	if keyword_defs_ed.has_method("toggle"):
+		keyword_defs_ed.toggle()
+
+
 func _on_spin() -> void:
+	_notify_keyword_tip_action()
 	if _cap_discard_open():
 		if sfx:
 			sfx.play("error", -12.0, 1.2)
@@ -11102,6 +11134,7 @@ func _on_redo() -> void:
 
 
 func _use_item(uid: int) -> void:
+	_notify_keyword_tip_action()
 	if _challenge_loot_wait:
 		_challenge_discard_one(uid)
 		return
@@ -26310,6 +26343,10 @@ func _fill_inspect_from_slice(index: int) -> void:
 		_idle_inspect()
 		return
 	if index < 0 or index >= wheel.size():
+		_idle_inspect()
+		return
+	## Direction A: pip hover hides that monster's plate while the keyword card is up.
+	if wheel_view != null and bool(wheel_view.get("pip_hover_active")):
 		_idle_inspect()
 		return
 	if inspect:
