@@ -2,6 +2,8 @@
 id: REQ-20261114-keyword-tips-A
 status: open
 priority: high
+pr: 515
+tip_sha: a3d38d20
 branch: cursor/keyword-tips-direction-a-56aa
 created: 2026-11-14T08:30:00Z
 created_by: cloud-agent
