@@ -2,8 +2,9 @@
 id: REQ-20261114-keyword-teach-halo
 status: open
 priority: high
+pr: 517
 branch: cursor/keyword-teach-halo-visible-b31b
-tip_sha: dbd5ecd1
+tip_sha: 5198adfb
 created: 2026-11-14T09:20:00Z
 created_by: cloud-agent
 viewport: 1680x1040
