@@ -1,6 +1,6 @@
 ---
 id: REQ-20261115-tier-unpack-curtain
-status: open
+status: done
 priority: high
 branch: cursor/tier-unpack-curtain-6725
 created: 2026-11-15T01:08:00Z
