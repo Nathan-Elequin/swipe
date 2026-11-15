@@ -55,7 +55,8 @@ func _check_def_of_matches_json() -> bool:
 	var expect := {
 		"bear_trap": "A 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it.",
 		"marked": "Upon Defeat, Trapper gains +2 HP and ATK",
-		"poison": "Lose this much HP when you Spin this monster, then this clears.",
+		## Nathan Save 2026-11-14 (Cherry checkpoint): new Poison body.
+		"poison": "Monsters with Poison lose that much HP when you Spin them, then lose all Poison.",
 		"always": "Passive ability (cannot be changed)",
 		"swap": "Trade it for a random item of the same rarity.",
 		"loaded": "Your next Attack can hit any monster.",
@@ -170,7 +171,8 @@ func _check_defs_editor_compiles() -> bool:
 	await process_frame
 	failed = _check("editor_visible", bool(ed.visible)) or failed
 	var list: ItemList = ed.get("_list") as ItemList
-	failed = _check("editor_list", list != null and list.item_count == 26) or failed
+	## Editor lists every KeywordDefs id (hidden rows stay in the list, greyed).
+	failed = _check("editor_list", list != null and list.item_count == KeywordDefs.all_ids().size()) or failed
 	if ed.has_method("hide_editor"):
 		ed.call("hide_editor")
 	ed.queue_free()

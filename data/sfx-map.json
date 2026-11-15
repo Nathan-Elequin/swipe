@@ -7194,11 +7194,11 @@
       "max_voices": 1,
       "priority": 2,
       "duck_music": {
-        "db": -8,
+        "db": -12,
         "attack_s": 0.05,
         "release_s": 0.6
       },
-      "doc": "Deep earth rumble with falling grit and a beam groan (1.70 s). duck_music −8 (attack 0.05 s, release 0.6 s) per ASSETS.md. board_sequences.gd also calls sfx.duck_music(-8) in code — keep both or drop the manual call once the cue flag is wired, but do not double-duck."
+      "doc": "Deep earth/stone rumble with mid grit, debris trickle and beam groans (2.40 s). Swells in, peaks through the 1.4 s shake, settles into sting.portal_open. File leveled to about -14.5 LUFS momentary at peak, true peak -2.6 dBTP; keep db 0 (defaults.db is -8). duck_music -12 (attack 0.05 s, release 0.6 s). board_sequences.gd no longer calls sfx.duck_music manually — only this cue flag ducks."
     },
     "sting.portal_open": {
       "files": [

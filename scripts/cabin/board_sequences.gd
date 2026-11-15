@@ -181,7 +181,7 @@ func shortcut(face_index: int) -> void:
 
 
 func _play_rumble() -> void:
-	## Duck comes from sfx-map board.rumble.duck_music (−8) via play_event — do not duck again here.
+	## Duck comes from sfx-map board.rumble.duck_music (−12) via play_event — do not duck again here.
 	KIT.cue(sfx, &"board.rumble")
 	## Package E: Nib gasps during the rumble. Music duck is on board.rumble in sfx-map (#503).
 	if cabin != null and cabin.has_method("nib_gasp"):

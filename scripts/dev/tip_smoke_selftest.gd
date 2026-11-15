@@ -357,11 +357,14 @@ func _init() -> void:
 		_source_contains("res://scripts/main.gd", '"spinning_top": {"kind": "defeat_spins"}')
 		or _source_contains("res://scripts/main.gd", "\"spinning_top\": {\"kind\": \"defeat_spins\"}")
 	) or failed
+	## Locked Ability (Nathan Save): "Defeat an enemy with HP equal to this number. +1 each Spin."
+	## Explainer carries "from 0"; do not require the old "Starts at 0" Ability line.
 	failed = _check(
 		failed,
 		"spinning_top_ability_defeat_equal",
 		_catalog_item_ability_contains("spinning_top", "Defeat")
-		and _catalog_item_ability_contains("spinning_top", "Starts at 0")
+		and _catalog_item_ability_contains("spinning_top", "equal")
+		and _catalog_item_ability_contains("spinning_top", "+1 each Spin")
 	) or failed
 	failed = _check(
 		failed,

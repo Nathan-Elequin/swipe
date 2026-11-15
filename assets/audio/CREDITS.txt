@@ -618,10 +618,23 @@ board_lever_clunk.ogg (0.500 s)
     <- Kenney — RPG Audio / metalClick, metalLatch, beltHandle1
     <- Kenney — Impact Sounds / impactMetal_medium_001
 
-board_rumble.ogg (1.700 s)
-    <- Swipe trophy-board synth / brown-noise + low sine cluster — CC0 1.0 (original)
-    <- Kenney — RPG Audio / creak2 (beam groan)
-    <- Kenney — Impact Sounds / footstep_wood_001–004, impactMining_002, impactSoft_heavy_001
+Spinheritance trophy-board lever rumble v2 (Reel bake 2026-11-14) — CC0 1.0
+
+All sources are CC0 1.0. Kenney packs: https://kenney.nl/ (CC0 1.0).
+Original synth layers are released CC0 1.0.
+
+board_rumble.ogg (2.400 s, momentary peak −14.5 LUFS, integrated −16.6 LUFS, true peak −2.6 dBTP)
+    <- Swipe trophy-board synth / brown-noise sub (40–120 Hz) + low-mid chest (80–350 Hz)
+       + sine cluster 31/41.5/56/74 Hz with 2nd harmonics 83/112/148 Hz + pink-noise scrape
+       — CC0 1.0 (original, Reel bake 2026-11-14)
+    <- Kenney — RPG Audio / Audio/creak1.ogg, creak2.ogg, creak3.ogg — beam / timber groans
+       (pitched down). https://kenney.nl/assets/rpg-audio — CC0 1.0
+    <- Kenney — Impact Sounds / Audio/impactMining_000–004.ogg — stone-grind texture and
+       peak hits (pitched down). https://kenney.nl/assets/impact-sounds — CC0 1.0
+    <- Kenney — Impact Sounds / Audio/impactSoft_heavy_000–002.ogg — opening thumps
+    <- Kenney — Impact Sounds / Audio/impactSoft_medium_000–004.ogg — small debris ticks
+    <- Kenney — Impact Sounds / Audio/footstep_concrete_000–004.ogg, footstep_wood_001–004.ogg
+       — falling grit / debris trickle
 
 sting_portal_open.ogg (3.600 s, −20.0 LUFS, mid-scoop)
     <- Swipe trophy-board synth / unresolved fifths/quartal pad, sub swell, high air bloom — CC0 1.0 (original)
