@@ -6925,22 +6925,6 @@
       "max_voices": 1,
       "priority": 1
     },
-    "amb.trophy_room": {
-      "files": [
-        "amb_trophy_room"
-      ],
-      "bus": "Ambience",
-      "db": 0,
-      "pitch": [
-        1.0,
-        1.0
-      ],
-      "cooldown_ms": 0,
-      "max_voices": 1,
-      "priority": 1,
-      "loop": true,
-      "doc": "48.000 s seamless hall bed at −26 LUFS in the file. Start with sfx.loop_start(&\"amb.trophy_room\", fade) on hall enter; loop_stop / 0.8 s crossfade out on leave. db 0 — do not apply the map default −8."
-    },
     "board.slide": {
       "files": [
         "board_slide"

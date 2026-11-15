@@ -23,5 +23,10 @@
     "shown": 3,
     "retired": true,
     "why": "Third show 2026-11-02 playtest packet reply; retired after this mention"
+  },
+  "527": {
+    "shown": 1,
+    "retired": false,
+    "why": "First show this cloud ship reply 2026-11-15"
   }
 }

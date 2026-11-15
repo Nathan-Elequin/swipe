@@ -27,20 +27,15 @@ func _run() -> void:
 	var sfx_map: Dictionary = SHELL.read_json("res://data/sfx-map.json")
 	var cues: Dictionary = sfx_map.get("cues", {}) if typeof(sfx_map.get("cues", {})) == TYPE_DICTIONARY else {}
 	for id in [
-		"amb.trophy_room", "nib.react", "board.slide", "board.poof", "board.whoosh",
+		"nib.react", "board.slide", "board.poof", "board.whoosh",
 		"board.satchel_in", "board.light_chime", "board.light_chime_1", "board.light_chime_5",
 		"board.lever_clunk", "board.rumble",
 		"sting.portal_open", "sting.shortcut", "board.path_draw", "board.fog_clear",
 		"board.badge_pop",
 	]:
 		failed = _check(rows, failed, "cue.%s" % id, cues.has(id)) or failed
-	## Reel #503: amb file is real (not fire-loop alias).
-	var amb: Dictionary = cues.get("amb.trophy_room", {})
-	var amb_files: Array = amb.get("files", []) if typeof(amb) == TYPE_DICTIONARY else []
-	failed = _check(
-		rows, failed, "cue.amb.trophy_file",
-		amb_files.has("amb_trophy_room")
-	) or failed
+	## Nathan 2026-11-15: trophy-room amb bed removed (rumble over fire + music).
+	failed = _check(rows, failed, "cue.amb.trophy_removed", not cues.has("amb.trophy_room")) or failed
 
 	var CabinScr = load("res://scripts/home_cabin.gd")
 	failed = _check(rows, failed, "cabin_loads", CabinScr != null) or failed
@@ -149,14 +144,14 @@ func _run() -> void:
 	failed = _check(rows, failed, "cabin.nib_host", cabin_src.find("nib_host.gd") >= 0) or failed
 	failed = _check(rows, failed, "cabin.relocate", cabin_src.find("_relocate_nib_to_hall") >= 0) or failed
 	failed = _check(rows, failed, "cabin.catchup", cabin_src.find("_maybe_catchup_nib_hall") >= 0) or failed
-	failed = _check(rows, failed, "cabin.amb", cabin_src.find("amb.trophy_room") >= 0) or failed
+	## Sync may still stop a leftover loop; must never start the bed.
 	failed = _check(
-		rows, failed, "cabin.amb.loop_start",
-		cabin_src.find("loop_start(&\"amb.trophy_room\"") >= 0
-		or cabin_src.find('loop_start(&"amb.trophy_room"') >= 0
+		rows, failed, "cabin.amb.no_loop_start",
+		cabin_src.find("loop_start(&\"amb.trophy_room\"") < 0
+		and cabin_src.find('loop_start(&"amb.trophy_room"') < 0
 	) or failed
 	failed = _check(
-		rows, failed, "cabin.amb.loop_stop",
+		rows, failed, "cabin.amb.loop_stop_only",
 		cabin_src.find("loop_stop(&\"amb.trophy_room\"") >= 0
 		or cabin_src.find('loop_stop(&"amb.trophy_room"') >= 0
 	) or failed
