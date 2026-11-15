@@ -830,11 +830,9 @@ func _say_first_speech() -> void:
 
 
 ## After the welcome lines: point at Grandpa's map so the first-run prompt is clear.
-## Uses existing pointer + pulse ring. Placeholder copy key listed for the copy owner.
+## Pointer lives only while that dialogue line is up (clears on advance / close / room change).
 func _point_map_after_first_speech() -> void:
 	var map_hit := _map_hotspot()
-	if map_hit != null:
-		show_nib_pointer_at(map_hit)
 	## Existing line that already pushes the mission; pointer carries the "click map" read.
 	if _dialog != null:
 		var main_room = _rooms.get("main")
@@ -842,11 +840,11 @@ func _point_map_after_first_speech() -> void:
 				and main_room.nib.sprite_frames.has_animation("point"):
 			main_room.nib.play("point")
 		if _copy_key_exists("nib.first.map_point"):
+			if map_hit != null:
+				show_nib_pointer_at(map_hit)
 			_dialog.say(["nib.first.map_point"])
 			await _dialog.finished
-			if map_hit != null and is_instance_valid(map_hit):
-				show_nib_pointer_at(map_hit)
-	## Leave the pointer up until the player opens the map or leaves.
+	## Do not re-show after the line — pointer must not linger into other rooms.
 
 
 func _point_map_continue_mission() -> void:
@@ -873,23 +871,23 @@ func _point_map_continue_mission() -> void:
 			main_room.nib.play("point")
 	## Prefer an existing mission line; placeholder key for a dedicated continue prompt.
 	## COPY OWNER: nib.return.continue_mission — "Keep collecting unique finds for the trophy cabinet. The map is waiting."
+	var map_hit := _map_hotspot()
 	if _dialog != null:
 		## Prefer a dedicated key when Jam/Nathan adds it; fall back to five_finds.
 		## COPY OWNER: nib.return.continue_mission
 		var keys: Array = ["nib.lesson.five_finds"]
 		if _copy_key_exists("nib.return.continue_mission"):
 			keys = ["nib.return.continue_mission"]
+		## Pointer only while this line is up — clears on finish / room change.
+		if map_hit != null:
+			show_nib_pointer_at(map_hit)
 		_dialog.say(keys)
 		await _dialog.finished
-	## Re-assert Nib + pointer after dialog (cabin_dialog clears the pointer on finish).
+	## Keep entryway Nib visible; do not re-show the pointer after the line.
 	if main_room != null and main_room.get("nib") != null:
 		(main_room.nib as CanvasItem).visible = true
-		if main_room.nib.sprite_frames and main_room.nib.sprite_frames.has_animation("point"):
-			main_room.nib.play("point")
-	var map_hit := _map_hotspot()
-	if map_hit != null:
-		show_nib_pointer_at(map_hit)
-	## Leave Nib in the entryway with the pointer up until the player opens the map.
+		if main_room.nib.sprite_frames and main_room.nib.sprite_frames.has_animation("idle"):
+			main_room.nib.play("idle")
 	## Hall relocate runs from _on_map / catch-up, not here.
 
 
@@ -1161,6 +1159,8 @@ func play_key_ring() -> void:
 	var gen: int = _key_ring_gen
 	## Bind cabin session for nested motion/dialog waits in this keyring run.
 	_begin_cabin_session()
+	## Keys / unveil starts with no leftover board pointer from first-return hover.
+	clear_nib_pointer()
 	visible = true
 	_menu_on = true
 	_ext_root.visible = false
@@ -1684,13 +1684,42 @@ func ensure_nib_pointer() -> Control:
 		return existing
 	var ptr = load("res://scripts/cabin/nib_pointer.gd").new()
 	add_child(ptr)
+	_wire_nib_pointer_lifecycle()
 	return ptr
 
 
+## Pointer + ring belong to one dialogue line in the current room.
+## Clear on line advance / close (dialog signals) and on room / relocate / wipe.
+func _wire_nib_pointer_lifecycle() -> void:
+	if _dialog == null:
+		return
+	if _dialog.has_signal("line_changed") and not _dialog.line_changed.is_connected(_on_dialog_line_changed_clear_pointer):
+		_dialog.line_changed.connect(_on_dialog_line_changed_clear_pointer)
+	if _dialog.has_signal("closed") and not _dialog.closed.is_connected(_on_dialog_closed_clear_pointer):
+		_dialog.closed.connect(_on_dialog_closed_clear_pointer)
+
+
+func _on_dialog_line_changed_clear_pointer(_line_index: int) -> void:
+	clear_nib_pointer()
+
+
+func _on_dialog_closed_clear_pointer() -> void:
+	clear_nib_pointer()
+
+
 func show_nib_pointer_at(target: Control) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var target_rect: Rect2 = target.get_global_rect()
+	## Dock the talk bar clear of the target before reading the arrow origin.
+	if _dialog != null and _dialog.has_method("set_pointer_avoid"):
+		_dialog.set_pointer_avoid(target_rect)
 	var ptr = ensure_nib_pointer()
 	var from := Vector2(840, 900)
-	if _dialog != null and _dialog.has_method("talk_bar_anchor"):
+	var centre: Vector2 = target_rect.get_center()
+	if _dialog != null and _dialog.has_method("talk_bar_anchor_toward"):
+		from = _dialog.talk_bar_anchor_toward(centre)
+	elif _dialog != null and _dialog.has_method("talk_bar_anchor"):
 		from = _dialog.talk_bar_anchor()
 	elif _dialog != null and _dialog.get("_box") is Control:
 		var box: Control = _dialog.get("_box")
@@ -1703,6 +1732,17 @@ func clear_nib_pointer() -> void:
 	var ptr = get_node_or_null("NibPointer")
 	if ptr != null and ptr.has_method("clear"):
 		ptr.clear()
+	if _dialog != null and _dialog.has_method("clear_pointer_avoid"):
+		_dialog.clear_pointer_avoid()
+
+
+func is_nib_pointer_visible() -> bool:
+	var ptr = get_node_or_null("NibPointer")
+	if ptr == null:
+		return false
+	if ptr.get("_active") == true:
+		return true
+	return bool(ptr.visible)
 
 
 func _full_bg(host: Control) -> TextureRect:
@@ -2264,19 +2304,14 @@ func _start_interior_loops() -> void:
 	_sync_trophy_room_ambience()
 
 
-## Package E / Reel #503: trophy-room bed on hall enter; fade out on leave.
-## Volume rides the Ambience bus (settings); cue db is 0 (file already −26 LUFS).
+## Nathan 2026-11-15: trophy-room amb bed removed (layered rumble over fire + music).
+## Keep this hook so room enters still ensure any leftover loop is stopped.
+## Fire, cat purr, music, and one-shot board SFX (board.rumble, etc.) stay.
 func _sync_trophy_room_ambience() -> void:
 	if sfx == null:
 		return
-	var in_hall: bool = _int_root != null and _int_root.visible and _current_room == "hall"
-	if in_hall:
-		if sfx.has_method("loop_start"):
-			## SCREEN/ASSETS: loop_start with fade; do not force a db override.
-			sfx.loop_start(&"amb.trophy_room", 0.8)
-	else:
-		if sfx.has_method("loop_stop"):
-			sfx.loop_stop(&"amb.trophy_room", 0.8)
+	if sfx.has_method("loop_stop"):
+		sfx.loop_stop(&"amb.trophy_room", 0.8)
 
 
 func _make_gallery_door(left: bool) -> Control:
@@ -4176,6 +4211,7 @@ func _build_overlays() -> void:
 	_dialog = preload("res://scripts/cabin/cabin_dialog.gd").new()
 	_dialog.setup(self)
 	add_child(_dialog)
+	_wire_nib_pointer_lifecycle()
 	_cutscene = preload("res://scripts/cabin/cutscene_player.gd").new()
 	_cutscene.setup(self)
 	add_child(_cutscene)
@@ -4232,6 +4268,9 @@ func _apply_view_frame() -> void:
 
 
 func _snap_to(room: String) -> void:
+	## Room / view change: pointer must not linger from a prior line.
+	if room != _current_room:
+		clear_nib_pointer()
 	_current_room = room
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
@@ -4258,6 +4297,9 @@ func pan_to(room: String) -> void:
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		return
+	## Camera slide / room change clears any line-bound pointer.
+	if room != _current_room:
+		clear_nib_pointer()
 	## Leaving the trophy hall: clear any open parchment tag so it does not stick
 	## on the entryway (QA leftover-tag after keys beat).
 	if _current_room == "hall" and room != "hall":
@@ -4312,6 +4354,8 @@ func _pan_unlocked(room: String, owner_gen: int) -> bool:
 	var i: int = ROOM_ORDER.find(room)
 	if i < 0:
 		return _key_ring_owns(owner_gen) and _owns_cabin_session(session)
+	if room != _current_room:
+		clear_nib_pointer()
 	_pan_busy = true
 	KIT.cue(sfx, &"cabin.pan")
 	var r = _rooms.get(room)
@@ -4387,6 +4431,8 @@ func _relocate_nib_to_hall(owner_gen: int = -1, catchup: bool = false) -> bool:
 		return false
 	if not _owns_cabin_session(session):
 		return false
+	## Nib relocate / room handoff: drop any map or board pointer.
+	clear_nib_pointer()
 	_room_busy = true
 	## Walk main Nib to the side door (full path only — catch-up skips this).
 	if not catchup:

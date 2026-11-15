@@ -468,6 +468,9 @@ func _nib(keys: Array, vars: Dictionary) -> void:
 
 func _fade(seconds: float, to_black: bool) -> void:
 	var wipe: ColorRect = _ensure_board_fade()
+	## Camera wipe / fade: drop any line-bound Nib pointer so it cannot linger.
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	## Instant final state for reduce-motion / fast selftests — never leave alpha stuck at 1.
 	if reduce_motion or Engine.time_scale >= 4.0:
 		wipe.visible = to_black

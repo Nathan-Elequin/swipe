@@ -133,6 +133,8 @@ func _build_chrome() -> void:
 	_padlock = _tex_or_box("Padlock", Rect2((size.x - 160) * 0.5, 144 + (464 - 192) * 0.5, 160, 192), "trophy_board/padlock", Color("3a3a3e"))
 	_padlock.mouse_filter = Control.MOUSE_FILTER_STOP
 	_padlock.visible = false
+	## Above slots / plinths; below cabin dialogue / popups (those live outside this face).
+	_padlock.z_index = 20
 	_padlock.mouse_entered.connect(func() -> void: padlock_hovered.emit())
 	add_child(_padlock)
 
@@ -157,6 +159,22 @@ func rebuild_slots(lay: Dictionary, tex_by_id: Dictionary) -> void:
 		slot.clicked.connect(func(cid: String, st: StringName) -> void: slot_clicked.emit(cid, st))
 		_pyramid.add_child(slot)
 		_slots[str(id)] = slot
+	## Padlock must draw above silhouettes on a locked face (Ashen Crypt, etc.).
+	_raise_padlock()
+
+
+func _raise_padlock() -> void:
+	if _padlock == null or not is_instance_valid(_padlock):
+		return
+	_padlock.z_index = 20
+	move_child(_padlock, get_child_count() - 1)
+
+
+## Selftest: true when padlock is the last face child (top-most draw order among siblings).
+func padlock_is_topmost() -> bool:
+	if _padlock == null or not is_instance_valid(_padlock):
+		return false
+	return _padlock.get_index() == get_child_count() - 1
 
 
 func apply_states(
@@ -167,6 +185,8 @@ func apply_states(
 ) -> void:
 	var locked: bool = MODEL.is_face_locked(rules, state, face)
 	_padlock.visible = locked
+	if locked:
+		_raise_padlock()
 	_plaque_modulate(0.7 if locked else 1.0)
 	for id in _slots.keys():
 		var st: StringName = MODEL.slot_state(cabin_seen, state, str(id), held)

@@ -327,12 +327,15 @@ static func dialog_bar(view: Vector2, extra_h: float = 0.0, safe_bottom: float =
 
 ## Cabin-only Nib talk bar: centered 1356×212, wood 9-slice patch inset, masked portrait well.
 ## Never reserve choice-row height here — choices float above the box in cabin_dialog.
-static func nib_talk_bar(view: Vector2, safe_bottom: float = -1.0) -> Dictionary:
+## dock_top=true seats the bar under the top safe margin (nameplate still hangs above).
+static func nib_talk_bar(view: Vector2, safe_bottom: float = -1.0, dock_top: bool = false) -> Dictionary:
 	var bot: float = safe_bottom if safe_bottom >= 0.0 else DIALOG_SAFE_CABIN
 	var bar_w: float = minf(NIB_TALK_W, maxf(8.0, view.x - DIALOG_SAFE * 2.0))
 	var bar_h: float = NIB_TALK_H
 	var bar_x: float = snappedf((view.x - bar_w) * 0.5, PX)
-	var bar_y: float = clampf(
+	## Leave DIALOG_SAFE above so the nameplate (offset -8×PX) stays on-screen.
+	var top_y: float = DIALOG_SAFE
+	var bar_y: float = top_y if dock_top else clampf(
 		view.y - bot - bar_h,
 		DIALOG_SAFE,
 		maxf(DIALOG_SAFE, view.y - bot - bar_h)
@@ -350,6 +353,7 @@ static func nib_talk_bar(view: Vector2, safe_bottom: float = -1.0) -> Dictionary
 		"patch": patch,
 		"font": NIB_TALK_FONT,
 		"min_font": NIB_TALK_MIN_FONT,
+		"dock_top": dock_top,
 	}
 
 

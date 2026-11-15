@@ -3,6 +3,9 @@ extends Control
 
 signal finished(choice: int)
 signal line_advanced(line_index: int)
+## Central pointer lifecycle: NibPointer / cabin clear on these.
+signal line_changed(line_index: int)
+signal closed
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const TEXT_RESERVE := preload("res://scripts/ui/text_reserve.gd")
@@ -49,6 +52,11 @@ var _tutorial_chrome: bool = false
 const TUTORIAL_BOX_W := 420.0
 ## Bust offset inside BustClip: head/shoulders in well; torso exits bottom of mask.
 const NIB_BUST_OFFSET := Vector2(-12.0, -36.0)
+## When a Nib pointer is live, avoid covering this global rect (+ margin) by docking top.
+const POINTER_AVOID_MARGIN := 24.0
+var _pointer_avoid: Rect2 = Rect2()
+var _has_pointer_avoid: bool = false
+var _dock_top: bool = false
 
 
 func setup(p_cabin) -> void:
@@ -145,9 +153,58 @@ func is_open() -> bool:
 
 
 func talk_bar_rect() -> Rect2:
+	## Local to this dialog control (rope_exit / haul pointers use .position.y).
 	if _box == null:
 		return Rect2()
 	return Rect2(_box.position, _box.size)
+
+
+func talk_bar_global_rect() -> Rect2:
+	if _box == null:
+		return Rect2()
+	if is_inside_tree():
+		return _box.get_global_rect()
+	return Rect2(_box.position, _box.size)
+
+
+func is_docked_top() -> bool:
+	return _dock_top
+
+
+## Keep the talk bar clear of a pointer target (global rect + margin).
+## Docks top when the target centre is in the bottom half, or the bottom bar would overlap.
+func set_pointer_avoid(target_global: Rect2, margin: float = POINTER_AVOID_MARGIN) -> void:
+	_has_pointer_avoid = true
+	_pointer_avoid = target_global.grow(margin)
+	_refresh_dock_for_avoid()
+	if _open:
+		_layout_talk(_choices.visible)
+
+
+func clear_pointer_avoid() -> void:
+	if not _has_pointer_avoid and not _dock_top:
+		return
+	_has_pointer_avoid = false
+	_pointer_avoid = Rect2()
+	_dock_top = false
+	if _open:
+		_layout_talk(_choices.visible)
+
+
+func _refresh_dock_for_avoid() -> void:
+	_dock_top = false
+	if not _has_pointer_avoid:
+		return
+	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
+	if is_inside_tree():
+		view = get_viewport_rect().size
+	var bottom_layout: Dictionary = KIT.nib_talk_bar(view, KIT.DIALOG_SAFE_CABIN, false)
+	var bottom_bar: Rect2 = bottom_layout["bar"]
+	var centre: Vector2 = _pointer_avoid.get_center()
+	if centre.y >= view.y * 0.5:
+		_dock_top = true
+	elif _pointer_avoid.intersects(bottom_bar):
+		_dock_top = true
 
 
 func has_choices() -> bool:
@@ -183,6 +240,8 @@ func _begin_say(keys: Array, choices: Array = [], vars: Dictionary = {}, fallbac
 	_blinking = false
 	_blink_hold = 0.0
 	_blink_t = randf_range(6.0, 10.0)
+	## Re-evaluate top/bottom dock from any live pointer avoid rect.
+	_refresh_dock_for_avoid()
 	_refresh_gate()
 	_layout_talk(choices.size() > 0)
 	_box.modulate.a = 0.0
@@ -259,16 +318,16 @@ func advance() -> void:
 		return
 	_line_i += 1
 	line_advanced.emit(_line_i)
+	line_changed.emit(_line_i)
+	## Pointer belongs to one line — clear before the next line or close.
+	if cabin != null and cabin.has_method("clear_nib_pointer"):
+		cabin.clear_nib_pointer()
 	if _line_i >= _keys.size():
-		if cabin != null and cabin.has_method("clear_nib_pointer"):
-			cabin.clear_nib_pointer()
 		if _choice_keys.size() > 0:
 			_show_choices()
 			return
 		_close(-1)
 		return
-	if cabin != null and cabin.has_method("clear_nib_pointer"):
-		cabin.clear_nib_pointer()
 	_show_line()
 
 
@@ -286,7 +345,9 @@ func _layout_talk(with_choices: bool) -> void:
 		_layout_tutorial_talk(view, with_choices)
 		return
 	## Cabin Nib path: forked bar (do not touch shared dialog_bar used by intro stills).
-	var L: Dictionary = KIT.nib_talk_bar(view, KIT.DIALOG_SAFE_CABIN)
+	## Top-dock when a pointer target would sit under the bottom bar.
+	_refresh_dock_for_avoid()
+	var L: Dictionary = KIT.nib_talk_bar(view, KIT.DIALOG_SAFE_CABIN, _dock_top)
 	var bar: Rect2 = L["bar"]
 	var inner: Rect2 = L["inner"]
 	var well_sz: Vector2 = L["well_sz"]
@@ -320,14 +381,21 @@ func _layout_talk(with_choices: bool) -> void:
 	_next.position = Vector2(inner.end.x - 32.0, inner.end.y - 32.0)
 	if _space_hint != null:
 		var view_sz: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(KIT.ROOM_W, KIT.ROOM_H)
-		_space_hint.position = Vector2(24.0, maxf(8.0, view_sz.y - 44.0))
+		if _dock_top:
+			## Sit just under the top-docked bar.
+			_space_hint.position = Vector2(24.0, minf(view_sz.y - 44.0, bar.end.y + 8.0))
+		else:
+			_space_hint.position = Vector2(24.0, maxf(8.0, view_sz.y - 44.0))
 		_space_hint.size = Vector2(maxf(120.0, view_sz.x - 48.0), 32.0)
 	## Float choice tags above the shortened bar (keeps tags usable without empty parchment).
 	var choice_h: float = PlaytestUx.dialog_choice_reserve_px() if with_choices else 0.0
-	_choices.position = Vector2(text_x, -choice_h - 8.0)
+	if _dock_top:
+		_choices.position = Vector2(text_x, bar.size.y + 8.0)
+	else:
+		_choices.position = Vector2(text_x, -choice_h - 8.0)
 	_choices.size = Vector2(maxf(8.0, text_w), maxf(8.0, choice_h))
 	if _tail and _tail.texture and _bust_clip:
-		# Point at BustClip center under the box bottom edge.
+		# Point at BustClip center under the box bottom edge (toward the room).
 		_tail.position = Vector2(
 			_bust_clip.position.x + well_sz.x * 0.5 - 5.0 * PX,
 			bar.size.y - 1.0 * PX
@@ -453,11 +521,24 @@ func _show_choices() -> void:
 
 
 func talk_bar_anchor() -> Vector2:
-	## Top-center-ish of the talk bar — pointer origin for hall gestures.
+	## Default: edge facing the room content (top edge when bottom-docked).
 	if _box != null and is_instance_valid(_box):
 		var g: Rect2 = _box.get_global_rect()
+		if _dock_top:
+			return Vector2(g.position.x + g.size.x * 0.55, g.end.y)
 		return g.position + Vector2(g.size.x * 0.55, 10.0)
 	return Vector2(840, 900)
+
+
+## Arrow origin on the talk-bar edge nearest the target centre.
+func talk_bar_anchor_toward(target_center: Vector2) -> Vector2:
+	if _box == null or not is_instance_valid(_box):
+		return talk_bar_anchor()
+	var g: Rect2 = _box.get_global_rect()
+	var x: float = clampf(target_center.x, g.position.x + 24.0, g.end.x - 24.0)
+	if target_center.y < g.get_center().y:
+		return Vector2(x, g.position.y)
+	return Vector2(x, g.end.y)
 
 
 func dismiss() -> void:
@@ -470,8 +551,12 @@ func dismiss() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_choices.visible = false
+	## Emit closed immediately so a follow-up line can show a new pointer
+	## without the fade tween wiping it.
 	if cabin != null and cabin.has_method("clear_nib_pointer"):
 		cabin.clear_nib_pointer()
+	clear_pointer_avoid()
+	closed.emit()
 	if _shade:
 		_shade.visible = true
 		_shade.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -483,8 +568,11 @@ func _close(choice: int) -> void:
 	_typing = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_refresh_gate()
+	## Clear + closed now (not after the fade) so the next say/pointer is safe.
 	if cabin != null and cabin.has_method("clear_nib_pointer"):
 		cabin.clear_nib_pointer()
+	clear_pointer_avoid()
+	closed.emit()
 	if cabin and cabin.has_method("nib_talk"):
 		cabin.nib_talk(false)
 	var tw := create_tween()

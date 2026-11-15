@@ -72,7 +72,13 @@ func setup(rules, items_by_id, campaign_state, cabin_seen, hold: Array) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if _viewport == null:
 		_build_shell()
+	_seat_cogs()
 	refresh()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_seat_cogs()
 
 
 func set_item_textures(tex_by_id: Dictionary) -> void:
@@ -360,13 +366,16 @@ func _build_shell() -> void:
 	_arrow_r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_arrow_l)
 	add_child(_arrow_r)
-	## Cogs
-	_cog_l = _tex_or_box("CogL", Rect2(Vector2(24, 232), Vector2(48, 48)), "trophy_board/rail_cog", Color("c4a574"))
-	_cog_r = _tex_or_box("CogR", Rect2(Vector2(size.x - 72, 232), Vector2(48, 48)), "trophy_board/rail_cog", Color("c4a574"))
+	## Cogs — seated on the dark round sockets painted in board_frame.png.
+	## Socket centres measured from frame art: (35, 234) and (1294, 234).
+	## pivot_offset = size/2 so _spin_cogs rotates in place (not around top-left).
+	_cog_l = _tex_or_box("CogL", Rect2(Vector2(11, 210), Vector2(48, 48)), "trophy_board/rail_cog", Color("c4a574"))
+	_cog_r = _tex_or_box("CogR", Rect2(Vector2(1270, 210), Vector2(48, 48)), "trophy_board/rail_cog", Color("c4a574"))
 	_cog_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_cog_r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_cog_l)
 	add_child(_cog_r)
+	_seat_cogs()
 	## Dots on bottom band: absolute x 712+k*56, y 764 − raise
 	var dot_y: float = 764.0 - MODEL.BOARD_RAISE_PX
 	for k in 5:
@@ -508,12 +517,42 @@ func _set_arrow_hover(left: bool, on: bool) -> void:
 		(node as TextureRect).texture = tex
 
 
+## Seat both cogs on the frame-art socket centres and pin rotation at mid-sprite.
+func _seat_cogs() -> void:
+	## Frame art socket centres (board-local px). Keep in sync with board_frame.png.
+	const COG_L_CENTER := Vector2(35, 234)
+	const COG_R_CENTER := Vector2(1294, 234)
+	const COG_SIZE := Vector2(48, 48)
+	for pair in [[_cog_l, COG_L_CENTER], [_cog_r, COG_R_CENTER]]:
+		var cog: Control = pair[0]
+		var centre: Vector2 = pair[1]
+		if cog == null or not is_instance_valid(cog):
+			continue
+		cog.size = COG_SIZE
+		cog.pivot_offset = cog.size * 0.5
+		cog.position = centre - cog.pivot_offset
+
+
+func cog_centers_global() -> Array:
+	## Selftest helper: true rotation pivots in global space (not AABB centres).
+	var out: Array = []
+	for cog in [_cog_l, _cog_r]:
+		if cog == null or not is_instance_valid(cog):
+			out.append(Vector2.ZERO)
+			continue
+		out.append(cog.get_global_transform() * cog.pivot_offset)
+	return out
+
+
 func _spin_cogs(dir: int) -> void:
 	if reduce_motion:
 		return
+	_seat_cogs()
 	for cog in [_cog_l, _cog_r]:
 		if cog == null:
 			continue
+		## Re-assert pivot in case a resize wiped it.
+		cog.pivot_offset = cog.size * 0.5
 		var tw := create_tween()
 		var start: float = cog.rotation_degrees
 		tw.tween_property(cog, "rotation_degrees", start + 90.0 * float(dir), 0.36 / maxf(Engine.time_scale, 0.001))

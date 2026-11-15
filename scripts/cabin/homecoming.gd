@@ -148,8 +148,12 @@ func _run() -> void:
 	if not _stale():
 		await _drop_satchel()
 	if not _stale() and is_first_return and not placed_order.is_empty():
-		await _say_keys(["nib.board.first_hover_hint"], {})
+		## Pointer lives on this line only — show before say so close/advance clears it
+		## before the keys / unveil sequence starts.
 		_start_first_pulse(str(placed_order[0]))
+		await _say_keys(["nib.board.first_hover_hint"], {})
+		if cabin != null and cabin.has_method("clear_nib_pointer"):
+			cabin.clear_nib_pointer()
 		_mark_first_return_done()
 	elif not _stale() and is_first_return:
 		_mark_first_return_done()
