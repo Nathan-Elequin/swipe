@@ -7345,6 +7345,100 @@
       "max_voices": 1,
       "priority": 1,
       "note": "Dead portal click. Falls back to cabin.locked sample (cab_locked)."
+    },
+    "board.whoosh.bronze": {
+      "files": [
+        "board_whoosh_bronze"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Small soft whoosh for Weak/bronze unpack flight (0.25 s, ~−14 dBFS peak). Sit alongside or replace board.whoosh in the unpack sequence."
+    },
+    "board.whoosh.silver": {
+      "files": [
+        "board_whoosh_silver"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.95,
+        1.08
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Medium, slightly brighter whoosh for Tough/silver unpack flight (0.30 s, ~−14 dBFS peak)."
+    },
+    "board.whoosh.gold": {
+      "files": [
+        "board_whoosh_gold"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.05
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 1,
+      "doc": "Bigger swoosh with a little sparkle for Deadly/gold unpack flight (0.40 s, ~−14 dBFS peak). Pitch range is slightly tighter so the baked E6–G6 sparkle does not wander."
+    },
+    "board.land.bronze": {
+      "files": [
+        "board_land_bronze",
+        "board_land_bronze_2",
+        "board_land_bronze_3"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 2,
+      "doc": "Soft dull wooden tock for Weak/bronze land (0.18–0.22 s, −14 dBFS peak). files[] random-picks three slight pitch/timbre variants so a 5–15 run does not machine-gun. Keep the pitch range tight; the variants already supply the variation."
+    },
+    "board.land.silver": {
+      "files": [
+        "board_land_silver",
+        "board_land_silver_2",
+        "board_land_silver_3"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        0.97,
+        1.03
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 2,
+      "doc": "Brighter metallic clink for Tough/silver land (0.28–0.32 s, −13 dBFS peak). files[] random-picks three variants. Pitch range is tight for the same reason as bronze."
+    },
+    "board.land.gold": {
+      "files": [
+        "board_land_gold"
+      ],
+      "bus": "SFX",
+      "db": 0,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 3,
+      "priority": 3,
+      "doc": "Shimmering C-major chime (E5–G5–C6) plus a socket thunk at ~0.28 s for Deadly/gold land (0.72 s, −11 dBFS peak). Payoff of the unpack sequence. Pitch is locked so the chime stays in tune. max_voices 3 because 0.72 s tails can overlap at ~0.35 s item spacing."
     }
   },
   "radio": {
