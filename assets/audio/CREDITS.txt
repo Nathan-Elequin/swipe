@@ -645,3 +645,63 @@ board_fog_clear.ogg (0.900 s)
 board_badge_pop.ogg (0.200 s)
     <- Kenney — RPG Audio / bookPlace2, cloth4
     <- Kenney — Interface Sounds / tick_002 (pin)
+
+Trophy-board tiered unpack SFX bake (2026-11-14) — append to assets/audio/CREDITS.txt
+================================================================================
+All cues are CC0 1.0 (or original synth released CC0). No NC/ND/unclear sources.
+CC0 1.0 deed: https://creativecommons.org/publicdomain/zero/1.0/
+
+Pack / source index (this bake)
+-------------------------------
+* Kenney — Impact Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+* Kenney — RPG Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+* Kenney — Interface Sounds — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+* Kenney — Digital Audio — Kenney (kenney.nl) — CC0 1.0 — https://kenney.nl/assets/digital-audio
+* Swipe trophy-board tier synth (Reel bake 2026-11-14) — original whooshes, mid 'tock', SNES-style chime — CC0 1.0
+
+Per-file ledger
+---------------
+board_whoosh_bronze.ogg (0.250 s, −13.79 dBFS peak)
+    <- Original band-passed pink-noise whoosh (short, dark, 0.25 s) — CC0 1.0
+    <- Kenney — Digital Audio / Audio/spaceTrash4.ogg — very quiet airy layer — CC0 1.0 — https://kenney.nl/assets/digital-audio
+
+board_whoosh_silver.ogg (0.300 s, −14.07 dBFS peak)
+    <- Original band-passed pink-noise whoosh (medium, slightly brighter, 0.30 s) — CC0 1.0
+    <- Kenney — Digital Audio / Audio/spaceTrash2.ogg — quiet brighter air layer — CC0 1.0 — https://kenney.nl/assets/digital-audio
+
+board_whoosh_gold.ogg (0.400 s, −14.09 dBFS peak)
+    <- Original bigger pink-noise swoosh with low-body layer (0.40 s) — CC0 1.0
+    <- Original SNES sparkle (E6–G6) at the crest — CC0 1.0
+    <- Kenney — Digital Audio / Audio/spaceTrash5.ogg, phaserUp3.ogg — quiet air / lift — CC0 1.0 — https://kenney.nl/assets/digital-audio
+
+board_land_bronze.ogg (0.200 s, −13.95 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_002.ogg, impactSoft_medium_002.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Original mid 'tock' (~1080 Hz) — CC0 1.0
+
+board_land_bronze_2.ogg (0.180 s, −14.07 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_000.ogg, impactSoft_medium_000.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Original mid 'tock' (~1220 Hz) — CC0 1.0
+
+board_land_bronze_3.ogg (0.220 s, −13.98 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactWood_light_003.ogg, impactSoft_medium_003.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Original mid 'tock' (~940 Hz) — CC0 1.0
+
+board_land_silver.ogg (0.300 s, −12.93 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_001.ogg, impactTin_medium_001.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (first clink only; the packed take has a second hit at ~260 ms) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+
+board_land_silver_2.ogg (0.280 s, −13.06 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_003.ogg, impactTin_medium_000.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (first clink only) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+
+board_land_silver_3.ogg (0.320 s, −13.08 dBFS peak)
+    <- Kenney — Impact Sounds / Audio/impactMetal_light_000.ogg, impactTin_medium_003.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/metalClick.ogg (first clink only) — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+
+board_land_gold.ogg (0.720 s, −10.98 dBFS peak)
+    <- Original SNES-style shimmering chime (E5–G5–C6), C major — CC0 1.0
+    <- Kenney — Interface Sounds / Audio/confirmation_002.ogg — quiet body — CC0 1.0 — https://kenney.nl/assets/interface-sounds
+    <- Kenney — Impact Sounds / Audio/impactBell_heavy_001.ogg (quiet), impactPlate_medium_002.ogg, impactWood_medium_002.ogg — CC0 1.0 — https://kenney.nl/assets/impact-sounds
+    <- Kenney — RPG Audio / Audio/metalLatch.ogg — socket thunk at ~0.28 s — CC0 1.0 — https://kenney.nl/assets/rpg-audio
+
+preview_sequence.ogg is a check render only (not a game cue). It is a dry mix of the files above.
