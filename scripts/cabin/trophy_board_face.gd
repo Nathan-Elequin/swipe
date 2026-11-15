@@ -10,8 +10,10 @@ signal lever_clicked(face_index: int)
 signal padlock_hovered()
 signal lights_hovered()
 signal lever_hovered(state: StringName)
+signal locked_clicked()
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const BucketRules = preload("res://scripts/bucket_rules.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 const SLOT_SCR := preload("res://scripts/cabin/trophy_board_slot.gd")
 const COPY := preload("res://scripts/player_copy.gd")
@@ -25,10 +27,17 @@ const LEVER_GLOW_OFFSET := Vector2(-32, -56) ## relative to lever art origin
 ## Lever feet share HALL_FLOOR_Y with Nib. Local = floor − face viewport top.
 const LEVER_FEET_LOCAL_Y := MODEL.HALL_FLOOR_Y - MODEL.FACE_VIEWPORT.position.y
 const LEVER_PULL_FPS := 12.0
+const CURTAIN_RECT := Rect2(24, 24, 1184, 568)
+const CURTAIN_ALPHA := 0.82
+const CURTAIN_Z := 10
+const LOCKED_CLICK_RATE := 0.45
 
 var face: Dictionary = {}
 var face_index: int = 0
 var reduce_motion: bool = false
+var locked_click_count: int = 0
+var locked_cues: Array = []
+var last_locked_click_at: float = -999.0
 
 var _bg: Control
 var _crest: Control
@@ -40,6 +49,50 @@ var _lever: Control
 var _lever_glow: Control
 var _slots: Dictionary = {}  # id -> TrophyBoardSlot
 var _pyramid: Control
+var _curtain: Control
+var _curtain_art: TextureRect
+var _items_by_id: Dictionary = {}
+var _curtain_busy: bool = false
+var _curtain_sway_running: bool = false
+var _curtain_sway_step: int = 0
+
+
+func set_items_by_id(items: Dictionary) -> void:
+	_items_by_id = items if typeof(items) == TYPE_DICTIONARY else {}
+
+
+func curtain_node() -> Control:
+	return _curtain
+
+
+func curtain_rect_local() -> Rect2:
+	return CURTAIN_RECT
+
+
+func curtain_above_slots_below_padlock() -> bool:
+	if _curtain == null or not is_instance_valid(_curtain) or not _curtain.visible:
+		return false
+	if _padlock == null or not is_instance_valid(_padlock):
+		return false
+	if _curtain.z_index <= _pyramid.z_index:
+		return false
+	return _curtain.z_index < _padlock.z_index and _padlock.z_index >= 20
+
+
+func trigger_locked_click() -> void:
+	if _padlock == null or not _padlock.visible:
+		return
+	var now: float = Time.get_ticks_msec() / 1000.0
+	if _curtain_busy or now - last_locked_click_at < LOCKED_CLICK_RATE:
+		return
+	last_locked_click_at = now
+	locked_click_count += 1
+	if not (locked_cues as Array).has("cabin.locked"):
+		locked_cues.append("cabin.locked")
+	locked_clicked.emit()
+	_curtain_busy = true
+	_play_curtain_jiggle()
+	_play_padlock_shake()
 
 
 func setup(p_face: Dictionary) -> void:
@@ -81,6 +134,7 @@ func _build_chrome() -> void:
 	## but not into the next board.
 	_pyramid.clip_contents = false
 	add_child(_pyramid)
+	_build_curtain()
 	## Crest face-local: absolute (240,144) - viewport (224,128) = (16,16)
 	_crest = _tex_or_box(
 		"Crest",
@@ -135,8 +189,147 @@ func _build_chrome() -> void:
 	_padlock.visible = false
 	## Above slots / plinths; below cabin dialogue / popups (those live outside this face).
 	_padlock.z_index = 20
+	_padlock.gui_input.connect(_on_padlock_gui)
 	_padlock.mouse_entered.connect(func() -> void: padlock_hovered.emit())
 	add_child(_padlock)
+
+
+func _build_curtain() -> void:
+	_curtain = Control.new()
+	_curtain.name = "VelvetCurtain"
+	_curtain.position = CURTAIN_RECT.position
+	_curtain.size = CURTAIN_RECT.size
+	_curtain.mouse_filter = Control.MOUSE_FILTER_STOP
+	_curtain.visible = false
+	_curtain.z_index = CURTAIN_Z
+	_curtain.modulate = Color(1, 1, 1, CURTAIN_ALPHA)
+	_curtain.gui_input.connect(_on_curtain_gui)
+	_curtain_art = TextureRect.new()
+	_curtain_art.name = "Art"
+	_curtain_art.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_curtain_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_curtain_art.stretch_mode = TextureRect.STRETCH_SCALE
+	_curtain_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_curtain_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var drape: Texture2D = KIT.ui_tex("trophy_board/curtain_drape")
+	if drape != null:
+		_curtain_art.texture = drape
+	_curtain.add_child(_curtain_art)
+	add_child(_curtain)
+
+
+func _sync_curtain(locked: bool) -> void:
+	if _curtain == null:
+		return
+	_curtain.visible = locked
+	if locked:
+		_raise_padlock()
+		if is_inside_tree():
+			call_deferred("_start_curtain_sway")
+		else:
+			tree_entered.connect(_start_curtain_sway, CONNECT_ONE_SHOT)
+	else:
+		_stop_curtain_sway()
+		_curtain_busy = false
+		if _curtain_art != null:
+			var drape: Texture2D = KIT.ui_tex("trophy_board/curtain_drape")
+			if drape != null:
+				_curtain_art.texture = drape
+
+
+func _scene_tree() -> SceneTree:
+	var ml = Engine.get_main_loop()
+	if ml is SceneTree:
+		return ml as SceneTree
+	return null
+
+
+func _start_curtain_sway() -> void:
+	if _curtain == null or not _curtain.visible or reduce_motion:
+		if _curtain_art != null:
+			var drape: Texture2D = KIT.ui_tex("trophy_board/curtain_drape")
+			if drape != null:
+				_curtain_art.texture = drape
+		return
+	_stop_curtain_sway()
+	_curtain_sway_running = true
+	_curtain_sway_step = 0
+	_curtain_sway_tick()
+
+
+func _stop_curtain_sway() -> void:
+	_curtain_sway_running = false
+
+
+func _curtain_sway_tick() -> void:
+	if not _curtain_sway_running or _curtain == null or not _curtain.visible:
+		return
+	var seq := [0, 1, 2, 1]
+	var fi: int = seq[_curtain_sway_step % seq.size()]
+	var tex: Texture2D = KIT.ui_tex("trophy_board/curtain_sway_f%d" % fi)
+	if tex != null and _curtain_art != null:
+		_curtain_art.texture = tex
+	elif _curtain_art != null:
+		var drape: Texture2D = KIT.ui_tex("trophy_board/curtain_drape")
+		if drape != null:
+			_curtain_art.texture = drape
+	_curtain_sway_step += 1
+	var tree := _scene_tree()
+	if tree == null:
+		return
+	var t := tree.create_timer(0.5 / maxf(Engine.time_scale, 0.001), true, false, true)
+	t.timeout.connect(_curtain_sway_tick)
+
+
+func _play_curtain_jiggle() -> void:
+	if _curtain == null or not _curtain.visible:
+		_curtain_busy = false
+		return
+	_stop_curtain_sway()
+	_curtain_jiggle_frames(0)
+
+
+func _curtain_jiggle_frames(fi: int) -> void:
+	if fi >= 4 or _curtain_art == null:
+		_curtain_busy = false
+		if _curtain != null and _curtain.visible:
+			_start_curtain_sway()
+		return
+	var tex: Texture2D = KIT.ui_tex("trophy_board/curtain_jiggle_f%d" % fi)
+	if tex != null:
+		_curtain_art.texture = tex
+	var tree := _scene_tree()
+	if tree == null:
+		_curtain_busy = false
+		return
+	var t := tree.create_timer((1.0 / 10.0) / maxf(Engine.time_scale, 0.001), true, false, true)
+	t.timeout.connect(func() -> void: _curtain_jiggle_frames(fi + 1))
+
+
+func _play_padlock_shake() -> void:
+	if _padlock == null or reduce_motion:
+		return
+	var base: Vector2 = _padlock.position
+	var tw := create_tween()
+	tw.tween_property(_padlock, "position:x", base.x + 6.0, 0.04 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "position:x", base.x - 5.0, 0.05 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "position:x", base.x + 3.0, 0.04 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "position:x", base.x, 0.05 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "rotation_degrees", 4.0, 0.04 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "rotation_degrees", -3.0, 0.05 / maxf(Engine.time_scale, 0.001))
+	tw.tween_property(_padlock, "rotation_degrees", 0.0, 0.05 / maxf(Engine.time_scale, 0.001))
+
+
+func _on_curtain_gui(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		trigger_locked_click()
+		accept_event()
+
+
+func _on_padlock_gui(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		trigger_locked_click()
+		accept_event()
 
 
 func rebuild_slots(lay: Dictionary, tex_by_id: Dictionary) -> void:
@@ -187,10 +380,15 @@ func apply_states(
 	_padlock.visible = locked
 	if locked:
 		_raise_padlock()
+	_sync_curtain(locked)
 	_plaque_modulate(0.7 if locked else 1.0)
 	for id in _slots.keys():
 		var st: StringName = MODEL.slot_state(cabin_seen, state, str(id), held)
-		(_slots[id] as TrophyBoardSlot).apply_state(st, locked)
+		var slot: TrophyBoardSlot = _slots[id] as TrophyBoardSlot
+		var card: Dictionary = _items_by_id.get(str(id), {})
+		var rank: int = BucketRules.tier_of(card)
+		slot.set_claim_metal(TrophyBoardSlot.metal_for_rank(rank))
+		slot.apply_state(st, locked)
 	var lit: int = 0 if locked else MODEL.lights_lit(rules, state, face, held)
 	for i in _lights.size():
 		_set_light(i, i < lit)
