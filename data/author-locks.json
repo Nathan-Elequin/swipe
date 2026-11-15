@@ -2752,7 +2752,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-14",
 			"name": "Needleback"
 		},
 		"monster:ogre": {
@@ -5724,5 +5724,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-13"
+	"updated": "2026-11-14"
 }

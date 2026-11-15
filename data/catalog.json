@@ -1212,7 +1212,7 @@
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"exceptions": "",
 			"explainer": "(ENEMY Attack ≥ 6)",
@@ -1260,14 +1260,14 @@
 				}
 			},
 			"poc": false,
-			"pool": 1,
-			"priority": 2,
+			"pool": 1.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3,
+			"tier": 3.0,
 			"type": "I",
 			"usable_when": "enemy_atk >= 6"
 		},
@@ -4597,6 +4597,7 @@
 	"keywords": {
 		"any": "select any Monster on the wheel",
 		"atk_dmg": "HP loss from ATK. Goblin ignores this.",
+		"attack": "Damage from a strike. HP lost any other way doesn't count as Attack.",
 		"bear_trap": "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it",
 		"beggar": "Marks a random Item. Spinning this Beggar discards it.",
 		"curse": "A harmful Item forced into your hand.",
@@ -4607,13 +4608,12 @@
 		"flee": "If you are facing them, Spin the wheel at random.",
 		"gaze": "Marks up to three Items. Using one Petrifies the others while the Basilisk remains.",
 		"hex": "Unplayable. −1 each Spin. At 0, Defeat the landed enemy.",
+		"keep": "This item stays in your hand after you use it.",
 		"kill": "Reduce HP to 0 with ATK damage.",
+		"neighbor": "The spaces right beside another on the wheel: one to its left, one to its right.",
 		"petrify": "Makes an Item Unplayable until its source ends.",
 		"spin": "The wheel lands on a random living monster.",
-		"toll": "Unplayable. −1 on each Item Use. At 0, you Die.",
-		"neighbor": "The spaces right beside another on the wheel: one to its left, one to its right.",
-		"keep": "This item stays in your hand after you use it.",
-		"attack": "Damage from a strike. HP lost any other way doesn't count as Attack."
+		"toll": "Unplayable. −1 on each Item Use. At 0, you Die."
 	},
 	"monsters": [
 		{
@@ -5846,14 +5846,14 @@
 		{
 			"ability": "I Attack you for 2 Damage each time I take Attack Damage.",
 			"atk": {
-				"base": 3.0
+				"base": 4
 			},
-			"atk_base": 3.0,
+			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Spiky",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
 			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"explainer": "2 Thorns",
@@ -5864,12 +5864,12 @@
 			},
 			"flow": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
 			"hp": {
-				"base": 5.0
+				"base": 4
 			},
-			"hp_base": 5.0,
+			"hp_base": 4,
 			"hp_formula": "",
 			"id": "needleback",
-			"locked_at": "2026-10-19",
+			"locked_at": "2026-11-14",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5895,15 +5895,16 @@
 			"name": "Needleback",
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
+			"pending_fields": {},
 			"poc": false,
-			"pool": 1.0,
-			"priority": 3.0,
+			"pool": 1,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0,
+			"tier": 2,
 			"type": "M"
 		},
 		{

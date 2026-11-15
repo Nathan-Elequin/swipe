@@ -594,7 +594,7 @@
 			"call_name": "",
 			"card_color": "defeat",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "(ENEMY Attack ≥ 6)",
 			"flow": "When used, Resolve Combat immediately, skipping ATK/BLK resolution.",
 			"hp_base": null,
@@ -635,14 +635,14 @@
 					"to": "Defeat an enemy with 6 or more Attack."
 				}
 			},
-			"pool": 1,
-			"priority": 2,
+			"pool": 1.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 3
+			"tier": 3.0
 		},
 		{
 			"ability": "Attack equal to the Attack of the last monster you spun.",
@@ -4888,19 +4888,20 @@
 		},
 		{
 			"ability": "I Attack you for 2 Damage each time I take Attack Damage.",
-			"atk_base": 3.0,
+			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Spiky",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "2 Thorns",
 			"flow": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
-			"hp_base": 5.0,
+			"hp_base": 4,
 			"hp_formula": "",
 			"id": "needleback",
-			"locked_at": "2026-10-19",
+			"kind": "monster",
+			"locked_at": "2026-11-14",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4926,14 +4927,15 @@
 			"name": "Needleback",
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
-			"pool": 1.0,
-			"priority": 3.0,
+			"pending_fields": {},
+			"pool": 1,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2.0
+			"tier": 2
 		},
 		{
 			"ability": "When you Spin me, feed me one of two items.",
@@ -7450,5 +7452,5 @@
 			"tier": 3.0
 		}
 	],
-	"updated": "2026-11-13"
+	"updated": "2026-11-14"
 }
