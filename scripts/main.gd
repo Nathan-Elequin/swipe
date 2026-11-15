@@ -9344,6 +9344,8 @@ func _dress_showcase_card(card: Control, it: Dictionary, can_pass: bool, guard_t
 	if card.has_method("set_glyphs"):
 		var pn_offer: int = int(it.get("petrify_n", 0))
 		card.set_glyphs([] if pn_offer > 0 else _face_rows(it, view))
+	## Same gold star as the hotbar: this card is not on the trophy cabinet yet.
+	_apply_collection_item_badge(card, it, true)
 
 
 func _write_catalog() -> bool:
@@ -24765,7 +24767,7 @@ func _log_begin_item(it: Dictionary, used: bool = true) -> void:
 			"phase": phase,
 			"hp": hp,
 		})
-		## Hotbar gold star clears permanently the first time this card is used.
+		## Seen/used ledger only. The gold star stays until the unique is on the cabinet.
 		if home_cabin != null and home_cabin.has_method("note_used"):
 			home_cabin.note_used(str(it.get("card_id", "")))
 	var id: String = str(it.get("card_id", ""))
@@ -27723,6 +27725,9 @@ func _layout_play_field() -> void:
 	# the wheel right of the screen; background art is wallpaper only.
 	var view_cx: float = get_viewport_rect().size.x * 0.5
 	var x: float = view_cx - play_field.global_position.x - side * 0.5
+	if challenge_draft_ui != null and challenge_draft_ui.visible and extra > 1.0:
+		## Gutter is for the pick on the right. Do not split it left+right around a centered wheel.
+		x -= extra * 0.5
 	x = VIEW_FRAME.clamp_x(x, side, sz)
 	# Pin to the top of the play field. Slack stays under the wheel, above Take.
 	var wheel_y: float = top_need
@@ -27748,54 +27753,9 @@ func _layout_play_field() -> void:
 			dungeon_deck_ui.set_count(challenge_deck.size())
 		_sync_challenge_peek()
 	if challenge_draft_ui != null and challenge_draft_ui.visible:
-		challenge_draft_ui.scale = Vector2.ONE
-		challenge_draft_ui.reset_size()
-		var dmin: Vector2 = challenge_draft_ui.get_combined_minimum_size()
-		var w: float = maxf(508.0, dmin.x)
-		var h: float = dmin.y
-		## Tutorial Nib stays on the right. The pick sits on the left, clear of that box.
-		var nib_right: bool = in_tutorial and tut != null and is_instance_valid(tut) and tut.visible
-		var deck_bottom: float = wheel_y
-		if not nib_right and dungeon_deck_ui != null and dungeon_deck_ui.visible:
-			deck_bottom = dungeon_deck_ui.position.y + dungeon_deck_ui.size.y + 24.0
-		var room: float = maxf(96.0, sz.y - 8.0 - deck_bottom)
-		var sc: float = 1.0
-		if h > room:
-			sc = clampf(room / h, 0.62, 1.0)
-		var draft_x: float = x + side + 16.0
-		if nib_right:
-			var nib_close: float = float(tut.get("nib_close"))
-			var nib_w: float = clampf(sz.x * 0.26, 420.0, sz.x * 0.32) + 80.0 * nib_close + 16.0
-			var right_limit: float = maxf(160.0, sz.x - nib_w)
-			var gap := 12.0
-			var margin := 8.0
-			var budget: float = maxf(200.0, right_limit - margin)
-			var shown_w: float = w * sc
-			var wheel_side: float = side
-			if shown_w + gap + wheel_side > budget:
-				var wheel_floor: float = minf(side, maxf(280.0, budget * 0.46))
-				shown_w = maxf(220.0, budget - gap - wheel_floor)
-				sc = clampf(shown_w / w, 0.55, sc)
-				shown_w = w * sc
-				wheel_side = minf(side, maxf(160.0, budget - gap - shown_w))
-			var group: float = shown_w + gap + wheel_side
-			var slack: float = maxf(0.0, budget - group)
-			draft_x = margin + slack * 0.5
-			x = draft_x + shown_w + gap
-			side = wheel_side
-			wheel_view.custom_minimum_size = Vector2(side, side)
-			wheel_view.position = Vector2(x, wheel_y)
-			wheel_view.size = Vector2(side, side)
-			if dungeon_deck_ui != null and dungeon_deck_ui.visible:
-				var deck_x: float = x + side + 8.0
-				var deck_cap: float = right_limit - dungeon_deck_ui.size.x - 8.0
-				if deck_x > deck_cap:
-					deck_x = maxf(x, deck_cap)
-				dungeon_deck_ui.position = Vector2(deck_x, wheel_y)
-		challenge_draft_ui.size = Vector2(w, h)
-		challenge_draft_ui.pivot_offset = Vector2.ZERO
-		challenge_draft_ui.scale = Vector2(sc, sc)
-		challenge_draft_ui.position = Vector2(draft_x, deck_bottom)
+		var placed: Dictionary = _place_challenge_draft(sz, wheel_y, x, side)
+		x = float(placed.get("x", x))
+		side = float(placed.get("side", side))
 	if cue_label:
 		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
@@ -27818,6 +27778,96 @@ func _set_cue(_t: String) -> void:
 	_cue_shown = ""
 	cue_label.text = ""
 	cue_label.visible = false
+
+
+func _place_challenge_draft(sz: Vector2, wheel_y: float, wheel_x: float, wheel_side: float) -> Dictionary:
+	## Scale / shift the pick overlay so both cards stay inside the play field.
+	var out := {"x": wheel_x, "side": wheel_side}
+	if challenge_draft_ui == null or not challenge_draft_ui.visible:
+		return out
+	challenge_draft_ui.scale = Vector2.ONE
+	challenge_draft_ui.reset_size()
+	var dmin: Vector2 = challenge_draft_ui.get_combined_minimum_size()
+	var w: float = maxf(508.0, dmin.x)
+	var h: float = dmin.y
+	## Tutorial Nib stays on the right. The pick sits on the left, clear of that box.
+	var nib_right: bool = in_tutorial and tut != null and is_instance_valid(tut) and tut.visible
+	var deck_bottom: float = wheel_y
+	if not nib_right and dungeon_deck_ui != null and dungeon_deck_ui.visible:
+		deck_bottom = dungeon_deck_ui.position.y + dungeon_deck_ui.size.y + 24.0
+	var room: float = maxf(96.0, sz.y - 8.0 - deck_bottom)
+	var sc: float = 1.0
+	if h > room:
+		sc = clampf(room / h, 0.55, 1.0)
+	var margin := 8.0
+	var gap := 12.0
+	var draft_x: float = wheel_x + wheel_side + 16.0
+	if nib_right:
+		var nib_close: float = float(tut.get("nib_close"))
+		var nib_w: float = clampf(sz.x * 0.26, 420.0, sz.x * 0.32) + 80.0 * nib_close + 16.0
+		var right_limit: float = maxf(160.0, sz.x - nib_w)
+		var budget: float = maxf(200.0, right_limit - margin)
+		var shown_w: float = w * sc
+		if shown_w + gap + wheel_side > budget:
+			var wheel_floor: float = minf(wheel_side, maxf(280.0, budget * 0.46))
+			shown_w = maxf(220.0, budget - gap - wheel_floor)
+			sc = clampf(shown_w / w, 0.55, sc)
+			shown_w = w * sc
+			wheel_side = minf(wheel_side, maxf(160.0, budget - gap - shown_w))
+		var group: float = shown_w + gap + wheel_side
+		var slack: float = maxf(0.0, budget - group)
+		draft_x = margin + slack * 0.5
+		wheel_x = draft_x + shown_w + gap
+		wheel_view.custom_minimum_size = Vector2(wheel_side, wheel_side)
+		wheel_view.position = Vector2(wheel_x, wheel_y)
+		wheel_view.size = Vector2(wheel_side, wheel_side)
+		if dungeon_deck_ui != null and dungeon_deck_ui.visible:
+			var deck_x: float = wheel_x + wheel_side + 8.0
+			var deck_cap: float = right_limit - dungeon_deck_ui.size.x - 8.0
+			if deck_x > deck_cap:
+				deck_x = maxf(wheel_x, deck_cap)
+			dungeon_deck_ui.position = Vector2(deck_x, wheel_y)
+	else:
+		var right_limit: float = sz.x - margin
+		var shown_w: float = w * sc
+		if draft_x + shown_w > right_limit:
+			var remain: float = right_limit - draft_x
+			if remain >= w * 0.55:
+				sc = clampf(remain / w, 0.55, sc)
+				shown_w = w * sc
+			else:
+				var budget: float = maxf(200.0, right_limit - margin)
+				var wheel_floor: float = minf(wheel_side, maxf(280.0, budget * 0.46))
+				shown_w = maxf(w * 0.55, budget - gap - wheel_floor)
+				sc = clampf(shown_w / w, 0.50, sc)
+				shown_w = w * sc
+				wheel_side = minf(wheel_side, maxf(160.0, budget - gap - shown_w))
+				var group: float = shown_w + gap + wheel_side
+				var slack: float = maxf(0.0, budget - group)
+				wheel_x = margin + slack * 0.5
+				draft_x = wheel_x + wheel_side + gap
+				wheel_view.custom_minimum_size = Vector2(wheel_side, wheel_side)
+				wheel_view.position = Vector2(wheel_x, wheel_y)
+				wheel_view.size = Vector2(wheel_side, wheel_side)
+				if dungeon_deck_ui != null and dungeon_deck_ui.visible:
+					var deck_x2: float = wheel_x + wheel_side + 8.0
+					var deck_cap2: float = draft_x - dungeon_deck_ui.size.x - 8.0
+					if deck_x2 > deck_cap2:
+						deck_x2 = maxf(wheel_x, deck_cap2)
+					dungeon_deck_ui.position = Vector2(deck_x2, wheel_y)
+		shown_w = w * sc
+		if draft_x + shown_w > right_limit:
+			sc = clampf((right_limit - draft_x) / maxf(1.0, w), 0.50, sc)
+			shown_w = w * sc
+		if draft_x + shown_w > right_limit:
+			draft_x = maxf(margin, right_limit - shown_w)
+	challenge_draft_ui.size = Vector2(w, h)
+	challenge_draft_ui.pivot_offset = Vector2.ZERO
+	challenge_draft_ui.scale = Vector2(sc, sc)
+	challenge_draft_ui.position = Vector2(draft_x, deck_bottom)
+	out["x"] = wheel_x
+	out["side"] = wheel_side
+	return out
 
 
 func _choice_covering() -> bool:
@@ -29576,38 +29626,21 @@ func _sync_hotbar() -> void:
 	_maybe_queue_new_mark_lesson()
 
 
-## Journey A — gold star on never-used uniques (no New! text, no sheen loop).
-func _apply_collection_item_badge(card: Control, it: Dictionary) -> void:
+## Gold star on unique items that are not on the trophy cabinet yet.
+## Combat use, seeing a draft, and extracting without unpacking do not clear it.
+func _apply_collection_item_badge(card: Control, it: Dictionary, _as_offer: bool = false) -> void:
 	var cid: String = str(it.get("card_id", ""))
 	## Always clear legacy New! text badge — star replaces it.
 	if card.has_method("set_cabinet_badge"):
 		card.set_cabinet_badge(false, "", "")
-	if cid == "" or BucketRules.is_token(items_by_id.get(cid, {})):
-		if card.has_method("set_new_star"):
-			card.set_new_star(false)
-		return
-	var banked: Dictionary = {}
-	var seen_map: Dictionary = {}
-	if _campaign != null:
-		## Duplicate — never mutate live campaign banked from badge projection.
-		banked = (_campaign.state.get("banked", {}) as Dictionary).duplicate()
-	if home_cabin != null:
-		seen_map = home_cabin.seen
-		for sid in home_cabin.swiped.keys():
-			var s := str(sid)
-			if not banked.has(s):
-				banked[s] = _campaign_pool_of_item(s)
-	var held: Array = []
-	for raw in hotbar:
-		if typeof(raw) != TYPE_DICTIONARY:
-			continue
-		var hid := str(raw.get("card_id", ""))
-		if hid != "":
-			held.append(hid)
-	var st: String = TrophyBoardModel.item_status(cid, seen_map, banked, held)
-	## Star: unbanked held unique that has never been used. Clears on first use / bank.
-	var already_used: bool = home_cabin != null and home_cabin.is_used(cid)
-	var fresh: bool = st == TrophyBoardModel.STATUS_CARRIED and not already_used
+	var token: bool = cid == "" or BucketRules.is_token(items_by_id.get(cid, {}))
+	var on_cabinet: bool = false
+	if not token and home_cabin != null:
+		if home_cabin.has_method("is_cabinet_claimed"):
+			on_cabinet = home_cabin.is_cabinet_claimed(cid)
+		else:
+			on_cabinet = home_cabin.is_swiped(cid)
+	var fresh: bool = not token and not on_cabinet
 	if card.has_method("set_new_star"):
 		card.set_new_star(fresh)
 	elif card.has_method("set_cabinet_badge"):

@@ -111,6 +111,17 @@ func _init() -> void:
 		"hotbar star clears after set_new_star(false)",
 		star == null or star.visible == false
 	) or failed
+	if card.has_method("set_showcase"):
+		card.set_showcase(true)
+	card.set_new_star(true)
+	star = card.get("_new_star")
+	if star != null:
+		failed = _check(
+			failed,
+			"draft star uses showcase width",
+			is_equal_approx((star as Control).position.x, ITEM_CARD.SHOW_W - 24.0)
+		) or failed
+	card.set_new_star(false)
 	card.queue_free()
 
 	## --- Satchel grid layout 0/1/3/7 ---
@@ -126,6 +137,15 @@ func _init() -> void:
 	root.add_child(cabin)
 	cabin.call("_apply_defaults")
 	cabin.reduce_motion = true
+	failed = _check(failed, "unused unique not on cabinet", not cabin.is_cabinet_claimed("crossbow")) or failed
+	cabin.used["crossbow"] = true
+	failed = _check(failed, "combat use does not claim", not cabin.is_cabinet_claimed("crossbow")) or failed
+	cabin.swiped["crossbow"] = true
+	cabin.bank_pending.append("crossbow")
+	cabin._bank_hold["crossbow"] = true
+	failed = _check(failed, "satchel haul still pending is not claimed", not cabin.is_cabinet_claimed("crossbow")) or failed
+	cabin._ack_bank_presented("crossbow")
+	failed = _check(failed, "ceremony ack puts unique on cabinet", cabin.is_cabinet_claimed("crossbow")) or failed
 	for n in [0, 1, 3, 7]:
 		var rope = ROPE.new()
 		root.add_child(rope)

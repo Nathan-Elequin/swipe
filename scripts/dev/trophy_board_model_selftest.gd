@@ -186,6 +186,12 @@ func _init() -> void:
 		"item_status banked",
 		MODEL.item_status("throwing_knife", {}, {"throwing_knife": "b1"}, []) == MODEL.STATUS_BANKED
 	) or failed
+	failed = _check(
+		failed,
+		"draft offer missing from cabinet",
+		MODEL.item_status("fangs", {}, {}, []) != MODEL.STATUS_BANKED
+		and MODEL.item_status("fangs", {}, {}, []) != MODEL.STATUS_BANKED_CARRIED
+	) or failed
 
 	## Locked face helper
 	var b2: Dictionary = faces[1]
