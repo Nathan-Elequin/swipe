@@ -12,6 +12,7 @@ var _body_edit: TextEdit
 var _count_lab: Label
 var _preview_host: Control
 var _preview: PanelContainer
+var _show_check: CheckBox
 var _dirty: Dictionary = {}
 var _selected: String = ""
 var _status: Label
@@ -122,6 +123,11 @@ func _build() -> void:
 	_count_lab = Label.new()
 	_count_lab.add_theme_color_override("font_color", Color("a89880"))
 	edit_col.add_child(_count_lab)
+	_show_check = CheckBox.new()
+	_show_check.text = "Show to players"
+	_show_check.tooltip_text = "Off: this keyword never chips or pops a definition for players. F1 preview still works."
+	_show_check.toggled.connect(_on_show_toggled)
+	edit_col.add_child(_show_check)
 	var btns := HBoxContainer.new()
 	btns.add_theme_constant_override("separation", 8)
 	edit_col.add_child(btns)
@@ -161,14 +167,19 @@ func _build() -> void:
 func _rebuild_list() -> void:
 	_list.clear()
 	for id in KeywordDefs.all_ids():
-		var title: String = KeywordDefs.title_of(id)
-		if _dirty.has(id):
-			title = str((_dirty[id] as Dictionary).get("title", title))
+		var entry: Dictionary = _dirty.get(id, KeywordDefs.entry(id))
+		var title: String = str(entry.get("title", KeywordDefs.title_of(id)))
+		var shown: bool = bool(entry.get("player_show", true)) and str(entry.get("body", "")).strip_edges() != ""
+		var label: String = "%s  (%s)" % [title, id]
+		if not shown:
+			label = "%s  — hidden" % label
 		var icon_path: String = KeywordDefs.icon_path(id)
-		var idx: int = _list.add_item("%s  (%s)" % [title, id])
+		var idx: int = _list.add_item(label)
 		if ResourceLoader.exists(icon_path):
 			_list.set_item_icon(idx, load(icon_path) as Texture2D)
 		_list.set_item_metadata(idx, id)
+		if not shown:
+			_list.set_item_custom_fg_color(idx, Color("8a8074"))
 
 
 func _on_select(idx: int) -> void:
@@ -176,6 +187,8 @@ func _on_select(idx: int) -> void:
 	var entry: Dictionary = _dirty.get(_selected, KeywordDefs.entry(_selected))
 	_title_edit.text = str(entry.get("title", ""))
 	_body_edit.text = str(entry.get("body", ""))
+	if _show_check:
+		_show_check.set_pressed_no_signal(bool(entry.get("player_show", true)))
 	_refresh_count()
 	_refresh_preview()
 
@@ -186,6 +199,7 @@ func _on_title(t: String) -> void:
 	var row: Dictionary = _dirty.get(_selected, KeywordDefs.entry(_selected))
 	row["title"] = t
 	row["body"] = _body_edit.text
+	row["player_show"] = _show_check.button_pressed if _show_check else bool(row.get("player_show", true))
 	_dirty[_selected] = row
 	_refresh_preview()
 
@@ -196,6 +210,7 @@ func _on_body() -> void:
 	var row: Dictionary = _dirty.get(_selected, KeywordDefs.entry(_selected))
 	row["title"] = _title_edit.text
 	row["body"] = _body_edit.text
+	row["player_show"] = _show_check.button_pressed if _show_check else bool(row.get("player_show", true))
 	_dirty[_selected] = row
 	_refresh_count()
 	_refresh_preview()
@@ -219,9 +234,29 @@ func _refresh_preview() -> void:
 	_preview.top_level = false
 
 
+func _on_show_toggled(on: bool) -> void:
+	if _selected == "":
+		return
+	var row: Dictionary = _dirty.get(_selected, KeywordDefs.entry(_selected))
+	row["title"] = _title_edit.text
+	row["body"] = _body_edit.text
+	row["player_show"] = on
+	_dirty[_selected] = row
+	_rebuild_list()
+	for i in _list.item_count:
+		if str(_list.get_item_metadata(i)) == _selected:
+			_list.select(i)
+			break
+	_status.text = "Hidden from players" if not on else "Will show to players"
+
+
 func _on_save() -> void:
 	if _selected != "":
-		_dirty[_selected] = {"title": _title_edit.text, "body": _body_edit.text}
+		_dirty[_selected] = {
+			"title": _title_edit.text,
+			"body": _body_edit.text,
+			"player_show": _show_check.button_pressed if _show_check else true,
+		}
 	var merged: Dictionary = {}
 	for id in KeywordDefs.all_ids():
 		merged[id] = _dirty.get(id, KeywordDefs.entry(id))

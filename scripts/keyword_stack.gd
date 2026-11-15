@@ -1,6 +1,6 @@
 extends Control
 ## Auto-show stack of parchment keyword cards beside an inspect plate / log line.
-## Locked 2026-11-14: inspect shows every keyword at once (StS-style), no word-hover required.
+## Cards appear after a short hover delay, offset from the inspect (StS-style).
 
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 const KeywordDefs := preload("res://scripts/keyword_defs.gd")
@@ -9,6 +9,7 @@ const STACK_GAP := 8.0
 const COL_GAP := 12.0
 const EDGE := 24.0
 const PLATE_GAP := 12.0
+const SHOW_DELAY := 0.8
 
 var _cards: Array = [] ## PanelContainer keyword_tip instances
 var _ids: Array = []
@@ -16,6 +17,10 @@ var _anchor: Control = null
 var _source: String = ""
 var _highlighted: String = ""
 var _layout_host: Control = null
+var _delay_left: float = -1.0
+var _pending_ids: Array = []
+var _pending_anchor: Control = null
+var _pending_source: String = ""
 
 
 func setup() -> void:
@@ -48,7 +53,7 @@ func show_for_bbcode(text: String, anchor: Control = null, source: String = "") 
 	show_ids(UxStyle.collect_kw_ids(text), anchor, source)
 
 
-func show_ids(ids: Array, anchor: Control = null, source: String = "") -> void:
+func show_ids(ids: Array, anchor: Control = null, source: String = "", delay_sec: float = -1.0) -> void:
 	var cleaned: Array = []
 	var seen: Dictionary = {}
 	var known: Dictionary = {}
@@ -62,22 +67,45 @@ func show_ids(ids: Array, anchor: Control = null, source: String = "") -> void:
 			continue
 		if not known.has(kid):
 			continue
+		if kid != "phoenix" and kid != "phoenix_egg" and not KeywordDefs.player_shows(kid):
+			continue
 		seen[kid] = true
 		cleaned.append(kid)
 	if cleaned.is_empty():
 		hide_stack()
 		return
+	var src: String = source if source != "" else _detect_source(anchor)
+	var wait: float = SHOW_DELAY if delay_sec < 0.0 else delay_sec
+	## Same ids still hovering: keep the delay / keep the open stack.
+	if _ids_match(cleaned, _ids) and (visible or _delay_left >= 0.0):
+		_anchor = anchor
+		_source = src
+		_pending_anchor = anchor
+		set_process(true)
+		return
+	if _ids_match(cleaned, _pending_ids) and _delay_left >= 0.0:
+		_pending_anchor = anchor
+		_anchor = anchor
+		_source = src
+		set_process(true)
+		return
+	_pending_ids = cleaned.duplicate()
+	_pending_anchor = anchor
+	_pending_source = src
 	_anchor = anchor
-	_source = source if source != "" else _detect_source(anchor)
-	_ids = cleaned
-	_rebuild_cards()
-	visible = true
+	_source = src
+	if wait <= 0.001:
+		_commit_pending()
+		return
+	_delay_left = wait
 	set_process(true)
-	_place()
-	_offer_first_sight_teach()
 
 
 func hide_stack() -> void:
+	_delay_left = -1.0
+	_pending_ids.clear()
+	_pending_anchor = null
+	_pending_source = ""
 	for tip in _cards:
 		if tip != null and is_instance_valid(tip):
 			if tip.has_method("notify_player_action"):
@@ -159,7 +187,13 @@ func text_overflows() -> bool:
 	return false
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if _delay_left >= 0.0:
+		_delay_left -= delta
+		if _delay_left <= 0.0:
+			_delay_left = -1.0
+			_commit_pending()
+		return
 	if not visible or _cards.is_empty():
 		set_process(false)
 		return
@@ -167,6 +201,29 @@ func _process(_delta: float) -> void:
 		set_process(false)
 		return
 	_place()
+
+
+func _ids_match(a: Array, b: Array) -> bool:
+	if a.size() != b.size():
+		return false
+	for i in a.size():
+		if str(a[i]) != str(b[i]):
+			return false
+	return true
+
+
+func _commit_pending() -> void:
+	if _pending_ids.is_empty():
+		hide_stack()
+		return
+	_ids = _pending_ids.duplicate()
+	_anchor = _pending_anchor
+	_source = _pending_source if _pending_source != "" else _detect_source(_anchor)
+	_rebuild_cards()
+	visible = true
+	set_process(true)
+	_place()
+	_offer_first_sight_teach()
 
 
 func _rebuild_cards() -> void:

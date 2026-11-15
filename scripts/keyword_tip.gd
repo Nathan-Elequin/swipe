@@ -7,7 +7,7 @@ const CARD_W := 296.0
 const CARD_MIN_H := 96.0
 const KEEP_GROW := 16.0
 const RAIL_GAP := 24.0
-const HOVER_DELAY := 0.15
+const HOVER_DELAY := 0.8
 const OPEN_FADE := 0.12
 const CLOSE_FADE := 0.08
 const TEACH_PULSE := 0.45
@@ -208,7 +208,7 @@ func show_def_at(rect: Rect2, msg: String = "", id: String = "", source: String 
 
 
 func show_def_hover(msg: String, anchor: Control = null, id: String = "", source: String = "") -> void:
-	## Chip hover: 0.15s delay before open (legacy single-card path; plates use KeywordStack).
+	## Chip hover: 0.8s delay before open (callout / tutorial / pip word hover).
 	if stack_mode:
 		return
 	show_def(msg, anchor, id, source, true)
@@ -377,6 +377,8 @@ func offer_teach(id: String, anchor: Control = null, source: String = "") -> voi
 		return
 	var kid: String = id.strip_edges().to_lower()
 	if kid == "" or _has_seen(kid):
+		return
+	if not KeywordDefs.player_shows(kid) and kid != "phoenix" and kid != "phoenix_egg":
 		return
 	for q in _teach_queue:
 		if str(q.get("id", "")) == kid:

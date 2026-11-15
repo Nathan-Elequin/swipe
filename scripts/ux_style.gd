@@ -436,6 +436,8 @@ static func def_id_of(piece: String) -> String:
 	## Full word "Attack" / "Attacks" — not the "Atk" / "ATK" abbreviation (never show ATK as a chip).
 	if low.begins_with("attack"):
 		return "attack"
+	if low.begins_with("block") or low.begins_with("defend"):
+		return "block"
 	return ""
 
 
@@ -461,6 +463,8 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 	var kid: String = id.strip_edges().to_lower()
 	if kid == "":
 		return word
+	if not KeywordDefs.player_shows(kid):
+		return word.strip_edges()
 	var ink: String = ink_hex.strip_edges()
 	if ink == "":
 		ink = ALWAYS
@@ -479,6 +483,8 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 static func with_def_link(shown: String, piece: String, ink_hex: String = "", paper: bool = false) -> String:
 	var id: String = def_id_of(piece)
 	if id == "" or shown.find("[url=") >= 0:
+		return shown
+	if not KeywordDefs.player_shows(id):
 		return shown
 	## When paint already wrapped via chip_bbcode, shown is plain or old chip — rebuild.
 	var word: String = shown
@@ -508,6 +514,8 @@ static func collect_kw_ids(text: String) -> Array:
 	for m in rx.search_all(raw):
 		var kid: String = str(m.get_string(1)).strip_edges().to_lower()
 		if kid == "" or seen.has(kid):
+			continue
+		if not KeywordDefs.player_shows(kid):
 			continue
 		seen[kid] = true
 		out.append(kid)
@@ -566,6 +574,8 @@ static func _on_def_hover(meta: Variant, tip: Node, anchor: Control = null) -> v
 	if tip.has_method("_is_other_pinned") and bool(tip.call("_is_other_pinned")):
 		return
 	var id: String = str(meta).trim_prefix("kw:")
+	if id != "phoenix" and id != "phoenix_egg" and not KeywordDefs.player_shows(id):
+		return
 	## Phoenix still uses callout pack text on the parchment (no keyword-defs row).
 	if id == "phoenix" or id == "phoenix_egg":
 		var main: Node = tip.get_tree().root.get_node_or_null("Main")

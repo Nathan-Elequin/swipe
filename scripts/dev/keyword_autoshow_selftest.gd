@@ -11,6 +11,7 @@ func _run() -> void:
 	var failed := false
 	failed = _check_collect_kw_ids() or failed
 	failed = _check_registry_three() or failed
+	failed = await _check_hover_delay() or failed
 	failed = await _check_plate_stack_and_input() or failed
 	failed = await _check_catalog_inspect_stacks() or failed
 	failed = await _check_log_line_stack() or failed
@@ -47,18 +48,15 @@ func _check_registry_three() -> bool:
 	failed = _check("ids_has_attack", KeywordDefs.ids().has("attack")) or failed
 	failed = _check(
 		"def_neighbor",
-		KeywordDefs.def_of("neighbor")
-		== "The spaces right beside another on the wheel: one to its left, one to its right."
+		KeywordDefs.def_of("neighbor") == "Adjacent on the wheel."
 	) or failed
 	failed = _check(
 		"def_keep",
-		KeywordDefs.def_of("keep") == "This item stays in your hand after you use it."
+		KeywordDefs.def_of("keep") == "Stays in your hand when used (Usable once per Spin)"
 	) or failed
-	failed = _check(
-		"def_attack",
-		KeywordDefs.def_of("attack")
-		== "Damage from a strike. HP lost any other way doesn't count as Attack."
-	) or failed
+	failed = _check("def_attack_empty", KeywordDefs.def_of("attack") == "") or failed
+	failed = _check("attack_not_player", not KeywordDefs.player_shows("attack")) or failed
+	failed = _check("block_not_player", not KeywordDefs.player_shows("block")) or failed
 	failed = _check("def_id_neighbor", UxStyle.def_id_of("Neighbor") == "neighbor") or failed
 	failed = _check("def_id_neighbors", UxStyle.def_id_of("Neighbors") == "neighbor") or failed
 	failed = _check("def_id_keep", UxStyle.def_id_of("Keep") == "keep") or failed
@@ -74,7 +72,7 @@ func _check_registry_three() -> bool:
 	failed = _check("paint_poison_flask_neighbor", n_ids.has("neighbor")) or failed
 	failed = _check("paint_poison_flask_poison", n_ids.has("poison")) or failed
 	failed = _check("paint_knife_keep", k_ids.has("keep")) or failed
-	failed = _check("paint_needleback_attack", a_ids.has("attack")) or failed
+	failed = _check("paint_needleback_no_attack_chip", not a_ids.has("attack")) or failed
 	return failed
 
 
@@ -99,6 +97,33 @@ func _catalog_ability(card_id: String) -> String:
 	return ""
 
 
+func _check_hover_delay() -> bool:
+	var failed := false
+	var stack_scr: GDScript = load("res://scripts/keyword_stack.gd") as GDScript
+	var stack: Control = stack_scr.new()
+	root.add_child(stack)
+	stack.setup()
+	var host := Control.new()
+	host.position = Vector2(1200, 400)
+	host.size = Vector2(200, 120)
+	root.add_child(host)
+	stack.show_ids(["spin"], host, "item", 0.8)
+	await process_frame
+	failed = _check("delay_not_instant", not bool(stack.call("is_showing"))) or failed
+	stack.show_ids(["spin"], host, "item", 0.0)
+	## Same pending ids while counting down: delay is kept (not force-opened).
+	await process_frame
+	failed = _check("delay_kept_on_repeat", not bool(stack.call("is_showing"))) or failed
+	stack.hide_stack()
+	stack.show_ids(["spin"], host, "item", 0.0)
+	await process_frame
+	failed = _check("delay_zero_opens", bool(stack.call("is_showing"))) or failed
+	stack.hide_stack()
+	stack.queue_free()
+	host.queue_free()
+	return failed
+
+
 func _check_catalog_inspect_stacks() -> bool:
 	## Poison Flask → neighbor+poison; Throwing Knife → keep+attack; Needleback → attack.
 	var failed := false
@@ -112,6 +137,7 @@ func _check_catalog_inspect_stacks() -> bool:
 	var plate_scr: GDScript = load("res://scripts/hover_panel.gd") as GDScript
 	var plate: PanelContainer = plate_scr.new()
 	plate.set("accept_clicks", false)
+	plate.set("keyword_tips_delay", 0.0)
 	root.add_child(plate)
 	await process_frame
 	plate.position = Vector2(1280, 520)
@@ -137,7 +163,7 @@ func _check_catalog_inspect_stacks() -> bool:
 	await process_frame
 	var knife_ids: Array = stack.call("current_ids") if stack != null else []
 	failed = _check("knife_stack_keep", knife_ids.has("keep")) or failed
-	failed = _check("knife_stack_attack", knife_ids.has("attack")) or failed
+	failed = _check("knife_stack_no_attack", not knife_ids.has("attack")) or failed
 	## Needleback speech/ability.
 	var needle_ab: String = _catalog_ability("needleback")
 	failed = _check("catalog_needleback", needle_ab != "") or failed
@@ -158,7 +184,7 @@ func _check_catalog_inspect_stacks() -> bool:
 	await process_frame
 	await process_frame
 	var needle_ids: Array = stack.call("current_ids") if stack != null else []
-	failed = _check("needleback_stack_attack", needle_ids.has("attack")) or failed
+	failed = _check("needleback_stack_no_attack", not needle_ids.has("attack")) or failed
 	if stack != null and stack.has_method("hide_stack"):
 		stack.hide_stack()
 	plate.queue_free()
@@ -227,6 +253,7 @@ func _check_plate_stack_and_input() -> bool:
 	var plate_scr: GDScript = load("res://scripts/hover_panel.gd") as GDScript
 	var plate: PanelContainer = plate_scr.new()
 	plate.set("accept_clicks", false)
+	plate.set("keyword_tips_delay", 0.0)
 	root.add_child(plate)
 	await process_frame
 	var body := "%s then %s. %s." % [
@@ -310,6 +337,7 @@ func _check_log_line_stack() -> bool:
 	var log: ScrollContainer = log_scr.new()
 	root.add_child(log)
 	log.setup()
+	log.set("keyword_tips_delay", 0.0)
 	log.position = Vector2(24, 24)
 	log.size = Vector2(360, 400)
 	log.push_line("on_spin", "You %s the wheel." % UxStyle.chip_bbcode("Spin", "spin", "#E8C36A", false))

@@ -38,7 +38,7 @@ func _check_defs_roundtrip() -> bool:
 	var before: Dictionary = {}
 	for id in KeywordDefs.all_ids():
 		before[id] = KeywordDefs.entry(id)
-	failed = _check("defs_count_26", before.size() == 26) or failed
+	failed = _check("defs_count_27", before.size() == 27) or failed
 	failed = _check("defs_save", KeywordDefs.save_all(before)) or failed
 	KeywordDefs.reload(true)
 	for id in KeywordDefs.all_ids():
@@ -53,16 +53,16 @@ func _check_def_of_matches_json() -> bool:
 	var failed := false
 	## Seed strings that must stay verbatim (including ATK in bear_trap/marked).
 	var expect := {
-		"bear_trap": "a 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it",
-		"marked": "upon Defeat, Trapper gains +2 HP and ATK",
-		"poison": "When you Spin that monster, they lose that much HP immediately, then the mark clears. Other marked monsters keep theirs. Your Poison pays first on a Spin. Not Attack.",
-		"always": "Always: cannot be changed in any other way",
-		"swap": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
-		"loaded": "Loaded: your next Attack can hit any monster.",
-		"flee": "If you are facing them, Spin the wheel at random. They are not removed.",
-		"neighbor": "The spaces right beside another on the wheel: one to its left, one to its right.",
-		"keep": "This item stays in your hand after you use it.",
-		"attack": "Damage from a strike. HP lost any other way doesn't count as Attack.",
+		"bear_trap": "A 2 HP 3 ATK monster that Attacks you when you Move or Spin onto it.",
+		"marked": "Upon Defeat, Trapper gains +2 HP and ATK",
+		"poison": "Lose this much HP when you Spin this monster, then this clears.",
+		"always": "Passive ability (cannot be changed)",
+		"swap": "Trade it for a random item of the same rarity.",
+		"loaded": "Your next Attack can hit any monster.",
+		"flee": "Spin immediately without resolving combat.",
+		"neighbor": "Adjacent on the wheel.",
+		"keep": "Stays in your hand when used (Usable once per Spin)",
+		"attack": "",
 	}
 	for id in expect.keys():
 		failed = _check("def_of_%s" % id, UxStyle.def_of(id) == str(expect[id])) or failed
@@ -70,6 +70,9 @@ func _check_def_of_matches_json() -> bool:
 	failed = _check("title_neighbor", KeywordDefs.title_of("neighbor") == "Neighbor") or failed
 	failed = _check("title_keep", KeywordDefs.title_of("keep") == "Keep") or failed
 	failed = _check("title_attack", KeywordDefs.title_of("attack") == "Attack") or failed
+	failed = _check("attack_hidden", not KeywordDefs.player_shows("attack")) or failed
+	failed = _check("block_hidden", not KeywordDefs.player_shows("block")) or failed
+	failed = _check("spin_shown", KeywordDefs.player_shows("spin")) or failed
 	return failed
 
 

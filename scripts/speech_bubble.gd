@@ -75,6 +75,9 @@ func hide_speech() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if _body:
 		_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _kw_tip != null and is_instance_valid(_kw_tip) and _kw_tip.has_method("hide_def"):
+		_kw_tip.set("_pinned", false)
+		_kw_tip.hide_def()
 
 
 func _plain_bb(raw: String) -> String:

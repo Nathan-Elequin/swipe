@@ -14,7 +14,7 @@ static func ids() -> PackedStringArray:
 		"any", "eject", "across", "bear_trap", "move", "flee", "defeated", "marked",
 		"poison", "spin", "always", "swap", "loaded", "unplayable", "rust", "decay",
 		"gaze", "petrify", "curse", "shroud", "toll", "hex", "beggar",
-		"neighbor", "keep", "attack",
+		"neighbor", "keep", "attack", "block",
 	])
 
 
@@ -50,6 +50,7 @@ static func reload(force: bool = false) -> void:
 		_cache[id] = {
 			"title": str(d.get("title", id.capitalize())),
 			"body": str(d.get("body", "")),
+			"player_show": bool(d.get("player_show", true)),
 		}
 
 
@@ -79,7 +80,7 @@ static func entry(id: String) -> Dictionary:
 	var key: String = id.strip_edges().to_lower()
 	if _cache.has(key):
 		return (_cache[key] as Dictionary).duplicate()
-	return {"title": key.capitalize(), "body": ""}
+	return {"title": key.capitalize(), "body": "", "player_show": true}
 
 
 static func save_all(entries: Dictionary) -> bool:
@@ -92,14 +93,16 @@ static func save_all(entries: Dictionary) -> bool:
 		var id: String = all[i]
 		var row: Variant = entries.get(id, _cache.get(id, {}))
 		if typeof(row) != TYPE_DICTIONARY:
-			row = {"title": id.capitalize(), "body": ""}
+			row = {"title": id.capitalize(), "body": "", "player_show": true}
 		var d: Dictionary = row
 		var title: String = str(d.get("title", id.capitalize()))
 		var body: String = str(d.get("body", ""))
+		var show: bool = bool(d.get("player_show", true))
 		var comma: String = "," if i < all.size() - 1 else ""
 		lines.append("  %s: {" % JSON.stringify(id))
 		lines.append("    \"title\": %s," % JSON.stringify(title))
-		lines.append("    \"body\": %s" % JSON.stringify(body))
+		lines.append("    \"body\": %s," % JSON.stringify(body))
+		lines.append("    \"player_show\": %s" % ("true" if show else "false"))
 		lines.append("  }%s" % comma)
 	lines.append("}")
 	lines.append("")
@@ -112,6 +115,18 @@ static func save_all(entries: Dictionary) -> bool:
 	f.close()
 	reload(true)
 	return true
+
+
+static func player_shows(id: String) -> bool:
+	## False = no chip, no inspect capsule, no callout hover card.
+	reload()
+	var key: String = id.strip_edges().to_lower()
+	if not _cache.has(key):
+		return false
+	var d: Dictionary = _cache[key]
+	if not bool(d.get("player_show", true)):
+		return false
+	return str(d.get("body", "")).strip_edges() != ""
 
 
 static func icon_path(id: String) -> String:

@@ -29,6 +29,7 @@ var _stack: Array = []
 var _kw_stack: Control
 ## Alias of `_kw_stack` so main.gd notify paths that still read `_kw_tip` keep working.
 var _kw_tip: Control
+var keyword_tips_delay: float = 0.8
 var _fitting: bool = false
 var _plain: PackedStringArray = PackedStringArray()
 var _stick_bottom: bool = true
@@ -450,7 +451,7 @@ func _on_row_kw(body: RichTextLabel) -> void:
 	var ids: Array = UX.collect_kw_ids(str(body.text))
 	if ids.is_empty():
 		return
-	_kw_stack.show_ids(ids, body, "log")
+	_kw_stack.show_ids(ids, body, "log", keyword_tips_delay)
 
 
 func _on_hint(_ctrl: Control, hint: String, highlight: Dictionary) -> void:

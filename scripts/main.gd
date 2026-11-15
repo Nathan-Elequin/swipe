@@ -1787,6 +1787,7 @@ func _build_ui() -> void:
 	face_box.top_level = true
 	face_box.accept_clicks = true
 	face_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	face_box.keyword_tips_enabled = false
 	add_child(face_box)
 	if art != null:
 		face_box.apply_skin(art.ui.get("panel_beige", null))
@@ -1808,6 +1809,7 @@ func _build_ui() -> void:
 	hypno_box.top_level = true
 	hypno_box.accept_clicks = true
 	hypno_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hypno_box.keyword_tips_enabled = false
 	add_child(hypno_box)
 	if art != null:
 		hypno_box.apply_skin(art.ui.get("panel_beige", null))

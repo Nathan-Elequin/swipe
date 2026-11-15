@@ -1,6 +1,6 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
-## Keywords auto-show as a parchment stack beside the plate (locked 2026-11-14).
+## Hover inspects show keyword capsules after a short delay, offset from this plate.
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_STACK := preload("res://scripts/keyword_stack.gd")
@@ -18,6 +18,10 @@ var last_shown: Dictionary = {}
 ## Face plaque accepts right-click. Fly tips stay click-through so hover does not trap the mouse.
 var accept_clicks: bool = false
 ## Autoshow parchment stack (replaces single-card hover/pin on plates).
+## Facing / hypno plaques leave this false so callout keywords do not pop on their own.
+var keyword_tips_enabled: bool = true
+## Seconds the player must stay on this inspect before capsules appear. 0 = instant (tests).
+var keyword_tips_delay: float = 0.8
 var _kw_stack: Control
 ## Alias of `_kw_stack` so main.gd notify paths that still read `_kw_tip` keep working.
 var _kw_tip: Control
@@ -277,8 +281,6 @@ func show_rule(
 		_wire_kw(b)
 		col.add_child(b)
 	_pin_always = false
-	if _kw_stack != null and _kw_stack.has_method("hide_stack"):
-		_kw_stack.hide_stack()
 	if warn != "":
 		var w := Label.new()
 		w.text = warn
@@ -354,8 +356,11 @@ func show_rule(
 
 
 func _autoshow_keywords(look: Dictionary = {}) -> void:
-	## Show every keyword on this plate at once, stacked beside it.
+	## Hover inspect: after keyword_tips_delay, stack every player-shown keyword beside the plate.
 	if _kw_stack == null or not _kw_stack.has_method("show_ids"):
+		return
+	if not keyword_tips_enabled:
+		_kw_stack.hide_stack()
 		return
 	var ids: Array = _collect_plate_kw_ids()
 	if bool(look.get("unplayable", false)) and not ids.has("unplayable"):
@@ -364,7 +369,7 @@ func _autoshow_keywords(look: Dictionary = {}) -> void:
 	if ids.is_empty():
 		_kw_stack.hide_stack()
 		return
-	_kw_stack.show_ids(ids, self, src)
+	_kw_stack.show_ids(ids, self, src, keyword_tips_delay)
 
 
 func _collect_plate_kw_ids() -> Array:
