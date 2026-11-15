@@ -729,6 +729,17 @@ func is_swiped(id: String) -> bool:
 	return bool(swiped.get(str(id), false))
 
 
+## True only after the unique sits on the trophy cabinet (ceremony ack / shelved).
+## Combat use, draft sighting, and satchel haul still waiting to unpack do not count.
+func is_cabinet_claimed(id: String) -> bool:
+	var sid := str(id)
+	if sid == "":
+		return false
+	if bank_pending.has(sid) or _bank_hold.has(sid):
+		return false
+	return _is_shelved(sid)
+
+
 func cabinet_progress() -> Vector2i:
 	var total := 0
 	var home_n := 0
