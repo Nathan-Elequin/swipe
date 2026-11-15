@@ -41,7 +41,7 @@
   },
   "poison": {
     "title": "Poison",
-    "body": "Lose this much HP when you Spin this monster, then this clears.",
+    "body": "Monsters with Poison lose that much HP when you Spin them, then lose all Poison.",
     "player_show": true
   },
   "spin": {
