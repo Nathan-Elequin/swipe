@@ -15,6 +15,8 @@ signal slide_done()
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 const FACE_SCR := preload("res://scripts/cabin/trophy_board_face.gd")
+const SLOT_SCR := preload("res://scripts/cabin/trophy_board_slot.gd")
+const BucketRules = preload("res://scripts/bucket_rules.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 
 var reduce_motion := false
@@ -218,11 +220,32 @@ func slot_node(card_id: String):
 	return null
 
 
+func face_node_at(index: int) -> TrophyBoardFace:
+	if index < 0 or index >= _face_nodes.size():
+		return null
+	return _face_nodes[index] as TrophyBoardFace
+
+
+func chrome_rects_screen() -> Dictionary:
+	var dots: Array = []
+	for d in _dots:
+		if d is Control and is_instance_valid(d):
+			dots.append((d as Control).get_global_rect())
+	return {
+		"arrow_l": _arrow_l.get_global_rect() if _arrow_l != null else Rect2(),
+		"arrow_r": _arrow_r.get_global_rect() if _arrow_r != null else Rect2(),
+		"dots": dots,
+	}
+
+
 func place_claimed(card_id: String, fx := true) -> void:
 	for face_n in _face_nodes:
 		var slot = (face_n as TrophyBoardFace).slot_node(card_id)
 		if slot == null:
 			continue
+		var card: Dictionary = _items_by_id.get(str(card_id), {})
+		var rank: int = BucketRules.tier_of(card)
+		slot.set_claim_metal(SLOT_SCR.metal_for_rank(rank))
 		if fx:
 			slot.play_claim_pop()
 		else:
@@ -424,6 +447,7 @@ func _rebuild_faces() -> void:
 		var face_n: TrophyBoardFace = FACE_SCR.new()
 		face_n.reduce_motion = reduce_motion
 		face_n.setup(data)
+		face_n.set_items_by_id(_items_by_id)
 		face_n.position = Vector2(float(i - _current) * span, 0)
 		var lay: Dictionary = MODEL.layout(data)
 		face_n.rebuild_slots(lay, _tex_by_id)
@@ -435,6 +459,7 @@ func _rebuild_faces() -> void:
 		face_n.padlock_hovered.connect(_on_padlock_hover)
 		face_n.lights_hovered.connect(_on_lights_hover)
 		face_n.lever_hovered.connect(_on_lever_hover)
+		face_n.locked_clicked.connect(_on_locked_face_click)
 		_viewport.add_child(face_n)
 		_face_nodes.append(face_n)
 
@@ -676,9 +701,9 @@ func _on_slot_hover(card_id: String, st: StringName) -> void:
 func _on_slot_click(card_id: String, st: StringName) -> void:
 	var face: Dictionary = _faces_data[_current] if _current < _faces_data.size() else {}
 	if MODEL.is_face_locked(_rules, _campaign_state, face) or st == &"unseen":
-		_cue("cabin.locked")
-		_bump()
 		hide_item_tag()
+		if _current < _face_nodes.size():
+			(_face_nodes[_current] as TrophyBoardFace).trigger_locked_click()
 		return
 	slot_clicked.emit(card_id)
 	## Parchment tag replaces the lingering combat-card inspect fly tip.
@@ -916,6 +941,20 @@ func _on_lever(face_index: int) -> void:
 	elif ls == &"locked":
 		_cue("cabin.locked")
 		_bump()
+
+
+func _on_locked_face_click() -> void:
+	_cue("cabin.locked")
+	if _current < _faces_data.size():
+		var face: Dictionary = _faces_data[_current]
+		var prev := MODEL.prev_biome_name(_rules, face)
+		var tip := COPY.fill(
+			"board.locked.tip",
+			{"prev": prev},
+			"Five different finds from %s open this one." % prev
+		)
+		var pad = (_face_nodes[_current] as TrophyBoardFace)._padlock if _current < _face_nodes.size() else self
+		hover_tip.emit(tip, pad)
 
 
 func _on_padlock_hover() -> void:

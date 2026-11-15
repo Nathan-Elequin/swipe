@@ -9,6 +9,7 @@ signal clicked(card_id: String, state: StringName)
 
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
+const AURA_FPS := 6.0
 
 ## Pixel drop paths (Nearest). Low slabs under each cell — never the old square recess.
 const PLINTH_CLAIMED := "trophy/plinth_claimed"
@@ -21,18 +22,56 @@ const PLINTH_RECT_S := Rect2(0, 68, 80, 24)
 
 var card_id: String = ""
 var slot_state: StringName = &"unclaimed"
+var claim_metal: String = ""
 var item_tex: Texture2D = null
 var reduce_motion: bool = false
 
 var _recess: Control
 var _glow: ColorRect
-var _aura: TextureRect
+var _aura: AnimatedSprite2D
 var _sprite: TextureRect
 var _shine: ColorRect
 var _compact: bool = false
 var _gentle_pulse: bool = false
 var _pulse_tw: Tween = null
 var _rest_pad: float = 0.0
+
+
+static func metal_for_rank(rank: int) -> String:
+	match clampi(rank, 1, 3):
+		3:
+			return "gold"
+		2:
+			return "silver"
+		_:
+			return "bronze"
+
+
+func set_claim_metal(metal: String) -> void:
+	claim_metal = str(metal).strip_edges()
+
+
+func resolve_plinth_tex(claimed: bool) -> Texture2D:
+	if not claimed:
+		return KIT.ui_tex(_plinth_stem(false))
+	var metal := claim_metal.strip_edges()
+	if metal != "":
+		var stem := "trophy/plinth_claimed_s_%s" % metal if _compact else "trophy/plinth_claimed_%s" % metal
+		var tinted: Texture2D = KIT.ui_tex(stem)
+		if tinted != null:
+			return tinted
+	return KIT.ui_tex(_plinth_stem(true))
+
+
+func resolve_aura_stem() -> String:
+	if slot_state != &"claimed":
+		return ""
+	var metal := claim_metal.strip_edges()
+	if metal == "":
+		return "trophy_board/aura_claimed_s_f0" if _compact else "trophy_board/aura_claimed_f0"
+	if _compact:
+		return "trophy_board/aura_claimed_s_%s_f0" % metal
+	return "trophy_board/aura_claimed_%s_f0" % metal
 
 
 func setup(p_id: String, rect: Rect2, compact: bool) -> void:
@@ -65,13 +104,11 @@ func _build() -> void:
 	_glow.visible = false
 	_glow.z_index = 1
 	add_child(_glow)
-	## WIRING: pulse_ring.png centred on the slot (160×160, centre = slot centre − 80).
-	_aura = TextureRect.new()
+	## Claimed metal auras loop at 6 fps; pulse_ring is the last fallback.
+	_aura = AnimatedSprite2D.new()
 	_aura.name = "Aura"
-	_aura.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_aura.stretch_mode = TextureRect.STRETCH_SCALE
 	_aura.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_aura.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_aura.centered = true
 	_aura.visible = false
 	_aura.z_index = 1
 	add_child(_aura)
@@ -96,7 +133,7 @@ func _build() -> void:
 	_shine.visible = false
 	add_child(_shine)
 	_apply_plinth_art(false)
-	_load_aura_frame(0)
+	_refresh_aura_visual()
 
 
 func _plinth_stem(claimed: bool) -> String:
@@ -198,11 +235,18 @@ func apply_state(st: StringName, force_silhouette := false) -> void:
 		else:
 			_sprite.modulate = MODEL.SILHOUETTE
 	if _aura:
-		_aura.visible = claimed
 		if claimed:
-			_load_aura_frame(0)
+			_refresh_aura_visual()
+			_aura.visible = true
 			_aura.modulate = Color(1, 1, 1, 0.85)
 			_place_pulse_ring()
+			if _aura.sprite_frames != null and _aura.sprite_frames.get_frame_count("aura") > 0:
+				_aura.play("aura")
+			else:
+				_aura.stop()
+		else:
+			_aura.visible = false
+			_aura.stop()
 
 
 func play_claim_pop() -> void:
@@ -264,7 +308,7 @@ func set_gentle_pulse(on: bool) -> void:
 func _apply_plinth_art(claimed: bool) -> void:
 	if _recess == null:
 		return
-	var tex: Texture2D = KIT.ui_tex(_plinth_stem(claimed))
+	var tex: Texture2D = resolve_plinth_tex(claimed)
 	var pr: Rect2 = _plinth_rect()
 	## Keep slab on WIRING rect; never inherit silhouette/dark modulate.
 	_recess.z_index = 0
@@ -291,28 +335,74 @@ func _apply_plinth_art(claimed: bool) -> void:
 func _place_pulse_ring() -> void:
 	if _aura == null:
 		return
-	## Compact cells use a scaled ring; normal cells use the 160×160 art 1:1.
-	var ring_sz: float = 100.0 if _compact else 160.0
 	var cx: float = size.x * 0.5
 	var cy: float = size.y * 0.5
-	_aura.position = Vector2(cx - ring_sz * 0.5, cy - ring_sz * 0.5)
-	_aura.size = Vector2(ring_sz, ring_sz)
+	_aura.position = Vector2(cx, cy)
 
 
-func _load_aura_frame(_i: int = 0) -> void:
+func _aura_frame_stems(metal: String) -> Array:
+	var stems: Array = []
+	var prefix := "trophy_board/aura_claimed_s_%s_f" % metal if _compact else "trophy_board/aura_claimed_%s_f" % metal
+	for fi in 6:
+		stems.append("%s%d" % [prefix, fi])
+	return stems
+
+
+func _untinted_aura_stems() -> Array:
+	var stems: Array = []
+	var prefix := "trophy_board/aura_claimed_s_f" if _compact else "trophy_board/aura_claimed_f"
+	for fi in 6:
+		stems.append("%s%d" % [prefix, fi])
+	return stems
+
+
+func _build_aura_frames(stems: Array) -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	sf.add_animation("aura")
+	sf.set_animation_speed("aura", AURA_FPS)
+	sf.set_animation_loop("aura", true)
+	var any := false
+	for stem in stems:
+		var tex: Texture2D = KIT.ui_tex(str(stem))
+		if tex != null:
+			sf.add_frame("aura", tex)
+			any = true
+	if not any:
+		return null
+	return sf
+
+
+func _refresh_aura_visual() -> void:
 	if _aura == null:
 		return
-	## Prefer the contact-sheet pulse ring; fall back to legacy aura frames.
-	var tex: Texture2D = KIT.ui_tex("trophy/pulse_ring")
-	if tex == null:
-		var stem := "trophy_board/aura_claimed_s_f0" if _compact else "trophy_board/aura_claimed_f0"
-		tex = KIT.ui_tex(stem)
-	if tex != null:
-		_aura.texture = tex
-	else:
-		_aura.texture = null
-		_aura.modulate = Color(1, 0.85, 0.3, 0.35)
 	_place_pulse_ring()
+	var sf: SpriteFrames = null
+	var metal := claim_metal.strip_edges()
+	if metal != "":
+		sf = _build_aura_frames(_aura_frame_stems(metal))
+	if sf == null:
+		sf = _build_aura_frames(_untinted_aura_stems())
+	if sf == null:
+		var ring: Texture2D = KIT.ui_tex("trophy/pulse_ring")
+		if ring != null:
+			sf = SpriteFrames.new()
+			sf.add_animation("aura")
+			sf.set_animation_speed("aura", AURA_FPS)
+			sf.set_animation_loop("aura", true)
+			sf.add_frame("aura", ring)
+	if sf == null:
+		_aura.sprite_frames = null
+		_aura.modulate = Color(1, 0.85, 0.3, 0.35)
+		return
+	_aura.sprite_frames = sf
+	_aura.scale = Vector2.ONE
+	var f0: Texture2D = sf.get_frame_texture("aura", 0)
+	if f0 != null and _compact and f0.get_width() >= 120:
+		var ring_sz: float = 100.0
+		_aura.scale = Vector2(ring_sz / float(f0.get_width()), ring_sz / float(f0.get_height()))
+	elif f0 != null and not _compact and f0.get_width() >= 120:
+		var ring_sz2: float = 160.0
+		_aura.scale = Vector2(ring_sz2 / float(f0.get_width()), ring_sz2 / float(f0.get_height()))
 
 
 func _gui_input(event: InputEvent) -> void:

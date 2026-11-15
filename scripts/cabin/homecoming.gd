@@ -19,6 +19,16 @@ const MODEL := preload("res://scripts/cabin/trophy_board_model.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
+const SLOT_SCR := preload("res://scripts/cabin/trophy_board_slot.gd")
+const BucketRules = preload("res://scripts/bucket_rules.gd")
+
+const FLY_SEC_BRONZE := 0.35
+const FLY_SEC_SILVER := 0.45
+const FLY_SEC_GOLD := 0.55
+const SWELL_BRONZE := 1.08
+const SWELL_SILVER := 1.15
+const SWELL_GOLD := 1.30
+const LAND_FX_FPS := 12.0
 
 signal finished
 signal item_placed(card_id: String)
@@ -34,6 +44,9 @@ var light_flash_count: int = 0
 var skipped_mid: bool = false
 var first_return_branch: String = ""  ## "" | "empty" | "unpack"
 var first_light_did_pause: bool = false
+var land_events: Array = []
+var cues_played: Array = []
+var any_lit_before_land: bool = false
 
 var board = null
 var cabin = null
@@ -87,6 +100,9 @@ func _run() -> void:
 	placed_order.clear()
 	face_change_count = 0
 	light_flash_count = 0
+	land_events.clear()
+	cues_played.clear()
+	any_lit_before_land = false
 	_skip_requested = false
 	skipped_mid = false
 	first_return_branch = ""
@@ -136,7 +152,7 @@ func _run() -> void:
 		if _skip_requested or _stale():
 			break
 		var id: String = str(pending[i])
-		await _play_one_item(id)
+		await _play_one_item(id, i + 1)
 		if _stale():
 			break
 		## First return: short Nib comment after the first item lands.
@@ -273,25 +289,69 @@ func _meta_for(id: String, faces: Array = []) -> Dictionary:
 	return {"face_index": -1, "tier": 1, "slot": 0}
 
 
-func _play_one_item(card_id: String) -> void:
+func _metal_for(card_id: String, meta: Dictionary) -> String:
+	var rank: int = int(meta.get("tier", 0))
+	if rank >= 1 and rank <= 3:
+		return SLOT_SCR.metal_for_rank(rank)
+	var card: Dictionary = _items().get(card_id, {})
+	if typeof(card) == TYPE_DICTIONARY and not card.is_empty():
+		return SLOT_SCR.metal_for_rank(BucketRules.tier_of(card))
+	return "bronze"
+
+
+func _fly_sec(metal: String) -> float:
+	match metal:
+		"gold":
+			return FLY_SEC_GOLD
+		"silver":
+			return FLY_SEC_SILVER
+		_:
+			return FLY_SEC_BRONZE
+
+
+func _swell_peak(metal: String) -> float:
+	match metal:
+		"gold":
+			return SWELL_GOLD
+		"silver":
+			return SWELL_SILVER
+		_:
+			return SWELL_BRONZE
+
+
+func _slot_lit_before(card_id: String) -> bool:
+	if board == null or not board.has_method("slot_node"):
+		return false
+	var slot = board.slot_node(card_id)
+	if slot == null:
+		return false
+	return str(slot.slot_state) == "claimed"
+
+
+func _record_land(card_id: String, metal: String) -> void:
+	var lit := _slot_lit_before(card_id)
+	if lit:
+		any_lit_before_land = true
+	land_events.append({"id": card_id, "lit_before": lit, "metal": metal})
+
+
+func _play_one_item(card_id: String, deposit_n: int = 1) -> void:
 	var meta: Dictionary = _meta_for(card_id)
 	var face_i: int = int(meta.get("face_index", 0))
-	## Pre: slide if face changes (satchel stays).
+	var metal: String = _metal_for(card_id, meta)
 	if board.has_method("current_face") and int(board.current_face()) != face_i:
 		await _slide_board(face_i, false)
 		if _stale() or _skip_requested:
 			return
 	var lights_before: int = _lights_lit_now(face_i)
 	if reduce_motion:
-		await _place_reduce_motion(card_id, face_i, lights_before)
+		await _place_reduce_motion(card_id, face_i, lights_before, metal)
 		return
-	## 0.00 satchel jostle
 	_play_satchel_anim("open")
 	_cue("board.satchel_rustle")
 	await _wait_step(0.10)
 	if _stale() or _skip_requested:
 		return
-	## 0.10 rise — mouth / peak from the live satchel rect (not hardcoded slot coords).
 	var mouth: Vector2 = _satchel_mouth()
 	var rise_peak: Vector2 = Vector2(mouth.x, mouth.y - RISE_LIFT)
 	var spr: Sprite2D = _make_item_sprite(card_id)
@@ -325,7 +385,6 @@ func _play_one_item(card_id: String) -> void:
 	if _stale() or _skip_requested:
 		_free_fx(spr)
 		return
-	## 0.50 hang 0.15s with ±2px bob
 	var bob_tw := _tween()
 	bob_tw.tween_property(spr, "position:y", rise_peak.y - 2.0, _dur(0.075))
 	bob_tw.tween_property(spr, "position:y", rise_peak.y + 2.0, _dur(0.075))
@@ -333,48 +392,107 @@ func _play_one_item(card_id: String) -> void:
 	if _stale() or _skip_requested:
 		_free_fx(spr)
 		return
-	## 0.65 fly — destination from TrophyBoard.slot_global_center (runtime layout).
 	var to_global: Vector2 = board.slot_global_center(card_id)
 	var to_local: Vector2 = _to_host_local(to_global)
 	var mid: Vector2 = (rise_peak + to_local) * 0.5 + Vector2(0, -FLY_LIFT)
 	var slot_scale: Vector2 = _slot_scale_for(card_id)
-	_attach_fly_spark(spr)
-	_cue("board.whoosh")
+	var fly_t: float = _fly_sec(metal)
+	var peak: float = _swell_peak(metal)
+	var swoosh := _make_swoosh_trail(metal, spr)
+	_cue("board.whoosh.%s" % metal)
 	var fly_tw := _tween()
 	fly_tw.set_parallel(true)
 	fly_tw.tween_method(func(t: float) -> void:
 		if is_instance_valid(spr):
-			spr.position = _quad_bez(rise_peak, mid, to_local, t)
-	, 0.0, 1.0, _dur(0.55)).set_ease(Tween.EASE_IN_OUT)
-	fly_tw.tween_property(spr, "scale", slot_scale, _dur(0.55)).set_ease(Tween.EASE_IN_OUT)
+			var p: Vector2 = _quad_bez(rise_peak, mid, to_local, t)
+			spr.position = p
+			if swoosh != null and is_instance_valid(swoosh):
+				swoosh.position = p
+				swoosh.rotation = (to_local - rise_peak).angle()
+	, 0.0, 1.0, _dur(fly_t)).set_ease(Tween.EASE_IN_OUT)
+	var swell: Vector2 = slot_scale * peak
+	fly_tw.tween_method(func(t: float) -> void:
+		if is_instance_valid(spr):
+			var s: float = lerpf(1.0, peak, sin(t * PI))
+			spr.scale = slot_scale * s
+	, 0.0, 1.0, _dur(fly_t)).set_ease(Tween.EASE_IN_OUT)
 	await _await_tween(fly_tw)
+	if swoosh != null:
+		_free_fx(swoosh)
 	if _stale() or _skip_requested:
 		_free_fx(spr)
 		return
-	## 1.20 land → poof SFX/art → ONLY THEN claim (plinth lights) + biome light.
-	await _poof_at(to_local)
+	if metal == "gold":
+		var hang_tw := _tween()
+		hang_tw.tween_property(spr, "scale", swell, _dur(0.12)).set_ease(Tween.EASE_OUT)
+		await _await_tween(hang_tw)
+		var snap_tw := _tween()
+		snap_tw.tween_property(spr, "scale", slot_scale, _dur(0.10)).set_trans(Tween.TRANS_BACK)
+		await _await_tween(snap_tw)
+		var nudge: float = clampf(randf_range(-2.0, 2.0), -2.0, 2.0)
+		if absf(nudge) > 0.01:
+			var ntw := _tween()
+			ntw.tween_property(spr, "position:x", spr.position.x + nudge, _dur(0.08))
+			ntw.tween_property(spr, "position:x", spr.position.x, _dur(0.08))
+			await _await_tween(ntw)
+	else:
+		var settle := _tween()
+		settle.tween_property(spr, "scale", slot_scale, _dur(0.08))
+		await _await_tween(settle)
+	_record_land(card_id, metal)
+	await _land_fx_at(to_local, metal)
+	_cue("board.land.%s" % metal)
 	_free_fx(spr)
-	## Claim after the poof so the slot never lights before the item arrives.
 	_claim_item(card_id)
 	placed_order.append(card_id)
 	item_placed.emit(card_id)
-	## 1.45 biome arch light if this claim raised the count.
 	var lights_after: int = _lights_lit_now(face_i)
 	if lights_after > lights_before and lights_after <= 5:
 		await _flash_light(face_i, lights_after - 1, lights_after)
-	## Hold until step end (2.00 normal / 1.2 first return)
-	var spent: float = 1.45
-	if lights_after > lights_before:
-		spent = 1.70
-	## Scale spent into the active step so first-return stays ~1.2s.
-	var scale: float = _step_s / HOMECOMING_STEP
-	var remain: float = maxf(0.0, _step_s - spent * scale)
-	if remain > 0.0:
-		await _wait_step(remain)
+	var gap_scale: float = 0.55 if deposit_n > 6 and metal != "gold" else 1.0
+	var tail: float = 0.25 * gap_scale
+	if metal == "gold":
+		tail = 0.35
+	await _wait_step(tail)
 
 
-func _place_reduce_motion(card_id: String, face_i: int, lights_before: int) -> void:
-	## Fade into slot 0.25s, poof, 0.6s hold → T ≈ 0.9s. No fly.
+func _make_swoosh_trail(metal: String, parent: Sprite2D) -> Sprite2D:
+	var stem := "trophy_board/swoosh_%s" % metal
+	var tex: Texture2D = KIT.ui_tex(stem)
+	if tex == null:
+		return null
+	var swoosh := Sprite2D.new()
+	swoosh.texture = tex
+	swoosh.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	swoosh.centered = true
+	swoosh.z_index = parent.z_index - 1
+	parent.add_child(swoosh)
+	_track_fx(swoosh)
+	return swoosh
+
+
+func _land_fx_at(at_local: Vector2, metal: String) -> void:
+	var stems: Array = []
+	for fi in 6:
+		stems.append("trophy_board/land_%s_f%d" % [metal, fi])
+	var land: AnimatedSprite2D = _ui_anim(stems, "land", LAND_FX_FPS, false)
+	if land == null:
+		await _poof_at(at_local)
+		return
+	land.centered = true
+	land.position = at_local
+	land.z_index = 25
+	_host.add_child(land)
+	_track_fx(land)
+	land.play("land")
+	if land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+		await land.animation_finished
+	else:
+		await _wait_step(6.0 / LAND_FX_FPS)
+	_free_fx(land)
+
+
+func _place_reduce_motion(card_id: String, face_i: int, lights_before: int, metal: String) -> void:
 	var to_global: Vector2 = board.slot_global_center(card_id)
 	var to_local: Vector2 = _to_host_local(to_global)
 	var spr: Sprite2D = _make_item_sprite(card_id)
@@ -383,13 +501,16 @@ func _place_reduce_motion(card_id: String, face_i: int, lights_before: int) -> v
 	spr.scale = _slot_scale_for(card_id)
 	_host.add_child(spr)
 	_track_fx(spr)
+	_cue("board.whoosh.%s" % metal)
 	var tw := _tween()
 	tw.tween_property(spr, "modulate:a", 1.0, _dur(0.25))
 	await _await_tween(tw)
 	if _stale() or _skip_requested:
 		_free_fx(spr)
 		return
-	await _poof_at(to_local)
+	_record_land(card_id, metal)
+	await _land_fx_crossfade(to_local, metal, spr)
+	_cue("board.land.%s" % metal)
 	_free_fx(spr)
 	_claim_item(card_id)
 	placed_order.append(card_id)
@@ -407,6 +528,32 @@ func _place_reduce_motion(card_id: String, face_i: int, lights_before: int) -> v
 		else:
 			_maybe_light_bubble(lights_after)
 	await _wait_step(0.6)
+
+
+func _land_fx_crossfade(at_local: Vector2, metal: String, spr: Sprite2D) -> void:
+	var stems: Array = []
+	for fi in 6:
+		stems.append("trophy_board/land_%s_f%d" % [metal, fi])
+	var land: AnimatedSprite2D = _ui_anim(stems, "land", LAND_FX_FPS, false)
+	if land == null:
+		await _poof_at(at_local)
+		return
+	land.centered = true
+	land.position = at_local
+	land.z_index = 25
+	_host.add_child(land)
+	_track_fx(land)
+	var tw := _tween()
+	tw.set_parallel(true)
+	tw.tween_property(spr, "modulate:a", 0.0, _dur(0.20))
+	tw.tween_property(land, "modulate:a", 1.0, _dur(0.20))
+	land.play("land")
+	await _await_tween(tw)
+	if land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+		await land.animation_finished
+	else:
+		await _wait_step(6.0 / LAND_FX_FPS)
+	_free_fx(land)
 
 
 func _skip_rest(pending: Array) -> void:
@@ -1026,8 +1173,7 @@ func _stale() -> bool:
 
 
 func _cue(id: String, fallback: String = "") -> void:
-	## Package E: prefer named board.* / sting.* ids. Fallback only if the primary
-	## cue is absent from the map (Reel still delivering final files).
+	cues_played.append(id)
 	if sfx == null:
 		return
 	if _has_cue(id):
