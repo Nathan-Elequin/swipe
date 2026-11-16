@@ -117,7 +117,7 @@ static func dress_title_button(b: Button, width: float = 0.0) -> void:
 	b.add_theme_stylebox_override("pressed", down)
 
 
-## Same metals the item rims use. 1 Weak / bronze, 2 Tough / silver, 3 Deadly / gold.
+## Same metals the item rims use. T1 bronze, T2 silver, T3 gold (art only — never show metal words).
 static func metal(tier: int) -> Color:
 	if tier >= 3:
 		return METAL_GOLD

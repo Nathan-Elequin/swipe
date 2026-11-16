@@ -502,10 +502,10 @@
 			"words": 33.0
 		},
 		"clockwork_knight": {
-			"entry": "A tin knight wound by some long-dead tinkerer. If you leave him standing, he unfolds into two Tough monsters, out of spite or engineering. Take him apart thoroughly. Keep the screws.",
+			"entry": "A tin knight wound by some long-dead tinkerer. Defeat him and his neighbors match each other — HP first, then Attack — out of spite or engineering. Take him apart thoroughly. Keep the screws.",
 			"name_ref": "Clockwork Knight",
 			"status": "live",
-			"words": 31.0
+			"words": 34.0
 		},
 		"commander": {
 			"entry": "A shouty officer who makes everyone beside him hit harder simply by bellowing. I saluted him once by accident. He made me do forty push-ups. I did four. He was very disappointed.",

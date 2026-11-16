@@ -35,10 +35,10 @@ Door,door.help,Gate under the metal stamp,"The finer the loot, the fiercer its m
 Door,door.take,Take button. {n} = pack tier,Take it
 Door,door.pass,Pass button while passes remain. {n} = passes left,Leave it
 Door,door.pass_none,Pass button at 0 remaining,Out of time
-Door,door.guard,"Draft door, under the help line. {tier} = Weak / Tough / Deadly",Guarded by a {tier} monster
-Door,tier.1.name,Player name for internal tier 1 (NOT WIRED YET). Never show the word Tier.,Weak
-Door,tier.2.name,Player name for internal tier 2 (NOT WIRED YET). Never show the word Tier.,Tough
-Door,tier.3.name,Player name for internal tier 3 (NOT WIRED YET). Never show the word Tier.,Deadly
+Door,door.guard,"Draft door, under the help line. {tier} = Minion / Elite / Boss",Guarded by a {tier} monster
+Door,tier.1.name,Player name for internal tier 1. Prefer monster.rank.1.name. Never show the word Tier.,Minion
+Door,tier.2.name,Player name for internal tier 2. Prefer monster.rank.2.name. Never show the word Tier.,Elite
+Door,tier.3.name,Player name for internal tier 3. Prefer monster.rank.3.name. Never show the word Tier.,Boss
 Cues,cue.force,No passes left — auto fill,No passes left
 Cues,cue.ask,"Draft choice, passes remaining",Take it or leave it?
 Cues,cue.steal,"Draft choice, no passes left",No passes left
@@ -248,9 +248,9 @@ Journal,journal.unmet_hint,Bestiary page hint,
 Journal,journal.met_count,Bestiary footer,Met {n} of {total}
 Journal,journal.page,Journal page counter,{n} / {total}
 Journal,journal.close,Journal close button,Close the book
-Journal,journal.weak,Bestiary danger stamp (internal tier 1),Weak
-Journal,journal.tough,Bestiary danger stamp (internal tier 2),Tough
-Journal,journal.deadly,Bestiary danger stamp (internal tier 3),Deadly
+Journal,journal.weak,Bestiary danger stamp (internal tier 1),Minion
+Journal,journal.tough,Bestiary danger stamp (internal tier 2),Elite
+Journal,journal.deadly,Bestiary danger stamp (internal tier 3),Boss
 Cabin,cabin.dummy.ask,Training dummy click: Nib asks,Run through the basics with me again?
 Cabin,cabin.dummy.yes,Training dummy choice,Sure (Start Tutorial)
 Cabin,cabin.dummy.no,Training dummy choice,No Thanks
@@ -262,10 +262,7 @@ Cabin,cabin.brag.swiped,Brag-o-Meter card,Curiosities home: {n} of {total}
 Cabin,cabin.brag.met,Brag-o-Meter card,Monsters met: {n} of {total}
 Cabin,cabin.brag.close,Brag-o-Meter card,Put it down
 Cabin,cabin.credits.title,Patents (credits) card headline,Patents Pending
-Cabin,cabin.credits.body,Patents (credits) card body (Jam/Nathan to confirm names),"{game_title}, by Nathan Elequin.
-Art: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).
-Sounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).
-Patent No. 1: The Self-Buttering Biscuit (pending)."
+Cabin,cabin.credits.body,Patents (credits) card body (Jam/Nathan to confirm names),"{game_title}, by Nathan Elequin.Art: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).Sounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).Patent No. 1: The Self-Buttering Biscuit (pending)."
 Cabin,cabin.credits.close,Patents card close,Close
 Cabin,cabin.bed.ask,Bed click on desktop,Turn in for the night?
 Cabin,cabin.bed.yes,Bed choice (desktop) = Quit,Sleep (Quit)
@@ -332,7 +329,7 @@ Nib,nib.home.win.3,Win homecoming (random 3),He'd be insufferable about this. In
 Nib,nib.home.new,First NEW item flies to the hall,That one's new! Off to the hall with it.
 Nib,nib.home.give_home,Campaign win homecoming: before S7 bank flight into trophy slots,Let's give these a home.
 Nib,nib.lesson.new_mark,"First campaign ready beat with a real hotbar New! badge visible (not tutorial, not peg twinkle)","See that 'New!' mark? We haven't brought one of those home yet. Make it back with it, and we'll add it to the collection."
-Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,"See those? They go on the board when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together."
+Nib,nib.lesson.extract_haul,First campaign extract with NEW UNIQUE preview; arrows point at each haul icon; Verdant/b1 only,See those? They go on the board when you get home. Five different finds from Verdant Hollow open the way deeper. They don't all have to come home together.
 Nib,nib.lesson.five_finds,Post-return under-quota teaching if extract lesson not yet said; Verdant/b1 only,Five different finds from Verdant Hollow will open the way deeper. They don't all have to come home together.
 Nib,nib.first.map_point,"First cabin visit, Nib in entryway pointing at the map (return flow v2)","Welcome in! Your first run starts at the map, right over there."
 Nib,nib.return.continue_mission,First return after keys/room unlock; Nib gestures at the map (return flow v2),"Found the keys, and every room's open! Now keep the mission going: bring home unique finds for the trophy cabinet. The map's waiting."
@@ -477,7 +474,7 @@ Playtest,radio.tip.sfx,,"Clicks, hits, and the rest"
 Playtest,rope.loot_tip,,"Go deeper for rarer items and worse foes. Keep what you hold. Die, and none of it comes home."
 Playtest,journal.tab.memories,,Memories
 Inspect,keyword.swap,Keyword tip title for Swap,Swap
-Inspect,keyword.swap_body,Keyword tip body for Swap,"Swap: trade it for a random item of the same rank (Weak, Tough or Deadly)."
+Inspect,keyword.swap_body,Keyword tip body for Swap,"Swap: trade it for a random item of the same rarity (Common, Uncommon or Rare)."
 Combat,status.silenced,Silenced status on a monster plate,Silenced
 Combat,status.sling_loaded,Sling armed-state label,Loaded
 Combat,status.sling_loaded_tip,Sling Loaded tooltip,Loaded: your next Attack can hit any monster.
@@ -506,8 +503,7 @@ Playtest,playtest.play_chip,Playtest bottom-left during play,"Right-click a Mons
 Playtest,playtest.intro.speaker,Playtest intro talk-box name,Nathan
 Playtest,playtest.intro.back,Playtest intro back button,Back
 Playtest,playtest.intro.done,Playtest intro last button,Continue
-Playtest,playtest.intro.01,Playtest intro beat 01,"Hey friends — thanks for playtesting my game, {game_title}.
-Just a few notes before you jump in."
+Playtest,playtest.intro.01,Playtest intro beat 01,"Hey friends — thanks for playtesting my game, {game_title}.Just a few notes before you jump in."
 Playtest,playtest.intro.02,Playtest intro beat 02,"First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game."
 Playtest,playtest.intro.03,Playtest intro beat 03,Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours.
 Playtest,playtest.intro.04,Playtest intro beat 04,"And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests."
@@ -539,10 +535,10 @@ Extract,extract.delving_improves,"Toast after map-piece ceremony (G), never afte
 Extract,extract.new_unique,Haul chip marker for an item not yet banked,NEW UNIQUE
 Extract,extract.case_proj,Cabinet chip count when banking would fill the quota,{n}/5 → 5/5
 Extract,extract.haul,Haul list header on extract,Your haul · {n} on the wheel
-Extract,rank.weak,Haul / rank chip for internal tier 1. Never say Tier.,Weak
-Extract,rank.tough,Haul / rank chip for internal tier 2. Never say Tier.,Tough
-Extract,rank.deadly,Haul / rank chip for internal tier 3. Never say Tier.,Deadly
-Extract,rank.curse,Inspect rank for curse items. Never say Weak or Tier.,Curse
+Extract,rank.weak,Haul / rank chip for internal tier 1 (item). Never say Tier.,Common
+Extract,rank.tough,Haul / rank chip for internal tier 2 (item). Never say Tier.,Uncommon
+Extract,rank.deadly,Haul / rank chip for internal tier 3 (item). Never say Tier.,Rare
+Extract,rank.curse,Inspect rank for curse items. Never say Common or Tier as a fake curse rank.,Curse
 Sprout,sprout.piece.huh,Map-piece ceremony beat 2,…?
 Campaign,map.endless.sealed,Held map Endless sealed label,ENDLESS · SEALED
 Campaign,map.endless.sealed_sub,Held map Endless sealed sub,Opens when all five cabinets are full
@@ -722,17 +718,23 @@ Tutorial,tutorial.line.B43.2,Tutorial · B43 · line 2,Perfect. Now end it.
 Tutorial,tutorial.line.B44.1,Tutorial · B44 · line 1,Finally - those Harpies are dangerous.
 Tutorial,tutorial.line.B47.1,Tutorial · B47 · line 1,Now let's finish this.
 Tutorial,tutorial.line.B47.2,Tutorial · B47 · line 2,
-Tutorial,tutorial.line.B47.3,Tutorial · B47 · line 3,"Monsters with a red background are [b]Deadly[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block."
+Tutorial,tutorial.line.B47.3,Tutorial · B47 · line 3,"Monsters with a red background are [b]Boss[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block."
 Tutorial,tutorial.line.B47.4,Tutorial · B47 · line 4,"But, we saved a surprise tool for later that we can finally use."
 Tutorial,tutorial.line.B49.1,Tutorial · B49 · line 1,Let's slay this dragon. End this.
 Tutorial,tutorial.line.B50.1,Tutorial · B50 · line 1,"Every choice can make or break you in these dungeons, so let me give you one last piece of advice:"
 Tutorial,tutorial.line.B50.2,Tutorial · B50 · line 2,Plan ahead. Find Item combos and Monster counters. Expect the best Spins...but prepare for the worst.
 Tutorial,tutorial.line.B50.3,Tutorial · B50 · line 3,"But for now, let's take you home. Or rather, to the new home you will inherit if you complete your grandfather's will. Come, let's go."
-Cabin,nib.board.empty.1,Win homecoming nothing new,"Nothing new this time. The board can wait. It's very patient. It's a board."
+Cabin,nib.board.empty.1,Win homecoming nothing new,Nothing new this time. The board can wait. It's very patient. It's a board.
 Cabin,nib.board.empty.2,Win homecoming nothing new,"Only things we already had. Still, you came back. That's the important bit."
 Cabin,board.light.say.1,Bubble 1st board light,There's a light!
 Cabin,board.light.say.5,Bubble 5th board light,Five! That's all five!
 Cabin,nib.board.lever_ready.1,Lever ready after homecoming,"Five lights, {hero}. Five different finds from {biome}."
-Cabin,nib.board.lever_ready.2,Lever ready after homecoming,"Give that lever a pull. Go on. He never let me touch it."
+Cabin,nib.board.lever_ready.2,Lever ready after homecoming,Give that lever a pull. Go on. He never let me touch it.
 Nib,nib.board.move.1,First move into trophy hall,"Right. Somebody has to mind his board, and the chair's taken."
-Nib,nib.board.move.2,First move into trophy hall,"I'll keep watch in here from now on. Bring things home and I'll find them a spot."
+Nib,nib.board.move.2,First move into trophy hall,I'll keep watch in here from now on. Bring things home and I'll find them a spot.
+Door,item.rank.1.name,Item rank for internal tier 1. Never show the word Tier.,Common
+Door,item.rank.2.name,Item rank for internal tier 2. Never show the word Tier.,Uncommon
+Door,item.rank.3.name,Item rank for internal tier 3. Never show the word Tier.,Rare
+Door,monster.rank.1.name,Monster rank for internal tier 1. Never show the word Tier.,Minion
+Door,monster.rank.2.name,Monster rank for internal tier 2. Never show the word Tier.,Elite
+Door,monster.rank.3.name,Monster rank for internal tier 3. Never show the word Tier.,Boss

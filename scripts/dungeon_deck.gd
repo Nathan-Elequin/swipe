@@ -26,7 +26,7 @@ const CARD_POS := Vector2(4, 8)                 # top card, top-left (local)
 const STACK_STEP := Vector2(3, 3)               # 1 native px down-right per card underneath
 # Native-pixel rects on card_front.png (see design/visual/sizes/new-content-batch12-deck.sizes.json).
 const WINDOW_N := Rect2i(7, 7, 18, 17)          # monster window interior
-const LOWER_N := Rect2i(5, 28, 22, 11)          # plain lower third: name + Weak/Tough/Deadly plate
+const LOWER_N := Rect2i(5, 28, 22, 11)          # plain lower third: name + Minion/Elite/Boss plate
 const PLATE_FILL := [Color("24160e"), Color("14161a"), Color("2a1c08")]
 const PLATE_RIM := [Color("c08050"), Color("c5cdd8"), Color("e8c36a")]
 
@@ -484,7 +484,7 @@ func _draw_lower(box: Rect2, who: String, tier: int, tint: Color) -> void:
 	if tier <= 0:
 		return
 	var ti: int = clampi(tier, 1, 3) - 1
-	var word: String = PLAYER_COPY.tier_name(tier)
+	var word: String = PLAYER_COPY.monster_rank_name(tier)
 	var pfs := 10
 	var psz: Vector2 = font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, pfs)
 	var pw: float = minf(box.size.x, float(ceili((psz.x + 10.0) / PX)) * PX)

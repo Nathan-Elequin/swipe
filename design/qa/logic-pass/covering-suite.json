@@ -4007,7 +4007,7 @@
 					"id": "clockwork_knight",
 					"kind": "monster",
 					"name": "Clockwork Knight",
-					"ability": "If I live, I leave two Tough Monsters in my place.",
+					"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 					"sprite": "assets/dungeon/extra/clockwork_knight.png"
 				}
 			]

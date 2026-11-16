@@ -8,7 +8,7 @@
 			"sprite": "assets/dungeon/items/bloody_gauntlets.png"
 		},
 		{
-			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 			"id": "clockwork_knight",
 			"kind": "monster",
 			"name": "Clockwork Knight",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Bloody Wraps — +1 ATK for each HP you are missing. Monster: Clockwork Knight — When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal. Challenge hand. Wheel clockwork_knight. Click Bloody Wraps, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-bloody_gauntlets-clockwork_knight",
 	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nBloody Wraps\nATK 1  to  Clockwork Knight HP 6\nitems this combat 1",
