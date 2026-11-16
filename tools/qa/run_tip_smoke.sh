@@ -31,13 +31,52 @@ fi
 echo "Using Godot: $GODOT_BIN"
 "$GODOT_BIN" --version || true
 
-# Import once so .godot/ exists (CI / fresh checkout). Ignore non-zero if already imported.
-set +e
-"$GODOT_BIN" --headless --path "$ROOT" --import >/tmp/tip-smoke-import.out 2>&1
-IMP=$?
-set -e
-if [[ "$IMP" -ne 0 ]]; then
-  echo "Note: --import exited $IMP (continuing; see /tmp/tip-smoke-import.out)"
+# Godot 4.7.2 --import can flaky double-free near the end of a cold reimport
+# ("double free or corruption" / exit 134 on player-copy.csv). Tip CI sometimes
+# gets a clean import; a crashed import that we "continue" past leaves
+# .import remaps pointing at missing .godot/imported dests. The next short
+# --script run then starts a reimport and dies mid-way, so KEYWORD_TIPS_SMOKE
+# fails opening OpenSans / keyword PNGs. Match tools/dev/godot-check.ps1:
+# retry import, require exit 0 + a font canary before any selftest that loads art.
+_font_canary() {
+	local imp="assets/ui/fonts/open_sans/OpenSans-SemiBold.ttf.import"
+	local dest=""
+	if [[ -f "$imp" ]]; then
+		dest="$(awk -F= '/^path=/{gsub(/"/,"",$2); print $2; exit}' "$imp")"
+	fi
+	if [[ -n "$dest" ]]; then
+		dest="${dest#res://}"
+		[[ -f "$dest" ]]
+		return $?
+	fi
+	compgen -G ".godot/imported/OpenSans-SemiBold*.fontdata" >/dev/null
+}
+
+IMPORT_OK=0
+for attempt in 1 2 3; do
+	if [[ "$attempt" -gt 1 ]]; then
+		echo "Godot --import retry $attempt (wiping .godot for a clean pass)..."
+		rm -rf .godot
+	fi
+	set +e
+	"$GODOT_BIN" --headless --path "$ROOT" --import >/tmp/tip-smoke-import.out 2>&1
+	IMP=$?
+	set -e
+	# Exit 134 after fonts are on disk is the known late double-free — keep the
+	# cache. Only wipe/retry when the font canary is missing (early abort).
+	if _font_canary; then
+		IMPORT_OK=1
+		if [[ "$IMP" -ne 0 ]]; then
+			echo "Note: --import exited $IMP after canary ok (known late crash; continuing)"
+		fi
+		break
+	fi
+	echo "Note: --import attempt $attempt exited $IMP (font canary missing; see /tmp/tip-smoke-import.out)"
+done
+if [[ "$IMPORT_OK" -ne 1 ]]; then
+	echo "Godot --import failed after retries — keyword tips need imported fonts/textures." >&2
+	tail -20 /tmp/tip-smoke-import.out >&2 || true
+	exit 2
 fi
 
 set +e
@@ -45,8 +84,8 @@ set +e
 CODE=$?
 set -e
 if [[ "$CODE" -ne 0 ]]; then
-  echo "TIP_SMOKE failed (exit $CODE)" >&2
-  exit "$CODE"
+	echo "TIP_SMOKE failed (exit $CODE)" >&2
+	exit "$CODE"
 fi
 
 # Direction A keyword tips (defs round-trip + keep-out + parchment API).
@@ -55,8 +94,8 @@ set +e
 KW=$?
 set -e
 if [[ "$KW" -ne 0 ]]; then
-  echo "KEYWORD_TIPS_SMOKE failed (exit $KW)" >&2
-  exit "$KW"
+	echo "KEYWORD_TIPS_SMOKE failed (exit $KW)" >&2
+	exit "$KW"
 fi
 
 # Phantom Shroud presentation (full-black curse veil) — headless card check.
