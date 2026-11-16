@@ -2772,85 +2772,85 @@
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.crystal.1",
-			"text": "Every last thing from {biome}. Every one, {hero}.",
-			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .1)"
+			"text": "Every crystal from {biome}, all home and glittering. That's all of them, {hero}.",
+			"where": "Board 100% gild (crystal board complete)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.crystal.2",
-			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
-			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .2)"
+			"text": "Wait, there's a crack behind the last one. His old shortcut, straight down to {next}.",
+			"where": "Shortcut splash (heading to crystal)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.crystal.3",
-			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
-			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .3)"
+			"text": "From now on you can start right at {next}. Or take the Hollow first, if you miss the moss.",
+			"where": "Shortcut map path (heading to crystal)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.ashen.1",
-			"text": "Every last thing from {biome}. Every one, {hero}.",
-			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .1)"
+			"text": "Every last relic out of {biome}. The dead can keep the dust, {hero}.",
+			"where": "Board 100% gild (ashen board complete)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.ashen.2",
-			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
-			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .2)"
+			"text": "And look, a loose stone behind that last one. His old shortcut down to {next}.",
+			"where": "Shortcut splash (heading to ashen)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.ashen.3",
-			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
-			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .3)"
+			"text": "Next time you can start at {next}. Or begin in the Hollow and take the long way, like he used to.",
+			"where": "Shortcut map path (heading to ashen)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.cinder.1",
-			"text": "Every last thing from {biome}. Every one, {hero}.",
-			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .1)"
+			"text": "Everything from {biome}, every last piece, still warm. Nice work, {hero}.",
+			"where": "Board 100% gild (cinder board complete)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.cinder.2",
-			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
-			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .2)"
+			"text": "There's a chute behind the last one. His old shortcut, straight down to {next}.",
+			"where": "Shortcut splash (heading to cinder)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.cinder.3",
-			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
-			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .3)"
+			"text": "You can start right at {next} from now on. Or begin back in the Hollow if you want to warm up first.",
+			"where": "Shortcut map path (heading to cinder)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.shadow.1",
-			"text": "Every last thing from {biome}. Every one, {hero}.",
-			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .1)"
+			"text": "Everything from {biome}. You brought it all back into the light, {hero}.",
+			"where": "Board 100% gild (shadow board complete)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.shadow.2",
-			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
-			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .2)"
+			"text": "Something was hiding behind the last one. His last shortcut, down to {next}.",
+			"where": "Shortcut splash (heading to shadow)"
 		},
 		{
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.shortcut.shadow.3",
-			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
-			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .3)"
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, where it all started.",
+			"where": "Shortcut map path (heading to shadow)"
 		},
 		{
 			"cat": "Nib",
