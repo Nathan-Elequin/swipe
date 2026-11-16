@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless checks for playtest commitment tiers (slice 1 — logic only).
+## Headless checks for playtest commitment tiers (slice 1 logic + slice 2 UI contracts).
 ## Does not boot main.gd.
 ##
 ## Run: godot --headless --path . --script res://scripts/dev/playtest_commitment_selftest.gd
@@ -8,6 +8,9 @@ extends SceneTree
 const OK_MARK := "PLAYTEST_COMMITMENT_OK"
 const FAIL_MARK := "PLAYTEST_COMMITMENT_FAIL"
 const C := preload("res://scripts/playtest_commitment.gd")
+const PICKER := preload("res://scripts/playtest_commitment_picker.gd")
+const GOAL := preload("res://scripts/playtest_goal_icon.gd")
+const COPY := preload("res://scripts/player_copy.gd")
 
 
 func _init() -> void:
@@ -215,6 +218,60 @@ func _run() -> void:
 	var cabin_src := FileAccess.get_file_as_string("res://scripts/home_cabin.gd")
 	failed = _check(rows, failed, "cabin.arrive_settled_signal",
 		cabin_src.find("signal arrive_settled") >= 0, "") or failed
+
+	## --- Slice 2: picker / goal / pause contracts ---
+	failed = _check(rows, failed, "ui.picker_only_tier0",
+		PICKER.shows_only_when_tier_none(0) and not PICKER.shows_only_when_tier_none(1), "") or failed
+	failed = _check(rows, failed, "ui.upgrade_disables_lower",
+		PICKER.upgrade_disables_lower(1, 1) and PICKER.upgrade_disables_lower(1, 0)
+		and not PICKER.upgrade_disables_lower(1, 2), "") or failed
+
+	var host: Window = get_root()
+	var picker = PICKER.new()
+	host.add_child(picker)
+	picker.call("setup")
+	picker.call("open_picker", "choose", 0, {})
+	failed = _check(rows, failed, "ui.picker_shows_tier0", bool(picker.visible), "") or failed
+	picker.call("close_picker")
+	picker.call("open_picker", "upgrade", 1, {"quick": true})
+	failed = _check(rows, failed, "ui.upgrade_open", bool(picker.visible), "") or failed
+	failed = _check(rows, failed, "ui.upgrade_blocks_quick",
+		PICKER.upgrade_disables_lower(1, 1), "") or failed
+	picker.call("close_picker")
+	picker.queue_free()
+
+	var goal = GOAL.new()
+	host.add_child(goal)
+	goal.call("setup")
+	goal.call("apply_state", 0, false, false, false)
+	failed = _check(rows, failed, "ui.goal_hidden_tier0", not bool(goal.visible), "") or failed
+	goal.call("apply_state", 1, false, false, false)
+	failed = _check(rows, failed, "ui.goal_shown_tier1", bool(goal.visible), "") or failed
+	goal.queue_free()
+
+	failed = _check(rows, failed, "copy.tier_quick_title",
+		COPY.text("playtest.tier.quick.title", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.goal_done",
+		COPY.text("playtest.goal.done", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.pause_go_deeper",
+		COPY.text("pause.go_deeper", "") != "", "") or failed
+
+	failed = _check(rows, failed, "main.picker_preload",
+		main_src.find("playtest_commitment_picker.gd") >= 0, "") or failed
+	failed = _check(rows, failed, "main.goal_preload",
+		main_src.find("playtest_goal_icon.gd") >= 0, "") or failed
+	failed = _check(rows, failed, "main.after_intro_picker",
+		main_src.find("_maybe_open_commitment_picker") >= 0, "") or failed
+	failed = _check(rows, failed, "main.tier_chosen_telem",
+		main_src.find("tier_chosen") >= 0 and main_src.find("tier_upgraded") >= 0, "") or failed
+	failed = _check(rows, failed, "main.debug_reset_key",
+		main_src.find("debug_reset") >= 0 and main_src.find("KEY_4") >= 0, "") or failed
+
+	var settings_src := FileAccess.get_file_as_string("res://scripts/settings_menu.gd")
+	failed = _check(rows, failed, "pause.go_deeper_signal",
+		settings_src.find("go_deeper_pressed") >= 0
+		and settings_src.find("show_go_deeper") >= 0
+		and settings_src.find("pause.go_deeper") >= 0, "") or failed
 
 	_print_rows(rows)
 	if failed:

@@ -7663,7 +7663,154 @@
 			"key": "monster.rank.3.name",
 			"text": "Boss",
 			"where": "Monster rank for internal tier 3. Never show the word Tier."
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.choose_title",
+			"text": "How far do you want to go?",
+			"where": "Commitment picker headline (first pick)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.upgrade_title",
+			"text": "Go deeper",
+			"where": "Commitment picker headline (upgrade)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.quick.title",
+			"text": "Finish your first run",
+			"where": "Commitment picker card title"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.quick.line",
+			"text": "Learn the ropes with my tutorial, then take one run on your own. Tell me what clicked and what didn't.",
+			"where": "Commitment picker card line"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.quick.time",
+			"text": "About 15 minutes",
+			"where": "Commitment picker time hint"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.deeper.title",
+			"text": "Reach the Crystal Cavern",
+			"where": "Commitment picker card title"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.deeper.line",
+			"text": "Escape Verdant Hollow with five unique items and pull the lever. This is where the game opens up and you start to feel real mastery.",
+			"where": "Commitment picker card line"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.deeper.time",
+			"text": "Usually about an hour",
+			"where": "Commitment picker time hint"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.big.title",
+			"text": "Reach the Shadow Abyss",
+			"where": "Commitment picker card title"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.big.line",
+			"text": "Make it to the Shadow Abyss and you get a victory code, a spot in my Discord, and we'll design a new monster or item for the game together.",
+			"where": "Commitment picker card line"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.big.time",
+			"text": "Several hours",
+			"where": "Commitment picker time hint"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.carrot",
+			"text": "Reach the Shadow Abyss and you'll help me design part of this game. You can always go deeper later.",
+			"where": "Commitment picker shared carrot"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.notice.telemetry",
+			"text": "I collect anonymous play data to improve the game.",
+			"where": "Commitment picker footer"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.notice.save",
+			"text": "Your progress lives in this browser. Clearing site data resets it.",
+			"where": "Commitment picker footer"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.done_check",
+			"text": "✓ Done",
+			"where": "Commitment picker completed mark"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.tier.current_mark",
+			"text": "Current",
+			"where": "Commitment picker current tier mark"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.goal.quick",
+			"text": "Goal: Finish your first solo run and come home.",
+			"where": "Goal icon tooltip"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.goal.deeper",
+			"text": "Goal: Pull the Verdant Hollow lever and finish a run in the Crystal Cavern.",
+			"where": "Goal icon tooltip"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.goal.big",
+			"text": "Goal: Finish a run that reaches the Shadow Abyss.",
+			"where": "Goal icon tooltip"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.goal.done",
+			"text": "Goal complete! Keep playing, or go deeper from the pause menu.",
+			"where": "Goal icon tooltip after milestone"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "pause.go_deeper",
+			"text": "Go deeper",
+			"where": "Pause menu commitment upgrade"
 		}
 	],
-	"updated": "2026-11-08"
+	"updated": "2026-11-16T23:30:00Z"
 }

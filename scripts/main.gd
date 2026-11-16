@@ -98,6 +98,8 @@ const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
 const PLAYTEST_TELEMETRY := preload("res://scripts/playtest_telemetry.gd")
 const PLAYTEST_COMMITMENT := preload("res://scripts/playtest_commitment.gd")
+const PLAYTEST_COMMITMENT_PICKER := preload("res://scripts/playtest_commitment_picker.gd")
+const PLAYTEST_GOAL_ICON := preload("res://scripts/playtest_goal_icon.gd")
 const SESSION_LOG := preload("res://scripts/session_log.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
@@ -960,10 +962,13 @@ var playtest_tier
 var playtest_inbox
 var playtest_telemetry
 var playtest_commitment
+var playtest_commitment_picker
+var playtest_goal_icon
 var playtest_intro
 var playtest_teaser
 var playtest_fab: Button
 var playtest_voice: Label
+var _commitment_picker_from_pause: bool = false
 var _playtest_preset: String = ""
 var _playtest_boot: bool = false
 
@@ -1906,6 +1911,7 @@ func _build_ui() -> void:
 	settings_ui.sparkles_toggled.connect(_on_sparkles_toggled)
 	settings_ui.invert_scroll_toggled.connect(_on_invert_scroll_toggled)
 	settings_ui.reduce_motion_toggled.connect(_on_reduce_motion_toggled)
+	settings_ui.go_deeper_pressed.connect(_open_commitment_upgrade)
 	settings_ui.quit_pressed.connect(_quit_game)
 	home_cabin = HOME_CABIN.new()
 	add_child(home_cabin)
@@ -8582,37 +8588,49 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		## Editor-only commitment debug (DevChrome on): Ctrl+Shift+1/2/3 set tier;
-		## Ctrl+Shift+8/9/0 force quick/deeper/big milestones. For later offramp UI slices.
+		## Ctrl+Shift+4 resets tier (re-show picker); Ctrl+Shift+8/9/0 force milestones.
 		if OS.has_feature("editor") and DevChrome.on() and key.ctrl_pressed and key.shift_pressed \
 				and not key.alt_pressed and playtest_commitment != null:
 			match key.keycode:
 				KEY_1:
 					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_QUICK)
+					_sync_commitment_goal_icon()
 					print("commitment tier=", playtest_commitment.tier)
 					get_viewport().set_input_as_handled()
 					return
 				KEY_2:
 					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_DEEPER)
+					_sync_commitment_goal_icon()
 					print("commitment tier=", playtest_commitment.tier)
 					get_viewport().set_input_as_handled()
 					return
 				KEY_3:
 					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_BIG)
+					_sync_commitment_goal_icon()
 					print("commitment tier=", playtest_commitment.tier)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_4:
+					playtest_commitment.debug_reset()
+					_sync_commitment_goal_icon()
+					print("commitment reset tier=0")
 					get_viewport().set_input_as_handled()
 					return
 				KEY_8:
 					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_QUICK)
+					_sync_commitment_goal_icon()
 					print("commitment force quick pending=", playtest_commitment.pending_milestone)
 					get_viewport().set_input_as_handled()
 					return
 				KEY_9:
 					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_DEEPER)
+					_sync_commitment_goal_icon()
 					print("commitment force deeper pending=", playtest_commitment.pending_milestone)
 					get_viewport().set_input_as_handled()
 					return
 				KEY_0:
 					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_BIG)
+					_sync_commitment_goal_icon()
 					print("commitment force big pending=", playtest_commitment.pending_milestone)
 					get_viewport().set_input_as_handled()
 					return
@@ -8621,6 +8639,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	## Look H: Esc dismisses the mode panel before opening Settings.
 	if _mode_choice_open():
 		_cancel_item_selector()
+		get_viewport().set_input_as_handled()
+		return
+	if playtest_commitment_picker != null and playtest_commitment_picker.visible:
+		## First-pick cannot cancel; upgrade picker handles Esc itself.
 		get_viewport().set_input_as_handled()
 		return
 	if playtest_tier != null and playtest_tier.visible:
@@ -8652,6 +8674,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if home_cabin:
 		settings_ui.invert_scroll = bool(home_cabin.invert_scroll)
 		settings_ui.reduce_motion = bool(home_cabin.reduce_motion)
+	_sync_commitment_pause_entry()
 	settings_ui.open_menu(in_run)
 	if sfx:
 		sfx.play("open", -12.0)
@@ -8745,6 +8768,7 @@ func _build_playtest() -> void:
 		playtest_commitment.anon_id = str(playtest_telemetry._anon)
 	playtest_commitment.telem = Callable(self, "_telem")
 	playtest_commitment.load_state()
+	playtest_commitment.milestone_reached.connect(_on_commitment_milestone)
 	playtest_hub = PLAYTEST_HUB.new()
 	add_child(playtest_hub)
 	playtest_hub.setup()
@@ -8764,6 +8788,15 @@ func _build_playtest() -> void:
 	playtest_tier.card_hovered.connect(_dev_bucket_hovered)
 	playtest_tier.card_unhovered.connect(_dev_bucket_unhovered)
 	playtest_tier.closed.connect(_on_playtest_tier_closed)
+	playtest_commitment_picker = PLAYTEST_COMMITMENT_PICKER.new()
+	add_child(playtest_commitment_picker)
+	playtest_commitment_picker.setup()
+	playtest_commitment_picker.chosen.connect(_on_commitment_picked)
+	playtest_commitment_picker.cancelled.connect(_on_commitment_picker_cancelled)
+	playtest_goal_icon = PLAYTEST_GOAL_ICON.new()
+	add_child(playtest_goal_icon)
+	playtest_goal_icon.setup()
+	_sync_commitment_goal_icon()
 	if not PLAYTEST_FLAG.on():
 		return
 	playtest_fab = _pill(PLAYER_COPY.text("playtest.feedback", "Feedback"), Color("3a3220"), Color("e8c36a"), func() -> void: _open_playtest_comment("", ""))
@@ -8788,6 +8821,7 @@ func _build_playtest() -> void:
 	playtest_voice.z_index = 120
 	playtest_voice.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	## Top-left so it never sits on the bottom caption / Nib dialog bar.
+	## When the goal icon is up, voice shifts right so the two do not overlap.
 	playtest_voice.set_anchors_preset(PRESET_TOP_LEFT)
 	playtest_voice.grow_vertical = Control.GROW_DIRECTION_END
 	playtest_voice.offset_left = 16
@@ -8830,12 +8864,14 @@ func _open_playtest_hub() -> void:
 		playtest_intro.open_intro()
 		_sync_playtest_chrome()
 		return
-	_maybe_open_teaser()
+	_maybe_open_commitment_picker()
 
 
 func _show_playtest_hub(over_still: bool = false) -> void:
 	if playtest_intro:
 		playtest_intro.close_intro()
+	if playtest_commitment_picker:
+		playtest_commitment_picker.close_picker()
 	if playtest_feedback:
 		playtest_feedback.force_close()
 	var can_continue: bool = home_cabin != null and home_cabin.has_save()
@@ -8845,7 +8881,152 @@ func _show_playtest_hub(over_still: bool = false) -> void:
 
 func _playtest_intro_done() -> void:
 	_mark_playtest_intro_seen()
+	_maybe_open_commitment_picker()
+
+
+func _maybe_open_commitment_picker() -> void:
+	if playtest_intro:
+		playtest_intro.close_intro()
+	if not PLAYTEST_FLAG.on():
+		_maybe_open_teaser()
+		return
+	if playtest_commitment == null or playtest_commitment.tier != PlaytestCommitment.TIER_NONE:
+		_maybe_open_teaser()
+		return
+	if playtest_commitment_picker == null:
+		_maybe_open_teaser()
+		return
+	if playtest_hub:
+		playtest_hub.close_hub()
+	_commitment_picker_from_pause = false
+	playtest_commitment_picker.open_picker("choose", PlaytestCommitment.TIER_NONE, {})
+	_sync_playtest_chrome()
+
+
+func _open_commitment_upgrade() -> void:
+	if not PLAYTEST_FLAG.on() or playtest_commitment == null or playtest_commitment_picker == null:
+		return
+	if playtest_commitment.tier >= PlaytestCommitment.TIER_BIG:
+		return
+	_commitment_picker_from_pause = true
+	var reached := {
+		PlaytestCommitment.M_QUICK: playtest_commitment.reached_quick,
+		PlaytestCommitment.M_DEEPER: playtest_commitment.reached_deeper,
+		PlaytestCommitment.M_BIG: playtest_commitment.reached_big,
+	}
+	var mode := "upgrade" if playtest_commitment.tier > PlaytestCommitment.TIER_NONE else "choose"
+	playtest_commitment_picker.open_picker(mode, playtest_commitment.tier, reached)
+	_sync_playtest_chrome()
+
+
+func _on_commitment_picked(tier: int, upgrade: bool) -> void:
+	if playtest_commitment == null:
+		return
+	var ok := false
+	if upgrade or playtest_commitment.tier != PlaytestCommitment.TIER_NONE:
+		ok = playtest_commitment.upgrade(tier)
+		if ok:
+			_telem("tier_upgraded", {"tier": tier})
+	else:
+		ok = playtest_commitment.choose(tier)
+		if ok:
+			_telem("tier_chosen", {"tier": tier})
+	if not ok:
+		## Fallback: still close so the player is not stuck.
+		playtest_commitment_picker.close_picker()
+		if _commitment_picker_from_pause:
+			_commitment_picker_from_pause = false
+			_sync_commitment_goal_icon()
+			_sync_playtest_chrome()
+			return
+		_maybe_open_teaser()
+		return
+	await _play_commitment_fly(tier)
+	if playtest_commitment_picker:
+		playtest_commitment_picker.close_picker()
+	_sync_commitment_goal_icon()
+	if _commitment_picker_from_pause:
+		_commitment_picker_from_pause = false
+		_sync_playtest_chrome()
+		return
 	_maybe_open_teaser()
+
+
+func _on_commitment_picker_cancelled() -> void:
+	if playtest_commitment_picker:
+		playtest_commitment_picker.close_picker()
+	_commitment_picker_from_pause = false
+	_sync_playtest_chrome()
+
+
+func _play_commitment_fly(tier: int) -> void:
+	if playtest_commitment_picker == null or playtest_goal_icon == null:
+		return
+	## Ensure the destination chip exists so the tween has a landing spot.
+	playtest_goal_icon.apply_state(tier, false, false, false)
+	playtest_goal_icon.visible = true
+	var start: Vector2 = playtest_commitment_picker.card_icon_center(tier)
+	var end: Vector2 = playtest_goal_icon.icon_global_center()
+	var flyer := ColorRect.new()
+	flyer.color = Color("e8c36a")
+	flyer.size = Vector2(18, 18)
+	flyer.z_index = 160
+	flyer.top_level = true
+	flyer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flyer.global_position = start - flyer.size * 0.5
+	add_child(flyer)
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_CUBIC)
+	tw.set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(flyer, "global_position", end - flyer.size * 0.5, 0.75)
+	tw.parallel().tween_property(flyer, "scale", Vector2(0.7, 0.7), 0.75)
+	await tw.finished
+	if is_instance_valid(flyer):
+		flyer.queue_free()
+
+
+func _sync_commitment_goal_icon() -> void:
+	if playtest_goal_icon == null or playtest_commitment == null:
+		_sync_commitment_pause_entry()
+		return
+	playtest_goal_icon.apply_state(
+		playtest_commitment.tier,
+		playtest_commitment.reached_quick,
+		playtest_commitment.reached_deeper,
+		playtest_commitment.reached_big
+	)
+	_sync_commitment_pause_entry()
+	_layout_playtest_voice_for_goal()
+
+
+func _sync_commitment_pause_entry() -> void:
+	if settings_ui == null:
+		return
+	var show := false
+	if PLAYTEST_FLAG.on() and playtest_commitment != null:
+		show = playtest_commitment.tier < PlaytestCommitment.TIER_BIG
+	settings_ui.show_go_deeper = show
+
+
+func _layout_playtest_voice_for_goal() -> void:
+	if playtest_voice == null:
+		return
+	var goal_up: bool = playtest_goal_icon != null and playtest_goal_icon.visible
+	if goal_up:
+		playtest_voice.offset_left = 84
+		playtest_voice.offset_top = 20
+		playtest_voice.offset_right = 480
+		playtest_voice.offset_bottom = 60
+	else:
+		playtest_voice.offset_left = 16
+		playtest_voice.offset_top = 16
+		playtest_voice.offset_right = 420
+		playtest_voice.offset_bottom = 56
+
+
+func _on_commitment_milestone(_id: String, _tier: int, _run_count: int) -> void:
+	_sync_commitment_goal_icon()
 
 
 func _teaser_should_play() -> bool:
@@ -9166,6 +9347,7 @@ func _sync_playtest_chrome() -> void:
 	var hub_up: bool = playtest_hub != null and playtest_hub.visible
 	var intro_up: bool = playtest_intro != null and playtest_intro.visible
 	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
+	var picker_up: bool = playtest_commitment_picker != null and playtest_commitment_picker.visible
 	var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
 	var cabin_talk: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("dialog_open") and home_cabin.dialog_open()
 	var dev_strip: bool = false
@@ -9173,12 +9355,17 @@ func _sync_playtest_chrome() -> void:
 		dev_strip = home_cabin._editor_strip.visible
 	var tut_up: bool = in_tutorial and tut != null and tut.visible
 	if playtest_fab:
-		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and (not intro_up or playtest_intro.showing_fab())
+		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and not picker_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
 		## Hide while any caption / Nib talk chrome is up so the tip never overlaps dialog.
 		## The hint sits on Play Latest. Hide it while those dev buttons are up.
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not picker_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
+	if playtest_goal_icon != null and playtest_commitment != null:
+		var goal_ok: bool = PLAYTEST_FLAG.on() and playtest_commitment.tier > PlaytestCommitment.TIER_NONE
+		## Keep the icon during cabin/runs; hide under boot chrome so it does not fight the picker.
+		playtest_goal_icon.visible = goal_ok and not hub_up and not intro_up and not teaser_up and not picker_up
+		_layout_playtest_voice_for_goal()
 
 
 func _on_script_saved(items: Array, monsters: Array) -> void:
