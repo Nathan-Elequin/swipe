@@ -601,7 +601,13 @@ func _apply_copy() -> void:
 		_pages = PackedStringArray()
 		var nib_vars: Dictionary = _ctx.get("nib_vars", {}) if typeof(_ctx.get("nib_vars", {})) == TYPE_DICTIONARY else {}
 		for key in _nib_line_keys:
-			var line := PLAYER_COPY.fill(str(key), nib_vars, PLAYER_COPY.text(str(key), ""))
+			var k := str(key)
+			var line := PLAYER_COPY.fill(k, nib_vars, "")
+			## Per-biome key missing → fall back to generic nib.portal.* / nib.shortcut.*.
+			if line.strip_edges() == "":
+				var generic := _generic_nib_key(k)
+				if generic != "" and generic != k:
+					line = PLAYER_COPY.fill(generic, nib_vars, PLAYER_COPY.text(generic, ""))
 			if line.strip_edges() != "":
 				_pages.append(line)
 	else:
@@ -796,3 +802,16 @@ func _make_bottom_fade() -> GradientTexture2D:
 	tex.fill_from = Vector2(0.5, 0.0)
 	tex.fill_to = Vector2(0.5, 1.0)
 	return tex
+
+
+## nib.portal.ashen.1 → nib.portal.1 ; nib.shortcut.crystal.2 → nib.shortcut.2
+func _generic_nib_key(key: String) -> String:
+	for prefix in ["nib.portal.", "nib.shortcut."]:
+		if not key.begins_with(prefix):
+			continue
+		var rest := key.substr(prefix.length())
+		var dot := rest.find(".")
+		if dot < 0:
+			return key
+		return prefix + rest.substr(dot + 1)
+	return ""
