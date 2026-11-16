@@ -97,6 +97,7 @@ const PLAYTEST_FEEDBACK := preload("res://scripts/playtest_feedback.gd")
 const PLAYTEST_TIER := preload("res://scripts/playtest_tier_list.gd")
 const PLAYTEST_INBOX := preload("res://scripts/playtest_inbox.gd")
 const PLAYTEST_TELEMETRY := preload("res://scripts/playtest_telemetry.gd")
+const PLAYTEST_COMMITMENT := preload("res://scripts/playtest_commitment.gd")
 const SESSION_LOG := preload("res://scripts/session_log.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
@@ -958,6 +959,7 @@ var playtest_feedback
 var playtest_tier
 var playtest_inbox
 var playtest_telemetry
+var playtest_commitment
 var playtest_intro
 var playtest_teaser
 var playtest_fab: Button
@@ -1919,6 +1921,8 @@ func _build_ui() -> void:
 	home_cabin.road_skip_wanted.connect(_road_skip_to_cabin)
 	home_cabin.quit_wanted.connect(_quit_game)
 	home_cabin.comment_wanted.connect(func(id: String) -> void: _open_playtest_comment("item", id))
+	if home_cabin.has_signal("arrive_settled"):
+		home_cabin.arrive_settled.connect(_on_cabin_arrive_settled)
 	home_cabin.attach_editor(self)
 	settings_ui.peek_pressed.connect(_open_sack_peek)
 	settings_ui.give_up_confirmed.connect(_give_up)
@@ -3269,6 +3273,8 @@ func _adventure_leave() -> void:
 		rope_exit.hide_exit()
 	_log("end", "leave")
 	_telem("run_end", {"outcome": "leave", "dungeons": dungeons_cleared, "hp": hp, "hand": hotbar.size()})
+	if playtest_commitment != null:
+		playtest_commitment.note_run_end("leave")
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	## Already fully covered by the climb wipe handoff — do not dissolve from 0.
@@ -3307,6 +3313,8 @@ func _push_interrupt_home() -> void:
 	if rope_exit:
 		rope_exit.hide_exit()
 	_log("end", "push_block_home")
+	if playtest_commitment != null:
+		playtest_commitment.note_run_end("push_block")
 	if sfx:
 		sfx.play("whoosh", -10.0, 0.9)
 	# Soft dissolve out matching enter (0.35s #0B0706). No splash.
@@ -3655,6 +3663,10 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	CAMPAIGN_SHELL.begin_run(_campaign.state, index, shortcut, endless)
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
+	if playtest_commitment != null:
+		## Campaign delves are never the tip tutorial rail.
+		playtest_commitment.note_run_start(false, index)
+		playtest_commitment.note_biome(index)
 	_sync_dungeon_biome()
 	## Ambient for campaign tip biomes b1–b5 (Endless / cabin / map clear themselves).
 	## If splash already started the kit, set_biome short-circuits — no preprocess flash.
@@ -3931,6 +3943,8 @@ func _go_home_loss() -> void:
 	# Tip #247: clear Verdant ambient. Splash: soft dissolve out, no splash.
 	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
 		defeat_spotlight.dismiss()
+	if playtest_commitment != null:
+		playtest_commitment.note_run_end("dead")
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -3982,6 +3996,8 @@ func _on_defeat_quick_start() -> void:
 
 
 func _give_up() -> void:
+	if playtest_commitment != null:
+		playtest_commitment.note_run_end("dead")
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -4076,6 +4092,9 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 		rope_exit.hide_exit()
 	get_tree().paused = true
 	_hide_fight_hover()
+	## Non-walk-in cabin open (Continue / menu): surface any pending offramp from a prior quit.
+	if not walk_in:
+		call_deferred("_commitment_note_cabin_visit")
 
 
 ## Post-run cabin landing (replaces progress menu). Callers that already dissolved out still need reveal.
@@ -4311,6 +4330,8 @@ func _adventure_continue() -> void:
 		CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 		_campaign.write()
 		endless_run = bool(_campaign.state.get("run", {}).get("endless", false))
+		if playtest_commitment != null:
+			playtest_commitment.note_biome(int(_campaign.state.get("run", {}).get("biome_index", 0)))
 	elif sfx:
 		sfx.set_combat_music(true)
 	_undo_clear()
@@ -8557,6 +8578,41 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("dev_chrome ", "on" if on else "off")
 			get_viewport().set_input_as_handled()
 			return
+		## Editor-only commitment debug (DevChrome on): Ctrl+Shift+1/2/3 set tier;
+		## Ctrl+Shift+8/9/0 force quick/deeper/big milestones. For later offramp UI slices.
+		if OS.has_feature("editor") and DevChrome.on() and key.ctrl_pressed and key.shift_pressed \
+				and not key.alt_pressed and playtest_commitment != null:
+			match key.keycode:
+				KEY_1:
+					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_QUICK)
+					print("commitment tier=", playtest_commitment.tier)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_2:
+					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_DEEPER)
+					print("commitment tier=", playtest_commitment.tier)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_3:
+					playtest_commitment.debug_set_tier(PlaytestCommitment.TIER_BIG)
+					print("commitment tier=", playtest_commitment.tier)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_8:
+					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_QUICK)
+					print("commitment force quick pending=", playtest_commitment.pending_milestone)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_9:
+					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_DEEPER)
+					print("commitment force deeper pending=", playtest_commitment.pending_milestone)
+					get_viewport().set_input_as_handled()
+					return
+				KEY_0:
+					playtest_commitment.debug_force_milestone(PlaytestCommitment.M_BIG)
+					print("commitment force big pending=", playtest_commitment.pending_milestone)
+					get_viewport().set_input_as_handled()
+					return
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	## Look H: Esc dismisses the mode panel before opening Settings.
@@ -8681,6 +8737,11 @@ func _build_playtest() -> void:
 	playtest_telemetry = PLAYTEST_TELEMETRY.new()
 	add_child(playtest_telemetry)
 	playtest_telemetry.setup()
+	playtest_commitment = PLAYTEST_COMMITMENT.new()
+	if playtest_telemetry != null:
+		playtest_commitment.anon_id = str(playtest_telemetry._anon)
+	playtest_commitment.telem = Callable(self, "_telem")
+	playtest_commitment.load_state()
 	playtest_hub = PLAYTEST_HUB.new()
 	add_child(playtest_hub)
 	playtest_hub.setup()
@@ -8864,6 +8925,18 @@ func _telem(event_name: String, props: Dictionary = {}) -> void:
 	if phase == "devtest" or _authoring():
 		return
 	playtest_telemetry.capture(event_name, props)
+
+
+func _on_cabin_arrive_settled(kind: String) -> void:
+	if playtest_commitment == null:
+		return
+	playtest_commitment.note_homecoming_settled(str(kind))
+
+
+func _commitment_note_cabin_visit() -> void:
+	if playtest_commitment == null:
+		return
+	playtest_commitment.note_cabin_visit()
 
 
 func _telem_offered(cards: Array) -> Array:
