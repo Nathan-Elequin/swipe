@@ -431,11 +431,18 @@ func _set_talk_on(on: bool) -> void:
 func _apply_chrome_visibility() -> void:
 	## The talk layer is not hidden with this Control, so gate its children here.
 	var up := is_inside_tree() and is_visible_in_tree()
-	if _talk:
+	if _talk != null and is_instance_valid(_talk):
 		_talk.visible = up and _talk_on
-	if _skip:
+	if _skip != null and is_instance_valid(_skip):
 		_skip.visible = up and _skip_on
 	_sync_talk_layer()
+
+
+func _canvas_up(n: Variant) -> bool:
+	## `is CanvasItem` errors if the Variant still holds a freed instance.
+	if n == null or not is_instance_valid(n):
+		return false
+	return n is CanvasItem and (n as CanvasItem).is_visible_in_tree()
 
 
 func _modal_covering() -> bool:
@@ -444,28 +451,25 @@ func _modal_covering() -> bool:
 	var tree := get_tree()
 	for group_name in ["authoring_overlay", "playtest_feedback"]:
 		for n in tree.get_nodes_in_group(group_name):
-			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			if _canvas_up(n):
 				return true
 	var main: Node = tree.root.get_node_or_null("Main")
 	if main == null:
 		return false
-	var settings: Variant = main.get("settings_ui")
-	if settings is CanvasItem and (settings as CanvasItem).is_visible_in_tree():
-		return true
-	return false
+	return _canvas_up(main.get("settings_ui"))
 
 
 func _sync_talk_layer() -> void:
-	if _talk_layer == null:
+	if _talk_layer == null or not is_instance_valid(_talk_layer):
 		return
 	var modal := _modal_covering()
 	_talk_layer.layer = 0 if modal else TALK_LAYER
 	var z := 12 if modal else 190
-	if _talk:
+	if _talk != null and is_instance_valid(_talk):
 		_talk.z_as_relative = false
 		_talk.z_index = z
 		_talk.mouse_filter = Control.MOUSE_FILTER_IGNORE if modal or _tip_passes_clicks() else Control.MOUSE_FILTER_STOP
-	if _skip:
+	if _skip != null and is_instance_valid(_skip):
 		_skip.z_as_relative = false
 		_skip.z_index = z + 1
 		if modal:
@@ -801,7 +805,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if is_inside_tree():
 		for n in get_tree().get_nodes_in_group("authoring_overlay"):
-			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+			if _canvas_up(n):
 				return
 	_idle = 0.0
 	var key_ok: bool = event.is_action_pressed("ui_accept")
@@ -955,7 +959,8 @@ func _process(delta: float) -> void:
 	var host: Node = get_tree().root.get_node_or_null("Main")
 	if host != null:
 		var slash: Variant = host.get("ability_slash")
-		var want: bool = bool(host.get("_walker_busy")) or (slash != null and slash.visible)
+		var slash_up: bool = slash != null and is_instance_valid(slash) and bool(slash.visible)
+		var want: bool = bool(host.get("_walker_busy")) or slash_up
 		if want != lift_dim:
 			set_lift(want)
 	if _space_hint != null:
