@@ -1685,6 +1685,26 @@ func _release_cabin_tree_pause() -> void:
 	get_tree().paused = false
 
 
+## Idle cabin must never sit with SceneTree.paused (defeat / limp / homecoming).
+## Call after any path that can leave the player in control; also polled in _process.
+func _guard_cabin_idle_unpaused() -> void:
+	if not visible or not is_inside_tree():
+		return
+	## Still mid arrive / keyring / bank / dialog / overlay — pause may be intentional.
+	if _arriving or _bank_busy or _homecoming_bank_staging or _room_busy or _pan_busy:
+		return
+	if _beat != "idle" and _beat != "" and _beat != "rock":
+		return
+	if _dialog != null and _dialog.has_method("is_open") and _dialog.is_open():
+		return
+	if _overlay_name != "":
+		return
+	if _cutscene != null and _cutscene.is_playing():
+		return
+	if get_tree().paused:
+		_release_cabin_tree_pause()
+
+
 ## Drop trophy parchment / hover chrome when leaving the hall (or starting a new beat).
 func _clear_trophy_popups() -> void:
 	if _trophy_board != null and is_instance_valid(_trophy_board):
@@ -3275,6 +3295,8 @@ func _process(delta: float) -> void:
 	## Unbuilt / bare selftest instances have no exterior root yet.
 	if _ext_root != null and _ext_root.visible:
 		_tick_cat(delta)
+	## Never leave Front Room / hall idle with tree.paused after limp / homecoming.
+	_guard_cabin_idle_unpaused()
 
 
 func _tick_glows(delta: float) -> void:
@@ -4791,6 +4813,7 @@ func _apply_gate() -> void:
 		var talking: bool = _dialog != null and _dialog.has_method("is_open") and _dialog.is_open()
 		main_room.set_gate(_gate_on() and not talking)
 	_refresh_rooms()
+	_guard_cabin_idle_unpaused()
 
 
 func _refresh_rooms() -> void:

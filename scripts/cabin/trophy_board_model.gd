@@ -145,10 +145,20 @@ static func claimed_unique(state: Dictionary, face: Dictionary) -> int:
 	return n
 
 
-static func lights_lit(rules: Dictionary, state: Dictionary, face: Dictionary, held := []) -> int:
+## Arch lights: one per unique find that has *landed* on the board.
+## Nathan lock: a light never turns on before its item arrives (satchel land / place_claimed).
+## Prefer `landed` (ids that finished presentation). Legacy callers without `landed`
+## fall back to banked − held (held = still in the satchel queue).
+static func lights_lit(rules: Dictionary, state: Dictionary, face: Dictionary, held := [], landed = null) -> int:
 	var quota: int = CAMPAIGN_SHELL.quota_of(rules)
 	if _portal_opened_for_next(rules, state, face):
 		return quota
+	if typeof(landed) == TYPE_DICTIONARY:
+		var n := 0
+		for id in _face_ids(face):
+			if (landed as Dictionary).has(str(id)):
+				n += 1
+		return clampi(n, 0, quota)
 	var claimed := claimed_unique(state, face)
 	var held_in := _held_in_face(face, held)
 	return clampi(claimed - held_in, 0, quota)
