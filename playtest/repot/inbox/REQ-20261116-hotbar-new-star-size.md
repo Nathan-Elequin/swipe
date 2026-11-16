@@ -2,7 +2,7 @@
 id: REQ-20261116-hotbar-new-star-size
 status: open
 priority: high
-tip_sha: pending
+tip_sha: 6cd51e43
 branch: cursor/hotbar-new-star-size-4b54
 created: 2026-11-16T23:20:00Z
 created_by: cursor-cloud
