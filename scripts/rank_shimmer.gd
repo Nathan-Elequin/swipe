@@ -44,6 +44,12 @@ static func make_mat(tier: int, uid: int = 0, px: Vector2 = Vector2(118, 120)) -
 	return mat
 
 
+## Armed rim-glint period in seconds (must match rank_shimmer.gdshader).
+const ARMED_PERIOD_S := 4.0
+## Armed rim-glint strength vs the pre-cleanup 0.35 factor (half).
+const ARMED_GLINT_STRENGTH := 0.175
+
+
 static func apply(mat: ShaderMaterial, tier: int, uid: int, desat: float, armed: float, clock: float, px: Vector2 = Vector2(118, 120)) -> void:
 	if mat == null:
 		return
