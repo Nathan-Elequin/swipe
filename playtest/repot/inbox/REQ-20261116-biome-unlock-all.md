@@ -2,7 +2,7 @@
 id: REQ-20261116-biome-unlock-all
 status: open
 priority: high
-tip_sha: 2210e1bb
+tip_sha: ab4fe6a1
 branch: cursor/biome-unlock-all-0c35
 created: 2026-11-16T22:30:00Z
 created_by: cloud-agent
