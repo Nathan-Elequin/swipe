@@ -2265,7 +2265,8 @@ func _build_dev_panel() -> void:
 	tier_row.add_theme_constant_override("separation", 6)
 	dev_panel.add_child(tier_row)
 	for t in [1, 2, 3]:
-		var tb := _pill(PLAYER_COPY.tier_name(int(t)), Color("241c18"), Color("6a5f52"), _dev_toggle_tier.bind(int(t)))
+		## Shared item+monster filter — number only (no shared Weak/Tough word).
+		var tb := _pill(str(int(t)), Color("241c18"), Color("6a5f52"), _dev_toggle_tier.bind(int(t)))
 		tb.custom_minimum_size = Vector2(0, 34)
 		_dev_tier_btns[int(t)] = tb
 		tier_row.add_child(tb)
@@ -2534,7 +2535,7 @@ func _dev_tex(id: String, is_mon: bool) -> Texture2D:
 
 
 func _dev_tile(id: String, name: String, rarity: String, tier: int, is_mon: bool) -> Button:
-	var sub: String = PLAYER_COPY.tier_name(tier) if tier > 0 else ""
+	var sub: String = PLAYER_COPY.rank_name(tier, "monster" if is_mon else "item") if tier > 0 else ""
 	if rarity != "" and rarity != "starter":
 		sub = "%s · %s" % [rarity, sub] if sub != "" else rarity
 	var b := Button.new()
@@ -6063,7 +6064,7 @@ func _challenge_run_opening_drafts() -> void:
 		var who: String = str(row.get("name", "Monster"))
 		await _challenge_offer_pick(
 			PLAYER_COPY.text("challenge.pick_open", "Choose your loot"),
-			"%s  ·  %s" % [who, PLAYER_COPY.tier_name(t)],
+			"%s  ·  %s" % [who, PLAYER_COPY.monster_rank_name(t)],
 			t,
 			true,
 			_campaign_on
@@ -6660,7 +6661,7 @@ func _fill_challenge_hole(i: int) -> void:
 		sfx.play("bong", -14.0, 1.1)
 	await _challenge_offer_pick(
 		PLAYER_COPY.text("challenge.pick_loot", "Loot"),
-		"%s  ·  %s" % [who, PLAYER_COPY.tier_name(t)],
+		"%s  ·  %s" % [who, PLAYER_COPY.monster_rank_name(t)],
 		t,
 		true
 	)
@@ -6877,9 +6878,17 @@ func _rank_label(d: Dictionary) -> String:
 	var t: int = int(d.get("pack_tier", 0))
 	if t < 1:
 		t = int(d.get("tier", 0))
-	if t >= 1:
-		return PLAYER_COPY.tier_name(t)
-	return ""
+	if t < 1:
+		return ""
+	var kind: String = str(d.get("kind", d.get("plate_kind", ""))).to_lower()
+	if kind == "monster" or kind == "m":
+		return PLAYER_COPY.monster_rank_name(t)
+	if kind == "item" or kind == "i":
+		return PLAYER_COPY.item_rank_name(t)
+	var cid: String = str(d.get("card_id", d.get("id", "")))
+	if monsters_by_id.has(cid):
+		return PLAYER_COPY.monster_rank_name(t)
+	return PLAYER_COPY.item_rank_name(t)
 
 
 func _tier_of(d: Dictionary) -> int:
@@ -6960,7 +6969,7 @@ func _item_look(it: Dictionary) -> Dictionary:
 		"fill": view.get("fill", Color("5c2626")),
 		"metal": Color("100e0c") if cursed else _tier_metal(tier),
 		"tier": tier,
-		"rank": PLAYER_COPY.text("rank.curse", "Curse") if cursed else PLAYER_COPY.tier_name(tier),
+		"rank": PLAYER_COPY.text("rank.curse", "Curse") if cursed else PLAYER_COPY.item_rank_name(tier),
 		"curse": cursed,
 		"unplayable": unplayable,
 	}
@@ -7073,7 +7082,7 @@ func _draw_offer(kind: String) -> void:
 			if iid != "":
 				pending_item = _make_item(iid)
 				_stamp_pack(pending_item, _pack_tier_for(iid, items_by_id, int(pending_monster.get("pack_tier", 1))), "starter")
-		_log("on_draft", "%s  %s" % [PLAYER_COPY.tier_name(int(pending_monster.get("pack_tier", 1))), pending_monster.get("name", "?")])
+		_log("on_draft", "%s  %s" % [PLAYER_COPY.monster_rank_name(int(pending_monster.get("pack_tier", 1))), pending_monster.get("name", "?")])
 		if not pending_item.is_empty():
 			_log("on_draft", "pack item  %s" % pending_item.get("name", "?"))
 		_telem("draft_offered", {
@@ -7095,7 +7104,7 @@ func _draw_offer(kind: String) -> void:
 	if iid2 != "":
 		pending_item = _make_item(iid2)
 		_stamp_pack(pending_item, pack_t, "draft")
-	_log("on_draft", "%s lure" % PLAYER_COPY.tier_name(pack_t))
+	_log("on_draft", "%s lure" % PLAYER_COPY.monster_rank_name(pack_t))
 	if not pending_item.is_empty():
 		_log("on_draft", "relic  %s" % pending_item.get("name", "?"))
 	_telem("draft_offered", {
@@ -26336,7 +26345,7 @@ func keyword_item_callout(id: String) -> Dictionary:
 
 func _monster_plate_look(s: Dictionary, rule: Dictionary) -> Dictionary:
 	var look: Dictionary = _monster_look(s)
-	look["rank"] = PLAYER_COPY.tier_name(_tier_of(s))
+	look["rank"] = PLAYER_COPY.monster_rank_name(_tier_of(s))
 	look["hp_n"] = str(s.get("hp", 0))
 	look["atk_n"] = str(s.get("atk", 0))
 	if wheel_view != null:
@@ -30501,7 +30510,7 @@ func _tutorial_offer_draft(take_id: String, decoy_id: String, sub_who: String = 
 	var decoy: Dictionary = _make_item(decoy_id)
 	_tut_mark_seen(take_id)
 	_tut_mark_seen(decoy_id)
-	var sub: String = "%s · %s" % [sub_who if sub_who != "" else "Loot", PLAYER_COPY.tier_name(tier)]
+	var sub: String = "%s · %s" % [sub_who if sub_who != "" else "Loot", PLAYER_COPY.monster_rank_name(tier)]
 	while in_tutorial and tut != null and tut.wait == want_wait:
 		challenge_draft_ui.present("Loot", sub, _challenge_draft_card(take), _challenge_draft_card(decoy), take, decoy)
 		_draft_final_item = true

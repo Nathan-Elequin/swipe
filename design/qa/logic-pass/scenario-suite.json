@@ -2956,7 +2956,7 @@
 		},
 		{
 			"id": "clockwork-leaves-tough",
-			"title": "Clockwork Knight leaves two Tough monsters if it lives",
+			"title": "Clockwork Knight Synchronize matches neighbors on Defeat",
 			"family": "collide",
 			"items": [
 				"shield"
@@ -2976,7 +2976,7 @@
 					"op": "done"
 				}
 			],
-			"expected_text": "If Clockwork Knight lives through Done, it leaves two Tough monsters in its place.",
+			"expected_text": "If Clockwork Knight is Defeated, neighbors match HP then Attack.",
 			"expected": {
 				"log_has": [
 					"Clockwork"
@@ -2994,7 +2994,7 @@
 					"id": "clockwork_knight",
 					"kind": "monster",
 					"name": "Clockwork Knight",
-					"ability": "If I live, I leave two Tough Monsters in my place.",
+					"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 					"sprite": "assets/dungeon/extra/clockwork_knight.png"
 				}
 			]

@@ -405,9 +405,9 @@
     },
     {
       "id": "clockwork-leaves-tough",
-      "title": "Clockwork Knight leaves two Tough monsters if it lives",
+      "title": "Clockwork Knight Synchronize matches neighbors on Defeat",
       "family": "collide",
-      "expected_text": "If Clockwork Knight lives through Done, it leaves two Tough monsters in its place."
+      "expected_text": "If Clockwork Knight is Defeated, neighbors match HP then Attack."
     },
     {
       "id": "martyr-dies-on-attack",

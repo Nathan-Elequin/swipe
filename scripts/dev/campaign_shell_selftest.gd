@@ -15,7 +15,7 @@ func _init() -> void:
 		failed = _check(failed, "name %s" % want, str(named_biome.get("name", "")) == want) or failed
 		named += 1
 	failed = _check(failed, "deck 6+4", Shell.deck_counts(rules) == Vector2i(6, 4)) or failed
-	# SP-17 Weak/Tough/Deadly ladder (exactly 10 each biome; Deadlies sum to 10 across the save).
+	# SP-17 mix.weak/tough/deadly ladder (internal keys; display is Minion/Elite/Boss).
 	# Never show "Tier" to players.
 	var expect := {
 		"b1": Vector3i(6, 3, 1),

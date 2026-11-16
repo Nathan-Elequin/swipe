@@ -235,14 +235,39 @@ static func displays_for_highlight() -> Array:
 	return out
 
 
-static func tier_name(tier: int) -> String:
+## Item T1/T2/T3 display: Common / Uncommon / Rare.
+static func item_rank_name(tier: int) -> String:
 	var t: int = clampi(tier, 1, 3)
-	var fallback := "Weak"
+	var fallback := "Common"
 	if t == 2:
-		fallback = "Tough"
+		fallback = "Uncommon"
 	elif t == 3:
-		fallback = "Deadly"
-	return text("tier.%d.name" % t, fallback)
+		fallback = "Rare"
+	return text("item.rank.%d.name" % t, fallback)
+
+
+## Monster T1/T2/T3 display: Minion / Elite / Boss.
+static func monster_rank_name(tier: int) -> String:
+	var t: int = clampi(tier, 1, 3)
+	var fallback := "Minion"
+	if t == 2:
+		fallback = "Elite"
+	elif t == 3:
+		fallback = "Boss"
+	return text("monster.rank.%d.name" % t, fallback)
+
+
+## Kind-aware rank word. kind: "item" | "monster" (also accepts "items" / "monsters").
+static func rank_name(tier: int, kind: String) -> String:
+	var k: String = kind.strip_edges().to_lower()
+	if k == "item" or k == "items":
+		return item_rank_name(tier)
+	return monster_rank_name(tier)
+
+
+## Legacy alias → monster ranks. Prefer item_rank_name / monster_rank_name / rank_name.
+static func tier_name(tier: int) -> String:
+	return monster_rank_name(tier)
 
 
 static func tutorial_lines() -> Array:

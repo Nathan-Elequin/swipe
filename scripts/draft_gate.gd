@@ -332,7 +332,7 @@ func present_mystery(_item: Dictionary, tier: int, _item_tex: Texture2D, passes_
 func _show_guard(tier: int) -> void:
 	if _guard == null:
 		return
-	var name: String = COPY.tier_name(tier)
+	var name: String = COPY.monster_rank_name(tier)
 	_guard.text = COPY.fill("door.guard", {"tier": name}, "Guarded by a %s monster" % name)
 	_guard.add_theme_color_override("font_color", _metal(tier).lightened(0.15))
 	_guard.visible = true

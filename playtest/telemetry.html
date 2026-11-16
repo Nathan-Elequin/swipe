@@ -62,7 +62,7 @@
   <p class="status" id="status"></p>
 </header>
 <div class="tabs">
-  <button type="button" class="tab on" data-sec="survive" title="Of dungeons that included this card, how often the player lived. Items and monsters. Compared only inside Weak, Tough, or Deadly.">Survive</button>
+  <button type="button" class="tab on" data-sec="survive" title="Of dungeons that included this card, how often the player lived. Items and monsters. Compared only inside the same rank band (Common/Uncommon/Rare or Minion/Elite/Boss).">Survive</button>
   <button type="button" class="tab" data-sec="popularity" title="When this item was one of two pick-two cards, how often they took it. Rerolls count as a miss. Opening six do not count.">Popularity</button>
   <button type="button" class="tab" data-sec="keep" title="Of wins where they had this item, how often it was still in a hotbar seat. Spent still counts.">Keep</button>
 </div>
@@ -74,7 +74,11 @@
 const $ = (id) => document.getElementById(id);
 const ART = window.ART || {};
 const N_MIN = 8;
-const TIER_NAME = { 1: "Weak", 2: "Tough", 3: "Deadly" };
+const ITEM_TIER_NAME = { 1: "Common", 2: "Uncommon", 3: "Rare" };
+const MONSTER_TIER_NAME = { 1: "Minion", 2: "Elite", 3: "Boss" };
+function tierBand(t) {
+  return (ITEM_TIER_NAME[t] || t) + " / " + (MONSTER_TIER_NAME[t] || t);
+}
 const HINT = {
   survive: "Survive — lived the dungeon. Grey until 8 samples in that tier. Red is worse for the player than the rest of this column.",
   popularity: "Popularity — took it from pick-two. Opening six are not here. Grey until 8 offers.",
@@ -259,8 +263,8 @@ function draw() {
     const col = document.createElement("div");
     col.className = "col";
     const h = document.createElement("h2");
-    h.textContent = TIER_NAME[t];
-    h.title = "Only compared to other " + TIER_NAME[t] + " cards. Never mixed with the other columns.";
+    h.textContent = tierBand(t);
+    h.title = "Items compared inside " + (ITEM_TIER_NAME[t] || t) + "; monsters inside " + (MONSTER_TIER_NAME[t] || t) + ". Never mixed with the other columns.";
     col.appendChild(h);
     const it = items.filter((r) => Number(r.tier) === t);
     const mo = mons.filter((r) => Number(r.tier) === t);

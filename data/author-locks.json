@@ -3889,8 +3889,8 @@
 		},
 		"keyword.swap_body": {
 			"cat": "Inspect",
-			"locked_at": "2026-11-05",
-			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
+			"locked_at": "2026-11-16",
+			"text": "Swap: trade it for a random item of the same rarity (Common, Uncommon or Rare).",
 			"where": "Keyword tip body for Swap"
 		},
 		"map.stamp.pencil": {
@@ -5611,8 +5611,8 @@
 		},
 		"tutorial.line.B47.3": {
 			"cat": "Tutorial",
-			"locked_at": "2026-11-05",
-			"text": "Monsters with a red background are [b]Deadly[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block.",
+			"locked_at": "2026-11-16",
+			"text": "Monsters with a red background are [b]Boss[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block.",
 			"where": "Tutorial · B47 · line 3"
 		},
 		"tutorial.line.B47.4": {

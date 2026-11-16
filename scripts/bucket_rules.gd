@@ -220,12 +220,23 @@ static func tier_fill(tier: int) -> Color:
 	return Color("f3ddcc")
 
 
-static func tier_label(tier: int) -> String:
-	if tier >= 3:
-		return "Gold"
-	if tier == 2:
-		return "Silver"
-	return "Bronze"
+## Roster / editor captions. kind: "item" | "monster" (also "items" / "monsters").
+## Never Bronze/Silver/Gold — those stay art-only.
+static func tier_label(tier: int, kind: String = "item") -> String:
+	var t: int = clampi(tier, 1, 3)
+	var k: String = kind.strip_edges().to_lower()
+	var monster: bool = k == "monster" or k == "monsters"
+	if monster:
+		if t >= 3:
+			return "Boss"
+		if t == 2:
+			return "Elite"
+		return "Minion"
+	if t >= 3:
+		return "Rare"
+	if t == 2:
+		return "Uncommon"
+	return "Common"
 
 
 static func is_always_starter(card: Variant) -> bool:
@@ -397,7 +408,7 @@ static func _append_tier_gap(lines: PackedStringArray, bucket: int, side: String
 		return
 	var names: PackedStringArray = PackedStringArray()
 	for t in miss:
-		names.append(tier_label(int(t)).to_lower())
+		names.append(tier_label(int(t), side).to_lower())
 	lines.append("Bucket %s %s are missing %s." % [bucket, side, " and ".join(names)])
 
 
