@@ -4,7 +4,7 @@ status: blocked
 fulfilled_by: cloud-agent
 fulfilled_at: 2026-11-16T23:45:00Z
 machine: cloud-vm
-tip_sha: pending
+tip_sha: bcd4e725
 godot: xvfb get_image (not Cherry F5)
 ---
 
