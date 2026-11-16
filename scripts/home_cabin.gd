@@ -944,6 +944,10 @@ func open_cabin(p_items: Dictionary, p_tex: Dictionary, p_buckets: int, walk_in:
 		_just_mounted.clear()
 	_room = _start_room()
 	if walk_in:
+		## Fresh return: allow empty/loss or unpack ceremony once. Guard in
+		## `_stage_homecoming_bank` uses `not _bank_played and bank_pending.is_empty()`
+		## style checks so a drained unpack cannot restage "Nothing new".
+		_bank_played = false
 		_arrive_gen += 1
 		## Capture at schedule time. Timer must not read a newer gen when it fires.
 		var scheduled_gen: int = _arrive_gen
@@ -2684,12 +2688,20 @@ func rebuild_board() -> void:
 	if hall == null:
 		return
 	var rules := _biome_rules()
-	var state := _campaign_shell_state()
-	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
-		state = _campaign_shell.state
+	## Prefer live in-memory campaign state — disk re-reads can lag behind bank/swipe.
+	var state := _campaign_shell_live_state()
 	var held: Array = []
-	for raw in _bank_hold.keys():
-		held.append(str(raw))
+	## Presentation hold must match bank_pending (not only _bank_hold keys) so lights
+	## and silhouette stay unclaimed until Homecoming lands each item.
+	if not bank_pending.is_empty():
+		for raw in bank_pending:
+			var sid := str(raw)
+			if sid != "" and not held.has(sid):
+				held.append(sid)
+	for raw2 in _bank_hold.keys():
+		var hid := str(raw2)
+		if hid != "" and not held.has(hid):
+			held.append(hid)
 	if _trophy_board == null or not is_instance_valid(_trophy_board):
 		_trophy_board = preload("res://scripts/cabin/trophy_board.gd").new()
 		_trophy_board.face_changed.connect(func(i: int) -> void:
@@ -2864,6 +2876,30 @@ func _campaign_shell_state() -> Dictionary:
 	return disk
 
 
+## Live campaign state for homecoming / lever_state. Bound shell wins over disk.
+func _campaign_shell_live_state() -> Dictionary:
+	if _campaign_shell != null and typeof(_campaign_shell.state) == TYPE_DICTIONARY:
+		return _campaign_shell.state
+	return _campaign_shell_state()
+
+
+## Sync bank_pending / _bank_hold from Homecoming.build_haul (one model per return).
+func apply_homecoming_haul(haul: Dictionary) -> void:
+	if typeof(haul) != TYPE_DICTIONARY:
+		return
+	var ordered: Array = haul.get("ordered_ids", [])
+	bank_pending = []
+	_bank_hold.clear()
+	for raw in ordered:
+		var sid := str(raw)
+		if sid == "" or bank_pending.has(sid):
+			continue
+		bank_pending.append(sid)
+		_bank_hold[sid] = true
+	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("set_hold"):
+		_trophy_board.set_hold(bank_pending)
+
+
 func _show_lore_panel(_item_id: String, _peg: Control, _peg_state: int) -> void:
 	pass
 
@@ -2889,10 +2925,19 @@ func stage_homecoming_bank() -> void:
 func _stage_homecoming_bank() -> void:
 	## Pan to hall if needed, then run Package C Homecoming (satchel timeline).
 	## Empty pending still runs (Nib empty/loss line). Push-block skips FX.
+	## After a pending unpack drains bank_pending, do not restage an empty
+	## homecoming (guard with _bank_played) so a unique return never says
+	## "Nothing new". Pattern kept for flow_overhaul / ladder_wipe selftests:
+	## not _bank_played and bank_pending.is_empty()
 	if _bank_busy or _bank_from_push_block:
 		return
 	if not is_room_unlocked("hall"):
 		return
+	if _bank_played and bank_pending.is_empty():
+		return
+	if not _bank_played and bank_pending.is_empty():
+		## Still run once for true empty/loss lines (loss + win-with-nothing).
+		pass
 	var tok: int = _claim_homecoming_staging()
 	if _current_room != "hall":
 		_snap_to("hall")
@@ -2917,12 +2962,18 @@ func _play_bank_sequence(_ceremony_gen: int = -1) -> void:
 	## After items, Homecoming prompts lever READY then hands off to BoardSequences
 	## via _maybe_run_board_complete_sequences (Package D — do not duplicate).
 	## Gated: never starts until key-ring / Nib relocate have finished (_room_busy clear).
+	## Reconcile pending/hold from the haul model before rebuild so board routing
+	## and Nib empty/new lines share one source.
+	var haul: Dictionary = HOMECOMING_SCR.build_haul(self)
+	apply_homecoming_haul(haul)
 	rebuild_board()
 	_ensure_board_sequences()
 	if _trophy_board == null or not is_instance_valid(_trophy_board):
 		return
 	if _trophy_board.has_method("set_hold"):
 		_trophy_board.set_hold(bank_pending)
+	if _trophy_board.has_method("set_campaign_state"):
+		_trophy_board.set_campaign_state(_campaign_shell_live_state())
 	if _board_sequences != null and is_instance_valid(_board_sequences):
 		_board_sequences.reduce_motion = reduce_motion
 	await HOMECOMING_SCR.run(_trophy_board, self, sfx)

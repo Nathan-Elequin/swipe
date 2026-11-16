@@ -146,18 +146,23 @@ static func claimed_unique(state: Dictionary, face: Dictionary) -> int:
 
 
 static func lights_lit(rules: Dictionary, state: Dictionary, face: Dictionary, held := []) -> int:
+	var quota: int = CAMPAIGN_SHELL.quota_of(rules)
 	if _portal_opened_for_next(rules, state, face):
-		return 5
+		return quota
 	var claimed := claimed_unique(state, face)
 	var held_in := _held_in_face(face, held)
-	return clampi(claimed - held_in, 0, 5)
+	return clampi(claimed - held_in, 0, quota)
 
 
 static func lever_state(rules, state, face) -> StringName:
-	var lit: int = lights_lit(rules, state, face, [])
-	if lit < 5:
+	var rules_d: Dictionary = rules if typeof(rules) == TYPE_DICTIONARY else {}
+	var state_d: Dictionary = state if typeof(state) == TYPE_DICTIONARY else {}
+	var face_d: Dictionary = face if typeof(face) == TYPE_DICTIONARY else {}
+	var quota: int = CAMPAIGN_SHELL.quota_of(rules_d)
+	var lit: int = lights_lit(rules_d, state_d, face_d, [])
+	if lit < quota:
 		return &"locked"
-	if _portal_opened_for_next(rules, state, face):
+	if _portal_opened_for_next(rules_d, state_d, face_d):
 		return &"spent"
 	return &"ready"
 
