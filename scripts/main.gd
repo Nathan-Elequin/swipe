@@ -4115,11 +4115,14 @@ func _go_home(kind: String, new_ids: Array, held_ids: Array, _push_block: bool =
 		overlay_tools_row.visible = false
 	if rope_exit:
 		rope_exit.hide_exit()
+	## Pause immediately so arrive owns the paused→release cycle. Setting this
+	## AFTER dissolve raced a finished arrive that had already unpaused, then
+	## left the cabin idle with tree.paused stuck true.
+	get_tree().paused = true
 	## Let exterior plant at x=0 with Sprout hidden before the wipe lifts.
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await _biome_dissolve_reveal()
-	get_tree().paused = true
 	_hide_fight_hover()
 
 
@@ -29227,11 +29230,17 @@ func _sync_overlay() -> void:
 			home_cabin.items_by_id = items_by_id
 			home_cabin.tex_by_item = tex_by_item
 			home_cabin.buckets_open = _buckets_revealed
+			## Cabin already open (limp-home / return): do NOT re-pause here.
+			## `_go_home` / `_open_home_cabin` pause on open; cabin releases when
+			## the player has control. Re-pausing after that release is QA P07 /
+			## REQ-20261116 stuck-pause (Front Room idle with tree.paused=true).
+			var cabin_already_open: bool = home_cabin.visible
 			if home_cabin.intro_pending():
 				home_cabin.play_intro()
-			elif not home_cabin.visible:
+			elif not cabin_already_open:
 				home_cabin.show_menu()
-			get_tree().paused = true
+			if not cabin_already_open:
+				get_tree().paused = true
 		return
 	if phase == "rest":
 		overlay.visible = false

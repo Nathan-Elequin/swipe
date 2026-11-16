@@ -131,6 +131,17 @@ func _init() -> void:
 		"held subtracts",
 		MODEL.lights_lit(rules, state, b1, hold_one) == 4
 	) or failed
+	## Landed-only: empty landed → 0 even when banked; one landed → 1.
+	failed = _check(
+		failed,
+		"landed empty ignores banked",
+		MODEL.lights_lit(rules, state, b1, [], {}) == 0
+	) or failed
+	failed = _check(
+		failed,
+		"landed one",
+		MODEL.lights_lit(rules, state, b1, [], {str(b1_ids[0]): true}) == 1
+	) or failed
 
 	var seen := {}
 	## Two-state model: unlocked biome → unclaimed or claimed only. Old seen flags ignored.
@@ -150,15 +161,16 @@ func _init() -> void:
 		"slot claimed",
 		MODEL.slot_state(seen, {"banked": {str(b1_ids[0]): "b1"}}, str(b1_ids[0]), []) == &"claimed"
 	) or failed
+	## Held / satchel queue stays visually unclaimed until place_claimed (Nathan lock).
 	failed = _check(
 		failed,
-		"slot banked-in-hold stays claimed",
+		"slot banked-in-hold stays unclaimed",
 		MODEL.slot_state(
 			seen,
 			{"banked": {str(b1_ids[0]): "b1"}},
 			str(b1_ids[0]),
 			[str(b1_ids[0])]
-		) == &"claimed"
+		) == &"unclaimed"
 	) or failed
 
 	## Satchel spill grid: 0 / 1 / 3 / 7 items.

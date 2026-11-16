@@ -1283,6 +1283,9 @@ func _slide_board(index: int, instant: bool) -> void:
 
 
 func _lights_lit_now(face_i: int) -> int:
+	## Prefer board landed-only count (Nathan: light never before item arrives).
+	if board != null and board.has_method("lights_lit_count"):
+		return int(board.call("lights_lit_count", face_i))
 	var faces: Array = MODEL.faces(_rules(), _items())
 	if face_i < 0 or face_i >= faces.size():
 		return 0
@@ -1295,7 +1298,21 @@ func _lights_lit_now(face_i: int) -> int:
 				held.append(id)
 	elif cabin != null and "bank_pending" in cabin:
 		held = cabin.bank_pending
-	return MODEL.lights_lit(_rules(), _live_state(), faces[face_i], held)
+	var landed := {}
+	for id2 in placed_order:
+		landed[str(id2)] = true
+	## Also credit prior banked-not-held so mid-haul lights stack on older finds.
+	var st: Dictionary = _live_state()
+	var banked: Variant = st.get("banked", {})
+	if typeof(banked) == TYPE_DICTIONARY:
+		var held_set := {}
+		for h in held:
+			held_set[str(h)] = true
+		for bid in (banked as Dictionary).keys():
+			var sid := str(bid)
+			if sid != "" and not held_set.has(sid):
+				landed[sid] = true
+	return MODEL.lights_lit(_rules(), st, faces[face_i], held, landed)
 
 
 func _rules() -> Dictionary:
@@ -1469,5 +1486,10 @@ func _finish() -> void:
 	## Persist board_viewed / bank_pending after sequence.
 	if cabin != null and cabin.has_method("_save"):
 		cabin.call("_save")
+	## Empty / skip / early-return paths must not leave tree.paused if cabin is idle.
+	## Arrive still owns the full key-ring release; this only helps when ceremony is
+	## the last beat (or a selftest runs Homecoming alone).
+	if cabin != null and cabin.has_method("_guard_cabin_idle_unpaused"):
+		cabin.call("_guard_cabin_idle_unpaused")
 	finished.emit()
 	queue_free()

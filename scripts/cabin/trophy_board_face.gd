@@ -374,7 +374,8 @@ func apply_states(
 	rules: Dictionary,
 	state: Dictionary,
 	cabin_seen: Dictionary,
-	held: Array
+	held: Array,
+	landed = null
 ) -> void:
 	var locked: bool = MODEL.is_face_locked(rules, state, face)
 	_padlock.visible = locked
@@ -389,7 +390,8 @@ func apply_states(
 		var rank: int = BucketRules.tier_of(card)
 		slot.set_claim_metal(TrophyBoardSlot.metal_for_rank(rank))
 		slot.apply_state(st, locked)
-	var lit: int = 0 if locked else MODEL.lights_lit(rules, state, face, held)
+	## Lights only from landed presentations (or banked−held when landed omitted).
+	var lit: int = 0 if locked else MODEL.lights_lit(rules, state, face, held, landed)
 	for i in _lights.size():
 		_set_light(i, i < lit)
 	var ls: StringName = &"locked" if locked else MODEL.lever_state(rules, state, face)

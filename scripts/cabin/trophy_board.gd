@@ -27,6 +27,9 @@ var _items_by_id: Dictionary = {}
 var _campaign_state: Dictionary = {}
 var _cabin_seen: Dictionary = {}
 var _hold: Array = []
+## Ids that have finished satchel→slot land (place_claimed). Lights render from this
+## only — never from raw banked/pending credit before the item arrives.
+var _landed: Dictionary = {}
 var _tex_by_id: Dictionary = {}
 var _board_viewed: Dictionary = {}  # claimed ids already viewed
 
@@ -68,6 +71,7 @@ func setup(rules, items_by_id, campaign_state, cabin_seen, hold: Array) -> void:
 	_campaign_state = campaign_state if typeof(campaign_state) == TYPE_DICTIONARY else {}
 	_cabin_seen = cabin_seen if typeof(cabin_seen) == TYPE_DICTIONARY else {}
 	_hold = hold.duplicate() if hold is Array else []
+	_rebuild_landed_from_state()
 	name = "TrophyBoard"
 	position = MODEL.BOARD_OUTER.position
 	size = MODEL.BOARD_OUTER.size
@@ -102,12 +106,44 @@ func board_viewed() -> Dictionary:
 ## Homecoming drains bank_pending one id at a time; keep hold in sync for lights/pips.
 func set_hold(hold: Array) -> void:
 	_hold = hold.duplicate() if hold is Array else []
+	## Pending / hold ids are not landed — strip them so a stale banked credit cannot
+	## pre-light a pip before satchel land (Nathan: light never before item arrives).
+	for raw in _hold:
+		_landed.erase(str(raw))
 	_update_chrome()
 
 
 ## Keep face lights / lever_state on the live in-memory campaign dict (not a disk snapshot).
 func set_campaign_state(campaign_state) -> void:
 	_campaign_state = campaign_state if typeof(campaign_state) == TYPE_DICTIONARY else {}
+
+
+## Banked minus hold = already presented (or migrated credit with nothing pending).
+func _rebuild_landed_from_state() -> void:
+	_landed.clear()
+	var banked: Variant = _campaign_state.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		return
+	var held := {}
+	for raw in _hold:
+		held[str(raw)] = true
+	for id in (banked as Dictionary).keys():
+		var sid := str(id)
+		if sid == "" or held.has(sid):
+			continue
+		_landed[sid] = true
+
+
+## Observability / selftests: how many arch lights are on for a face right now.
+func lights_lit_count(face_index: int = -1) -> int:
+	var fi: int = _current if face_index < 0 else face_index
+	if fi < 0 or fi >= _faces_data.size():
+		return 0
+	return MODEL.lights_lit(_rules, _campaign_state, _faces_data[fi], _hold, _landed)
+
+
+func landed_ids() -> Dictionary:
+	return _landed.duplicate()
 
 
 func refresh() -> void:
@@ -244,6 +280,11 @@ func chrome_rects_screen() -> Dictionary:
 
 
 func place_claimed(card_id: String, fx := true) -> void:
+	var sid := str(card_id)
+	if sid != "":
+		## Land first — arch lights read `_landed`, never raw banked-before-poof.
+		_landed[sid] = true
+		_hold.erase(sid)
 	for face_n in _face_nodes:
 		var slot = (face_n as TrophyBoardFace).slot_node(card_id)
 		if slot == null:
@@ -255,7 +296,9 @@ func place_claimed(card_id: String, fx := true) -> void:
 			slot.play_claim_pop()
 		else:
 			slot.apply_state(&"claimed")
+		_update_chrome()
 		return
+	_update_chrome()
 
 
 func flash_light(face_index: int, light_index: int) -> void:
@@ -456,7 +499,7 @@ func _rebuild_faces() -> void:
 		face_n.position = Vector2(float(i - _current) * span, 0)
 		var lay: Dictionary = MODEL.layout(data)
 		face_n.rebuild_slots(lay, _tex_by_id)
-		face_n.apply_states(_rules, _campaign_state, _cabin_seen, _hold)
+		face_n.apply_states(_rules, _campaign_state, _cabin_seen, _hold, _landed)
 		face_n.slot_hovered.connect(_on_slot_hover)
 		face_n.slot_unhovered.connect(_on_slot_unhover)
 		face_n.slot_clicked.connect(_on_slot_click)
@@ -497,22 +540,22 @@ func _update_chrome() -> void:
 		var tex: Texture2D = KIT.ui_tex(stem)
 		if art is TextureRect and tex != null:
 			(art as TextureRect).texture = tex
-		## New pip: claimed on face not yet in board_viewed
+		## New pip: landed (presented) on face not yet in board_viewed — never pending.
 		var show_pip := false
 		if i < _faces_data.size() and not locked_face:
 			for id in MODEL.face_ids_flat(_faces_data[i]):
-				var st: StringName = MODEL.slot_state(_cabin_seen, _campaign_state, str(id), _hold)
-				if st == &"claimed" and not _board_viewed.has(str(id)):
+				var sid := str(id)
+				if _landed.has(sid) and not _board_viewed.has(sid):
 					show_pip = true
 					break
 		if i < _pips.size():
 			var pip_n: Control = _pips[i] as Control
 			pip_n.visible = show_pip
 			_set_pip_playing(pip_n, show_pip and not reduce_motion)
-	## Refresh current face states (lights / lever)
+	## Refresh current face states (lights / lever). Lights use landed-only.
 	if _current < _face_nodes.size():
 		(_face_nodes[_current] as TrophyBoardFace).apply_states(
-			_rules, _campaign_state, _cabin_seen, _hold
+			_rules, _campaign_state, _cabin_seen, _hold, _landed
 		)
 
 
