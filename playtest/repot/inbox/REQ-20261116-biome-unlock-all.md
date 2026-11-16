@@ -1,6 +1,6 @@
 ---
 id: REQ-20261116-biome-unlock-all
-status: open
+status: done
 priority: high
 tip_sha: ab4fe6a1
 branch: cursor/biome-unlock-all-0c35

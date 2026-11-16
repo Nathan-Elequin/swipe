@@ -1,6 +1,6 @@
 ---
 id: REQ-20261116-homecoming-haul
-status: open
+status: done
 priority: high
 tip_sha: 3f381f59
 branch: cursor/homecoming-haul-model-90d6

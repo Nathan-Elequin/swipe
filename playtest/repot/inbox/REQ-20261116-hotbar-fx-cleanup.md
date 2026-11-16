@@ -1,6 +1,6 @@
 ---
 id: REQ-20261116-hotbar-fx-cleanup
-status: open
+status: done
 priority: normal
 tip_sha: d868d60e
 branch: cursor/hotbar-fx-cleanup-f16c
