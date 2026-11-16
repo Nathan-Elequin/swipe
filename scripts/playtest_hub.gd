@@ -82,13 +82,30 @@ func setup() -> void:
 func open_hub(can_continue: bool, _see_through: bool = false) -> void:
 	## Framed B owns the screen; quiet opaque ground (see_through kept for call-site compat).
 	color = COL_BG
+	if _btn_mid:
+		## Public itch playtest: hide Middle Progress. Keep it in the editor for Nathan/agents.
+		_btn_mid.visible = middle_progress_allowed()
 	if _btn_continue:
 		_btn_continue.visible = can_continue
+	## Layout only visible action rows so hiding Middle Progress does not leave a gap.
+	_rows = []
+	for b in [_btn_new, _btn_mid, _btn_continue]:
+		if b != null and b.visible:
+			_rows.append(b)
 	visible = true
 	move_to_front()
 	_layout()
 	_wire_focus_loop()
 	call_deferred("_focus_default")
+
+
+## Exported playtest build only — editor F5 still shows Middle Progress.
+static func middle_progress_allowed() -> bool:
+	if OS.has_feature("editor"):
+		return true
+	if OS.has_feature("playtest"):
+		return false
+	return true
 
 
 func close_hub() -> void:

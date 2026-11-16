@@ -12,6 +12,9 @@ signal tutorial_wanted
 signal road_skip_wanted
 signal quit_wanted
 signal comment_wanted(card_id: String)
+## Fired when a walk-in homecoming finishes and the player has cabin control again.
+## kind matches open_cabin kind ("win" | "loss" | "tutorial" | …).
+signal arrive_settled(kind: String)
 
 const SAVE_PATH := "user://home_cabin.json"
 ## When false, `_save` is a no-op (selftests / dry runs). Default true for play.
@@ -2019,6 +2022,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 		_clear_stuck_cabin_fades()
 		_apply_gate()
 		_release_cabin_tree_pause()
+		arrive_settled.emit(str(_homecoming_kind))
 		_on_hotspot(pending_n, pending_r)
 		return
 	var want_key_ring: bool = _credit_homecoming_counters()
@@ -2055,6 +2059,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 			_save()
 			await play_ending()
 			_release_cabin_tree_pause()
+			arrive_settled.emit(str(_homecoming_kind))
 			return
 	## Nathan lock 2026-11-14: trophy explanations FIRST, then entryway key unlock.
 	_ensure_hall_unlocked()
@@ -2092,6 +2097,7 @@ func _play_arrive(scheduled_gen: int = -1) -> void:
 	_apply_gate()
 	## Limp-home / win return settled — player has control; tree must be unpaused.
 	_release_cabin_tree_pause()
+	arrive_settled.emit(str(_homecoming_kind))
 
 
 func _place_sack(origin: Vector2) -> void:
