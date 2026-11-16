@@ -1680,6 +1680,8 @@ func _build_ui() -> void:
 	hotbar_wrap.add_child(choice_overlay)
 	hotbar_panel = PanelContainer.new()
 	hotbar_panel.visible = true
+	## NewStar overhangs ~4 px above each seat; never clip that corner mark.
+	hotbar_panel.clip_contents = false
 	hotbar_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	hotbar_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var hsb := StyleBoxFlat.new()
@@ -29518,7 +29520,7 @@ func _sync_hotbar() -> void:
 		## Kill Brand New / uncollected shine on hotbar — keep New! badge + aura kit only.
 		if card.has_method("set_draft_glow"):
 			card.set_draft_glow(false)
-		if card.has_method("set_cabinet_badge"):
+		if card.has_method("set_new_star") or card.has_method("set_cabinet_badge"):
 			_apply_collection_item_badge(card, it)
 		if card.has_method("set_beggar_mark"):
 			card.set_beggar_mark(_beggar_marked(uid_n), _beggar_stamp_tex())
