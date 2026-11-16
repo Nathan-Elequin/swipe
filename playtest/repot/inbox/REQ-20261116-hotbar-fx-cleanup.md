@@ -2,7 +2,7 @@
 id: REQ-20261116-hotbar-fx-cleanup
 status: open
 priority: normal
-tip_sha: pending
+tip_sha: d868d60e
 branch: cursor/hotbar-fx-cleanup-f16c
 created: 2026-11-16T21:56:00Z
 created_by: cursor-cloud
