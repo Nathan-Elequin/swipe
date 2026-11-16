@@ -11,6 +11,7 @@ signal give_up_confirmed
 signal fresh_save_pressed
 signal complete_save_pressed
 signal bucket_progress_pressed
+signal go_deeper_pressed
 signal sparkles_toggled(on: bool)
 signal invert_scroll_toggled(on: bool)
 signal reduce_motion_toggled(on: bool)
@@ -34,6 +35,7 @@ var _btn_adventure: Button
 var _btn_home: Button
 var _btn_peek: Button
 var _btn_give_up: Button
+var _btn_go_deeper: Button
 var _btn_dev: Button
 var _btn_fresh: Button
 var _btn_complete: Button
@@ -42,6 +44,7 @@ var _btn_sparkles: Button
 var sparkles_on: bool = true
 var invert_scroll: bool = false
 var reduce_motion: bool = false
+var show_go_deeper: bool = false
 var _btn_invert: Button
 var _btn_reduce: Button
 var _btn_dev_back: Button
@@ -114,6 +117,11 @@ func setup(audio) -> void:
 	_btn_give_up.pressed.connect(_on_give_up)
 	_board.add_child(_btn_give_up)
 	_hook_hover(_btn_give_up)
+
+	_btn_go_deeper = KIT.choice_tag("pause.go_deeper", Vector2(128, 16))
+	_btn_go_deeper.pressed.connect(_on_go_deeper)
+	_board.add_child(_btn_go_deeper)
+	_hook_hover(_btn_go_deeper)
 
 	_btn_sparkles = KIT.choice_tag("pause.resume", Vector2(128, 16))
 	_btn_sparkles.text = "Item sparkles: on"
@@ -233,6 +241,8 @@ func apply_copy() -> void:
 		_btn_peek.text = COPY.text("pause.peek", "")
 	if _btn_give_up:
 		_btn_give_up.text = COPY.text("pause.give_up", "")
+	if _btn_go_deeper:
+		_btn_go_deeper.text = COPY.text("pause.go_deeper", "Go deeper")
 	if _btn_dev:
 		_btn_dev.text = "Developer Mode"
 	if _btn_fresh:
@@ -253,6 +263,8 @@ func _layout_buttons() -> void:
 		_btn_peek.visible = false
 	if _btn_give_up:
 		_btn_give_up.visible = (not on_dev) and _in_run
+	if _btn_go_deeper:
+		_btn_go_deeper.visible = (not on_dev) and show_go_deeper
 	if _btn_sparkles:
 		_btn_sparkles.visible = not on_dev
 		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
@@ -277,7 +289,7 @@ func _layout_buttons() -> void:
 	if _master:
 		_master.visible = not on_dev
 	var shown: Array = []
-	var buttons: Array = [_btn_resume, _btn_sparkles, _btn_invert, _btn_reduce, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_dev_back]
+	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_sparkles, _btn_invert, _btn_reduce, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
@@ -484,6 +496,13 @@ func _on_peek() -> void:
 func _on_give_up() -> void:
 	if _confirm:
 		_confirm.visible = true
+
+
+func _on_go_deeper() -> void:
+	if _audio:
+		_audio.play("click", -8.0)
+	close_menu()
+	go_deeper_pressed.emit()
 
 
 func _on_give_up_yes() -> void:
