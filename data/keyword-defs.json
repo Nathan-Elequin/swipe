@@ -56,7 +56,7 @@
   },
   "swap": {
     "title": "Swap",
-    "body": "Trade it for a random item of the same rarity.",
+    "body": "Trade it for a random item of the same rarity (Common, Uncommon or Rare).",
     "player_show": true
   },
   "loaded": {

@@ -8,7 +8,7 @@
 			"sprite": "assets/dungeon/items/cursed_scroll.png"
 		},
 		{
-			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 			"id": "clockwork_knight",
 			"kind": "monster",
 			"name": "Clockwork Knight",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Cursed Scroll — Heal 6. On Spin, lose 1 HP. Monster: Clockwork Knight — When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal. Challenge hand. Wheel clockwork_knight. Click Cursed Scroll, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-cursed_scroll-clockwork_knight",
 	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nSpin Cursed Scroll\nCursed Scroll\nHP bleed -1  now 2\nCursed Scroll\nHP heal +4  now 6\nitems this combat 1",

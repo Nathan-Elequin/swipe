@@ -40,7 +40,12 @@
 <div class="pad" id="board"></div>
 <script>
 const LETTERS = ["S","A","B","C","D","F"];
-const TIER_NAME = {1:"Weak",2:"Tough",3:"Deadly"};
+const ITEM_TIER_NAME = {1:"Common",2:"Uncommon",3:"Rare"};
+const MONSTER_TIER_NAME = {1:"Minion",2:"Elite",3:"Boss"};
+function tierName(kind, tier) {
+  const map = kind === "monster" ? MONSTER_TIER_NAME : ITEM_TIER_NAME;
+  return map[tier] || tier;
+}
 let names = {};
 let data = { lists: [], cards: [] };
 
@@ -87,7 +92,7 @@ function render() {
   }
   for (const k of keys) {
     const [kind, tier] = k.split("|");
-    html += "<h2>" + (kind === "monster" ? "Monsters" : "Items") + " · " + (TIER_NAME[tier] || tier) + "</h2>";
+    html += "<h2>" + (kind === "monster" ? "Monsters" : "Items") + " · " + tierName(kind, tier) + "</h2>";
     html += "<table><thead><tr><th>Card</th><th class='num'>n</th><th class='num'>Mean</th><th class='num'>Median</th><th>S–F counts</th></tr></thead><tbody>";
     for (const c of groups[k]) {
       html += "<tr><td>" + nameOf(c.card_id) + "</td><td class='num'>" + c.n + "</td><td class='num'>" + (c.mean ?? "—") + "</td><td class='num'>" + (c.median ?? "—") + "</td><td class='hist'>" + histCell(c.hist) + "</td></tr>";

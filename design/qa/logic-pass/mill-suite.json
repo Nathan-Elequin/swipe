@@ -1606,7 +1606,7 @@
 				"shield"
 			],
 			"face": "clockwork_knight",
-			"expected_text": "If I live, I leave two Tough Monsters in my place. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
+			"expected_text": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal. After Spin this special must show in the log or change a number. If nothing changed, the unique ability did not fire.",
 			"clicks": [],
 			"expected": {
 				"log_has": [

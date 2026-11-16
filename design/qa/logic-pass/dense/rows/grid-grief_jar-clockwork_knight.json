@@ -8,7 +8,7 @@
 			"sprite": "assets/dungeon/items/grief_jar.png"
 		},
 		{
-			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 			"id": "clockwork_knight",
 			"kind": "monster",
 			"name": "Clockwork Knight",
@@ -32,7 +32,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Grief Jar — Each time you Spin, Lose 1 HP and this item gains +2 Block Monster: Clockwork Knight — When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal. Challenge hand. Wheel clockwork_knight. Click Grief Jar, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-grief_jar-clockwork_knight",
 	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nGrief Jar BLK 2\nGrief Jar\nHP bleed -1  now 5\nGrief Jar\nBLK +2  to  2\nitems this combat 1",

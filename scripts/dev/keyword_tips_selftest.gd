@@ -58,7 +58,7 @@ func _check_def_of_matches_json() -> bool:
 		## Nathan Save 2026-11-14 (Cherry checkpoint): new Poison body.
 		"poison": "Monsters with Poison lose that much HP when you Spin them, then lose all Poison.",
 		"always": "Passive ability (cannot be changed)",
-		"swap": "Trade it for a random item of the same rarity.",
+		"swap": "Trade it for a random item of the same rarity (Common, Uncommon or Rare).",
 		"loaded": "Your next Attack can hit any monster.",
 		"flee": "Spin immediately without resolving combat.",
 		"neighbor": "Adjacent on the wheel.",

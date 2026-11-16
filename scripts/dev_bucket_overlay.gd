@@ -151,7 +151,7 @@ func _build_chrome() -> void:
 	add_child(_token_btn)
 
 	_hint = KIT.raw_label(
-		"Gold on top, then silver, then bronze. Hover a card: 1–5 moves it, 0 puts it Aside (hold), T is Token. Drag works too. Smoke, pair extras, and mode-only sit in Aside. Finished is green, Change is red. Click a Pool header to set this save’s unlock. Save writes the card files.",
+		"Highest rank on top of each pyramid. Hover a card: 1–5 moves it, 0 puts it Aside (hold), T is Token. Drag works too. Smoke, pair extras, and mode-only sit in Aside. Finished is green, Change is red. Click a Pool header to set this save’s unlock. Save writes the card files.",
 		18,
 		KIT.MUTED,
 		true
@@ -403,7 +403,7 @@ func _tier_row(tier: int, cards: Array, kind: String, bucket: int, hole: bool) -
 	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var metal: Color = BucketRules.tier_color(tier)
 	var cap := Label.new()
-	cap.text = BucketRules.tier_label(tier)
+	cap.text = BucketRules.tier_label(tier, kind)
 	cap.add_theme_font_size_override("font_size", 12)
 	cap.add_theme_color_override("font_color", metal)
 	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE

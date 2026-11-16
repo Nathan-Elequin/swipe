@@ -1405,7 +1405,7 @@
 			"cat": "Door",
 			"key": "door.guard",
 			"text": "Guarded by a {tier} monster",
-			"where": "Draft door, under the help line. {tier} = Weak / Tough / Deadly"
+			"where": "Draft door, under the help line. {tier} = Minion / Elite / Boss"
 		},
 		{
 			"author_lock": true,
@@ -1826,7 +1826,7 @@
 			"cat": "Journal",
 			"draft": true,
 			"key": "journal.deadly",
-			"text": "Deadly",
+			"text": "Boss",
 			"where": "Bestiary danger stamp (internal tier 3)"
 		},
 		{
@@ -1875,7 +1875,7 @@
 			"cat": "Journal",
 			"draft": true,
 			"key": "journal.tough",
-			"text": "Tough",
+			"text": "Elite",
 			"where": "Bestiary danger stamp (internal tier 2)"
 		},
 		{
@@ -1896,7 +1896,7 @@
 			"cat": "Journal",
 			"draft": true,
 			"key": "journal.weak",
-			"text": "Weak",
+			"text": "Minion",
 			"where": "Bestiary danger stamp (internal tier 1)"
 		},
 		{
@@ -1979,8 +1979,8 @@
 			"author_lock": true,
 			"cat": "Inspect",
 			"key": "keyword.swap_body",
-			"locked_at": "2026-11-05",
-			"text": "Swap: trade it for a random item of the same rank (Weak, Tough or Deadly).",
+			"locked_at": "2026-11-16",
+			"text": "Swap: trade it for a random item of the same rarity (Common, Uncommon or Rare).",
 			"where": "Keyword tip body for Swap"
 		},
 		{
@@ -3116,25 +3116,25 @@
 			"cat": "Extract",
 			"key": "rank.curse",
 			"text": "Curse",
-			"where": "Inspect rank for curse items. Never say Weak or Tier."
+			"where": "Inspect rank for curse items. Never say Common or Tier as a fake curse rank."
 		},
 		{
 			"cat": "Extract",
 			"key": "rank.deadly",
-			"text": "Deadly",
-			"where": "Haul / rank chip for internal tier 3. Never say Tier."
+			"text": "Rare",
+			"where": "Haul / rank chip for internal tier 3 (item). Never say Tier."
 		},
 		{
 			"cat": "Extract",
 			"key": "rank.tough",
-			"text": "Tough",
-			"where": "Haul / rank chip for internal tier 2. Never say Tier."
+			"text": "Uncommon",
+			"where": "Haul / rank chip for internal tier 2 (item). Never say Tier."
 		},
 		{
 			"cat": "Extract",
 			"key": "rank.weak",
-			"text": "Weak",
-			"where": "Haul / rank chip for internal tier 1. Never say Tier."
+			"text": "Common",
+			"where": "Haul / rank chip for internal tier 1 (item). Never say Tier."
 		},
 		{
 			"author_lock": true,
@@ -4349,20 +4349,20 @@
 		{
 			"cat": "Door",
 			"key": "tier.1.name",
-			"text": "Weak",
-			"where": "Player name for internal tier 1 (NOT WIRED YET). Never show the word Tier."
+			"text": "Minion",
+			"where": "Monster name for internal tier 1. Prefer monster.rank.1.name. Never show the word Tier."
 		},
 		{
 			"cat": "Door",
 			"key": "tier.2.name",
-			"text": "Tough",
-			"where": "Player name for internal tier 2 (NOT WIRED YET). Never show the word Tier."
+			"text": "Elite",
+			"where": "Monster name for internal tier 2. Prefer monster.rank.2.name. Never show the word Tier."
 		},
 		{
 			"cat": "Door",
 			"key": "tier.3.name",
-			"text": "Deadly",
-			"where": "Player name for internal tier 3 (NOT WIRED YET). Never show the word Tier."
+			"text": "Boss",
+			"where": "Monster name for internal tier 3. Prefer monster.rank.3.name. Never show the word Tier."
 		},
 		{
 			"author_lock": true,
@@ -6924,7 +6924,7 @@
 			"author_lock": true,
 			"cat": "Tutorial",
 			"key": "tutorial.line.B47.3",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-16",
 			"where": "Tutorial · B47 · line 3",
 			"wait": "continue",
 			"focus": "wheel",
@@ -6940,7 +6940,7 @@
 			"rig": "",
 			"allow": [],
 			"trigger": "",
-			"text": "Monsters with a red background are [b]Deadly[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block."
+			"text": "Monsters with a red background are [b]Boss[/b], and carry the strongest abilities. This Dragon's Attack completely ignores Block."
 		},
 		{
 			"author_lock": true,
@@ -7333,6 +7333,42 @@
 			"key": "nib.board.first_light.2",
 			"text": "Looks like if you bring home five different things from this place... that lever over there will wake up. I wonder what it does.",
 			"where": "First-ever board light — lever gesture"
+		},
+		{
+			"cat": "Door",
+			"key": "item.rank.1.name",
+			"text": "Common",
+			"where": "Item rank for internal tier 1. Never show the word Tier."
+		},
+		{
+			"cat": "Door",
+			"key": "item.rank.2.name",
+			"text": "Uncommon",
+			"where": "Item rank for internal tier 2. Never show the word Tier."
+		},
+		{
+			"cat": "Door",
+			"key": "item.rank.3.name",
+			"text": "Rare",
+			"where": "Item rank for internal tier 3. Never show the word Tier."
+		},
+		{
+			"cat": "Door",
+			"key": "monster.rank.1.name",
+			"text": "Minion",
+			"where": "Monster rank for internal tier 1. Never show the word Tier."
+		},
+		{
+			"cat": "Door",
+			"key": "monster.rank.2.name",
+			"text": "Elite",
+			"where": "Monster rank for internal tier 2. Never show the word Tier."
+		},
+		{
+			"cat": "Door",
+			"key": "monster.rank.3.name",
+			"text": "Boss",
+			"where": "Monster rank for internal tier 3. Never show the word Tier."
 		}
 	],
 	"updated": "2026-11-08"

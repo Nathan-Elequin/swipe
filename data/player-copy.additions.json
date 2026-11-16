@@ -491,21 +491,21 @@
    "cat": "Journal",
    "key": "journal.weak",
    "where": "Bestiary danger stamp (internal tier 1)",
-   "text": "Weak",
+   "text": "Minion",
    "draft": true
   },
   {
    "cat": "Journal",
    "key": "journal.tough",
    "where": "Bestiary danger stamp (internal tier 2)",
-   "text": "Tough",
+   "text": "Elite",
    "draft": true
   },
   {
    "cat": "Journal",
    "key": "journal.deadly",
    "where": "Bestiary danger stamp (internal tier 3)",
-   "text": "Deadly",
+   "text": "Boss",
    "draft": true
   },
   {

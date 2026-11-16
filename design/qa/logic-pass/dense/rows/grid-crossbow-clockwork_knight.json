@@ -8,7 +8,7 @@
 			"sprite": "assets/dungeon/items/crossbow.png"
 		},
 		{
-			"ability": "If I live, I leave two Tough Monsters in my place.",
+			"ability": "When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal.",
 			"id": "clockwork_knight",
 			"kind": "monster",
 			"name": "Clockwork Knight",
@@ -46,7 +46,7 @@
 		],
 		"slots": "1 / 50"
 	},
-	"expected": "Item: Crossbow — Deal 4 Attack to a Neighboring enemy. Monster: Clockwork Knight — If I live, I leave two Tough Monsters in my place. Challenge hand. Wheel clockwork_knight, wizard, golem. Click Crossbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
+	"expected": "Item: Crossbow — Deal 4 Attack to a Neighboring enemy. Monster: Clockwork Knight — When I am Defeated, my Neighbors gain HP until they are equal, and then gain Attack until they are equal. Challenge hand. Wheel clockwork_knight, wizard, golem. Click Crossbow, then Done. Inspect, Shift, the plate, the hotbar, and the log must agree.",
 	"family": "grid",
 	"id": "grid-crossbow-clockwork_knight",
 	"log": "Draft enter\nYou Spin\nSpin Clockwork Knight\nenemy ATK 4   HP 7\nBLK 0\nitems this combat 0\nUsed pick a neighbor\nCrossbow\nUsed crossbow Wizard\nATK 4  to  Wizard HP 0\nitems this combat 1\nDefeated Wizard\nYou Done\nFight hit 1  ATK 4 - BLK\nBLK 0\nHP take -4  now 2\nDefeated Clockwork Knight\nBLK 0\ndefeated 2\nYou Spin\nSpin Golem\nenemy ATK 3   HP 7\nBLK 0\nitems this combat 0",

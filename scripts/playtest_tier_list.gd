@@ -1,5 +1,5 @@
 extends ColorRect
-## Items | Monsters tabs. Weak / Tough / Deadly one at a time. S–F rows. Drag to rank.
+## Items | Monsters tabs. Common/Uncommon/Rare or Minion/Elite/Boss one at a time. S–F rows. Drag to rank.
 
 signal send_wanted(ranks: Dictionary)
 signal closed
@@ -75,8 +75,7 @@ func setup() -> void:
 	tiers.add_theme_constant_override("separation", 10)
 	col.add_child(tiers)
 	for t in TIERS:
-		var lab: String = "Tier %s" % t
-		var b := _toggle(lab, func() -> void: _set_tier(t))
+		var b := _toggle(_tier_btn_label(int(t)), func() -> void: _set_tier(t))
 		_tier_btns[t] = b
 		tiers.add_child(b)
 	_bucket_row = HFlowContainer.new()
@@ -166,11 +165,17 @@ func _set_tier(tier: int) -> void:
 	_rebuild()
 
 
+func _tier_btn_label(tier: int) -> String:
+	return COPY.rank_name(tier, _kind)
+
+
 func _paint_tabs() -> void:
 	_mark(_tab_items, _kind == "item")
 	_mark(_tab_mons, _kind == "monster")
 	for t in _tier_btns.keys():
-		_mark(_tier_btns[t], int(t) == _tier)
+		var btn: Button = _tier_btns[t]
+		btn.text = _tier_btn_label(int(t))
+		_mark(btn, int(t) == _tier)
 
 
 func _rebuild_bucket_toggles() -> void:
