@@ -134,6 +134,8 @@ var _or: RichTextLabel
 var _choice_badge: Label
 var _cabinet_badge: Label
 var _new_star: TextureRect
+## Plain Control host so PanelContainer stretches the holder, not the 28×28 star.
+var _new_star_holder: Control
 var _beggar_on: bool = false
 var _beggar_lab: Label
 var _beggar_icon: TextureRect
@@ -1534,13 +1536,16 @@ func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 
 
 ## Tiny gold star, top-right. No loop, no text. Prefer hud/new_star (28×28), else unique_star.
-## Parent is the card root (not Chrome): Chrome sits inside pad margins, and y=-4 on
-## Chrome was clipped by ancestors; card root has clip_contents=false.
+## Never parent the TextureRect on the PanelContainer root — that stretches it to the
+## full content rect (giant pixel star). Host under a plain Control like DecayOverlay.
+## Holder stays on the card root (clip_contents=false) so the ~4 px overhang is not clipped
+## by Chrome / pad margins. hotbar_panel / hotbar_wrap also leave clip_contents false.
 func set_new_star(on: bool) -> void:
 	if not on:
 		if _new_star != null:
 			_new_star.visible = false
 		return
+	var host: Control = _new_star_host()
 	if _new_star == null:
 		_new_star = TextureRect.new()
 		_new_star.name = "NewStar"
@@ -1556,25 +1561,54 @@ func set_new_star(on: bool) -> void:
 		elif ResourceLoader.exists("res://assets/ui/trophy_board/unique_star.png"):
 			tex = load("res://assets/ui/trophy_board/unique_star.png") as Texture2D
 		_new_star.texture = tex
-		add_child(_new_star)
-	elif _new_star.get_parent() != self:
-		## Migrate stars created under Chrome before this fix.
+		host.add_child(_new_star)
+	elif _new_star.get_parent() != host:
+		## Migrate stars created under card root / Chrome before this fix.
 		var old_parent: Node = _new_star.get_parent()
 		if old_parent != null:
 			old_parent.remove_child(_new_star)
-		add_child(_new_star)
-	## Display 28×28; top-right overhangs ~4 px (pos = slot_w − 24, −4).
-	var star_sz := 28.0
-	var host_w: float = SHOW_W if _showcase else (size.x if size.x > 8.0 else CARD_W)
-	_new_star.size = Vector2(star_sz, star_sz)
-	_new_star.position = Vector2(host_w - 24.0, -4.0)
+		host.add_child(_new_star)
 	_new_star.visible = _new_star.texture != null
+	_place_new_star()
 	if _new_star.texture == null:
 		## Last-ditch glyph — never Tier/ATK text.
+		var host_w: float = SHOW_W if _showcase else (size.x if size.x > 8.0 else CARD_W)
 		if _cabinet_badge == null or not _cabinet_badge.visible:
 			set_cabinet_badge(true, "*", "")
 			if _cabinet_badge:
 				_cabinet_badge.position = Vector2(host_w - 16.0, 2.0)
+
+
+## PanelContainer stretches this host to the stylebox content rect; the star keeps 28×28.
+func _new_star_host() -> Control:
+	if _new_star_holder != null and is_instance_valid(_new_star_holder):
+		return _new_star_holder
+	_new_star_holder = Control.new()
+	_new_star_holder.name = "NewStarHolder"
+	_new_star_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_new_star_holder.clip_contents = false
+	_new_star_holder.z_index = 14
+	_new_star_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_new_star_holder)
+	if not resized.is_connected(_place_new_star):
+		resized.connect(_place_new_star)
+	return _new_star_holder
+
+
+func _place_new_star() -> void:
+	if _new_star == null or not is_instance_valid(_new_star) or not _new_star.visible:
+		return
+	var star_sz := 28.0
+	var host_w: float = SHOW_W if _showcase else (size.x if size.x > 8.0 else CARD_W)
+	## Card-root top-right overhang (slot_w − 24, −4), converted into holder space.
+	## Holder fills the panel stylebox content rect, so subtract content margins.
+	var inset := Vector2.ZERO
+	var sb: StyleBox = get_theme_stylebox("panel")
+	if sb != null:
+		inset = Vector2(sb.get_margin(SIDE_LEFT), sb.get_margin(SIDE_TOP))
+	_new_star.custom_minimum_size = Vector2(star_sz, star_sz)
+	_new_star.size = Vector2(star_sz, star_sz)
+	_new_star.position = Vector2(host_w - 24.0, -4.0) - inset
 
 
 func _ensure_corner_badge(choice: bool) -> Label:
@@ -2767,6 +2801,8 @@ func _apply_style(hot: bool) -> void:
 		modulate = Color(0.38, 0.36, 0.34, 1.0)
 	add_theme_stylebox_override("panel", sb)
 	_sync_decay_markers()
+	## Stylebox margins shift NewStarHolder; keep the 28×28 corner mark pinned.
+	_place_new_star()
 	queue_redraw()
 
 

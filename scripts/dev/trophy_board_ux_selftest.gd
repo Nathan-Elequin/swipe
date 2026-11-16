@@ -116,10 +116,21 @@ func _init() -> void:
 	card.set_new_star(true)
 	star = card.get("_new_star")
 	if star != null:
+		## Holder sits in stylebox content margins; card-root x = SHOW_W-24 → local x − left margin.
+		var inset_x := 0.0
+		var sb: StyleBox = card.get_theme_stylebox("panel")
+		if sb != null:
+			inset_x = sb.get_margin(SIDE_LEFT)
 		failed = _check(
 			failed,
 			"draft star uses showcase width",
-			is_equal_approx((star as Control).position.x, ITEM_CARD.SHOW_W - 24.0)
+			is_equal_approx((star as Control).position.x, ITEM_CARD.SHOW_W - 24.0 - inset_x)
+		) or failed
+		var holder: Node = card.get("_new_star_holder")
+		failed = _check(
+			failed,
+			"draft star under NewStarHolder",
+			star.get_parent() == holder and holder != card
 		) or failed
 	card.set_new_star(false)
 	card.queue_free()

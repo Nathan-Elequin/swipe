@@ -10,6 +10,10 @@ const BUCKET := preload("res://scripts/bucket_rules.gd")
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
 	var failed := false
 	var root := get_root()
 
@@ -136,22 +140,60 @@ func _init() -> void:
 	## Mimic main._apply_collection_item_badge for a fresh unique.
 	var fresh_unique: bool = (not BUCKET.is_token(cabin.items_by_id["crossbow"])) and (not cabin.is_cabinet_claimed("crossbow"))
 	star_card.set_new_star(fresh_unique)
+	## Wait for PanelContainer layout — size/pos before a layout pass lied before.
+	star_card.queue_sort()
+	await process_frame
+	await process_frame
 	var star = star_card.get("_new_star")
 	failed = _check(failed, "fresh unique creates NewStar", star != null) or failed
 	if star != null:
 		failed = _check(failed, "fresh unique NewStar visible", star.visible) or failed
+		var holder: Node = star_card.get("_new_star_holder")
 		failed = _check(
 			failed,
-			"NewStar parented to card root",
-			star.get_parent() == star_card
-		) or failed
-		failed = _check(
-			failed,
-			"NewStar top-right overhang pos",
-			is_equal_approx(star.position.x, ITEM_CARD.CARD_W - 24.0)
-			and is_equal_approx(star.position.y, -4.0)
+			"NewStar parented under NewStarHolder",
+			star.get_parent() == holder and holder != null and holder != star_card
 		) or failed
 		failed = _check(failed, "card root does not clip", star_card.clip_contents == false) or failed
+		failed = _check(
+			failed,
+			"NewStarHolder does not clip",
+			holder is Control and (holder as Control).clip_contents == false
+		) or failed
+		failed = await _assert_star_corner(failed, "standalone", star_card, star) or failed
+
+	## Same checks inside a hotbar-like PanelContainer + grid (clip_contents false).
+	var hot_panel := PanelContainer.new()
+	hot_panel.clip_contents = false
+	var hsb := StyleBoxFlat.new()
+	hsb.bg_color = Color("14100ce8")
+	hsb.border_color = Color("c4a574")
+	hsb.set_border_width_all(2)
+	hsb.set_corner_radius_all(8)
+	hsb.content_margin_left = 4
+	hsb.content_margin_right = 4
+	hsb.content_margin_top = 4
+	hsb.content_margin_bottom = 4
+	hot_panel.add_theme_stylebox_override("panel", hsb)
+	root.add_child(hot_panel)
+	var hot_grid := GridContainer.new()
+	hot_grid.columns = 12
+	hot_grid.add_theme_constant_override("h_separation", 8)
+	hot_panel.add_child(hot_grid)
+	var bar_card: Control = ITEM_CARD.new()
+	hot_grid.add_child(bar_card)
+	bar_card.setup(6, "hex", "2", null, Color("5c2626"), Color("c5cdd8"), "Hex")
+	bar_card.custom_minimum_size = Vector2(ITEM_CARD.CARD_W, ITEM_CARD.CARD_H)
+	bar_card.size = Vector2(ITEM_CARD.CARD_W, ITEM_CARD.CARD_H)
+	bar_card.set_new_star(true)
+	hot_panel.queue_sort()
+	bar_card.queue_sort()
+	await process_frame
+	await process_frame
+	var bar_star = bar_card.get("_new_star")
+	failed = _check(failed, "hotbar row creates NewStar", bar_star != null and bar_star.visible) or failed
+	if bar_star != null:
+		failed = await _assert_star_corner(failed, "hotbar-row", bar_card, bar_star) or failed
 
 	## Claimed → hidden.
 	cabin.swiped["crossbow"] = true
@@ -180,6 +222,7 @@ func _init() -> void:
 
 	star_card.queue_free()
 	token_card.queue_free()
+	hot_panel.queue_free()
 	cabin.queue_free()
 
 	if failed:
@@ -188,6 +231,46 @@ func _init() -> void:
 	else:
 		print("HOTBAR_FX_CLEANUP_OK")
 		quit(0)
+
+
+## After layout: 28×28, top-right near card corner, does not cover icon center.
+func _assert_star_corner(failed: bool, label: String, card: Control, star: Control) -> bool:
+	await process_frame
+	var gr: Rect2 = star.get_global_rect()
+	var card_gr: Rect2 = card.get_global_rect()
+	var sz: Vector2 = gr.size
+	## Account for any scale on ancestors; expect ~28×28 in local pixels.
+	var local_sz: Vector2 = star.size
+	failed = _check(
+		failed,
+		"%s NewStar local size 28x28" % label,
+		is_equal_approx(local_sz.x, 28.0) and is_equal_approx(local_sz.y, 28.0)
+	) or failed
+	failed = _check(
+		failed,
+		"%s NewStar global size ~28x28" % label,
+		sz.x >= 20.0 and sz.x <= 36.0 and sz.y >= 20.0 and sz.y <= 36.0
+	) or failed
+	## Must not fill the card (the bug was full-card stretch).
+	failed = _check(
+		failed,
+		"%s NewStar not full-card" % label,
+		sz.x < card_gr.size.x * 0.35 and sz.y < card_gr.size.y * 0.35
+	) or failed
+	var star_tr: Vector2 = Vector2(gr.position.x + gr.size.x, gr.position.y)
+	var card_tr: Vector2 = Vector2(card_gr.position.x + card_gr.size.x, card_gr.position.y)
+	failed = _check(
+		failed,
+		"%s NewStar top-right near card top-right" % label,
+		absf(star_tr.x - card_tr.x) <= 6.0 and absf(star_tr.y - card_tr.y) <= 6.0
+	) or failed
+	var icon_center: Vector2 = card_gr.position + card_gr.size * 0.5
+	failed = _check(
+		failed,
+		"%s NewStar does not cover icon center" % label,
+		not gr.has_point(icon_center)
+	) or failed
+	return failed
 
 
 func _check(failed: bool, label: String, ok: bool) -> bool:
