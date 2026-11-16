@@ -105,6 +105,11 @@ func set_hold(hold: Array) -> void:
 	_update_chrome()
 
 
+## Keep face lights / lever_state on the live in-memory campaign dict (not a disk snapshot).
+func set_campaign_state(campaign_state) -> void:
+	_campaign_state = campaign_state if typeof(campaign_state) == TYPE_DICTIONARY else {}
+
+
 func refresh() -> void:
 	_faces_data = MODEL.faces(_rules, _items_by_id)
 	_rebuild_faces()

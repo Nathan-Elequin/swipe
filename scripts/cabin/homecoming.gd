@@ -47,6 +47,11 @@ var first_light_did_pause: bool = false
 var land_events: Array = []
 var cues_played: Array = []
 var any_lit_before_land: bool = false
+## Single haul model for this return (dialogue, routing, lights, lever-ready).
+var haul: Dictionary = {}
+var lever_ready_face: int = -1
+var lever_ready_keys: Array = []
+var empty_or_loss_key: String = ""
 
 var board = null
 var cabin = null
@@ -64,6 +69,8 @@ var _fx_nodes: Array = []
 var _running: bool = false
 var _step_s: float = HOMECOMING_STEP
 var _lever_ring: Control = null
+## Snapshot of face readiness before this haul's claims (banked minus haul ids).
+var _ready_before: Dictionary = {}
 
 
 ## Entry. Adds self under cabin (or board), runs the timeline, then frees.
@@ -107,6 +114,10 @@ func _run() -> void:
 	skipped_mid = false
 	first_return_branch = ""
 	first_light_did_pause = false
+	lever_ready_face = -1
+	lever_ready_keys.clear()
+	empty_or_loss_key = ""
+	_ready_before.clear()
 	if board == null or cabin == null:
 		_finish()
 		return
@@ -116,9 +127,17 @@ func _run() -> void:
 	_ceremony_gen = -1
 	if cabin.has_method("_begin_bank_ceremony"):
 		_ceremony_gen = int(cabin.call("_begin_bank_ceremony"))
+	## ONE haul model for this return — dialogue, routing, lights, and lever-ready
+	## all read this (or the post-claim live state derived from it).
+	haul = build_haul(cabin)
+	if cabin != null and cabin.has_method("apply_homecoming_haul"):
+		cabin.call("apply_homecoming_haul", haul)
+	elif cabin != null:
+		_apply_haul_to_cabin(haul)
 	is_first_return = _detect_first_return()
 	_step_s = FIRST_RETURN_STEP if is_first_return else HOMECOMING_STEP
 	var pending: Array = _ordered_pending()
+	_snapshot_ready_before(pending)
 	## Open on first pending face (instant — satchel rise is the first motion).
 	if not pending.is_empty():
 		var first_face: int = int(_meta_for(str(pending[0])).get("face_index", 0))
@@ -232,37 +251,214 @@ func _start_first_pulse(card_id: String) -> void:
 		cabin.call("_save")
 
 
-func _ordered_pending() -> Array:
-	var raw: Array = []
-	if "bank_pending" in cabin:
-		raw = (cabin.bank_pending as Array).duplicate()
-	var rules: Dictionary = _rules()
-	var items: Dictionary = _items()
+## Build the single haul model for a return. Pure + cabin reads; does not mutate.
+## new_uniques = board members awaiting presentation (not tokens; duplicates excluded).
+static func build_haul(p_cabin) -> Dictionary:
+	var kind := "win"
+	if p_cabin != null and "_homecoming_kind" in p_cabin:
+		kind = str(p_cabin.get("_homecoming_kind"))
+	if kind == "":
+		kind = "win"
+	var rules: Dictionary = {}
+	if p_cabin != null and p_cabin.has_method("_biome_rules"):
+		rules = p_cabin.call("_biome_rules")
+	else:
+		rules = CAMPAIGN_SHELL.read_json(CAMPAIGN_SHELL.DATA_PATH)
+	var items: Dictionary = {}
+	if p_cabin != null and "items_by_id" in p_cabin:
+		items = p_cabin.items_by_id
 	var faces: Array = MODEL.faces(rules, items)
-	## Filter to board members only.
-	var filtered: Array = []
-	for rid in raw:
-		var id := str(rid)
-		if id == "":
+	var candidates: Array = _haul_candidate_ids(p_cabin)
+	var new_uniques: Array = []
+	var duplicates: Array = []
+	var tokens_excluded: Array = []
+	var non_board: Array = []
+	var seen_ids := {}
+	var by_board := {}
+	for raw in candidates:
+		var id := str(raw)
+		if id == "" or seen_ids.has(id):
 			continue
-		var meta: Dictionary = _meta_for(id, faces)
+		seen_ids[id] = true
+		var card: Dictionary = items.get(id, {})
+		if id == "spider_egg" or BucketRules.is_token(card):
+			tokens_excluded.append(id)
+			continue
+		var meta: Dictionary = _meta_for_static(id, faces, items)
 		if int(meta.get("face_index", -1)) < 0:
+			non_board.append(id)
 			continue
-		filtered.append(id)
-	filtered.sort_custom(func(a, b) -> bool:
-		var ma: Dictionary = _meta_for(str(a), faces)
-		var mb: Dictionary = _meta_for(str(b), faces)
-		var fa: int = int(ma.get("face_index", 99))
-		var fb: int = int(mb.get("face_index", 99))
+		## Already presentation-claimed and not in this return's hold/pending → duplicate
+		## of a prior find (or already drained). Keep out of the satchel list.
+		if _haul_already_presented(p_cabin, id):
+			duplicates.append(id)
+			continue
+		var entry := {
+			"id": id,
+			"board": str(meta.get("pool_id", "")),
+			"pool_id": str(meta.get("pool_id", "")),
+			"face_index": int(meta.get("face_index", 0)),
+			"tier": int(meta.get("tier", 1)),
+			"slot": int(meta.get("slot", 0)),
+			"name": str(meta.get("name", "")),
+		}
+		new_uniques.append(entry)
+		var board_id := str(entry["pool_id"])
+		if not by_board.has(board_id):
+			by_board[board_id] = []
+		(by_board[board_id] as Array).append(id)
+	new_uniques.sort_custom(func(a, b) -> bool:
+		var fa: int = int(a.get("face_index", 99))
+		var fb: int = int(b.get("face_index", 99))
 		if fa != fb:
 			return fa < fb
-		var ta: int = int(ma.get("tier", 1))
-		var tb: int = int(mb.get("tier", 1))
+		var ta: int = int(a.get("tier", 1))
+		var tb: int = int(b.get("tier", 1))
 		if ta != tb:
 			return ta < tb
-		return int(ma.get("slot", 0)) < int(mb.get("slot", 0))
+		return int(a.get("slot", 0)) < int(b.get("slot", 0))
 	)
-	return filtered
+	var ordered: Array = []
+	for row in new_uniques:
+		ordered.append(str(row.get("id", "")))
+	return {
+		"kind": kind,
+		"new_uniques": new_uniques,
+		"ordered_ids": ordered,
+		"count": ordered.size(),
+		"by_board": by_board,
+		"duplicates": duplicates,
+		"tokens_excluded": tokens_excluded,
+		"non_board": non_board,
+		"faces": faces,
+		"rules": rules,
+	}
+
+
+static func _haul_candidate_ids(p_cabin) -> Array:
+	var out: Array = []
+	var seen := {}
+	if p_cabin == null:
+		return out
+	## Prefer presentation queue + hold. Before the first ceremony this return
+	## (`_bank_played` false), also absorb `_new_ids` so a pending/hold desync
+	## cannot make Nib say "nothing new" while news still lists board uniques.
+	var sources: Array = []
+	if "bank_pending" in p_cabin and p_cabin.bank_pending is Array:
+		sources.append_array(p_cabin.bank_pending)
+	if "_bank_hold" in p_cabin and typeof(p_cabin._bank_hold) == TYPE_DICTIONARY:
+		for hid in (p_cabin._bank_hold as Dictionary).keys():
+			sources.append(str(hid))
+	var bank_played := false
+	if "_bank_played" in p_cabin:
+		bank_played = bool(p_cabin.get("_bank_played"))
+	if not bank_played and "_new_ids" in p_cabin and p_cabin._new_ids is Array:
+		sources.append_array(p_cabin._new_ids)
+	for raw in sources:
+		var id := str(raw)
+		if id == "" or seen.has(id):
+			continue
+		seen[id] = true
+		out.append(id)
+	return out
+
+
+static func _haul_already_presented(p_cabin, id: String) -> bool:
+	if p_cabin == null or id == "":
+		return false
+	## Still queued for this ceremony → not presented yet.
+	if "bank_pending" in p_cabin and p_cabin.bank_pending is Array:
+		if (p_cabin.bank_pending as Array).has(id):
+			return false
+	if "_bank_hold" in p_cabin and typeof(p_cabin._bank_hold) == TYPE_DICTIONARY:
+		if (p_cabin._bank_hold as Dictionary).has(id):
+			return false
+	var bank_played := false
+	if "_bank_played" in p_cabin:
+		bank_played = bool(p_cabin.get("_bank_played"))
+	## Repair path: news from this return, ceremony not yet played.
+	if not bank_played and "_new_ids" in p_cabin and p_cabin._new_ids is Array:
+		if (p_cabin._new_ids as Array).has(id):
+			return false
+	return true
+
+
+static func _meta_for_static(id: String, faces: Array, items: Dictionary = {}) -> Dictionary:
+	for face in faces:
+		if typeof(face) != TYPE_DICTIONARY:
+			continue
+		var f: Dictionary = face
+		var rows: Dictionary = f.get("rows", {})
+		for tier in [1, 2, 3]:
+			var line: Array = rows.get(tier, [])
+			if not (line is Array):
+				continue
+			var idx: int = (line as Array).find(id)
+			if idx >= 0:
+				return {
+					"face_index": int(f.get("index", 0)),
+					"tier": tier,
+					"slot": idx,
+					"pool_id": str(f.get("pool_id", "")),
+					"name": str(f.get("name", "")),
+				}
+	## Fallback tier from catalog when faces missing (tests).
+	var tier_fb := 1
+	if items.has(id) and typeof(items[id]) == TYPE_DICTIONARY:
+		tier_fb = clampi(BucketRules.tier_of(items[id]), 1, 3)
+	return {"face_index": -1, "tier": tier_fb, "slot": 0, "pool_id": "", "name": ""}
+
+
+func _apply_haul_to_cabin(h: Dictionary) -> void:
+	if cabin == null:
+		return
+	var ordered: Array = h.get("ordered_ids", [])
+	if "bank_pending" in cabin:
+		cabin.bank_pending = ordered.duplicate()
+	if "_bank_hold" in cabin:
+		var hold := {}
+		for id in ordered:
+			hold[str(id)] = true
+		cabin._bank_hold = hold
+	if board != null and board.has_method("set_hold"):
+		board.set_hold(ordered)
+
+
+func _ordered_pending() -> Array:
+	## Prefer the haul model computed at ceremony start.
+	if not haul.is_empty() and haul.has("ordered_ids"):
+		return (haul.get("ordered_ids", []) as Array).duplicate()
+	haul = build_haul(cabin)
+	_apply_haul_to_cabin(haul)
+	return (haul.get("ordered_ids", []) as Array).duplicate()
+
+
+func _snapshot_ready_before(pending: Array) -> void:
+	## Lever-ready must detect boards that THIS haul pushed over quota.
+	## Bank credit already includes pending ids, so strip them for the before-shot.
+	_ready_before.clear()
+	var rules: Dictionary = _rules()
+	var before: Dictionary = _state_without_ids(pending)
+	var faces: Array = MODEL.faces(rules, _items())
+	for face in faces:
+		if typeof(face) != TYPE_DICTIONARY:
+			continue
+		var f: Dictionary = face
+		var fi: int = int(f.get("index", 0))
+		_ready_before[fi] = MODEL.lever_state(rules, before, f) == &"ready"
+
+
+func _state_without_ids(ids: Array) -> Dictionary:
+	var st: Dictionary = _live_state().duplicate(true)
+	var banked: Variant = st.get("banked", {})
+	if typeof(banked) != TYPE_DICTIONARY:
+		banked = {}
+	else:
+		banked = (banked as Dictionary).duplicate()
+	for raw in ids:
+		(banked as Dictionary).erase(str(raw))
+	st["banked"] = banked
+	return st
 
 
 func _meta_for(id: String, faces: Array = []) -> Dictionary:
@@ -447,7 +643,8 @@ func _play_one_item(card_id: String, deposit_n: int = 1) -> void:
 	placed_order.append(card_id)
 	item_placed.emit(card_id)
 	var lights_after: int = _lights_lit_now(face_i)
-	if lights_after > lights_before and lights_after <= 5:
+	var quota: int = CAMPAIGN_SHELL.quota_of(_rules())
+	if lights_after > lights_before and lights_after <= quota:
 		await _flash_light(face_i, lights_after - 1, lights_after)
 	var gap_scale: float = 0.55 if deposit_n > 6 and metal != "gold" else 1.0
 	var tail: float = 0.25 * gap_scale
@@ -485,8 +682,11 @@ func _land_fx_at(at_local: Vector2, metal: String) -> void:
 	_host.add_child(land)
 	_track_fx(land)
 	land.play("land")
-	if land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+	if is_instance_valid(land) and land.is_playing():
 		await land.animation_finished
+	elif land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+		## Already finished under high time_scale before the await connected.
+		await _wait_step(0.01)
 	else:
 		await _wait_step(6.0 / LAND_FX_FPS)
 	_free_fx(land)
@@ -516,7 +716,8 @@ func _place_reduce_motion(card_id: String, face_i: int, lights_before: int, meta
 	placed_order.append(card_id)
 	item_placed.emit(card_id)
 	var lights_after: int = _lights_lit_now(face_i)
-	if lights_after > lights_before and lights_after <= 5:
+	var quota_rm: int = CAMPAIGN_SHELL.quota_of(_rules())
+	if lights_after > lights_before and lights_after <= quota_rm:
 		## Instant light, chime stays.
 		if board.has_method("flash_light"):
 			board.flash_light(face_i, lights_after - 1)
@@ -541,6 +742,7 @@ func _land_fx_crossfade(at_local: Vector2, metal: String, spr: Sprite2D) -> void
 	land.centered = true
 	land.position = at_local
 	land.z_index = 25
+	land.modulate.a = 0.0
 	_host.add_child(land)
 	_track_fx(land)
 	var tw := _tween()
@@ -549,8 +751,12 @@ func _land_fx_crossfade(at_local: Vector2, metal: String, spr: Sprite2D) -> void
 	tw.tween_property(land, "modulate:a", 1.0, _dur(0.20))
 	land.play("land")
 	await _await_tween(tw)
-	if land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+	## High Engine.time_scale can finish the sprite before this await — never hang
+	## on a signal that already fired. Wait only while still playing.
+	if is_instance_valid(land) and land.is_playing():
 		await land.animation_finished
+	elif is_instance_valid(land) and land.sprite_frames and land.sprite_frames.get_frame_count("land") > 0:
+		await _wait_step(0.01)
 	else:
 		await _wait_step(6.0 / LAND_FX_FPS)
 	_free_fx(land)
@@ -728,14 +934,17 @@ func _chime_light(light_n: int) -> void:
 
 
 func _maybe_light_bubble(light_n: int) -> void:
-	if light_n != 1 and light_n != 5:
+	var quota: int = CAMPAIGN_SHELL.quota_of(_rules())
+	if light_n != 1 and light_n != quota:
 		return
 	if cabin == null or not ("_dialog" in cabin):
 		return
 	var dialog = cabin._dialog
 	if dialog == null:
 		return
-	var key := "board.light.say.%d" % light_n
+	## Existing copy keys are board.light.say.1 / .5 (quota 5). Use closest key.
+	var key_n: int = light_n if light_n == 1 else 5
+	var key := "board.light.say.%d" % key_n
 	var fallback := "There's a light!" if light_n == 1 else "Five! That's all five!"
 	if dialog.has_method("say_bubble"):
 		dialog.say_bubble(key, Vector2(216, 150), {})
@@ -744,24 +953,37 @@ func _maybe_light_bubble(light_n: int) -> void:
 
 
 func _after_items() -> void:
-	## Refresh so lights / lever_state match the just-acked claims.
+	## Push live in-memory campaign state into the board (never a stale disk copy).
+	_push_live_state_to_board()
 	if board != null and board.has_method("refresh"):
 		board.refresh()
-	## (a) Any face whose lever just became READY → prompt. Nothing auto-pulls.
+	## (a) Any face b1..b5 whose lever JUST became READY from this haul → prompt.
+	## Prefer newly-ready faces (this haul crossed cabinet_quota). Fall back to any
+	## ready face only when none are newly ready. Nothing auto-pulls.
 	## (b) Complete boards → Package D BoardSequences via cabin (shortcut / ending).
 	var rules: Dictionary = _rules()
-	var state: Dictionary = _state()
+	var state: Dictionary = _live_state()
 	var faces: Array = MODEL.faces(rules, _items())
-	var ready_face := -1
+	var newly_ready: Array = []
 	for face in faces:
 		if typeof(face) != TYPE_DICTIONARY:
 			continue
 		var f: Dictionary = face
 		var fi: int = int(f.get("index", 0))
-		if MODEL.lever_state(rules, state, f) == &"ready" and ready_face < 0:
-			ready_face = fi
+		if MODEL.lever_state(rules, state, f) != &"ready":
+			continue
+		var was_ready: bool = bool(_ready_before.get(fi, false))
+		## Only faces this haul pushed across cabinet_quota (b1..b5). Do not
+		## re-prompt an older face that was already READY before this return.
+		if not was_ready:
+			newly_ready.append(fi)
+	var ready_face := -1
+	if not newly_ready.is_empty():
+		ready_face = int(newly_ready[0])
+	lever_ready_face = ready_face
 	if ready_face >= 0:
 		await _slide_board(ready_face, false)
+		_push_live_state_to_board()
 		if board != null and board.has_method("refresh"):
 			board.refresh()
 		if board != null and board.has_method("set_lever_ready_fx"):
@@ -769,11 +991,11 @@ func _after_items() -> void:
 		_cue("board.lever_ready")
 		if cabin != null and cabin.has_method("nib_react"):
 			cabin.nib_react()
-		var biome_name := str((faces[ready_face] as Dictionary).get("name", ""))
-		await _say_keys([
-			"nib.board.lever_ready.1",
-			"nib.board.lever_ready.2",
-		], {"biome": biome_name})
+		var biome_name := ""
+		if ready_face >= 0 and ready_face < faces.size() and typeof(faces[ready_face]) == TYPE_DICTIONARY:
+			biome_name = str((faces[ready_face] as Dictionary).get("name", ""))
+		lever_ready_keys = ["nib.board.lever_ready.1", "nib.board.lever_ready.2"]
+		await _say_keys(lever_ready_keys, {"biome": biome_name})
 		## Nothing auto-pulls — portal runs only on lever_pulled (Package D owns that).
 	## Hand off 100% / shortcut / Abyss-complete to Package D. Do not reimplement.
 	if cabin != null and cabin.has_method("_maybe_run_board_complete_sequences"):
@@ -781,13 +1003,18 @@ func _after_items() -> void:
 
 
 func _say_empty_or_loss() -> void:
-	var kind := "win"
-	if cabin != null and "_homecoming_kind" in cabin:
-		kind = str(cabin._homecoming_kind)
+	var kind := str(haul.get("kind", ""))
+	if kind == "":
+		kind = _cabin_str("_homecoming_kind", "win")
 	if kind == "loss":
-		await _say_random(["nib.home.loss.1", "nib.home.loss.2", "nib.home.loss.3"])
+		var loss_keys := ["nib.home.loss.1", "nib.home.loss.2", "nib.home.loss.3"]
+		empty_or_loss_key = str(loss_keys[randi() % loss_keys.size()])
+		await _say_keys([empty_or_loss_key], {})
 	else:
-		await _say_random(["nib.board.empty.1", "nib.board.empty.2"])
+		## Win with 0 board uniques this return — not the "new" / unpack path.
+		var empty_keys := ["nib.board.empty.1", "nib.board.empty.2"]
+		empty_or_loss_key = str(empty_keys[randi() % empty_keys.size()])
+		await _say_keys([empty_or_loss_key], {})
 
 
 func _say_random(keys: Array) -> void:
@@ -1060,12 +1287,20 @@ func _lights_lit_now(face_i: int) -> int:
 	if face_i < 0 or face_i >= faces.size():
 		return 0
 	var held: Array = []
-	if cabin != null and "bank_pending" in cabin:
+	if not haul.is_empty() and haul.has("ordered_ids"):
+		## Mid-ceremony: held = haul ids not yet placed.
+		for raw in haul.get("ordered_ids", []):
+			var id := str(raw)
+			if id != "" and not placed_order.has(id):
+				held.append(id)
+	elif cabin != null and "bank_pending" in cabin:
 		held = cabin.bank_pending
-	return MODEL.lights_lit(_rules(), _state(), faces[face_i], held)
+	return MODEL.lights_lit(_rules(), _live_state(), faces[face_i], held)
 
 
 func _rules() -> Dictionary:
+	if not haul.is_empty() and typeof(haul.get("rules", null)) == TYPE_DICTIONARY and not (haul.get("rules") as Dictionary).is_empty():
+		return haul.get("rules")
 	if cabin != null and cabin.has_method("_biome_rules"):
 		return cabin.call("_biome_rules")
 	return CAMPAIGN_SHELL.read_json(CAMPAIGN_SHELL.DATA_PATH)
@@ -1077,12 +1312,34 @@ func _items() -> Dictionary:
 	return {}
 
 
-func _state() -> Dictionary:
+## Live in-memory campaign state. Never a fresh disk re-read while a shell is bound.
+func _live_state() -> Dictionary:
 	if cabin != null and "_campaign_shell" in cabin and cabin._campaign_shell != null:
-		return cabin._campaign_shell.state
+		var shell = cabin._campaign_shell
+		if typeof(shell) == TYPE_DICTIONARY and shell.has("state"):
+			return shell.state
+		if "state" in shell:
+			return shell.state
+	if cabin != null and cabin.has_method("_campaign_shell_live_state"):
+		return cabin.call("_campaign_shell_live_state")
+	## Last resort: disk (cabin unbound). Prefer shell when present.
 	if cabin != null and cabin.has_method("_campaign_shell_state"):
 		return cabin.call("_campaign_shell_state")
 	return CAMPAIGN_SHELL.fresh_state()
+
+
+func _state() -> Dictionary:
+	return _live_state()
+
+
+func _push_live_state_to_board() -> void:
+	if board == null:
+		return
+	var st: Dictionary = _live_state()
+	if board.has_method("set_campaign_state"):
+		board.call("set_campaign_state", st)
+	elif "_campaign_state" in board:
+		board._campaign_state = st
 
 
 func _to_host_local(global_pt: Vector2) -> Vector2:
