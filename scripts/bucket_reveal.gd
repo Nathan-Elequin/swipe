@@ -220,14 +220,22 @@ func _btn_box(bg: Color, edge: Color) -> StyleBoxFlat:
 	return sb
 
 
+## Portal / headless: dismiss Onward without a click.
+func force_continue() -> void:
+	_go = true
+
+
 func play(bucket_n: int, entries: Array) -> void:
 	if _playing:
 		return
 	_playing = true
 	_go = false
+	## Cabin portal runs while other systems may pause — keep this screen alive.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_fit()
 	set_process(true)
 	visible = true
+	move_to_front()
 	_title.text = COPY.text("bucket.title", "As you venture deeper, new Loot and Foes reveal themselves.")
 	_sub.text = COPY.text("bucket.sub", "Hover a shadow to see what it is. From now on, these can show up in every dungeon.")
 	_title.modulate.a = 0.0
@@ -255,9 +263,10 @@ func play(bucket_n: int, entries: Array) -> void:
 			sfx.play_event(&"bucket.open")
 			sfx.play_event(&"sting.bucket")
 	var tin := create_tween()
+	tin.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tin.tween_property(_title, "modulate:a", 1.0, 0.45)
 	tin.parallel().tween_property(_sub, "modulate:a", 1.0, 0.55)
-	await get_tree().create_timer(0.35).timeout
+	await _pause_safe_wait(0.35)
 	for card in cards:
 		if not visible:
 			break
@@ -267,6 +276,7 @@ func play(bucket_n: int, entries: Array) -> void:
 		slot.scale = Vector2(0.82, 0.82)
 		slot.pivot_offset = slot.custom_minimum_size * 0.5
 		var tw := create_tween()
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tw.set_parallel(true)
 		tw.tween_property(slot, "modulate:a", 1.0, 0.18)
 		tw.tween_property(slot, "scale", Vector2(1.06, 1.06), 0.14)
@@ -274,12 +284,16 @@ func play(bucket_n: int, entries: Array) -> void:
 		tex_rect.modulate = Color(0.04, 0.03, 0.025, 1)
 		if sfx != null and sfx.has_method("play_event"):
 			sfx.play_event(&"bucket.card_pop")
-		await get_tree().create_timer(0.11).timeout
+		await _pause_safe_wait(0.11)
 	if sfx != null and sfx.has_method("play"):
 		sfx.play("confirm_big", -8.0, 1.0)
 	var bout := create_tween()
+	bout.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	bout.tween_property(_next, "modulate:a", 1.0, 0.25)
 	_next.disabled = false
+	## Headless / fast portal selftests cannot click Onward.
+	if Engine.time_scale >= 4.0:
+		force_continue()
 	while not _go:
 		await get_tree().process_frame
 	if sfx != null and sfx.has_method("play"):
@@ -289,6 +303,13 @@ func play(bucket_n: int, entries: Array) -> void:
 	visible = false
 	card_unhovered.emit()
 	finished.emit()
+
+
+func _pause_safe_wait(seconds: float) -> void:
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return
+	await tree.create_timer(seconds / maxf(0.001, Engine.time_scale), true, false, true).timeout
 
 
 func _fit() -> void:

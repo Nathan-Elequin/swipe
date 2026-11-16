@@ -2789,8 +2789,14 @@ func _on_trophy_lever_pulled(face_index: int) -> void:
 	_ensure_board_sequences()
 	if _board_sequences == null:
 		return
+	## Portal owns the screen — never leave Developer Test / title tools up.
+	hide_cabin_dev_strip()
+	_release_cabin_tree_pause()
 	await _board_sequences.portal(face_index)
+	hide_cabin_dev_strip()
+	_release_cabin_tree_pause()
 	await _maybe_run_board_complete_sequences()
+	hide_cabin_dev_strip()
 
 
 ## After homecoming (or portal), run shortcut / Abyss-complete for newly finished boards.

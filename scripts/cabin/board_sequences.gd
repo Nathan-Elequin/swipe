@@ -25,10 +25,15 @@ var campaign_map = null
 var main_ref = null
 var reduce_motion := false
 
-## Test spies (board_gates_selftest).
+## Test spies (board_gates_selftest / biome_unlock_all_selftest).
 var last_reveal_bucket: int = -1
 var last_reveal_entries: Array = []
 var last_map_opts: Dictionary = {}
+var last_splash_art: String = ""
+var last_splash_music: String = ""
+var last_nib_keys: Array = []
+var last_splash_nib_keys: Array = []
+var last_landed_hall: bool = false
 ## Package E selftest: true only when a rumble shake tween/loop actually runs.
 var last_shake_created: bool = false
 var _busy := false
@@ -48,15 +53,24 @@ func set_campaign_map(m) -> void:
 
 
 ## Player pulled a READY lever on face_index.
+## Same structure for every face: clunk → rumble → splash → hall → wake → map →
+## (bucket reveal when the next biome has a pool) → hall. Endless skips bucket reveal.
 func portal(face_index: int) -> void:
 	if _busy:
 		return
 	_busy = true
+	last_landed_hall = false
+	last_splash_art = ""
+	last_splash_music = ""
+	last_nib_keys = []
+	last_reveal_bucket = -1
+	last_map_opts = {}
+	_hide_dev_and_tutorial_chrome()
 	var rules: Dictionary = _rules()
 	var state: Dictionary = _state()
 	var faces: Array = MODEL.faces(rules, _items())
 	if face_index < 0 or face_index >= faces.size():
-		_busy = false
+		_finish_portal(face_index, false)
 		return
 	var face: Dictionary = faces[face_index]
 	var pool_id := str(face.get("pool_id", ""))
@@ -70,48 +84,53 @@ func portal(face_index: int) -> void:
 	await _play_rumble()
 	await _fade(0.3, true)
 	var next_id := str(nxt.get("id", MODEL.next_biome_id(rules, face)))
+	var is_endless: bool = bool(nxt.get("endless", false)) or next_id == "endless"
+	if is_endless:
+		next_id = "endless"
 	var next_name := str(nxt.get("name", SHELL.biome_name(rules, next_id)))
 	var prev_name := str(face.get("name", ""))
 	var vars := _token_vars(face, next_name, prev_name)
-	if bool(nxt.get("endless", false)) or next_id == "endless":
-		_start_splash_music("endless")
-		await _play_splash(
-			"endless",
-			"res://assets/ui/trophy_board/splash/portal_endless.png",
-			["nib.portal.endless"],
-			vars,
-			&"sting.portal_open"
-		)
-		await _land_hall_after_splash(face_index, "")
-		_busy = false
-		portal_finished.emit(face_index)
-		return
-	var slug := str(MODEL.SLUGS.get(next_id, next_id))
+	var slug := _portal_slug(next_id)
 	var art := "res://assets/ui/trophy_board/splash/portal_%s.png" % slug
 	_start_splash_music(next_id)
-	await _play_splash(next_id, art, ["nib.portal.1", "nib.portal.2"], vars, &"sting.portal_open")
-	## Splash gone → hall visible (lever spent, lights latched) + rumble wake line.
+	await _play_splash(
+		next_id,
+		art,
+		_portal_keys(slug, ["1", "2"], ["nib.portal.1", "nib.portal.2"]),
+		vars,
+		&"sting.portal_open"
+	)
+	## Nathan lock: splash gone → trophy hall (not dungeon / not title).
 	await _land_hall_after_splash(face_index, next_id)
-	await _nib(["nib.portal.rumble_wake"], vars)
+	## Writer condition (1): endless rumble_wake only if a new pool activates — it does not.
+	var wake_keys: Array = _portal_keys(slug, ["rumble_wake"], ["nib.portal.rumble_wake"])
+	if is_endless:
+		wake_keys = ["nib.portal.rumble_wake"]
+	await _nib(wake_keys, vars)
 	await _fade(0.3, true)
-	## Map beat: fog clears, node becomes Known (not startable).
-	await _present_map({"reveal": next_id, "read_only": true}, ["nib.portal.map"], vars)
-	await _fade(0.3, true)
-	## Same new-pool reveal as the tutorial path.
-	var bucket_n: int = face_index + 2
-	await _play_bucket_reveal(bucket_n, ["nib.portal.reveal.1", "nib.portal.reveal.2"], vars)
+	## Map beat: fog clears / endless stamp unlocks (Known, not startable until shortcut).
+	await _present_map(
+		{"reveal": next_id, "read_only": true},
+		_portal_keys(slug, ["map"], ["nib.portal.map"]),
+		vars
+	)
+	## Writer condition (2): endless has no item-pool reveal beat.
+	if not is_endless:
+		await _fade(0.3, true)
+		var bucket_n: int = _bucket_for_next_biome(next_id, face_index)
+		await _play_bucket_reveal(
+			bucket_n,
+			_portal_keys(slug, ["reveal.1", "reveal.2"], ["nib.portal.reveal.1", "nib.portal.reveal.2"]),
+			vars
+		)
 	await _fade(0.3, false)
-	if board != null and board.has_method("slide_to"):
-		board.slide_to(face_index, true)
-	if board != null and board.has_method("refresh"):
-		board.refresh()
+	_restore_hall_control(face_index)
 	## If this face is also complete, hand off to shortcut.
-	if MODEL.is_complete(state, face) and not _board_complete_seen(pool_id):
-		_busy = false
+	if not is_endless and MODEL.is_complete(state, face) and not _board_complete_seen(pool_id):
+		_finish_portal(face_index, false)
 		await shortcut(face_index)
 		return
-	_busy = false
-	portal_finished.emit(face_index)
+	_finish_portal(face_index, true)
 
 
 ## Face first reaches 100% (b1–b4 → shortcut; b5 → ending drawer).
@@ -119,6 +138,7 @@ func shortcut(face_index: int) -> void:
 	if _busy:
 		return
 	_busy = true
+	_hide_dev_and_tutorial_chrome()
 	var rules: Dictionary = _rules()
 	var state: Dictionary = _state()
 	var faces: Array = MODEL.faces(rules, _items())
@@ -137,7 +157,11 @@ func shortcut(face_index: int) -> void:
 		cabin.nib_react()
 	await _wait(0.8 if not reduce_motion else 0.3)
 	var vars := _token_vars(face, "", str(face.get("name", "")))
-	await _nib(["nib.shortcut.1"] if face_index < 4 else ["nib.board.complete_final"], vars)
+	var face_slug := str(face.get("slug", MODEL.SLUGS.get(pool_id, pool_id)))
+	await _nib(
+		_shortcut_keys(face_slug, ["1"], ["nib.shortcut.1"]) if face_index < 4 else ["nib.board.complete_final"],
+		vars
+	)
 	## Shadow Abyss 100%: ending drawer, no shortcut.
 	if face_index >= 4 or pool_id == SHELL.last_tip_biome_id(rules):
 		SHELL.mark_board_complete_seen(state, pool_id)
@@ -151,28 +175,34 @@ func shortcut(face_index: int) -> void:
 			_write()
 			if campaign_map.has_method("hide_map"):
 				campaign_map.hide_map()
+		_restore_hall_control(face_index)
 		_busy = false
 		shortcut_finished.emit(face_index)
 		return
 	var next_id := MODEL.next_biome_id(rules, face)
 	var next_name := SHELL.biome_name(rules, next_id)
 	vars = _token_vars(face, next_name, str(face.get("name", "")))
-	var slug := str(MODEL.SLUGS.get(next_id, next_id))
+	var slug := _portal_slug(next_id)
 	var art := "res://assets/ui/trophy_board/splash/shortcut_%s.png" % slug
 	await _fade(0.3, true)
-	await _play_splash(next_id, art, ["nib.shortcut.2"], vars, &"sting.shortcut")
+	await _play_splash(
+		next_id,
+		art,
+		_shortcut_keys(slug, ["2"], ["nib.shortcut.2"]),
+		vars,
+		&"sting.shortcut"
+	)
 	## Commit shortcut + fresh badge.
 	SHELL.grant_shortcut(rules, state, next_id)
 	SHELL.mark_board_complete_seen(state, pool_id)
 	_write()
 	await _present_map(
 		{"shortcut_reveal": next_id, "read_only": true},
-		["nib.shortcut.3"],
+		_shortcut_keys(slug, ["3"], ["nib.shortcut.3"]),
 		vars
 	)
 	await _fade(0.3, false)
-	if board != null and board.has_method("slide_to"):
-		board.slide_to(face_index, true)
+	_restore_hall_control(face_index)
 	_busy = false
 	shortcut_finished.emit(face_index)
 
@@ -258,6 +288,10 @@ func _play_splash(
 	vars: Dictionary,
 	sting: StringName
 ) -> void:
+	last_splash_art = art_path
+	last_nib_keys = nib_keys.duplicate()
+	last_splash_nib_keys = nib_keys.duplicate()
+	_hide_dev_and_tutorial_chrome()
 	KIT.cue(sfx, sting)
 	var splash = SPLASH.new()
 	var layer_parent: Node = cabin if cabin != null else self
@@ -286,10 +320,12 @@ func _play_splash(
 func _land_hall_after_splash(face_index: int, _biome_id: String) -> void:
 	_hide_biome_splash()
 	_restore_cabin_music()
-	if cabin != null and cabin.has_method("hide_cabin_dev_strip"):
-		cabin.hide_cabin_dev_strip()
+	_hide_dev_and_tutorial_chrome()
 	## Ensure hall / board are the live surface before the wipe clears.
 	if cabin != null:
+		## Cabin must stay up — never flash Main title / Developer Test under a wipe.
+		if cabin is CanvasItem:
+			(cabin as CanvasItem).visible = true
 		var int_root = cabin.get("_int_root") if cabin != null else null
 		var cur_room := ""
 		if cabin.get("_current_room") != null:
@@ -299,6 +335,8 @@ func _land_hall_after_splash(face_index: int, _biome_id: String) -> void:
 				cabin.pan_to("hall")
 		elif cabin.has_method("show_menu"):
 			cabin.show_menu("hall")
+		if cabin.has_method("_release_cabin_tree_pause"):
+			cabin._release_cabin_tree_pause()
 	if board != null and board.has_method("slide_to"):
 		board.slide_to(face_index, true)
 	if board != null and board.has_method("refresh"):
@@ -307,6 +345,7 @@ func _land_hall_after_splash(face_index: int, _biome_id: String) -> void:
 	_hide_biome_splash()
 	## Belt-and-suspenders: never leave an opaque full-screen wipe on the cabin.
 	_clear_opaque_wipes()
+	last_landed_hall = true
 
 
 func _clear_opaque_wipes() -> void:
@@ -375,6 +414,7 @@ func _hide_splash_under(root: Node) -> void:
 
 
 func _start_splash_music(biome_id: String) -> void:
+	last_splash_music = str(biome_id)
 	if sfx == null:
 		return
 	## Fade the newly opened biome bed in over ~1.5s while the splash holds.
@@ -401,34 +441,78 @@ func _present_map(opts: Dictionary, nib_keys: Array, vars: Dictionary) -> void:
 	var merged: Dictionary = opts.duplicate(true)
 	merged["reduce_motion"] = reduce_motion
 	last_map_opts = merged.duplicate(true)
+	last_nib_keys = nib_keys.duplicate()
+	_hide_dev_and_tutorial_chrome()
+	## Clear the black wipe so the map is visible under the ceremony.
+	_clear_opaque_wipes()
 	var map = held_map
 	if map == null and cabin != null and cabin.get("held_map") != null:
 		map = cabin.held_map
-	if map == null and campaign_map != null and campaign_map.has_method("show_map"):
-		campaign_map.show_map(_rules(), _state(), {}, merged)
-		map = campaign_map.get("held") if campaign_map.get("held") != null else campaign_map
-	if map != null and map.has_method("present"):
+	if map == null and campaign_map != null:
+		if campaign_map.has_method("show_map"):
+			campaign_map.show_map(_rules(), _state(), {}, merged)
+		if campaign_map.has_method("held_map"):
+			map = campaign_map.held_map()
+		elif campaign_map.get("held") != null:
+			map = campaign_map.get("held")
+		else:
+			map = campaign_map
+	elif map != null and map.has_method("present"):
 		map.present(_rules(), _state(), {}, merged)
 	await _nib(nib_keys, vars)
-	## Wait for continue / Space — read_only map closes via closed signal or button.
-	if map != null and map.has_signal("closed"):
-		## Auto-continue after a short beat in headless / reduce path.
-		if Engine.is_editor_hint() or reduce_motion or Engine.time_scale >= 4.0:
-			await _wait(0.2)
-			if map.has_method("hide") or map.get("visible") == true:
-				map.visible = false
-				if map.has_signal("closed"):
-					map.closed.emit()
-		else:
-			await map.closed
-	else:
-		await _wait(0.2)
-	if map != null:
+	## Soft-lock fix: read_only Space emits peek_closed on campaign_map (not closed).
+	## Prefer campaign_map for dismiss signals; held_map only has closed (X button).
+	var dismiss_target = campaign_map if campaign_map != null else map
+	await _await_map_dismiss(dismiss_target)
+	if campaign_map != null and campaign_map.has_method("hide_map"):
+		campaign_map.hide_map()
+	elif map != null:
 		map.visible = false
+	_hide_dev_and_tutorial_chrome()
+	_clear_opaque_wipes()
+
+
+func _await_map_dismiss(map) -> void:
+	if map == null:
+		await _wait(0.2)
+		return
+	## Auto-continue after a short beat in headless / reduce path.
+	if Engine.is_editor_hint() or reduce_motion or Engine.time_scale >= 4.0:
+		await _wait(0.2)
+		if map.has_method("hide_map"):
+			map.hide_map()
+		else:
+			map.visible = false
+		if map.has_signal("closed"):
+			map.closed.emit()
+		return
+	var done := {"v": false}
+	var finish := func(_a = null) -> void:
+		done["v"] = true
+	if map.has_signal("closed"):
+		map.closed.connect(finish, CONNECT_ONE_SHOT)
+	if map.has_signal("peek_closed"):
+		## Soft-lock root cause: read_only Space → peek_closed, never closed.
+		map.peek_closed.connect(finish, CONNECT_ONE_SHOT)
+	var held = null
+	if map.has_method("held_map"):
+		held = map.held_map()
+	elif map.get("held") != null:
+		held = map.get("held")
+	if held != null and held.has_signal("closed") and held != map:
+		held.closed.connect(finish, CONNECT_ONE_SHOT)
+	while not done["v"]:
+		if map.get("visible") == false:
+			break
+		await _wait(0.05)
 
 
 func _play_bucket_reveal(bucket_n: int, nib_keys: Array, vars: Dictionary) -> void:
 	last_reveal_bucket = bucket_n
+	last_nib_keys = nib_keys.duplicate()
+	_hide_dev_and_tutorial_chrome()
+	## Reveal paints its own dark plate — wipe must be clear or player sees black forever.
+	_clear_opaque_wipes()
 	var entries: Array = []
 	if main_ref != null and main_ref.has_method("bucket_reveal_for"):
 		entries = main_ref.bucket_reveal_for(bucket_n)
@@ -438,12 +522,30 @@ func _play_bucket_reveal(bucket_n: int, nib_keys: Array, vars: Dictionary) -> vo
 	if main_ref != null and main_ref.get("_bucket_reveal") != null:
 		var br = main_ref.get("_bucket_reveal")
 		if br.has_method("play"):
+			if main_ref.get("_unlock_screen") != null:
+				main_ref.set("_unlock_screen", true)
+			if main_ref.has_method("_hide_board_for_unlock"):
+				main_ref._hide_board_for_unlock()
 			## Fire Nib lines after cards pop — best-effort overlay.
 			call_deferred("_nib_after_reveal_start", br, nib_keys, vars)
+			if reduce_motion or Engine.time_scale >= 4.0:
+				call_deferred("_auto_finish_bucket_reveal", br)
 			await br.play(bucket_n, entries)
+			if main_ref.get("_unlock_screen") != null:
+				main_ref.set("_unlock_screen", false)
+			_hide_dev_and_tutorial_chrome()
+			_clear_opaque_wipes()
 			return
 	## Headless / missing reveal: still record the call.
 	await _nib(nib_keys, vars)
+
+
+func _auto_finish_bucket_reveal(br) -> void:
+	await _wait(0.15)
+	if br != null and is_instance_valid(br) and br.has_method("force_continue"):
+		br.force_continue()
+	elif br != null and is_instance_valid(br):
+		br.set("_go", true)
 
 
 func _nib_after_reveal_start(br, nib_keys: Array, vars: Dictionary) -> void:
@@ -454,16 +556,145 @@ func _nib_after_reveal_start(br, nib_keys: Array, vars: Dictionary) -> void:
 func _nib(keys: Array, vars: Dictionary) -> void:
 	if keys.is_empty():
 		return
+	last_nib_keys = keys.duplicate()
+	## Resolve per-biome → generic so dialog always has text.
+	var resolved: Array = []
+	for raw in keys:
+		resolved.append(_resolve_copy_key(str(raw)))
 	if cabin != null and cabin.has_method("nib_talk"):
 		## Prefer cabin dialog if present.
 		var dialog = cabin.get("_dialog")
 		if dialog != null and dialog.has_method("say"):
-			dialog.say(keys, [], vars)
+			dialog.say(resolved, [], vars)
 			if dialog.has_signal("finished"):
+				## Headless / fast: auto-advance Nib lines.
+				if reduce_motion or Engine.time_scale >= 4.0:
+					await _wait(0.05)
+					if dialog.has_method("_close"):
+						dialog._close(-1)
+					elif dialog.has_signal("finished"):
+						dialog.finished.emit(-1)
+					return
 				await dialog.finished
 				return
 	## Fallback: no-op wait so sequences stay timed in tests.
 	await _wait(0.05)
+
+
+func _portal_slug(biome_id: String) -> String:
+	if biome_id == "endless":
+		return "endless"
+	return str(MODEL.SLUGS.get(biome_id, biome_id))
+
+
+## Prefer per-biome keys; fall back to generic keys when a row is missing.
+func _portal_keys(slug: String, parts: Array, generics: Array) -> Array:
+	var out: Array = []
+	for i in parts.size():
+		var part := str(parts[i])
+		var specific := "nib.portal.%s.%s" % [slug, part]
+		var generic := str(generics[i]) if i < generics.size() else specific
+		out.append(specific if COPY.has_key(specific) else generic)
+	return out
+
+
+func _shortcut_keys(slug: String, parts: Array, generics: Array) -> Array:
+	var out: Array = []
+	for i in parts.size():
+		var part := str(parts[i])
+		var specific := "nib.shortcut.%s.%s" % [slug, part]
+		var generic := str(generics[i]) if i < generics.size() else specific
+		out.append(specific if COPY.has_key(specific) else generic)
+	return out
+
+
+func _resolve_copy_key(key: String) -> String:
+	if COPY.has_key(key) and COPY.text(key, "").strip_edges() != "":
+		return key
+	## nib.portal.ashen.1 → nib.portal.1 ; nib.portal.endless.rumble_wake → nib.portal.rumble_wake
+	if key.begins_with("nib.portal."):
+		var rest := key.substr("nib.portal.".length())
+		var dot := rest.find(".")
+		if dot >= 0:
+			var generic := "nib.portal.%s" % rest.substr(dot + 1)
+			if COPY.has_key(generic):
+				return generic
+	if key.begins_with("nib.shortcut."):
+		var rest2 := key.substr("nib.shortcut.".length())
+		var dot2 := rest2.find(".")
+		if dot2 >= 0:
+			var generic2 := "nib.shortcut.%s" % rest2.substr(dot2 + 1)
+			if COPY.has_key(generic2):
+				return generic2
+	return key
+
+
+## face 0 (b1) opens b2 → bucket 2; face 1 opens b3 → bucket 3; …
+func _bucket_for_next_biome(next_id: String, face_index: int) -> int:
+	match next_id:
+		"b2":
+			return 2
+		"b3":
+			return 3
+		"b4":
+			return 4
+		"b5":
+			return 5
+		_:
+			return face_index + 2
+
+
+func _hide_dev_and_tutorial_chrome() -> void:
+	if cabin != null and cabin.has_method("hide_cabin_dev_strip"):
+		cabin.hide_cabin_dev_strip()
+	if main_ref == null:
+		return
+	## Title / Developer Test strip must never appear mid-portal.
+	if main_ref.get("overlay") != null:
+		main_ref.overlay.visible = false
+	if main_ref.get("overlay_tools_row") != null:
+		main_ref.overlay_tools_row.visible = false
+	if main_ref.get("overlay_dev") != null:
+		main_ref.overlay_dev.visible = false
+	if main_ref.get("tut") != null:
+		var tut = main_ref.tut
+		if tut is CanvasItem:
+			(tut as CanvasItem).visible = false
+	## Tutorial guide / unlock screen leftovers.
+	if main_ref.get("_unlock_screen") == true and main_ref.get("_bucket_reveal") != null:
+		var br = main_ref.get("_bucket_reveal")
+		if br != null and br.get("visible") == true and not br.get("_playing"):
+			br.visible = false
+
+
+func _restore_hall_control(face_index: int) -> void:
+	_hide_dev_and_tutorial_chrome()
+	_clear_opaque_wipes()
+	_hide_biome_splash()
+	if cabin != null:
+		if cabin is CanvasItem:
+			(cabin as CanvasItem).visible = true
+		if cabin.has_method("_release_cabin_tree_pause"):
+			cabin._release_cabin_tree_pause()
+		var cur_room := str(cabin.get("_current_room")) if cabin.get("_current_room") != null else ""
+		if cur_room != "hall" and cabin.has_method("pan_to"):
+			cabin.pan_to("hall")
+	if board != null and board.has_method("slide_to"):
+		board.slide_to(face_index, true)
+	if board != null and board.has_method("refresh"):
+		board.refresh()
+	last_landed_hall = true
+
+
+func _finish_portal(face_index: int, emit_finished: bool) -> void:
+	_restore_hall_control(face_index)
+	_busy = false
+	if emit_finished:
+		portal_finished.emit(face_index)
+
+
+func is_busy() -> bool:
+	return _busy
 
 
 func _fade(seconds: float, to_black: bool) -> void:
