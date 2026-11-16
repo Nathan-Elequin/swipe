@@ -144,7 +144,6 @@ var _face: Control
 var _glyph_rows: Array = []
 var _sai_fx: AnimatedSprite2D
 var _marble_fx: AnimatedSprite2D
-var _sparkle: AnimatedSprite2D
 ## Draft pick stamps (assets/ui/draft/). Overlay only — not the gate door.
 var _draft_stamp_fx: AnimatedSprite2D
 var _recycle_return_fx: AnimatedSprite2D
@@ -167,7 +166,6 @@ var _mode_tag_box: VBoxContainer
 var _mode_tag_rows: Array = []
 var _mode_tags_on: bool = false
 var _no_effect: bool = false
-var _sparkle_t: float = 0.0
 var _desat: float = 0.0
 var _sink_tw: Tween
 var _petrified: bool = false
@@ -241,6 +239,7 @@ func setup(
 	_chrome = Control.new()
 	_chrome.name = "Chrome"
 	_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chrome.clip_contents = false
 	_chrome.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	pad.add_child(_chrome)
 
@@ -1535,6 +1534,8 @@ func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 
 
 ## Tiny gold star, top-right. No loop, no text. Prefer hud/new_star (28×28), else unique_star.
+## Parent is the card root (not Chrome): Chrome sits inside pad margins, and y=-4 on
+## Chrome was clipped by ancestors; card root has clip_contents=false.
 func set_new_star(on: bool) -> void:
 	if not on:
 		if _new_star != null:
@@ -1547,17 +1548,24 @@ func set_new_star(on: bool) -> void:
 		_new_star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		_new_star.stretch_mode = TextureRect.STRETCH_SCALE
 		_new_star.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_new_star.z_index = 9
+		## Above unplayable hatch (z 12) so the corner mark stays readable.
+		_new_star.z_index = 14
 		var tex: Texture2D = null
 		if ResourceLoader.exists("res://assets/ui/hud/new_star.png"):
 			tex = load("res://assets/ui/hud/new_star.png") as Texture2D
 		elif ResourceLoader.exists("res://assets/ui/trophy_board/unique_star.png"):
 			tex = load("res://assets/ui/trophy_board/unique_star.png") as Texture2D
 		_new_star.texture = tex
-		_overlay_host().add_child(_new_star)
+		add_child(_new_star)
+	elif _new_star.get_parent() != self:
+		## Migrate stars created under Chrome before this fix.
+		var old_parent: Node = _new_star.get_parent()
+		if old_parent != null:
+			old_parent.remove_child(_new_star)
+		add_child(_new_star)
 	## Display 28×28; top-right overhangs ~4 px (pos = slot_w − 24, −4).
 	var star_sz := 28.0
-	var host_w: float = SHOW_W if _showcase else CARD_W
+	var host_w: float = SHOW_W if _showcase else (size.x if size.x > 8.0 else CARD_W)
 	_new_star.size = Vector2(star_sz, star_sz)
 	_new_star.position = Vector2(host_w - 24.0, -4.0)
 	_new_star.visible = _new_star.texture != null
@@ -2213,8 +2221,8 @@ func _process(delta: float) -> void:
 	_shimmer_clock += delta
 	if _waiting_entry:
 		_tick_waiting_hover()
-	# Attack/slash heavy: pause shimmer, breathe, and sparkle so the hotbar
-	# does not compete with the banner. Active sai/marble item FX still tick.
+	# Attack/slash heavy: pause shimmer and breathe so the hotbar does not
+	# compete with the banner. Active sai/marble item FX still tick.
 	if FX_BUDGET.hold_low_priority_idles() and not _sai_busy and not _marble_busy and _beggar_flash <= 0.0 and not _waiting_entry:
 		return
 	if _glow or _aura or _aura_role != AURA_OFF or _log_focus or _danger or _hex_good or _hot or _toss_pick or _upgrade_offer or _gaze_warn or _decay_warn or _decay_link or _decay_solo or _gaze_entry:
@@ -2225,7 +2233,6 @@ func _process(delta: float) -> void:
 			_apply_style(_hot)
 	_tick_shimmer()
 	_tick_breathe()
-	_tick_sparkle(delta)
 	_place_fx()
 
 
@@ -3114,7 +3121,9 @@ func _tick_shimmer() -> void:
 		return
 	var desat: float = _desat
 	if not _playable and not _toss_pick and not spent and not _showcase and not _guarding:
-		desat = 0.6
+		## Armed auto-fire (Revival Potion / Danger Magnet) and Loaded keep the
+		## rarity sweep readable; plain unplayable seats stay heavily greyed.
+		desat = 0.2 if _armed else 0.6
 	RANK_SHIMMER.apply(_shimmer_mat, _tier, uid, desat, 1.0 if _armed else 0.0, _shimmer_clock, size if size.x > 8.0 else Vector2(CARD_W, CARD_H))
 
 
@@ -3162,27 +3171,6 @@ func _tick_breathe() -> void:
 	scale = Vector2(s, s)
 
 
-func _tick_sparkle(delta: float) -> void:
-	if _tier < 3 or spent or _showcase:
-		if _sparkle != null:
-			_sparkle.visible = false
-		return
-	_ensure_sparkle()
-	_sparkle_t += delta
-	if _sparkle.is_playing():
-		return
-	if _sparkle_t < 1.2:
-		return
-	_sparkle_t = 0.0
-	var pad := Vector2(18, 18)
-	_sparkle.position = Vector2(
-		pad.x + randf() * maxf(8.0, size.x - pad.x * 2.0),
-		pad.y + randf() * maxf(8.0, size.y - pad.y * 2.0)
-	)
-	_sparkle.visible = true
-	_sparkle.play("spark")
-
-
 func _place_fx() -> void:
 	var mid: Vector2 = _icon_center()
 	if _sai_fx != null:
@@ -3224,20 +3212,6 @@ func _ensure_marble_fx() -> void:
 	_place_fx()
 
 
-func _ensure_sparkle() -> void:
-	if _sparkle != null:
-		return
-	_sparkle = AnimatedSprite2D.new()
-	_sparkle.name = "Sparkle"
-	_sparkle.centered = true
-	_sparkle.scale = Vector2(4, 4)
-	_sparkle.texture_filter = TEXTURE_FILTER_NEAREST
-	_sparkle.visible = false
-	_sparkle.z_index = 4
-	_sparkle.sprite_frames = _sparkle_frames()
-	add_child(_sparkle)
-
-
 func _sai_frames() -> SpriteFrames:
 	var sf := SpriteFrames.new()
 	sf.add_animation("split")
@@ -3257,12 +3231,6 @@ func _marble_frames() -> SpriteFrames:
 	_add_once(sf, "swirl", "res://assets/dungeon/anim/marble_swirl_f%d.png", 6, 1.0 / 0.04)
 	_add_still(sf, "red", "res://assets/dungeon/anim/marble_red.png")
 	_add_still(sf, "blue", "res://assets/dungeon/anim/marble_blue.png")
-	return sf
-
-
-func _sparkle_frames() -> SpriteFrames:
-	var sf := SpriteFrames.new()
-	_add_once(sf, "spark", "res://assets/ui/anim/deadly_sparkle_f%d.png", 4, 1.0 / 0.08)
 	return sf
 
 

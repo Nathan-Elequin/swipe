@@ -38,22 +38,16 @@ void fragment() {
 		col.rgb += shine_col.rgb * mask * amount;
 	}
 
+	// Auto-fire / Loaded swirl: rim glint only (no orbiting dots). Period ~4s, half strength.
 	if (armed > 0.5) {
-		float ang = (clock / 2.4) * 6.2831853;
+		float ang = (clock / 4.0) * 6.2831853;
 		vec2 c = UV - vec2(0.5);
 		float a = atan(c.y, c.x);
 		float rim = min(edge.x, edge.y);
 		float on_rim = 1.0 - smoothstep(1.0, 4.5, abs(rim - 3.0));
 		float d_ang = abs(atan(sin(a - ang), cos(a - ang)));
-		float glint = (1.0 - smoothstep(0.0, 0.16, d_ang)) * on_rim * 0.35;
+		float glint = (1.0 - smoothstep(0.0, 0.16, d_ang)) * on_rim * 0.175;
 		col.rgb += shine_col.rgb * glint * armed * amount;
-		for (int s = 0; s < 3; s++) {
-			float sp = ang + float(s) * 2.0943951;
-			vec2 spark = vec2(cos(sp), sin(sp)) * 0.42;
-			float sd = length((UV - vec2(0.5)) - spark);
-			float dotp = (1.0 - smoothstep(0.0, 0.035, sd)) * round_m;
-			col.rgb += shine_col.rgb * dotp * 0.55 * amount;
-		}
 	}
 
 	COLOR = col;
