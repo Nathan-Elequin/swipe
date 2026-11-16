@@ -2534,8 +2534,218 @@
 			"cat": "Nib",
 			"draft": true,
 			"key": "nib.portal.endless",
-			"text": "That was the bottom. Was. Something deeper just woke up.",
-			"where": "Shadow Abyss lever → Endless"
+			"text": "You went all the way to the bottom. And it keeps going.",
+			"where": "Shadow Abyss lever → Endless (splash one-liner; .1/.2 preferred)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.1",
+			"text": "So THAT's what it does!",
+			"where": "Crystal Cavern portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.2",
+			"text": "The path goes past Verdant Hollow now. Crystal Cavern's down there, glittering at us.",
+			"where": "Crystal Cavern portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.rumble_wake",
+			"text": "Hear that ringing? Something in the crystals just woke up.",
+			"where": "After Crystal Cavern portal splash — back in trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.map",
+			"text": "Crystal Cavern, right on his map! Every trip still starts in Verdant Hollow. Clear it and keep going.",
+			"where": "Crystal Cavern portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.reveal.1",
+			"text": "This is what grows down in Crystal Cavern.",
+			"where": "Crystal Cavern portal new-pool reveal line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.crystal.reveal.2",
+			"text": "From now on, any of it can turn up on your way down. Shiny AND pointy.",
+			"where": "Crystal Cavern portal new-pool reveal line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.1",
+			"text": "It opened again! Oh... it smells like old candles.",
+			"where": "Ashen Crypt portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.2",
+			"text": "Past Crystal Cavern there's a way into Ashen Crypt. Quiet place. Too quiet.",
+			"where": "Ashen Crypt portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.rumble_wake",
+			"text": "That rumble sounded like a lid sliding open. Somebody down there is up.",
+			"where": "After Ashen Crypt portal splash — back in trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.map",
+			"text": "Ashen Crypt's on his map now. You still start in Verdant Hollow, so it's a long walk down.",
+			"where": "Ashen Crypt portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.reveal.1",
+			"text": "This is what the dead left lying around in Ashen Crypt.",
+			"where": "Ashen Crypt portal new-pool reveal line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.ashen.reveal.2",
+			"text": "Any of it can turn up on your way down now. Dust it off first.",
+			"where": "Ashen Crypt portal new-pool reveal line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.1",
+			"text": "Whoa, hot! The portal's glowing orange!",
+			"where": "Cinder Forge portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.2",
+			"text": "Past Ashen Crypt, something's burning. That's Cinder Forge.",
+			"where": "Cinder Forge portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.rumble_wake",
+			"text": "Feel that? Like a giant hammer hitting an anvil. The Forge is lit.",
+			"where": "After Cinder Forge portal splash — back in trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.map",
+			"text": "Cinder Forge, right on his map! Every trip still starts in Verdant Hollow. Pack something fireproof.",
+			"where": "Cinder Forge portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.reveal.1",
+			"text": "This is what they hammer out down in Cinder Forge.",
+			"where": "Cinder Forge portal new-pool reveal line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.cinder.reveal.2",
+			"text": "Any of it can turn up on your way down now. Let it cool before you grab it.",
+			"where": "Cinder Forge portal new-pool reveal line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.1",
+			"text": "It's open, but I can't see the other side...",
+			"where": "Shadow Abyss portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.2",
+			"text": "Past Cinder Forge the light just stops. That's Shadow Abyss.",
+			"where": "Shadow Abyss portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.rumble_wake",
+			"text": "That wasn't a rumble. That was breathing. Something big is awake down there.",
+			"where": "After Shadow Abyss portal splash — back in trophy hall"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.map",
+			"text": "Shadow Abyss is on his map. He drew it all in black. You still start in Verdant Hollow, so you'll need every step to get ready.",
+			"where": "Shadow Abyss portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.reveal.1",
+			"text": "This is what lurks down in Shadow Abyss.",
+			"where": "Shadow Abyss portal new-pool reveal line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.shadow.reveal.2",
+			"text": "Any of it can turn up on your way down now. Hold it tight, it doesn't like light.",
+			"where": "Shadow Abyss portal new-pool reveal line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.1",
+			"text": "It's still spinning. It isn't going to stop, is it?",
+			"where": "Endless portal splash line 1"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.2",
+			"text": "Past Shadow Abyss there's no floor. Just more down.",
+			"where": "Endless portal splash line 2"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.rumble_wake",
+			"text": "Everything down there is awake now. All of it, all at once.",
+			"where": "After Endless portal splash — registered; sequence uses generic wake (no new pool)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.map",
+			"text": "His map runs off the edge of the page. You still start in Verdant Hollow, but there's no last stop anymore.",
+			"where": "Endless portal map beat"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.reveal.1",
+			"text": "This is everything the dungeon's got. Every floor, every corner.",
+			"where": "Endless portal reveal line 1 (registered; not played — no item-pool reveal)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.portal.endless.reveal.2",
+			"text": "Any of it can turn up now, as deep as you dare to go.",
+			"where": "Endless portal reveal line 2 (registered; not played — no item-pool reveal)"
 		},
 		{
 			"cat": "Nib",
@@ -2557,6 +2767,90 @@
 			"key": "nib.shortcut.3",
 			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
 			"where": "Shortcut map path"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.crystal.1",
+			"text": "Every last thing from {biome}. Every one, {hero}.",
+			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .1)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.crystal.2",
+			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
+			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.crystal.3",
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
+			"where": "TEMP — awaiting Spin per-biome line (crystal shortcut .3)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.ashen.1",
+			"text": "Every last thing from {biome}. Every one, {hero}.",
+			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .1)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.ashen.2",
+			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
+			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.ashen.3",
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
+			"where": "TEMP — awaiting Spin per-biome line (ashen shortcut .3)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.cinder.1",
+			"text": "Every last thing from {biome}. Every one, {hero}.",
+			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .1)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.cinder.2",
+			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
+			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.cinder.3",
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
+			"where": "TEMP — awaiting Spin per-biome line (cinder shortcut .3)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.shadow.1",
+			"text": "Every last thing from {biome}. Every one, {hero}.",
+			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .1)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.shadow.2",
+			"text": "And look what was tucked behind the last one. His old shortcut, straight down to {next}.",
+			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .2)"
+		},
+		{
+			"cat": "Nib",
+			"draft": true,
+			"key": "nib.shortcut.shadow.3",
+			"text": "From now on you can start right at {next}. Or begin at the Hollow, if you're feeling sentimental.",
+			"where": "TEMP — awaiting Spin per-biome line (shadow shortcut .3)"
 		},
 		{
 			"cat": "Nib",
