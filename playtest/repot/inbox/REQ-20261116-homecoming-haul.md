@@ -2,7 +2,7 @@
 id: REQ-20261116-homecoming-haul
 status: open
 priority: high
-tip_sha: fa4cc18b
+tip_sha: 3f381f59
 branch: cursor/homecoming-haul-model-90d6
 created: 2026-11-16T22:30:00Z
 created_by: cursor-cloud
