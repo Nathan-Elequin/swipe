@@ -26,7 +26,6 @@ var _ticker_icons: Array = []
 var _ticker_pcts: Array = []
 var _hover: bool = false
 var _grace_left: float = 0.0
-var _twinkle: AnimatedSprite2D
 var _pulse_t: float = 0.0
 var reduce_motion: bool = false
 var _audio = null
@@ -112,24 +111,6 @@ func _build() -> void:
 	_ring.texture_filter = TEXTURE_FILTER_NEAREST
 	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_ring)
-
-	_twinkle = AnimatedSprite2D.new()
-	_twinkle.name = "Twinkle"
-	_twinkle.centered = false
-	_twinkle.position = Vector2(20 * 3, 3 * 3) ## native (20,3) at 3x ≈ ring-local
-	_twinkle.scale = Vector2(3, 3)
-	_twinkle.visible = false
-	_twinkle.texture_filter = TEXTURE_FILTER_NEAREST
-	var sf := SpriteFrames.new()
-	sf.add_animation(&"loop")
-	sf.set_animation_speed(&"loop", 12.0)
-	sf.set_animation_loop(&"loop", true)
-	for f in range(4):
-		var path := "res://assets/ui/trophy_board/twinkle_f%d.png" % f
-		if ResourceLoader.exists(path):
-			sf.add_frame(&"loop", load(path) as Texture2D)
-	_twinkle.sprite_frames = sf
-	add_child(_twinkle)
 
 	_ticker = PanelContainer.new()
 	_ticker.name = "ProgressTicker"
@@ -225,14 +206,6 @@ func _build() -> void:
 func _refresh() -> void:
 	if _ring:
 		_ring.texture = _ring_tex_for(_tier)
-	var show_twinkle := _done and _tier > C.TIER_NONE and not reduce_motion
-	if _twinkle:
-		_twinkle.visible = show_twinkle
-		if show_twinkle:
-			_twinkle.play(&"loop")
-		else:
-			_twinkle.pause()
-			_twinkle.frame = 0
 	if _tip_body:
 		_tip_body.text = _tip_text()
 	if _hover:
