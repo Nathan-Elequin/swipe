@@ -1,4 +1,4 @@
-﻿category,key,where,text
+category,key,where,text
 Title,title.overlay,Title parchment headline,{game_title}
 Title,title.tagline,Title screen tagline,"Where there's a will, there's a slay."
 Title,title.how_to_play,Title + pause button,How to Play
@@ -509,20 +509,12 @@ Playtest,playtest.intro.done,Playtest intro last button,Continue
 Playtest,playtest.intro.01,Playtest intro beat 01,"Hey friends — thanks for playtesting my game, {game_title}.
 Just a few notes before you jump in."
 Playtest,playtest.intro.02,Playtest intro beat 02,"First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game."
-Playtest,playtest.intro.03,Playtest intro beat 03,Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours.
-Playtest,playtest.intro.04,Playtest intro beat 04,"And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests."
-Playtest,playtest.intro.05,Playtest intro beat 05,This is the menu you'll land on.
-Playtest,playtest.intro.06,Playtest intro beat 06,"**Brand New** starts from the beginning, as if you had never played."
-Playtest,playtest.intro.07,Playtest intro beat 07,"**Middle Progress** puts you a few dungeons in, with some items already unlocked."
-Playtest,playtest.intro.08,Playtest intro beat 08,**Continue** picks up your last playtest save.
-Playtest,playtest.intro.09,Playtest intro beat 09,**Feedback** opens a note to me. Use it for anything that is not tied to one card.
-Playtest,playtest.intro.10,Playtest intro beat 10,"You can right-click any item or monster in the game and leave feedback. That is useful for bugs, confusion, or balance issues."
-Playtest,playtest.intro.11,Playtest intro beat 11,"For general comments while you play, click **Feedback** in the bottom right, or press **F2**."
-Playtest,playtest.intro.12,Playtest intro beat 12,"This is the F2 screen. Type a note, click Send, and it goes to my game development console. Next time I sit down to work, I will see it and can make the fix or the change."
-Playtest,playtest.intro.13,Playtest intro beat 13,"However — for those who want to give the best kind of feedback, I would love to actually HEAR your experience."
-Playtest,playtest.intro.14,Playtest intro beat 14,"Consider taking your phone, setting it to a voice memo or recorder, and just letting it run while you play. Talk out loud about your thought process, your first impressions, your feedback, anything at all."
-Playtest,playtest.intro.15,Playtest intro beat 15,"Then send me the entire file when you are done, because I can turn that into a much more detailed look at your player experience. If you are interested in doing that, you can email the files to me at nathan.elequin@gmail.com."
-Playtest,playtest.intro.16,Playtest intro beat 16,"So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!"
+Playtest,playtest.intro.03,Playtest intro beat 03,"Be honest and picky. I want YOUR take. And have fun: break the game, find cool combos, and dream big with your requests."
+Playtest,playtest.intro.04,Playtest intro beat 04,This is the title screen. **Continue** always picks up where you left off. Your progress saves right here in your browser.
+Playtest,playtest.intro.05,Playtest intro beat 05,"Starting fresh? **New Game** lets you pick how deep you want to go: a quick taste, a deeper run, or all the way to the Shadow Abyss. Reach the Abyss and I'll hop on a call with you and we'll design a monster or item together."
+Playtest,playtest.intro.06,Playtest intro beat 06,"Spot something? Right-click any monster or item, or press **F2** (or click **Feedback**), and type me a note. It lands straight in my dev console."
+Playtest,playtest.intro.07,Playtest intro beat 07,Want to give the BEST feedback? Run a voice memo on your phone while you play and think out loud. Then email me the file at nathan.elequin@gmail.com.
+Playtest,playtest.intro.08,Playtest intro beat 08,"So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!"
 Rope,rope.campaign.bank_eyebrow,Campaign extract left door eyebrow,Climb {grandpa|poss} rope
 Rope,rope.campaign.bank,Campaign extract left door title,Bank home
 Rope,rope.campaign.push_eyebrow,Campaign extract right door eyebrow,Into the dark
@@ -768,4 +760,4 @@ Settings,settings.reduce_motion.on,Settings toggle,Reduce motion: on
 Settings,settings.reduce_motion.off,Settings toggle,Reduce motion: off
 Settings,settings.back,Settings back / title settings close,Back
 Settings,settings.sound,Settings: opens the volume sliders page,Sound Settings
-Title,intro.preview.caption,Intro preview still caption (placeholder),"Right-click a Monster/Item, or press F2, to send a note."
+Title,intro.preview.caption,Intro preview still caption,"Your progress, right on the title screen."

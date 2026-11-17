@@ -283,6 +283,7 @@ func _run() -> void:
 		COPY.text("playtest.tier.quick.goal", "") != "", "") or failed
 	failed = _check(rows, failed, "copy.intro.preview.caption",
 		COPY.text("intro.preview.caption", "") != "", "") or failed
+	failed = _assert_playtest_intro_copy(rows, failed) or failed
 	## Between-dungeon Continue stays on title.continue (not title.menu.continue).
 	failed = _check(rows, failed, "copy.title.continue.dungeon",
 		COPY.text("title.continue", "") != "", "") or failed
@@ -582,6 +583,42 @@ func _run() -> void:
 	else:
 		print(OK_MARK)
 		quit(0)
+
+
+func _assert_playtest_intro_copy(rows: Array, failed: bool) -> bool:
+	## Every playtest.intro.* key the intro reads must exist; no old hub wording.
+	var intro_src := FileAccess.get_file_as_string("res://scripts/playtest_intro.gd")
+	var re := RegEx.new()
+	re.compile("\"(playtest\\.intro\\.[0-9]{2})\"")
+	var keys: Array[String] = []
+	for m in re.search_all(intro_src):
+		var k: String = str(m.get_string(1))
+		if k not in keys:
+			keys.append(k)
+	failed = _check(rows, failed, "intro.keys_found", not keys.is_empty(), ",".join(keys)) or failed
+	var missing: Array[String] = []
+	var banned_hits: Array[String] = []
+	for k in keys:
+		if not COPY.has_key(k):
+			missing.append(k)
+			continue
+		var t: String = COPY.text(k, "")
+		if t == "":
+			missing.append("%s(empty)" % k)
+		var low := t.to_lower()
+		if low.find("brand new") >= 0 or low.find("middle progress") >= 0:
+			banned_hits.append(k)
+	## Fallbacks in playtest_intro.gd must also stay clean.
+	var low_src := intro_src.to_lower()
+	failed = _check(rows, failed, "intro.keys_present", missing.is_empty(), ",".join(missing)) or failed
+	failed = _check(rows, failed, "intro.no_old_hub_copy",
+		banned_hits.is_empty() and low_src.find("brand new") < 0 and low_src.find("middle progress") < 0,
+		",".join(banned_hits)) or failed
+	failed = _check(rows, failed, "intro.title_preview_asset",
+		FileAccess.file_exists("res://assets/ui/title/intro_menu_preview.png"), "") or failed
+	failed = _check(rows, failed, "intro.preview.caption_progress",
+		COPY.text("intro.preview.caption", "").find("progress") >= 0, COPY.text("intro.preview.caption", "")) or failed
+	return failed
 
 
 func _assert_visual_copy_keys(rows: Array, failed: bool) -> bool:
