@@ -40,6 +40,7 @@ playtest/repot/
 - Screenshots are **in-game Godot MCP** of the running playtest surface — not the editor filesystem, not a mock. Prefer godot-mcp; `scripts/dev/shot_harness.gd` / `scripts/shot_cli.gd` is an OK fallback for scripted 1680×1040 captures. Never write repot shots into `design/audit-shots/cursor/` (harness overwrite zone) — outbox only under `playtest/repot/outbox/<id>/shots/`.
 - **Local agents MUST commit + push** outbox `RESULT.md` + shots before leaving them untracked. `tools/playtest-sync.sh` uses `git stash push -u`, so untracked result PNGs get stashed away on the next sync.
 - Commit + push fulfillment to `playtest/latest` (or the PR branch if the request says so) so Pixel can pull without asking Nathan to paste images.
+- **Input = godot-mcp only, never the OS.** "Real mouse/keys" in any request means player-style mouse moves, hovers, clicks and key presses injected into the running game through the Godot MCP input tools (or `Viewport.push_input`). Never use computer-use / OS-level control of Nathan's screen, mouse or keyboard. Still: fresh save, real player path, no `_dev_*` / `preview_*` / Grant / DevChrome shortcuts / forced poses.
 - Do not invent player-facing copy. Do not change art bytes unless the request says so.
 - Prefer the Godot already open; do not kill processes you did not start (`agent-runtime.mdc`).
 
