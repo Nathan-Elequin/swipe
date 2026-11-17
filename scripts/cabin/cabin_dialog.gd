@@ -57,6 +57,9 @@ const POINTER_AVOID_MARGIN := 24.0
 var _pointer_avoid: Rect2 = Rect2()
 var _has_pointer_avoid: bool = false
 var _dock_top: bool = false
+## Combat lessons: sit the bar above this many pixels from the view bottom (hotbar clearance).
+## -1 = default cabin safe. Does not top-dock — keeps a short arrow to the hotbar star.
+var _lift_bottom: float = -1.0
 
 
 func setup(p_cabin) -> void:
@@ -182,7 +185,7 @@ func set_pointer_avoid(target_global: Rect2, margin: float = POINTER_AVOID_MARGI
 
 
 func clear_pointer_avoid() -> void:
-	if not _has_pointer_avoid and not _dock_top:
+	if not _has_pointer_avoid and not _dock_top and _lift_bottom < 0.0:
 		return
 	_has_pointer_avoid = false
 	_pointer_avoid = Rect2()
@@ -191,8 +194,31 @@ func clear_pointer_avoid() -> void:
 		_layout_talk(_choices.visible)
 
 
+## Seat the talk bar just above a global rect (combat hotbar) instead of covering it
+## or jumping to the top of the screen.
+func set_lift_above_global(target_global: Rect2, gap: float = 16.0) -> void:
+	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
+	if is_inside_tree():
+		view = get_viewport_rect().size
+	_lift_bottom = maxf(KIT.DIALOG_SAFE_CABIN, view.y - target_global.position.y + gap)
+	_dock_top = false
+	if _open:
+		_layout_talk(_choices.visible)
+
+
+func clear_lift_above() -> void:
+	if _lift_bottom < 0.0:
+		return
+	_lift_bottom = -1.0
+	if _open:
+		_layout_talk(_choices.visible)
+
+
 func _refresh_dock_for_avoid() -> void:
 	_dock_top = false
+	## Combat lift-above wins — do not send the bar to the top and draw a line through the wheel.
+	if _lift_bottom >= 0.0:
+		return
 	if not _has_pointer_avoid:
 		return
 	var view := Vector2(KIT.ROOM_W, KIT.ROOM_H)
@@ -347,7 +373,8 @@ func _layout_talk(with_choices: bool) -> void:
 	## Cabin Nib path: forked bar (do not touch shared dialog_bar used by intro stills).
 	## Top-dock when a pointer target would sit under the bottom bar.
 	_refresh_dock_for_avoid()
-	var L: Dictionary = KIT.nib_talk_bar(view, KIT.DIALOG_SAFE_CABIN, _dock_top)
+	var safe_bot: float = _lift_bottom if _lift_bottom >= 0.0 else KIT.DIALOG_SAFE_CABIN
+	var L: Dictionary = KIT.nib_talk_bar(view, safe_bot, _dock_top)
 	var bar: Rect2 = L["bar"]
 	var inner: Rect2 = L["inner"]
 	var well_sz: Vector2 = L["well_sz"]
@@ -556,6 +583,7 @@ func dismiss() -> void:
 	if cabin != null and cabin.has_method("clear_nib_pointer"):
 		cabin.clear_nib_pointer()
 	clear_pointer_avoid()
+	clear_lift_above()
 	closed.emit()
 	if _shade:
 		_shade.visible = true
@@ -572,6 +600,7 @@ func _close(choice: int) -> void:
 	if cabin != null and cabin.has_method("clear_nib_pointer"):
 		cabin.clear_nib_pointer()
 	clear_pointer_avoid()
+	clear_lift_above()
 	closed.emit()
 	if cabin and cabin.has_method("nib_talk"):
 		cabin.nib_talk(false)

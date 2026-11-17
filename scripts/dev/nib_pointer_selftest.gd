@@ -39,6 +39,10 @@ func _run() -> void:
 	failed = _check(rows, failed, "dialog.signal.closed", dialog_src.find("signal closed") >= 0) or failed
 	failed = _check(rows, failed, "dialog.set_pointer_avoid", dialog_src.find("set_pointer_avoid") >= 0) or failed
 	failed = _check(rows, failed, "dialog.talk_bar_anchor_toward", dialog_src.find("talk_bar_anchor_toward") >= 0) or failed
+	failed = _check(rows, failed, "dialog.set_lift_above_global", dialog_src.find("set_lift_above_global") >= 0) or failed
+	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
+	failed = _check(rows, failed, "main.new_mark_points_star", main_src.find("_first_hotbar_new_star") >= 0) or failed
+	failed = _check(rows, failed, "main.run_lesson_pointer", main_src.find("_show_run_lesson_pointer") >= 0) or failed
 	var cabin_src := FileAccess.get_file_as_string("res://scripts/home_cabin.gd")
 	failed = _check(rows, failed, "cabin.clear_on_pan", cabin_src.find("clear_nib_pointer") >= 0) or failed
 	failed = _check(rows, failed, "cabin.no_amb_start", cabin_src.find("loop_start(&\"amb.trophy_room\"") < 0) or failed
@@ -297,6 +301,25 @@ func _run() -> void:
 		not dbar.intersects(bottom_target.get_global_rect().grow(AVOID_MARGIN))
 	) or failed
 	cabin.clear_nib_pointer()
+	if dialog.get("_typing") == true:
+		dialog.advance()
+	dialog.advance()
+
+	## Combat New! lesson: lift above a fake hotbar, keep dock_top false.
+	var fake_hot := Control.new()
+	fake_hot.position = Vector2(400, 900)
+	fake_hot.size = Vector2(880, 120)
+	cabin.add_child(fake_hot)
+	dialog.set_lift_above_global(fake_hot.get_global_rect(), 12.0)
+	dialog.say(["nib.lesson.new_mark"], [], {}, {"nib.lesson.new_mark": "star line"})
+	await process_frame
+	await process_frame
+	failed = _check(rows, failed, "lift.not_top_dock", not dialog.is_docked_top()) or failed
+	var lift_bar: Rect2 = dialog.talk_bar_global_rect()
+	failed = _check(
+		rows, failed, "lift.bar_above_hotbar",
+		lift_bar.end.y <= fake_hot.get_global_rect().position.y + 1.0
+	) or failed
 	if dialog.get("_typing") == true:
 		dialog.advance()
 	dialog.advance()

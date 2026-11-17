@@ -1540,6 +1540,12 @@ func set_cabinet_badge(on: bool, label: String, tip: String = "") -> void:
 ## full content rect (giant pixel star). Host under a plain Control like DecayOverlay.
 ## Holder stays on the card root (clip_contents=false) so the ~4 px overhang is not clipped
 ## by Chrome / pad margins. hotbar_panel / hotbar_wrap also leave clip_contents false.
+func new_star_control() -> Control:
+	if _new_star != null and is_instance_valid(_new_star) and _new_star.visible:
+		return _new_star
+	return null
+
+
 func set_new_star(on: bool) -> void:
 	if not on:
 		if _new_star != null:

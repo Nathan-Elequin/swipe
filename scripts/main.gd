@@ -662,6 +662,7 @@ var _spoken_key: String = ""
 var _lesson_new_mark_queued: bool = false
 var _lesson_extract_queued: bool = false
 var _run_lesson_dialog = null
+var _run_lesson_pointer = null
 var overlay_continue: Button
 var overlay_leave: Button
 var overlay_score
@@ -4178,7 +4179,7 @@ func _play_new_mark_lesson() -> void:
 		_lesson_new_mark_queued = false
 		return
 	home_cabin.mark_lesson_said("new_mark")
-	await _say_run_lesson(["nib.lesson.new_mark"])
+	await _say_run_lesson(["nib.lesson.new_mark"], _first_hotbar_new_star(), true)
 
 
 ## Spin lesson 2: first extract with NEW UNIQUE rows. Verdant copy only on b1.
@@ -4222,7 +4223,76 @@ func _play_extract_haul_lesson() -> void:
 		await _say_run_lesson(["nib.lesson.extract_haul"])
 
 
-func _say_run_lesson(keys: Array) -> void:
+func _first_hotbar_new_star() -> Control:
+	if hotbar_box == null:
+		return null
+	for c in hotbar_box.get_children():
+		if c == null or not is_instance_valid(c):
+			continue
+		if c.has_method("new_star_control"):
+			var star: Control = c.new_star_control()
+			if star != null:
+				return star
+	return null
+
+
+func _hotbar_lift_rect() -> Rect2:
+	var r := Rect2()
+	if hotbar_box != null:
+		for c in hotbar_box.get_children():
+			if c is Control and is_instance_valid(c):
+				var g: Rect2 = (c as Control).get_global_rect()
+				r = g if r.size == Vector2.ZERO else r.merge(g)
+	var star: Control = _first_hotbar_new_star()
+	if star != null:
+		var sg: Rect2 = star.get_global_rect()
+		r = sg if r.size == Vector2.ZERO else r.merge(sg)
+	if r.size == Vector2.ZERO:
+		var lift_host: Control = hotbar_panel if hotbar_panel != null else hotbar_wrap
+		if lift_host != null and lift_host.is_inside_tree():
+			r = lift_host.get_global_rect()
+	return r.grow_individual(0.0, 12.0, 0.0, 0.0)
+
+
+func _ensure_run_lesson_pointer():
+	if _run_lesson_pointer != null and is_instance_valid(_run_lesson_pointer):
+		return _run_lesson_pointer
+	var ptr = load("res://scripts/cabin/nib_pointer.gd").new()
+	ptr.process_mode = Node.PROCESS_MODE_ALWAYS
+	ptr.z_index = 210
+	ptr.z_as_relative = false
+	add_child(ptr)
+	_run_lesson_pointer = ptr
+	return ptr
+
+
+func _show_run_lesson_pointer(target: Control) -> void:
+	if target == null or not is_instance_valid(target) or _run_lesson_dialog == null:
+		return
+	var ptr = _ensure_run_lesson_pointer()
+	var centre: Vector2 = target.get_global_rect().get_center()
+	var from := Vector2(840, 700)
+	if _run_lesson_dialog.has_method("talk_bar_anchor_toward"):
+		from = _run_lesson_dialog.talk_bar_anchor_toward(centre)
+	elif _run_lesson_dialog.has_method("talk_bar_anchor"):
+		from = _run_lesson_dialog.talk_bar_anchor()
+	if ptr.has_method("point_at"):
+		ptr.point_at(from, target, Vector2(12, 12), 96.0)
+
+
+func _clear_run_lesson_pointer() -> void:
+	if _run_lesson_pointer != null and is_instance_valid(_run_lesson_pointer) and _run_lesson_pointer.has_method("clear"):
+		_run_lesson_pointer.clear()
+	if _run_lesson_dialog != null and is_instance_valid(_run_lesson_dialog):
+		if _run_lesson_dialog.has_method("clear_lift_above"):
+			_run_lesson_dialog.clear_lift_above()
+
+
+func _on_run_lesson_line_changed(_line_index: int) -> void:
+	_clear_run_lesson_pointer()
+
+
+func _say_run_lesson(keys: Array, point_at: Control = null, lift_hotbar: bool = false) -> void:
 	## Lightweight aside for ready-phase lessons. Does not pause the SceneTree.
 	if keys.is_empty():
 		return
@@ -4233,8 +4303,22 @@ func _say_run_lesson(keys: Array) -> void:
 		_run_lesson_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 		_run_lesson_dialog.z_index = 200
 		add_child(_run_lesson_dialog)
+		if _run_lesson_dialog.has_signal("closed") and not _run_lesson_dialog.closed.is_connected(_clear_run_lesson_pointer):
+			_run_lesson_dialog.closed.connect(_clear_run_lesson_pointer)
+		if _run_lesson_dialog.has_signal("line_changed") and not _run_lesson_dialog.line_changed.is_connected(_on_run_lesson_line_changed):
+			_run_lesson_dialog.line_changed.connect(_on_run_lesson_line_changed)
 	_run_lesson_dialog.say(keys)
+	if lift_hotbar or point_at != null:
+		## Hotbar rect is wrong on the first frame after a refresh — wait, then lift.
+		await get_tree().process_frame
+		await get_tree().process_frame
+		if _run_lesson_dialog.has_method("set_lift_above_global"):
+			_run_lesson_dialog.set_lift_above_global(_hotbar_lift_rect(), 12.0)
+	if point_at != null:
+		await get_tree().process_frame
+		_show_run_lesson_pointer(point_at)
 	await _run_lesson_dialog.finished
+	_clear_run_lesson_pointer()
 
 
 func _on_home_cabin_closed() -> void:

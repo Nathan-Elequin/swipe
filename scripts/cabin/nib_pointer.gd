@@ -17,6 +17,7 @@ var _from: Vector2 = Vector2.ZERO
 var _to: Vector2 = Vector2.ZERO
 var _active: bool = false
 var _pulse_tw: Tween = null
+var _ring_px: float = PULSE_FRAME
 
 
 func _ready() -> void:
@@ -85,7 +86,8 @@ func _ensure_pulse_ring() -> void:
 
 
 ## Point from a talk-bar rect (global) to a target control/rect. Shows ring on the target.
-func point_at(from_global: Vector2, target: Control, ring_pad: Vector2 = Vector2(24, 24)) -> void:
+## ring_size: pulse art native is 160 (trophy slot). Pass ~96 for a hotbar New! star.
+func point_at(from_global: Vector2, target: Control, ring_pad: Vector2 = Vector2(24, 24), ring_size: float = -1.0) -> void:
 	_ensure_pulse_ring()
 	_active = true
 	visible = true
@@ -96,31 +98,36 @@ func point_at(from_global: Vector2, target: Control, ring_pad: Vector2 = Vector2
 	else:
 		g = Rect2(from_global + Vector2(80, -120), Vector2(64, 64))
 	_to = g.position + g.size * 0.5
-	_place_ring(_to)
+	_place_ring(_to, ring_size)
 	_ink.queue_redraw()
 	_start_pulse()
 
 
-func point_at_rect(from_global: Vector2, target_global: Rect2, ring_pad: Vector2 = Vector2(24, 24)) -> void:
+func point_at_rect(from_global: Vector2, target_global: Rect2, ring_pad: Vector2 = Vector2(24, 24), ring_size: float = -1.0) -> void:
 	_ensure_pulse_ring()
 	_active = true
 	visible = true
 	_from = from_global
 	_to = target_global.position + target_global.size * 0.5
-	_place_ring(_to)
+	_place_ring(_to, ring_size)
 	_ink.queue_redraw()
 	_start_pulse()
 
 
-func _place_ring(center: Vector2) -> void:
-	## 160×160 ring centred on the target (encloses a 128 slot).
-	_ring.size = Vector2(PULSE_FRAME, PULSE_FRAME)
+func _place_ring(center: Vector2, ring_size: float = -1.0) -> void:
+	## 160×160 ring centred on the target (encloses a 128 slot). Scale down for smaller marks.
+	_ring_px = PULSE_FRAME if ring_size <= 0.0 else ring_size
+	_ring.size = Vector2(_ring_px, _ring_px)
 	_ring.global_position = center - _ring.size * 0.5
 	_ring.visible = true
+	var s: float = _ring_px / float(PULSE_FRAME)
 	if _ring_art is AnimatedSprite2D:
 		var spr := _ring_art as AnimatedSprite2D
+		spr.scale = Vector2(s, s)
 		if spr.sprite_frames != null and spr.sprite_frames.has_animation("pulse"):
 			spr.play("pulse")
+	elif _ring_art is Control:
+		(_ring_art as Control).set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 
 
 func clear() -> void:
