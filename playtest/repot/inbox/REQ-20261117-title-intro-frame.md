@@ -1,6 +1,8 @@
 ---
 id: REQ-20261117-title-intro-frame
 status: open
+pr: 552
+tip_sha: d66a777b
 priority: normal
 branch: cursor/title-intro-frame-ce61
 created: 2026-11-17T07:30:00Z
