@@ -72,6 +72,8 @@ const MARBLE_FILL := 10
 ## 1.0 = original speed. Wheel spin ignores this.
 ## 0.675 = 35% faster than the previous 0.5 setting.
 const ANIM_TIME_SCALE := 0.675
+## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
+const HEAL_RESOLVE_RATE := 1.5
 ## Spin sits in this row on ready. H3-B2 moves Take onto the cream arc under the
 ## wheel during fights, so fighting no longer reserves this height (hotbar grows).
 ## Keep the slot on ready/spin so the wheel does not jump when Spin shows.
@@ -20189,20 +20191,19 @@ func _heal(n: int) -> int:
 		return 0
 	if wheel_view and wheel_view.has_method("play_hero"):
 		# Hit still outranks Heal. Force so a nested heal can replace the leftover hurt pose.
-		wheel_view.play_hero("heal", 1, true)
+		# Rate first so _player_play sees the same oneshot and does not restart at 1×.
+		wheel_view.play_hero("heal", 1, true, HEAL_RESOLVE_RATE)
 	_player_play("heal")
-	if wheel_view and wheel_view.has_method("wait_hero_done") and not _qa_instant():
-		await wheel_view.wait_hero_done()
-	elif wheel_view and wheel_view.has_method("wait_hero_frame") and not _qa_instant():
-		await wheel_view.wait_hero_frame("heal", 2)
 	_refresh_hearts()
-	_flash_screen(Color("8fd18f"), 0.28)
+	_flash_screen(Color("8fd18f"), 0.28, 0.32 / HEAL_RESOLVE_RATE)
 	if sfx:
 		sfx.play_event(&"heal.gain", {"n": gained})
-	_glow_hearts_heal()
+	_glow_hearts_heal(HEAL_RESOLVE_RATE)
 	_sync_dire_wolves()
-	if get_tree() and not _qa_instant():
-		await get_tree().create_timer(0.28).timeout
+	if wheel_view and wheel_view.has_method("wait_hero_done") and not _qa_instant():
+		await wheel_view.wait_hero_done()
+	elif get_tree() and not _qa_instant():
+		await get_tree().create_timer(0.28 / HEAL_RESOLVE_RATE).timeout
 	return gained
 
 
@@ -28613,9 +28614,10 @@ func _hearts_deny_shake() -> void:
 		hi += 1
 
 
-func _glow_hearts_heal() -> void:
+func _glow_hearts_heal(rate: float = 1.0) -> void:
 	if hearts_box == null:
 		return
+	var pace: float = 1.0 / maxf(0.01, rate)
 	var hi: int = 0
 	for child in hearts_box.get_children():
 		var tr := child as TextureRect
@@ -28625,9 +28627,9 @@ func _glow_hearts_heal() -> void:
 			tr.pivot_offset = tr.size * 0.5
 			tr.modulate = Color("8fd18f")
 			var tw := create_tween()
-			tw.tween_property(tr, "scale", Vector2(1.22, 1.22), 0.08)
-			tw.tween_property(tr, "scale", Vector2.ONE, 0.16)
-			tw.parallel().tween_property(tr, "modulate", Color.WHITE, 0.22)
+			tw.tween_property(tr, "scale", Vector2(1.22, 1.22), 0.08 * pace)
+			tw.tween_property(tr, "scale", Vector2.ONE, 0.16 * pace)
+			tw.parallel().tween_property(tr, "modulate", Color.WHITE, 0.22 * pace)
 		hi += 1
 
 
@@ -28678,13 +28680,13 @@ func _shake_screen() -> void:
 	, CONNECT_ONE_SHOT)
 
 
-func _flash_screen(col: Color, a: float = 0.3) -> void:
+func _flash_screen(col: Color, a: float = 0.3, fade_s: float = 0.32) -> void:
 	if fx_flash == null:
 		return
 	fx_flash.color = col
 	fx_flash.modulate.a = a
 	var tw := create_tween()
-	tw.tween_property(fx_flash, "modulate:a", 0.0, 0.32)
+	tw.tween_property(fx_flash, "modulate:a", 0.0, maxf(0.04, fade_s))
 
 
 func _number_is_atk(view: Dictionary, petrify_n: int) -> bool:

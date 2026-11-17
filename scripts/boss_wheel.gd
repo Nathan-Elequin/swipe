@@ -355,6 +355,7 @@ var hub_gear: Dictionary = {"head": "", "eyes": "", "belt": ""}
 var hero_anim: String = "idle"
 var hero_frame: int = 0
 var _hero_t: float = 0.0
+var _hero_rate: float = 1.0
 var hub_death_dim: bool = false
 var _sprout_hub: bool = false
 ## Hub Sprout can leave the wheel. Hearts and Block stay.
@@ -475,7 +476,7 @@ func reset_hero() -> void:
 	queue_redraw()
 
 
-func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
+func play_hero(anim: String, loops: int = 1, force: bool = false, rate: float = 1.0) -> void:
 	if anim == "":
 		return
 	if not force:
@@ -486,6 +487,7 @@ func play_hero(anim: String, loops: int = 1, force: bool = false) -> void:
 	hero_anim = anim
 	hero_frame = 0
 	_hero_t = 0.0
+	_hero_rate = maxf(0.01, rate)
 	_hero_hold = false
 	_hero_frozen = false
 	_hero_loops = maxi(1, loops)
@@ -595,7 +597,7 @@ func _hero_tick(delta: float) -> void:
 		hero_frame = nframes - 1
 		_on_hero_frame()
 		return
-	_hero_t += delta
+	_hero_t += delta * _hero_rate
 	if _hero_t < wait_ms / 1000.0:
 		return
 	_hero_t = 0.0
