@@ -106,11 +106,13 @@ static func space_hint_always_when_waiting() -> bool:
 	return true
 
 
-## F2 Feedback is open: shortcuts (M, Space, F-keys) must not fire. Escape still closes it.
+## F2 Feedback / commitment offramp is open: shortcuts (M, Space, F-keys) must not fire.
+## Escape still closes the open panel.
 static func feedback_open(tree: SceneTree) -> bool:
 	if tree == null:
 		return false
-	for n in tree.get_nodes_in_group("playtest_feedback"):
-		if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
-			return true
+	for group_name in ["playtest_feedback", "playtest_offramp"]:
+		for n in tree.get_nodes_in_group(group_name):
+			if n is CanvasItem and (n as CanvasItem).is_visible_in_tree():
+				return true
 	return false

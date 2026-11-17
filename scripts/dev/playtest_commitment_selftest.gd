@@ -10,6 +10,7 @@ const FAIL_MARK := "PLAYTEST_COMMITMENT_FAIL"
 const C := preload("res://scripts/playtest_commitment.gd")
 const PICKER := preload("res://scripts/playtest_commitment_picker.gd")
 const GOAL := preload("res://scripts/playtest_goal_icon.gd")
+const OFFRAMP := preload("res://scripts/playtest_offramp.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 
 
@@ -272,6 +273,89 @@ func _run() -> void:
 		settings_src.find("go_deeper_pressed") >= 0
 		and settings_src.find("show_go_deeper") >= 0
 		and settings_src.find("pause.go_deeper") >= 0, "") or failed
+
+	## --- Slice 3: offramp panel contracts ---
+	failed = _check(rows, failed, "offramp.shows_quick",
+		OFFRAMP.shows_for_milestone(C.M_QUICK), "") or failed
+	failed = _check(rows, failed, "offramp.shows_deeper",
+		OFFRAMP.shows_for_milestone(C.M_DEEPER), "") or failed
+	failed = _check(rows, failed, "offramp.not_big",
+		not OFFRAMP.shows_for_milestone(C.M_BIG), "") or failed
+
+	var o_host: Window = get_root()
+	var offramp = OFFRAMP.new()
+	o_host.add_child(offramp)
+	offramp.call("setup")
+	## Big must not open the panel.
+	offramp.call("open_offramp", C.M_BIG, {"tier": C.TIER_BIG})
+	failed = _check(rows, failed, "offramp.big_stays_hidden", not bool(offramp.visible), "") or failed
+	offramp.call("open_offramp", C.M_QUICK, {
+		"tier": C.TIER_QUICK,
+		"run_count": 1,
+		"anon_id": "test-anon",
+		"build_id": "abc1234",
+		"biomes_unlocked": 1,
+		"cabinet_count": 2,
+		"play_seconds": 90,
+	})
+	failed = _check(rows, failed, "offramp.quick_shows", bool(offramp.visible), "") or failed
+	var payload: Dictionary = offramp.call("build_payload")
+	failed = _check(rows, failed, "offramp.payload_shape",
+		OFFRAMP.payload_shape_ok(payload), "%s" % str(payload.keys())) or failed
+	failed = _check(rows, failed, "offramp.payload_milestone",
+		str(payload.get("milestone", "")) == C.M_QUICK, "") or failed
+	failed = _check(rows, failed, "offramp.payload_anon",
+		str(payload.get("anon_id", "")) == "test-anon", "") or failed
+	## Go deeper hidden when already at BIG.
+	offramp.call("close_panel")
+	offramp.call("open_offramp", C.M_DEEPER, {"tier": C.TIER_BIG})
+	var deeper_btn = offramp.get("_btn_deeper")
+	failed = _check(rows, failed, "offramp.deeper_hidden_at_big",
+		deeper_btn != null and not bool(deeper_btn.visible), "") or failed
+	offramp.call("show_thanks")
+	failed = _check(rows, failed, "offramp.thanks_mode",
+		str(offramp.get("_mode")) == "thanks" and bool(offramp.get("_thanks").visible), "") or failed
+	offramp.call("close_panel")
+	offramp.queue_free()
+
+	## Once shown, never re-ask — even after dismiss (flags persist across reload).
+	var o: PlaytestCommitment = C.new()
+	o.debug_reset()
+	o.choose(C.TIER_DEEPER)
+	o.debug_force_milestone(C.M_QUICK)
+	failed = _check(rows, failed, "offramp.slice3.should_before",
+		o.should_offramp(C.M_QUICK), "") or failed
+	o.mark_offramp_shown(C.M_QUICK)
+	failed = _check(rows, failed, "offramp.slice3.never_reshow",
+		not o.should_offramp(C.M_QUICK), "") or failed
+	o.save_state()
+	var o2: PlaytestCommitment = C.new()
+	o2.load_state()
+	failed = _check(rows, failed, "offramp.slice3.flag_persists",
+		bool(o2.offramp_shown_quick) and not o2.should_offramp(C.M_QUICK), "") or failed
+	## Tier gate: deeper reached but tier too low → no offramp.
+	var o3: PlaytestCommitment = C.new()
+	o3.debug_reset()
+	o3.debug_set_tier(C.TIER_QUICK)
+	o3.debug_force_milestone(C.M_DEEPER)
+	failed = _check(rows, failed, "offramp.slice3.tier_gate",
+		not o3.should_offramp(C.M_DEEPER), "") or failed
+
+	failed = _check(rows, failed, "copy.offramp.quick.header",
+		COPY.text("playtest.offramp.quick.header", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.offramp.deeper.q1",
+		COPY.text("playtest.offramp.deeper.q1", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.offramp.thanks",
+		COPY.text("playtest.offramp.thanks", "") != "", "") or failed
+
+	failed = _check(rows, failed, "main.offramp_preload",
+		main_src.find("playtest_offramp.gd") >= 0, "") or failed
+	failed = _check(rows, failed, "main.offramp_open",
+		main_src.find("_open_commitment_offramp") >= 0, "") or failed
+	failed = _check(rows, failed, "main.offramp_victory_hook",
+		main_src.find("_maybe_open_commitment_victory") >= 0, "") or failed
+	failed = _check(rows, failed, "main.offramp_not_big_panel",
+		main_src.find("M_BIG") >= 0 and main_src.find("_maybe_open_commitment_victory") >= 0, "") or failed
 
 	_print_rows(rows)
 	if failed:
