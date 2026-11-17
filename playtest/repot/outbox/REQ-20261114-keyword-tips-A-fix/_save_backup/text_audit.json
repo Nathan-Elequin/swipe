@@ -1,0 +1,1541 @@
+{
+	"failures": [
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@Label@1390",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@TextureRect@1389",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/Chrome/@Label@1388",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@Label@1405",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@TextureRect@1404",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@Label@1426",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@TextureRect@1425",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/Chrome/@Label@1424",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@Label@1436",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@TextureRect@1435",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@Label@1446",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@TextureRect@1445",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@Label@1457",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@TextureRect@1456",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/Chrome/@Label@1455",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@Label@1470",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@TextureRect@1469",
+			"screen": "cover-damsel-montage_b0_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f00.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@Label@1390",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@TextureRect@1389",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/Chrome/@Label@1388",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@Label@1405",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@TextureRect@1404",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@Label@1426",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@TextureRect@1425",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/Chrome/@Label@1424",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@Label@1436",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@TextureRect@1435",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@Label@1446",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@TextureRect@1445",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@Label@1457",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@TextureRect@1456",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/Chrome/@Label@1455",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@Label@1470",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@TextureRect@1469",
+			"screen": "cover-damsel-montage_b0_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f01.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@Label@1390",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@TextureRect@1389",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/Chrome/@Label@1388",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@Label@1405",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@TextureRect@1404",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@Label@1426",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@TextureRect@1425",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/Chrome/@Label@1424",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@Label@1436",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@TextureRect@1435",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@Label@1446",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@TextureRect@1445",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@Label@1457",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@TextureRect@1456",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/Chrome/@Label@1455",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@Label@1470",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@TextureRect@1469",
+			"screen": "cover-damsel-montage_b0_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f02.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@Label@1390",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/@VBoxContainer@1176/@Control@1179/Face/Rows/@HBoxContainer@1392/@Control@1391/@TextureRect@1389",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1199/@MarginContainer@1175/Chrome/@Label@1388",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@Label@1405",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1228/@MarginContainer@1200/@VBoxContainer@1201/@Control@1204/Face/Rows/@HBoxContainer@1409/@Control@1406/@TextureRect@1404",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@Label@1426",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/@VBoxContainer@1254/@Control@1257/Face/Rows/@HBoxContainer@1428/@Control@1427/@TextureRect@1425",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1277/@MarginContainer@1253/Chrome/@Label@1424",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@Label@1436",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1302/@MarginContainer@1278/@VBoxContainer@1279/@Control@1282/Face/Rows/@HBoxContainer@1438/@Control@1437/@TextureRect@1435",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@Label@1446",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/@VBoxContainer@1304/@Control@1307/Face/Rows/@HBoxContainer@1448/@Control@1447/@TextureRect@1445",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1327/@MarginContainer@1303/Chrome/@Label@1444",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@Label@1457",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/@VBoxContainer@1329/@Control@1332/Face/Rows/@HBoxContainer@1460/@Control@1459/@TextureRect@1456",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1353/@MarginContainer@1328/Chrome/@Label@1455",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@Label@1470",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1380/@MarginContainer@1354/@VBoxContainer@1355/@Control@1358/Face/Rows/@HBoxContainer@1474/@Control@1471/@TextureRect@1469",
+			"screen": "cover-damsel-montage_b0_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b0_f03.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2010/@Control@2009/@Label@2008",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2010/@Control@2009/@TextureRect@2007",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/Chrome/@Label@2006",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2027/@Control@2024/@Label@2023",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2027/@Control@2024/@TextureRect@2022",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2046/@Control@2045/@Label@2044",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2046/@Control@2045/@TextureRect@2043",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/Chrome/@Label@2042",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2056/@Control@2055/@Label@2054",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2056/@Control@2055/@TextureRect@2053",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2066/@Control@2065/@Label@2064",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2066/@Control@2065/@TextureRect@2063",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2078/@Control@2077/@Label@2075",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2078/@Control@2077/@TextureRect@2074",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/Chrome/@Label@2073",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2092/@Control@2089/@Label@2088",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2092/@Control@2089/@TextureRect@2087",
+			"screen": "cover-damsel-montage_b1_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f00.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2010/@Control@2009/@Label@2008",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2010/@Control@2009/@TextureRect@2007",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/Chrome/@Label@2006",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2027/@Control@2024/@Label@2023",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2027/@Control@2024/@TextureRect@2022",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2046/@Control@2045/@Label@2044",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2046/@Control@2045/@TextureRect@2043",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/Chrome/@Label@2042",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2056/@Control@2055/@Label@2054",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2056/@Control@2055/@TextureRect@2053",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2066/@Control@2065/@Label@2064",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2066/@Control@2065/@TextureRect@2063",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2078/@Control@2077/@Label@2075",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2078/@Control@2077/@TextureRect@2074",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/Chrome/@Label@2073",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2092/@Control@2089/@Label@2088",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2092/@Control@2089/@TextureRect@2087",
+			"screen": "cover-damsel-montage_b1_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f01.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2315/@Control@2314/@Label@2313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2315/@Control@2314/@TextureRect@2312",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/Chrome/@Label@2006",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2331/@Control@2328/@Label@2327",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2331/@Control@2328/@TextureRect@2326",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2345/@Control@2344/@Label@2343",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2345/@Control@2344/@TextureRect@2342",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/Chrome/@Label@2042",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2353/@Control@2352/@Label@2351",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2353/@Control@2352/@TextureRect@2350",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2361/@Control@2360/@Label@2359",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2361/@Control@2360/@TextureRect@2358",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2371/@Control@2370/@Label@2368",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2371/@Control@2370/@TextureRect@2367",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/Chrome/@Label@2073",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2383/@Control@2380/@Label@2379",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2383/@Control@2380/@TextureRect@2378",
+			"screen": "cover-damsel-montage_b1_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f02.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2315/@Control@2314/@Label@2313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/@VBoxContainer@1794/@Control@1797/Face/Rows/@HBoxContainer@2315/@Control@2314/@TextureRect@2312",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1817/@MarginContainer@1793/Chrome/@Label@2006",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2331/@Control@2328/@Label@2327",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1846/@MarginContainer@1818/@VBoxContainer@1819/@Control@1822/Face/Rows/@HBoxContainer@2331/@Control@2328/@TextureRect@2326",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2345/@Control@2344/@Label@2343",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/@VBoxContainer@1872/@Control@1875/Face/Rows/@HBoxContainer@2345/@Control@2344/@TextureRect@2342",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1895/@MarginContainer@1871/Chrome/@Label@2042",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2353/@Control@2352/@Label@2351",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1920/@MarginContainer@1896/@VBoxContainer@1897/@Control@1900/Face/Rows/@HBoxContainer@2353/@Control@2352/@TextureRect@2350",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2361/@Control@2360/@Label@2359",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/@VBoxContainer@1922/@Control@1925/Face/Rows/@HBoxContainer@2361/@Control@2360/@TextureRect@2358",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1945/@MarginContainer@1921/Chrome/@Label@2062",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2371/@Control@2370/@Label@2368",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/@VBoxContainer@1947/@Control@1950/Face/Rows/@HBoxContainer@2371/@Control@2370/@TextureRect@2367",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1971/@MarginContainer@1946/Chrome/@Label@2073",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2383/@Control@2380/@Label@2379",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@1998/@MarginContainer@1972/@VBoxContainer@1973/@Control@1976/Face/Rows/@HBoxContainer@2383/@Control@2380/@TextureRect@2378",
+			"screen": "cover-damsel-montage_b1_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b1_f03.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@Label@2917",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@TextureRect@2916",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/Chrome/@Label@2915",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@Label@2932",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@TextureRect@2931",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@Label@2953",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@TextureRect@2952",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/Chrome/@Label@2951",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@Label@2963",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@TextureRect@2962",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@Label@2973",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@TextureRect@2972",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@Label@2984",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@TextureRect@2983",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/Chrome/@Label@2982",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@Label@2997",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@TextureRect@2996",
+			"screen": "cover-damsel-montage_b2_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f00.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@Label@2917",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@TextureRect@2916",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/Chrome/@Label@2915",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@Label@2932",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@TextureRect@2931",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@Label@2953",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@TextureRect@2952",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/Chrome/@Label@2951",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@Label@2963",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@TextureRect@2962",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@Label@2973",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@TextureRect@2972",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@Label@2984",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@TextureRect@2983",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/Chrome/@Label@2982",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@Label@2997",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@TextureRect@2996",
+			"screen": "cover-damsel-montage_b2_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f01.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@Label@2917",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@TextureRect@2916",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/Chrome/@Label@2915",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@Label@2932",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@TextureRect@2931",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@Label@2953",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@TextureRect@2952",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/Chrome/@Label@2951",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@Label@2963",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@TextureRect@2962",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@Label@2973",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@TextureRect@2972",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@Label@2984",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@TextureRect@2983",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/Chrome/@Label@2982",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@Label@2997",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@TextureRect@2996",
+			"screen": "cover-damsel-montage_b2_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f02.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@Label@2917",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/@VBoxContainer@2703/@Control@2706/Face/Rows/@HBoxContainer@2919/@Control@2918/@TextureRect@2916",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2726/@MarginContainer@2702/Chrome/@Label@2915",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@Label@2932",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2755/@MarginContainer@2727/@VBoxContainer@2728/@Control@2731/Face/Rows/@HBoxContainer@2936/@Control@2933/@TextureRect@2931",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@Label@2953",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/@VBoxContainer@2781/@Control@2784/Face/Rows/@HBoxContainer@2955/@Control@2954/@TextureRect@2952",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2804/@MarginContainer@2780/Chrome/@Label@2951",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@Label@2963",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2829/@MarginContainer@2805/@VBoxContainer@2806/@Control@2809/Face/Rows/@HBoxContainer@2965/@Control@2964/@TextureRect@2962",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@Label@2973",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/@VBoxContainer@2831/@Control@2834/Face/Rows/@HBoxContainer@2975/@Control@2974/@TextureRect@2972",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2854/@MarginContainer@2830/Chrome/@Label@2971",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@Label@2984",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/@VBoxContainer@2856/@Control@2859/Face/Rows/@HBoxContainer@2987/@Control@2986/@TextureRect@2983",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2880/@MarginContainer@2855/Chrome/@Label@2982",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@Label@2997",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@2907/@MarginContainer@2881/@VBoxContainer@2882/@Control@2885/Face/Rows/@HBoxContainer@3001/@Control@2998/@TextureRect@2996",
+			"screen": "cover-damsel-montage_b2_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b2_f03.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@Label@4297",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@TextureRect@4296",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/Chrome/@Label@4295",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@Label@4313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@TextureRect@4312",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@Label@4334",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@TextureRect@4333",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/Chrome/@Label@4332",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@Label@4344",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@TextureRect@4343",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@Label@4355",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@TextureRect@4354",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@Label@4367",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@TextureRect@4366",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/Chrome/@Label@4365",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@Label@4380",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@TextureRect@4379",
+			"screen": "cover-damsel-montage_b4_f00",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f00.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@Label@4297",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@TextureRect@4296",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/Chrome/@Label@4295",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@Label@4313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@TextureRect@4312",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@Label@4334",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@TextureRect@4333",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/Chrome/@Label@4332",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@Label@4344",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@TextureRect@4343",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@Label@4355",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@TextureRect@4354",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@Label@4367",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@TextureRect@4366",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/Chrome/@Label@4365",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@Label@4380",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@TextureRect@4379",
+			"screen": "cover-damsel-montage_b4_f01",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f01.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@Label@4297",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@TextureRect@4296",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/Chrome/@Label@4295",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@Label@4313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@TextureRect@4312",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@Label@4334",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@TextureRect@4333",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/Chrome/@Label@4332",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@Label@4344",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@TextureRect@4343",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@Label@4355",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@TextureRect@4354",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@Label@4367",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@TextureRect@4366",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/Chrome/@Label@4365",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@Label@4380",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@TextureRect@4379",
+			"screen": "cover-damsel-montage_b4_f02",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f02.png",
+			"text": "5"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@Label@4297",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/@VBoxContainer@4082/@Control@4085/Face/Rows/@HBoxContainer@4299/@Control@4298/@TextureRect@4296",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "2"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4105/@MarginContainer@4081/Chrome/@Label@4295",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@Label@4313",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4134/@MarginContainer@4106/@VBoxContainer@4107/@Control@4110/Face/Rows/@HBoxContainer@4317/@Control@4314/@TextureRect@4312",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "4"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@Label@4334",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/@VBoxContainer@4160/@Control@4163/Face/Rows/@HBoxContainer@4336/@Control@4335/@TextureRect@4333",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4183/@MarginContainer@4159/Chrome/@Label@4332",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@Label@4344",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4208/@MarginContainer@4184/@VBoxContainer@4185/@Control@4188/Face/Rows/@HBoxContainer@4346/@Control@4345/@TextureRect@4343",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Control",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/FitLabelBox",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "Net"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@Label@4355",
+			"reason": "overflow_parent, overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/@VBoxContainer@4210/@Control@4213/Face/Rows/@HBoxContainer@4357/@Control@4356/@TextureRect@4354",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "−1–3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4233/@MarginContainer@4209/Chrome/@Label@4353",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "1 / 2 / 3"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@Label@4367",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/@VBoxContainer@4235/@Control@4238/Face/Rows/@HBoxContainer@4370/@Control@4369/@TextureRect@4366",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "0"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4259/@MarginContainer@4234/Chrome/@Label@4365",
+			"reason": "overflow_parent, below_min_size",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "New!"
+		},
+		{
+			"kind": "Label",
+			"path": "/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@Label@4380",
+			"reason": "overlap:/root/Main/@MarginContainer@15/@HBoxContainer@16/@VBoxContainer@17/@MarginContainer@57/@HBoxContainer@58/@PanelContainer@59/@GridContainer@60/@PanelContainer@4286/@MarginContainer@4260/@VBoxContainer@4261/@Control@4264/Face/Rows/@HBoxContainer@4384/@Control@4381/@TextureRect@4379",
+			"screen": "cover-damsel-montage_b4_f03",
+			"shot": "res://design/itch-reception/2026-11-04/cover-damsel-montage_b4_f03.png",
+			"text": "5"
+		}
+	],
+	"updated": "2026-11-04T14:08:40"
+}
