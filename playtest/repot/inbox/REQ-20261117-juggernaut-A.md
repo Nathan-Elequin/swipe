@@ -51,3 +51,11 @@ Nathan locked Juggernaut monster art A (Shield Linebacker) on Nov 16. Cloud repl
 ## Outbox path
 
 `playtest/repot/outbox/REQ-20261117-juggernaut-A/`
+
+## Retry note (Pixel, Nov 17)
+
+First drain (outbox REQ-20261117-juggernaut-A-run1/RESULT.md, f1b0fdb8) never got Juggernaut dealt: re-rolls reused the same save, so next_run kept seed 3614571837 and its deals had no Juggernaut. This time **wipe the user:// save before every re-roll** so each attempt is a fresh save with a new seed. Any commitment depth / biome the real flow offers is fine. Cap at 15 fresh-save attempts; log seed + dealt monster ids per attempt.
+
+Capture at native 1680x1040. If MCP screenshot_game returns 1024x632, note the actual size in RESULT.
+
+Also log whether Give up / limp home leaves SceneTree.paused true (seen last run).
