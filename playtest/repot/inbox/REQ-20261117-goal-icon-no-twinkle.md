@@ -2,7 +2,7 @@
 id: REQ-20261117-goal-icon-no-twinkle
 status: open
 priority: normal
-tip_sha: ad1f160a
+tip_sha: f931f8ac
 branch: cursor/remove-goal-icon-twinkle-55b1
 created: 2026-11-17T07:10:00Z
 created_by: cloud-agent
