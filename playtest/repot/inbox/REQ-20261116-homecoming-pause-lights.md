@@ -1,6 +1,6 @@
 ---
 id: REQ-20261116-homecoming-pause-lights
-status: open
+status: done
 priority: high
 tip_sha: 5641accb
 branch: cursor/homecoming-pause-lights-e27b

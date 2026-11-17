@@ -1,6 +1,6 @@
 ---
 id: REQ-20261116-hotbar-new-star-size
-status: open
+status: done
 priority: high
 tip_sha: 2d9af6f4
 branch: cursor/hotbar-new-star-size-4b54

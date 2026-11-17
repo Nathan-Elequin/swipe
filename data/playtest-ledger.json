@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-11-12T20:55:00Z",
+	"updated_at": "2026-11-17T01:20:00Z",
 	"branch": "playtest/latest",
 	"issues": {
 		"348": {
@@ -510,6 +510,11 @@
 			"sha": "0f480c91",
 			"f5_note": "Top opens a picker only when some monster HP matches. Click that monster. Stop Play, F5.",
 			"closed_note": "Live on itch playtest 0f480c9. GitHub closed 2026-11-12."
+		},
+		"542": {
+			"status": "todo",
+			"title": "[playtest] Off-ramp (quick) rating=4",
+			"url": "https://github.com/Nathan-Elequin/swipe/issues/542"
 		}
 	}
 }

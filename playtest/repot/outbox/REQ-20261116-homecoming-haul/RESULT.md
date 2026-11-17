@@ -2,45 +2,36 @@
 id: REQ-20261116-homecoming-haul
 status: done
 fulfilled_by: local-cursor
-fulfilled_at: 2026-11-16T17:05:00-06:00
+fulfilled_at: 2026-11-16T19:20:00-06:00
 machine: Cherry
-tip_sha: ac22d09ea4917f5b3f8c818fa84c069934f1701d
-godot: F5 playtest, Brand New, real mouse/Space, no DevChrome cheat bank
-viewport_grab: 1550x960 window (logical layout 1680x1040)
-on_screen_sha: ac22d09e*
+tip_sha: 9f1dd5c8d8b6d9e74638c6f82e92da9f7a42dcea
+godot: F5 playtest, Brand New, godot-mcp viewport mouse/key only, no cheat bank
+viewport: 1680x1040
+on_screen_sha: 9f1dd5c8*
 ---
 
 # Result
 
-Fresh Brand New. First Verdant run died (Take Berserker at 1 HP). Limp home → trophy hall (Verdant face) → Front Room. Music after return: `res://assets/audio/music_cabin.ogg`.
-
-Homecoming model at hall land: `haul.kind=loss`, `haul.count=0`, `ordered_ids=[]`, `sack_vis=false`. Drafted items (Throwing Knife, Net, Breastplate, Boot, Fangs, Victory Flask, Arrowhead) did not enter the satchel.
+Loss #1 (logged): Verdant Dungeon 1, 6-monster wheel (Golem / Ogre / Goblin / Berserker / Eel / Vampire). Used Breastplate (blk 2), Throwing Knife ATK 3, Sai (Golem 7→2). Fangs first try stuck in `phase=slaying` until Undo. Neighbor-pick for Poison Flask did not land. Escape → Give up → confirm. Cabin music `music_cabin.ogg`. Haul empty; drafted uniques did not bank.
 
 ## Dialogue keys observed
 
 - `nib.board.first_look` — "Okay, let's see what you brought back from your first dungeon."
-- `nib.board.first_empty` — "Empty-handed? That's all right. You'll get them next time…"
-- Did **not** see `nib.home.loss.1/.2/.3` in the hall (those lines exist in player-copy; this return used first_look + first_empty).
-- Did **not** see `nib.board.empty.1/.2` (0-new **win** path not reached).
-- Did **not** see `nib.board.lever_ready.1/.2`.
+- `nib.board.first_empty` — "Empty-handed? That's all right…"
+- Did **not** see `nib.home.loss.*` or `nib.board.empty.*` (0-new **win** not reached).
+- Did **not** see `nib.board.lever_ready.*`.
 
 | id | verdict | note |
 |----|---------|------|
-| 01 | fail | `01-empty-return.png` — no satchel, empty-handed Nib, but this was a **loss**, not a 0-new win. Keys: `nib.board.first_look` then `nib.board.first_empty`, not `nib.board.empty.*`. One gold pip was already lit on the five-light row before any item landed. |
-| 02 | fail | Crystal 3+ unpack not reached. First return haul_count was 0. Extra: `loss-return.png` (same hall beat). |
+| 01 | fail | `01-empty-return.png` — no satchel, empty-handed Nib, but this was a **loss/Give up**, not a 0-new win. Keys: first_look then first_empty. All five pips `light_off.png` (no gold pip before a land). |
+| 02 | fail | Crystal 3+ unpack not reached. Extra: `loss-return.png`. |
 | 03 | fail | Fifth Crystal light / lever READY not reached. |
 
-## Extra (user asked)
+## Extra
 
-- **Loss** — landed in trophy hall first (good). Nib was first_empty, not `nib.home.loss.*`. `SceneTree.paused` was **true** after the ceremony when Front Room idle (`front-room-after-loss.png`).
-- **0-new win** — not reached.
-- **3+ uniques / fifth light** — not reached; loss did not bank drafted uniques (`swiped_n=0`).
+- After keyring, Front Room `beat=idle`, `SceneTree.paused=false` (`front-room-after-loss.png`).
+- Give-up from an in-fight neighbor prompt did **not** stamp `playtest_commitment.run_count` / `reached_quick` (still 0 / false, tier 2). Offramp did not open.
 
 ## Blockers
 
-- One Brand New Verdant death in this session. Crystal/Ashen/Cinder fifth-lights need later wins. Did not Grant uniques or seed a save.
-- After return, `tree.paused=true` (same class of stuck pause as REQ-20261114-real-playthrough-qa P07). Did not force-unpause.
-
-## Shots
-
-`playtest/repot/outbox/REQ-20261116-homecoming-haul/shots/`
+- Did not win Verdant this session; Crystal/Ashen/Cinder fifth-lights not reachable. Did not Grant uniques.

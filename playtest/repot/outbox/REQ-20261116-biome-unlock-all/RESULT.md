@@ -2,37 +2,37 @@
 id: REQ-20261116-biome-unlock-all
 status: done
 fulfilled_by: local-cursor
-fulfilled_at: 2026-11-16T17:05:00-06:00
+fulfilled_at: 2026-11-16T19:20:00-06:00
 machine: Cherry
-tip_sha: ac22d09ea4917f5b3f8c818fa84c069934f1701d
-godot: F5 playtest, Brand New, real mouse/Space, no debug_pose / Grant / quota seed
-viewport_grab: 1550x960 window (logical layout 1680x1040)
-on_screen_sha: ac22d09e*
+tip_sha: 9f1dd5c8d8b6d9e74638c6f82e92da9f7a42dcea
+godot: F5 playtest, Brand New, real path, no quota seed / Grant
+viewport: 1680x1040
+on_screen_sha: 9f1dd5c8*
 ---
 
 # Result
 
-Nathan asked for real play to each board's fifth light (Verdant → Crystal → Ashen → Cinder → Shadow → Endless). This session: Brand New → skip intro/tutorial → Verdant enter splash → one fight → death → limp home → Verdant trophy hall → Front Room. No lever pull. No portal splash.
+Nathan asked for a real player path to each board's fifth light. This session: Brand New → Verdant enter → one fight → Give up → trophy hall → Front Room. No lever pull. No portal splash.
 
-Build: `ac22d09e*`. Verdant enter music: `music_verdant_hollow_loop.ogg`. Cabin after return: `music_cabin.ogg`.
+Build `9f1dd5c8*`. Verdant music: `music_verdant_hollow_loop.ogg`. Cabin: `music_cabin.ogg`.
 
-## Dialogue keys observed (this session)
+## Dialogue keys observed
 
-- Playtest intro Skip (no copy key logged).
-- Verdant enter splash (flavor, not `nib.portal.*`).
-- `nib.board.first_look`, `nib.board.first_empty` on first return.
-- No `nib.portal.crystal.*` / `ashen.*` / `cinder.*` / `shadow.*` / `endless.*`.
-- No shortcut keys.
+- `nib.first.*`, `nib.first.map_point`
+- Verdant enter splash (not `nib.portal.*`)
+- `nib.board.first_look`, `nib.board.first_empty`
+- No `nib.portal.crystal/ashen/cinder/shadow/endless.*`
+- No shortcut keys
 
 | id | verdict | note |
 |----|---------|------|
-| 01 | fail | Verdant board never at quota; lever not pulled. No `portal_crystal.png`. |
-| 02 | fail | Crystal splash never played. First return did land in **trophy hall** (see homecoming `01-empty-return.png`) with no Developer Test / Roster / Script strip. |
+| 01 | fail | Verdant board never at quota. No `portal_crystal.png`. |
+| 02 | fail | Crystal splash never played. First return did land in trophy hall (homecoming `01-empty-return.png`) with no Roster/Script strip on that hall frame (pause menu later showed Dev Test / Roster / Script — that is Escape chrome, not the hall land). |
 | 03 | fail | Crystal map beat not reached. |
-| 04 | fail | Crystal bucket reveal not reached. Pool-1 reveal on Brand New skip-tutorial used Onward (not a portal reveal). |
+| 04 | fail | Crystal bucket reveal not reached. Pool-1 Onward was Brand New skip-tutorial, not a portal reveal. |
 | 05 | fail | Ashen splash not reached. |
-| 06 | fail | Ashen hall land not reached. |
-| 07 | fail | Ashen map / Space not reached. |
+| 06 | fail | Ashen hall not reached. |
+| 07 | fail | Ashen map not reached. |
 | 08 | fail | Ashen reveal not reached. |
 | 09 | fail | Cinder splash not reached. |
 | 10 | fail | Shadow splash not reached. |
@@ -42,9 +42,5 @@ Build: `ac22d09e*`. Verdant enter music: `music_verdant_hollow_loop.ogg`. Cabin 
 
 ## Blockers
 
-- Real-player path: first Verdant run died; haul_count 0 so no fifth light. Did not seed quota saves (`debug_seed` / Continue-at-quota). Later biomes not reachable in this session.
-- After first return, `SceneTree.paused` stayed true in Front Room.
-
-## Shots
-
-None under this outbox `shots/` — portal/shortcut beats never appeared. Cross-ref homecoming `01-empty-return.png` (Verdant hall after limp home) and `front-room-after-loss.png`.
+- Real-player path: first Verdant did not win; haul_count 0. Did not seed quota saves.
+- No portal shots under this outbox `shots/`. Cross-ref homecoming `01-empty-return.png` and pause-lights `02-front-room-unpaused.png`.
