@@ -4,7 +4,7 @@ status: blocked
 fulfilled_by: cloud-agent
 fulfilled_at: 2026-11-16T23:59:00Z
 machine: cloud-xvfb
-tip_sha: pending
+tip_sha: d426ef27
 godot: headless Xvfb (no F5 / no godot-mcp)
 ---
 
