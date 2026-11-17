@@ -28799,8 +28799,12 @@ func _layout_play_field() -> void:
 	var view_cx: float = get_viewport_rect().size.x * 0.5
 	var x: float = view_cx - play_field.global_position.x - side * 0.5
 	if challenge_draft_ui != null and challenge_draft_ui.visible and extra > 1.0:
-		## Gutter is for the pick on the right. Do not split it left+right around a centered wheel.
-		x -= extra * 0.5
+		## Keep the wheel on viewport center. Nudge left only if the pick
+		## pair would clip the right edge. extra/2 was shoving a still-tall
+		## wheel across even when the right gutter already fit the cards.
+		var right_room: float = sz.x - VIEW_FRAME.MARGIN - (x + side)
+		if right_room < extra:
+			x -= extra - right_room
 	x = VIEW_FRAME.clamp_x(x, side, sz)
 	# Pin to the top of the play field. Slack stays under the wheel, above Take.
 	var wheel_y: float = top_need
@@ -29808,7 +29812,7 @@ func _can_move(dir: int) -> bool:
 func _sync_move_ui() -> void:
 	if move_box == null:
 		return
-	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
+	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready") and not _choice_covering()
 	## Take arc is a child of move_box — keep the box up during fights even without Moves.
 	var show_take: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
 	move_box.visible = show_arrows or show_take
@@ -29997,7 +30001,7 @@ func _clear_undo_under_take_arc() -> void:
 func _place_move_arrows() -> void:
 	if btn_move_left == null or btn_move_right == null or wheel_view == null:
 		return
-	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready")
+	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready") and not _choice_covering()
 	btn_move_left.visible = show
 	btn_move_right.visible = show
 	if take_arc != null and take_arc.visible:
