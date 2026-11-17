@@ -349,11 +349,13 @@ func setup(
 
 	_or = RichTextLabel.new()
 	_or.bbcode_enabled = true
+	_or.meta_underlined = false
 	_or.scroll_active = false
 	_or.fit_content = true
 	_or.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_or.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_or.add_theme_font_size_override("normal_font_size", 22)
+	_or.add_theme_font_size_override("bold_font_size", 22)
 	_or.add_theme_color_override("default_color", Color("f0e6d8"))
 	_or.add_theme_color_override("font_outline_color", Color("100e0c"))
 	_or.add_theme_constant_override("outline_size", 3)
@@ -390,6 +392,7 @@ func setup(
 
 	_eq = RichTextLabel.new()
 	_eq.bbcode_enabled = true
+	_eq.meta_underlined = false
 	_eq.fit_content = true
 	_eq.scroll_active = false
 	_eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -403,6 +406,7 @@ func setup(
 
 	_ability = RichTextLabel.new()
 	_ability.bbcode_enabled = true
+	_ability.meta_underlined = false
 	_ability.fit_content = true
 	_ability.scroll_active = false
 	_ability.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

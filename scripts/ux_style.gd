@@ -459,7 +459,8 @@ static func paper_ink_for(id: String, dark_hex: String) -> String:
 
 
 static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool = false) -> String:
-	## Direction A icon chip: 24×24 kw_<id> + colored word + underline @45%.
+	## Icon chip: 24×24 kw_<id> + bold colored word (same weight as Attack/HP chips).
+	## Hover stays on [url]; no underline ([u] dropped; meta_underlined=false on RTLs).
 	var kid: String = id.strip_edges().to_lower()
 	if kid == "":
 		return word
@@ -472,12 +473,14 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 		ink = paper_ink_for(kid, ink)
 	var icon: String = KeywordDefs.icon_path(kid)
 	var word_shown: String = word.strip_edges()
+	## Same bold+color wrap Attack/HP use via chip(); keep ink, drop underline.
+	var word_bb: String = "[color=%s][b]%s[/b][/color]" % [ink, word_shown]
 	## ResourceLoader.exists can be true from a stale .import while .ctex failed —
 	## only emit [img] when load() actually returns a texture (broken imgs blank the row).
 	var tex_ok: bool = ResourceLoader.exists(icon) and (load(icon) as Texture2D) != null
 	if not tex_ok:
-		return "[url=kw:%s underline=never][u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, ink, ink, word_shown]
-	return "[url=kw:%s underline=never][img=24x24 valign=center,center]%s[/img] [u color=%s73][color=%s]%s[/color][/u][/url]" % [kid, icon, ink, ink, word_shown]
+		return "[url=kw:%s underline=never]%s[/url]" % [kid, word_bb]
+	return "[url=kw:%s underline=never][img=24x24 valign=center,center]%s[/img] %s[/url]" % [kid, icon, word_bb]
 
 
 static func with_def_link(shown: String, piece: String, ink_hex: String = "", paper: bool = false) -> String:
