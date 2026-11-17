@@ -117,6 +117,8 @@ func _compose_intro_preview(filename: String) -> bool:
 	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
 	img.fill(Color("0b0908"))
 	_draw_box(img, 252, 72, 1176, 736, Color("0b0908"), Color("8a693e"), 4)
+	## Painted hall still (200×124 → 6×) behind the live SubViewport letterbox.
+	_blit_scaled(img, "res://assets/ui/title/intro/intro_frame.png", 252, 72 + 3, 1176, 730)
 	## Nested title preview (no-save) scaled into frame.
 	var inner := _base_title()
 	_blit_board(inner, [

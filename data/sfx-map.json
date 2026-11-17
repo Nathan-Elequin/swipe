@@ -1054,13 +1054,13 @@
       },
       "cinder_forge_victory": {
         "file": "music_cinder_forge_victory",
-        "gain_db": -4.0,
+        "gain_db": 3.5,
         "loop": false,
         "resume_position": false,
         "outro_style": "splice",
         "lead_in_frac": 0.5,
         "splice_out_s": 0.04,
-        "note": "Cinder Forge (b4) dungeon-clear one-shot; splice style. Clip has baked 0.992s linear fade-in (half of 1.983s bar); loudness-matched to boss-combat mix. gain_db = A bed (-4), same convention as shadow_abyss_victory. Finished → between_dungeons soft 0.8s."
+        "note": "Cinder Forge (b4) dungeon-clear one-shot; splice style. Clip has baked 0.992s linear fade-in (half of 1.983s bar); loudness-matched to boss-combat mix. gain_db +3.5 (2026-11-17, Nathan: outro too quiet): clip short-term body ~-23.7 LUFS vs forge A+B loop ~-16.2, so +7.5 dB over the old -4 matches the loop as heard. Finished → between_dungeons soft 0.8s."
       },
       "crystal_cavern": {
         "file": "music_crystal_cavern_a",
