@@ -8273,6 +8273,86 @@
 			"text": "Make it to the Shadow Abyss.\nSeveral hours.",
 			"where": "Commitment picker goal+time (up to 2 lines)",
 			"draft": true
+		},
+		{
+			"key": "title.menu.new_game",
+			"text": "New Game",
+			"where": "Title menu New Game (alias)"
+		},
+		{
+			"key": "title.menu.continue",
+			"text": "Continue",
+			"where": "Title menu Continue (alias)"
+		},
+		{
+			"key": "title.menu.settings",
+			"text": "Settings",
+			"where": "Title menu Settings (alias)"
+		},
+		{
+			"key": "title.menu.feedback",
+			"text": "Feedback",
+			"where": "Title menu Feedback (alias)"
+		},
+		{
+			"key": "title.menu.start_over",
+			"text": "Start over",
+			"where": "Title menu Start over (alias)"
+		},
+		{
+			"key": "title.start_over.ask",
+			"text": "Start over from scratch? This wipes your progress, your trophies, and your goal.",
+			"where": "Start-over confirm ask (alias)"
+		},
+		{
+			"key": "biome.name.verdant",
+			"text": "Verdant Hollow",
+			"where": "Title board biome name (verdant)"
+		},
+		{
+			"key": "biome.name.crystal",
+			"text": "Crystal Cavern",
+			"where": "Title board biome name (crystal)"
+		},
+		{
+			"key": "biome.name.ashen",
+			"text": "Ashen Crypt",
+			"where": "Title board biome name (ashen)"
+		},
+		{
+			"key": "biome.name.cinder",
+			"text": "Cinder Forge",
+			"where": "Title board biome name (cinder)"
+		},
+		{
+			"key": "biome.name.shadow",
+			"text": "Shadow Abyss",
+			"where": "Title board biome name (shadow)"
+		},
+		{
+			"key": "picker.pick.quick",
+			"text": "Pick",
+			"where": "Commitment picker pick button (quick)"
+		},
+		{
+			"key": "picker.pick.deeper",
+			"text": "Pick",
+			"where": "Commitment picker pick button (deeper)"
+		},
+		{
+			"key": "picker.pick.big",
+			"text": "Pick",
+			"where": "Commitment picker pick button (big)"
+		},
+		{
+			"key": "picker.back",
+			"text": "Back",
+			"where": "Commitment picker back"
+		},
+		{
+			"key": "title.start_over.body",
+			"text": "",
+			"where": "Start-over confirm body (optional)"
 		}
 	],
 	"updated": "2026-11-17"

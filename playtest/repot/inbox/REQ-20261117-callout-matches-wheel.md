@@ -1,6 +1,6 @@
 ---
 id: REQ-20261117-callout-matches-wheel
-status: open
+status: done
 priority: high
 branch: cursor/callout-matches-wheel-ef97
 tip_sha: f75505f6

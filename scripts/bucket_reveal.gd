@@ -272,6 +272,9 @@ func play(bucket_n: int, entries: Array) -> void:
 			break
 		var slot: Control = card["slot"]
 		var tex_rect: TextureRect = card["tex"]
+		## Hover already flipped this one to color — do not pop it or silhouette it again.
+		if _card_is_revealed(slot):
+			continue
 		slot.modulate.a = 0.0
 		slot.scale = Vector2(0.82, 0.82)
 		slot.pivot_offset = slot.custom_minimum_size * 0.5
@@ -281,7 +284,8 @@ func play(bucket_n: int, entries: Array) -> void:
 		tw.tween_property(slot, "modulate:a", 1.0, 0.18)
 		tw.tween_property(slot, "scale", Vector2(1.06, 1.06), 0.14)
 		tw.chain().tween_property(slot, "scale", Vector2.ONE, 0.1)
-		tex_rect.modulate = Color(0.04, 0.03, 0.025, 1)
+		if not _card_is_revealed(slot):
+			tex_rect.modulate = Color(0.04, 0.03, 0.025, 1)
 		if sfx != null and sfx.has_method("play_event"):
 			sfx.play_event(&"bucket.card_pop")
 		await _pause_safe_wait(0.11)
@@ -303,6 +307,28 @@ func play(bucket_n: int, entries: Array) -> void:
 	visible = false
 	card_unhovered.emit()
 	finished.emit()
+
+
+func _card_is_revealed(slot: Control) -> bool:
+	if slot == null:
+		return false
+	if bool(slot.get_meta("revealed", false)):
+		return true
+	if slot.has_meta("panel"):
+		var panel = slot.get_meta("panel")
+		if panel != null and bool(panel.get_meta("open", false)):
+			return true
+	return bool(slot.get_meta("open", false))
+
+
+func _mark_revealed(panel: PanelContainer) -> void:
+	if panel == null:
+		return
+	panel.set_meta("open", true)
+	var wrap: Node = panel.get_parent()
+	if wrap is Control:
+		(wrap as Control).set_meta("revealed", true)
+		(wrap as Control).modulate.a = 1.0
 
 
 func _pause_safe_wait(seconds: float) -> void:
@@ -410,7 +436,7 @@ func _make_card(row: GridContainer, entry: Dictionary, bucket_n: int) -> Diction
 
 
 func _on_card_enter(slot: PanelContainer, tex_rect: TextureRect, name: Label, entry: Dictionary) -> void:
-	slot.set_meta("open", true)
+	_mark_revealed(slot)
 	var edge: StyleBoxFlat = slot.get_meta("edge")
 	edge.border_color = Color("f0d78a")
 	edge.bg_color = Color("1c1612")

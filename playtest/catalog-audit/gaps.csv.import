@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dpj55fn1v3arn"
+
+[deps]
+
+files=["res://playtest/catalog-audit/gaps.kind.translation", "res://playtest/catalog-audit/gaps.subject.translation", "res://playtest/catalog-audit/gaps.detail.translation", "res://playtest/catalog-audit/gaps.todo.translation", "res://playtest/catalog-audit/gaps.auto.translation", "res://playtest/catalog-audit/gaps.fixed.translation"]
+
+source_file="res://playtest/catalog-audit/gaps.csv"
+dest_files=["res://playtest/catalog-audit/gaps.kind.translation", "res://playtest/catalog-audit/gaps.subject.translation", "res://playtest/catalog-audit/gaps.detail.translation", "res://playtest/catalog-audit/gaps.todo.translation", "res://playtest/catalog-audit/gaps.auto.translation", "res://playtest/catalog-audit/gaps.fixed.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

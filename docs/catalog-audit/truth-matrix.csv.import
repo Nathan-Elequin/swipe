@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cd6pyykthlhmm"
+
+[deps]
+
+files=["res://docs/catalog-audit/truth-matrix.id.translation", "res://docs/catalog-audit/truth-matrix.name.translation", "res://docs/catalog-audit/truth-matrix.status.translation", "res://docs/catalog-audit/truth-matrix.tier.translation", "res://docs/catalog-audit/truth-matrix.pool.translation", "res://docs/catalog-audit/truth-matrix.is.translation", "res://docs/catalog-audit/truth-matrix.flags.translation", "res://docs/catalog-audit/truth-matrix.png.translation", "res://docs/catalog-audit/truth-matrix.png.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation"]
+
+source_file="res://docs/catalog-audit/truth-matrix.csv"
+dest_files=["res://docs/catalog-audit/truth-matrix.id.translation", "res://docs/catalog-audit/truth-matrix.name.translation", "res://docs/catalog-audit/truth-matrix.status.translation", "res://docs/catalog-audit/truth-matrix.tier.translation", "res://docs/catalog-audit/truth-matrix.pool.translation", "res://docs/catalog-audit/truth-matrix.is.translation", "res://docs/catalog-audit/truth-matrix.flags.translation", "res://docs/catalog-audit/truth-matrix.png.translation", "res://docs/catalog-audit/truth-matrix.png.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation", "res://docs/catalog-audit/truth-matrix.sfx.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

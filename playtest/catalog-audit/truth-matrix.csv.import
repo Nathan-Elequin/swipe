@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b23v6caapg1ph"
+
+[deps]
+
+files=["res://playtest/catalog-audit/truth-matrix.id.translation", "res://playtest/catalog-audit/truth-matrix.name.translation", "res://playtest/catalog-audit/truth-matrix.status.translation", "res://playtest/catalog-audit/truth-matrix.tier.translation", "res://playtest/catalog-audit/truth-matrix.pool.translation", "res://playtest/catalog-audit/truth-matrix.is.translation", "res://playtest/catalog-audit/truth-matrix.flags.translation", "res://playtest/catalog-audit/truth-matrix.png.translation", "res://playtest/catalog-audit/truth-matrix.png.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation"]
+
+source_file="res://playtest/catalog-audit/truth-matrix.csv"
+dest_files=["res://playtest/catalog-audit/truth-matrix.id.translation", "res://playtest/catalog-audit/truth-matrix.name.translation", "res://playtest/catalog-audit/truth-matrix.status.translation", "res://playtest/catalog-audit/truth-matrix.tier.translation", "res://playtest/catalog-audit/truth-matrix.pool.translation", "res://playtest/catalog-audit/truth-matrix.is.translation", "res://playtest/catalog-audit/truth-matrix.flags.translation", "res://playtest/catalog-audit/truth-matrix.png.translation", "res://playtest/catalog-audit/truth-matrix.png.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation", "res://playtest/catalog-audit/truth-matrix.sfx.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
