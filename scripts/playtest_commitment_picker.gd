@@ -1,29 +1,26 @@
 extends ColorRect
-## Playtest commitment tier picker (slice 2 — UI).
-## First pick after intro (tier == 0), or upgrade-only from pause "Go deeper".
+## Playtest commitment picker — Living trophy room card visuals.
+## Keeps chosen/cancelled signals, open_picker/close_picker, card_icon_center.
 
 signal chosen(tier: int, upgrade: bool)
 signal cancelled
 
 const COPY := preload("res://scripts/player_copy.gd")
 const C := preload("res://scripts/playtest_commitment.gd")
-const GLYPH := preload("res://scripts/commitment_tier_glyph.gd")
+const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 
-const CARD_W := 280.0
-const CARD_H := 260.0
-const CARD_GAP := 20.0
-const EDGE := 24.0
+const FONT_TITLE := "res://assets/ui/fonts/eb_garamond/EBGaramond-SemiBold.ttf"
+const FONT_SEMI := "res://assets/ui/fonts/open_sans/OpenSans-SemiBold.ttf"
+const FONT_REG := "res://assets/ui/fonts/open_sans/OpenSans-Regular.ttf"
 
 const COL_BG := Color("100e0c")
-const COL_PANEL := Color("1a1410f5")
-const COL_BORDER := Color("e8c36a")
+const COL_BORDER := Color("6b5235")
+const COL_BORDER_HOVER := Color("e8c36a")
+const COL_BORDER_PRESS := Color("ffe0a1")
 const COL_TITLE := Color("e8c36a")
 const COL_BODY := Color("f4ede3")
 const COL_MUTED := Color("b6a78e")
-const COL_HOVER := Color("30261a")
-const COL_FOCUS := Color("f7d58c")
 const COL_DIM := Color(0.45, 0.4, 0.35, 1.0)
-const COL_CHECK := Color("8DCB8D")
 
 var _upgrade: bool = false
 var _min_enabled: int = C.TIER_QUICK
@@ -34,10 +31,11 @@ var _busy: bool = false
 var _cards: Array = []
 var _card_nodes: Array = []
 var _title: Label
-var _carrot: Label
-var _notice: Label
-var _row: HBoxContainer
+var _back: Button
 var _arm: float = 0.0
+var _audio = null
+var reduce_motion: bool = false
+var _base_ys: Dictionary = {}
 
 
 func setup() -> void:
@@ -51,7 +49,6 @@ func setup() -> void:
 	_build()
 
 
-## mode "choose" = first pick; "upgrade" = only tiers above current_tier.
 func open_picker(mode: String = "choose", current_tier: int = C.TIER_NONE, reached: Dictionary = {}) -> void:
 	_upgrade = str(mode) == "upgrade"
 	_current_tier = clampi(int(current_tier), C.TIER_NONE, C.TIER_BIG)
@@ -82,7 +79,8 @@ func card_icon_center(tier: int) -> Vector2:
 	var r: Rect2 = card_global_rect(tier)
 	if r.size.x < 4.0:
 		return get_viewport_rect().size * 0.5
-	return r.position + Vector2(r.size.x * 0.5, 48.0)
+	## GoalMark centre roughly at card-local (181+39, 290+39).
+	return r.position + Vector2(220.0, 329.0)
 
 
 func _default_focus() -> int:
@@ -92,98 +90,133 @@ func _default_focus() -> int:
 	return 0
 
 
+func _font(path: String) -> Font:
+	if ResourceLoader.exists(path):
+		return load(path) as Font
+	return ThemeDB.fallback_font
+
+
+func _tex(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	return null
+
+
 func _build() -> void:
-	var root := VBoxContainer.new()
-	root.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	root.offset_left = EDGE
-	root.offset_right = -EDGE
-	root.offset_top = EDGE
-	root.offset_bottom = -EDGE
-	root.alignment = BoxContainer.ALIGNMENT_CENTER
-	root.add_theme_constant_override("separation", 18)
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(root)
+	## Backdrop
+	var bg := TextureRect.new()
+	bg.texture = _tex("res://assets/ui/biome_splash/bg_verdant.png")
+	bg.texture_filter = TEXTURE_FILTER_NEAREST
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_KEEP
+	bg.position = Vector2(0, 0)
+	bg.size = Vector2(1680, 832)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(bg)
+	var floor_c := ColorRect.new()
+	floor_c.color = Color("0b0908")
+	floor_c.position = Vector2(0, 832)
+	floor_c.size = Vector2(1680, 208)
+	floor_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(floor_c)
+	var dim := ColorRect.new()
+	dim.color = Color(0.043, 0.035, 0.031, 0.68)
+	dim.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(dim)
 
 	_title = Label.new()
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title.add_theme_font_size_override("font_size", 36)
-	_title.add_theme_color_override("font_color", COL_TITLE)
-	_title.add_theme_color_override("font_outline_color", Color("100e0c"))
-	_title.add_theme_constant_override("outline_size", 3)
+	_title.position = Vector2(80, 46)
+	_title.size = Vector2(1520, 72)
+	_title.add_theme_font_override("font", _font(FONT_TITLE))
+	_title.add_theme_font_size_override("font_size", 64)
+	_title.add_theme_color_override("font_color", COL_BODY)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_title)
-
-	_row = HBoxContainer.new()
-	_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_row.add_theme_constant_override("separation", int(CARD_GAP))
-	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_row)
+	add_child(_title)
 
 	_cards = [
 		{
 			"tier": C.TIER_QUICK,
 			"id": "quick",
+			"slug": "verdant",
+			"splash": "verdant",
+			"monster": "goblin",
+			"native": 48,
+			"scale": 5.0,
 			"title_key": "playtest.tier.quick.title",
-			"title_fb": "Finish your first run",
-			"line_key": "playtest.tier.quick.line",
-			"line_fb": "Learn the ropes with my tutorial, then take one run on your own. Tell me what clicked and what didn't.",
 			"time_key": "playtest.tier.quick.time",
-			"time_fb": "About 15 minutes",
+			"line_key": "playtest.tier.quick.line",
+			"pick_key": "picker.pick.quick",
 		},
 		{
 			"tier": C.TIER_DEEPER,
 			"id": "deeper",
+			"slug": "crystal",
+			"splash": "crystal",
+			"monster": "gargoyle",
+			"native": 48,
+			"scale": 5.0,
 			"title_key": "playtest.tier.deeper.title",
-			"title_fb": "Reach the Crystal Cavern",
-			"line_key": "playtest.tier.deeper.line",
-			"line_fb": "Escape Verdant Hollow with five unique items and pull the lever. This is where the game opens up and you start to feel real mastery.",
 			"time_key": "playtest.tier.deeper.time",
-			"time_fb": "Usually about an hour",
+			"line_key": "playtest.tier.deeper.line",
+			"pick_key": "picker.pick.deeper",
 		},
 		{
 			"tier": C.TIER_BIG,
 			"id": "big",
+			"slug": "shadow",
+			"splash": "shadow",
+			"monster": "lich",
+			"native": 64,
+			"scale": 4.0,
 			"title_key": "playtest.tier.big.title",
-			"title_fb": "Reach the Shadow Abyss",
-			"line_key": "playtest.tier.big.line",
-			"line_fb": "Make it to the Shadow Abyss and you get a victory code, a spot in my Discord, and we'll design a new monster or item for the game together.",
 			"time_key": "playtest.tier.big.time",
-			"time_fb": "Several hours",
+			"line_key": "playtest.tier.big.line",
+			"pick_key": "picker.pick.big",
 		},
 	]
 	_card_nodes.clear()
-	for spec in _cards:
-		var card: PanelContainer = _make_card(spec)
-		_row.add_child(card)
+	for i in range(_cards.size()):
+		var card: PanelContainer = _make_card(_cards[i], i)
+		add_child(card)
 		_card_nodes.append(card)
+		_base_ys[card] = card.position.y
 
-	_carrot = Label.new()
-	_carrot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_carrot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_carrot.add_theme_font_size_override("font_size", 15)
-	_carrot.add_theme_color_override("font_color", COL_MUTED)
-	_carrot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_carrot)
+	_back = Button.new()
+	_back.name = "Back"
+	_back.flat = true
+	_back.focus_mode = Control.FOCUS_ALL
+	_back.position = Vector2(56, 830)
+	_back.size = Vector2(250, 32)
+	_back.add_theme_font_override("font", _font(FONT_REG))
+	_back.add_theme_font_size_override("font_size", 18)
+	_back.add_theme_color_override("font_color", COL_MUTED)
+	_back.add_theme_color_override("font_hover_color", COL_BODY)
+	_back.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+	_back.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+	_back.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	_back.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	_back.text = COPY.text("picker.back", "picker.back")
+	_back.pressed.connect(func() -> void:
+		if _upgrade:
+			close_picker()
+			cancelled.emit()
+	)
+	add_child(_back)
 
-	_notice = Label.new()
-	_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_notice.add_theme_font_size_override("font_size", 12)
-	_notice.add_theme_color_override("font_color", Color("8a8178"))
-	_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_notice)
 
-
-func _make_card(spec: Dictionary) -> PanelContainer:
+func _make_card(spec: Dictionary, index: int) -> PanelContainer:
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(CARD_W, CARD_H)
-	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	card.position = Vector2(124 + 500 * index, 206)
+	card.custom_minimum_size = Vector2(440, 586)
+	card.size = Vector2(440, 586)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	card.focus_mode = Control.FOCUS_ALL
 	card.set_meta("tier", int(spec.get("tier", 0)))
 	card.set_meta("spec", spec)
-	card.pivot_offset = Vector2(CARD_W * 0.5, CARD_H * 0.5)
+	card.set_meta("id", str(spec.get("id", "")))
+	card.pivot_offset = Vector2(220, 293)
 	card.gui_input.connect(_on_card_gui.bind(card))
 	card.focus_entered.connect(func() -> void:
 		_focus_i = _index_of_card(card)
@@ -196,138 +229,192 @@ func _make_card(spec: Dictionary) -> PanelContainer:
 			_focus_i = _index_of_card(card)
 			_paint_focus()
 	)
+	card.mouse_exited.connect(func() -> void:
+		_reset_card_hover(card)
+	)
 
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = COL_PANEL
+	sb.bg_color = Color("100e0c")
 	sb.border_color = COL_BORDER
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 16
-	sb.content_margin_right = 16
-	sb.content_margin_top = 14
-	sb.content_margin_bottom = 14
+	sb.set_border_width_all(4)
+	sb.set_corner_radius_all(0)
+	sb.shadow_color = Color("080706")
+	sb.shadow_size = 0
+	sb.shadow_offset = Vector2(0, 10)
+	sb.content_margin_left = 0
+	sb.content_margin_right = 0
+	sb.content_margin_top = 0
+	sb.content_margin_bottom = 0
 	card.add_theme_stylebox_override("panel", sb)
 	card.set_meta("style", sb)
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 10)
-	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(col)
+	var root := Control.new()
+	root.custom_minimum_size = Vector2(440, 586)
+	root.size = Vector2(440, 586)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.clip_contents = true
+	card.add_child(root)
 
-	var icon := _make_tier_icon(int(spec.get("tier", 0)))
-	icon.name = "TierIcon"
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(icon)
+	var art := TextureRect.new()
+	art.name = "Art"
+	art.texture = _tex("res://assets/ui/biome_splash/bg_%s.png" % str(spec.get("splash", "verdant")))
+	art.texture_filter = TEXTURE_FILTER_NEAREST
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_SCALE
+	art.position = Vector2(-204, 0)
+	art.size = Vector2(840, 416)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(art)
+
+	var fade := TextureRect.new()
+	fade.name = "Fade"
+	fade.position = Vector2(0, 240)
+	fade.size = Vector2(432, 346)
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var grad := GradientTexture2D.new()
+	grad.width = 4
+	grad.height = 64
+	grad.fill_from = Vector2(0.5, 0.0)
+	grad.fill_to = Vector2(0.5, 1.0)
+	var g := Gradient.new()
+	g.colors = PackedColorArray([Color(0.0627, 0.0549, 0.0471, 0.0), Color("100e0c")])
+	g.offsets = PackedFloat32Array([0.0, 0.24])
+	grad.gradient = g
+	fade.texture = grad
+	fade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fade.stretch_mode = TextureRect.STRETCH_SCALE
+	## LINEAR for gradient only is fine; documented exception is intro preview.
+	root.add_child(fade)
+
+	var spr := AnimatedSprite2D.new()
+	spr.name = "Presenter"
+	spr.centered = true
+	spr.position = Vector2(220, 166)
+	spr.scale = Vector2(float(spec.get("scale", 5.0)), float(spec.get("scale", 5.0)))
+	spr.texture_filter = TEXTURE_FILTER_NEAREST
+	spr.sprite_frames = _presenter_frames(str(spec.get("monster", "goblin")))
+	spr.animation = &"idle"
+	spr.frame = 0
+	spr.pause()
+	root.add_child(spr)
+	card.set_meta("presenter", spr)
+
+	var ring := TextureRect.new()
+	ring.name = "GoalMark"
+	ring.texture = _tex("res://assets/ui/title/goal/goal_ring_%s.png" % str(spec.get("id", "quick")))
+	ring.texture_filter = TEXTURE_FILTER_NEAREST
+	ring.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ring.stretch_mode = TextureRect.STRETCH_SCALE
+	ring.position = Vector2(181, 290)
+	ring.size = Vector2(78, 78)
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(ring)
 
 	var title := Label.new()
 	title.name = "Title"
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title.add_theme_font_size_override("font_size", 22)
+	title.position = Vector2(30, 386)
+	title.size = Vector2(380, 40)
+	title.add_theme_font_override("font", _font(FONT_TITLE))
+	title.add_theme_font_size_override("font_size", 32)
 	title.add_theme_color_override("font_color", COL_TITLE)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(title)
+	root.add_child(title)
+
+	var biome := Label.new()
+	biome.name = "Biome"
+	biome.position = Vector2(30, 432)
+	biome.size = Vector2(380, 28)
+	biome.add_theme_font_override("font", _font(FONT_SEMI))
+	biome.add_theme_font_size_override("font_size", 21)
+	biome.add_theme_color_override("font_color", COL_BODY)
+	biome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(biome)
 
 	var line := Label.new()
 	line.name = "Line"
+	line.position = Vector2(30, 470)
+	line.size = Vector2(380, 40)
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	line.add_theme_font_size_override("font_size", 14)
-	line.add_theme_color_override("font_color", COL_BODY)
+	line.max_lines_visible = 2
+	line.add_theme_font_override("font", _font(FONT_REG))
+	line.add_theme_font_size_override("font_size", 18)
+	line.add_theme_color_override("font_color", COL_MUTED)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(line)
+	root.add_child(line)
 
-	var time := Label.new()
-	time.name = "Time"
-	time.add_theme_font_size_override("font_size", 13)
-	time.add_theme_color_override("font_color", COL_MUTED)
-	time.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(time)
-
-	var status := Label.new()
-	status.name = "Status"
-	status.add_theme_font_size_override("font_size", 13)
-	status.add_theme_color_override("font_color", COL_CHECK)
-	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(status)
+	var pick := KIT.choice_tag(str(spec.get("pick_key", "picker.pick.quick")), Vector2(88, 14))
+	pick.name = "Pick"
+	pick.position = Vector2(44, 518)
+	pick.focus_mode = Control.FOCUS_ALL
+	pick.text = COPY.text(str(spec.get("pick_key", "")), str(spec.get("pick_key", "")))
+	pick.pressed.connect(func() -> void:
+		_focus_i = _index_of_card(card)
+		_confirm_focus()
+	)
+	root.add_child(pick)
 
 	return card
 
 
-func _make_tier_icon(tier: int) -> Control:
-	var wrap := Control.new()
-	wrap.custom_minimum_size = Vector2(48, 40)
-	var draw: Control = GLYPH.new()
-	draw.set("tier", tier)
-	draw.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	draw.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wrap.add_child(draw)
-	return wrap
+func _presenter_frames(monster: String) -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	sf.add_animation(&"idle")
+	sf.add_animation(&"present")
+	sf.set_animation_speed(&"idle", 4.0)
+	sf.set_animation_loop(&"idle", true)
+	sf.set_animation_speed(&"present", 10.0)
+	sf.set_animation_loop(&"present", false)
+	for f in range(4):
+		var p := "res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png" % [monster, f]
+		var t := _tex(p)
+		if t:
+			sf.add_frame(&"idle", t)
+	var have_present := true
+	for f in range(4):
+		var pp := "res://assets/ui/title/presenters/%s_present_f%d.png" % [monster, f]
+		var pt := _tex(pp)
+		if pt == null:
+			have_present = false
+			break
+		sf.add_frame(&"present", pt)
+	if not have_present:
+		sf.clear(&"present")
+		sf.set_animation_speed(&"present", 8.0)
+		for f in range(sf.get_frame_count(&"idle")):
+			sf.add_frame(&"present", sf.get_frame_texture(&"idle", f))
+	return sf
 
 
 func _refresh_cards() -> void:
 	if _title:
-		_title.text = COPY.text(
-			"playtest.tier.upgrade_title" if _upgrade else "playtest.tier.choose_title",
-			"Go deeper" if _upgrade else "How far do you want to go?"
-		)
-	if _carrot:
-		_carrot.text = COPY.text(
-			"playtest.tier.carrot",
-			"Reach the Shadow Abyss and you'll help me design part of this game. You can always go deeper later."
-		)
-	if _notice:
-		var telem := COPY.text("playtest.tier.notice.telemetry", "I collect anonymous play data to improve the game.")
-		var save := COPY.text("playtest.tier.notice.save", "Your progress lives in this browser. Clearing site data resets it.")
-		_notice.text = "%s  ·  %s" % [telem, save]
+		var key := "playtest.tier.upgrade_title" if _upgrade else "playtest.tier.choose_title"
+		_title.text = COPY.text(key, key)
+	if _back:
+		_back.visible = _upgrade
 	for i in range(_card_nodes.size()):
 		var card: PanelContainer = _card_nodes[i]
 		var spec: Dictionary = _cards[i]
 		var tier: int = int(spec.get("tier", 0))
 		var enabled: bool = _tier_enabled(tier)
-		var done: bool = bool(_reached.get(_milestone_id(tier), false))
-		var title_l: Label = _find_label(card, "Title")
-		var line_l: Label = _find_label(card, "Line")
-		var time_l: Label = _find_label(card, "Time")
-		var status_l: Label = _find_label(card, "Status")
+		var title_l: Label = card.find_child("Title", true, false) as Label
+		var biome_l: Label = card.find_child("Biome", true, false) as Label
+		var line_l: Label = card.find_child("Line", true, false) as Label
+		var pick_b: Button = card.find_child("Pick", true, false) as Button
 		if title_l:
-			title_l.text = COPY.text(str(spec.get("title_key", "")), str(spec.get("title_fb", "")))
+			title_l.text = COPY.text(str(spec.get("title_key", "")), str(spec.get("title_key", "")))
+		if biome_l:
+			var bk := "biome.name.%s" % str(spec.get("slug", "verdant"))
+			biome_l.text = COPY.text(bk, bk)
 		if line_l:
-			line_l.text = COPY.text(str(spec.get("line_key", "")), str(spec.get("line_fb", "")))
-		if time_l:
-			time_l.text = COPY.text(str(spec.get("time_key", "")), str(spec.get("time_fb", "")))
-		if status_l:
-			if done:
-				status_l.text = COPY.text("playtest.tier.done_check", "✓ Done")
-				status_l.visible = true
-			elif _upgrade and not enabled:
-				status_l.text = COPY.text("playtest.tier.current_mark", "Current")
-				status_l.visible = tier == _current_tier
-			else:
-				status_l.visible = false
+			line_l.text = COPY.text(str(spec.get("time_key", "")), str(spec.get("time_key", "")))
+			line_l.tooltip_text = COPY.text(str(spec.get("line_key", "")), str(spec.get("line_key", "")))
+		if pick_b:
+			pick_b.text = COPY.text(str(spec.get("pick_key", "")), str(spec.get("pick_key", "")))
+			pick_b.disabled = not enabled
 		card.modulate = Color.WHITE if enabled else COL_DIM
 		card.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 		card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
-		card.mouse_filter = Control.MOUSE_FILTER_STOP
 	_paint_focus()
-
-
-func _find_label(card: Node, nm: String) -> Label:
-	for c in card.get_children():
-		var found := c.find_child(nm, true, false)
-		if found is Label:
-			return found
-	return null
-
-
-func _milestone_id(tier: int) -> String:
-	match tier:
-		C.TIER_QUICK:
-			return C.M_QUICK
-		C.TIER_DEEPER:
-			return C.M_DEEPER
-		C.TIER_BIG:
-			return C.M_BIG
-	return ""
 
 
 func _tier_enabled(tier: int) -> bool:
@@ -350,10 +437,35 @@ func _paint_focus() -> void:
 		var tier: int = int(card.get_meta("tier", 0))
 		var enabled: bool = _tier_enabled(tier)
 		var focused: bool = enabled and i == _focus_i
-		sb.bg_color = COL_HOVER if focused else COL_PANEL
-		sb.border_color = COL_FOCUS if focused else COL_BORDER
-		sb.set_border_width_all(3 if focused else 2)
+		sb.border_color = COL_BORDER_HOVER if focused else COL_BORDER
 		card.add_theme_stylebox_override("panel", sb)
+		var base_y: float = float(_base_ys.get(card, card.position.y))
+		var spr: AnimatedSprite2D = card.get_meta("presenter") as AnimatedSprite2D
+		if focused and not reduce_motion:
+			if absf(card.position.y - (base_y - 8.0)) > 0.5:
+				var tw := create_tween().bind_node(self)
+				tw.tween_property(card, "position:y", base_y - 8.0, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			if spr:
+				spr.play(&"idle")
+			if _audio and _audio.has_method("play_event"):
+				_audio.play_event(&"ui.picker_hover", {"goal": str(card.get_meta("id", ""))})
+		else:
+			card.position.y = base_y
+			if spr:
+				spr.pause()
+				spr.frame = 0
+				spr.animation = &"idle"
+
+
+func _reset_card_hover(card: Control) -> void:
+	if _index_of_card(card) == _focus_i:
+		return
+	var base_y: float = float(_base_ys.get(card, card.position.y))
+	card.position.y = base_y
+	var spr: AnimatedSprite2D = card.get_meta("presenter") as AnimatedSprite2D
+	if spr:
+		spr.pause()
+		spr.frame = 0
 
 
 func _grab_focus_card() -> void:
@@ -427,15 +539,22 @@ func _confirm_focus() -> void:
 	if not _tier_enabled(tier):
 		return
 	_busy = true
-	_blip_selected(_card_nodes[_focus_i])
+	var card: Control = _card_nodes[_focus_i]
+	var sb: StyleBoxFlat = card.get_meta("style") as StyleBoxFlat
+	if sb:
+		sb.border_color = COL_BORDER_PRESS
+		card.add_theme_stylebox_override("panel", sb)
+	if not reduce_motion:
+		var base_y: float = float(_base_ys.get(card, card.position.y))
+		var tw := create_tween().bind_node(self)
+		tw.tween_property(card, "position:y", base_y + 4.0, 0.08)
+		tw.tween_property(card, "position:y", base_y - 8.0, 0.08)
+		var spr: AnimatedSprite2D = card.get_meta("presenter") as AnimatedSprite2D
+		if spr:
+			spr.play(&"present")
+	if _audio and _audio.has_method("play_event"):
+		_audio.play_event(&"ui.picker_confirm")
 	chosen.emit(tier, _upgrade)
-
-
-func _blip_selected(card: Control) -> void:
-	var tw := create_tween()
-	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tw.tween_property(card, "scale", Vector2(1.06, 1.06), 0.12)
-	tw.tween_property(card, "scale", Vector2.ONE, 0.18)
 
 
 ## Source contract helpers for selftests.

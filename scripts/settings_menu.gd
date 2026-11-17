@@ -20,6 +20,7 @@ signal reduce_motion_toggled(on: bool)
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const SETTINGS_PANEL := preload("res://scripts/ui/settings_panel.gd")
 const PX := 4.0
 
 var _master: VolumeSlider
@@ -61,6 +62,7 @@ var _board: Control
 var _keep_paused: bool = false
 var _board_y: float = 40.0 * PX
 var _page: String = "main"
+var _settings_panel = null
 
 ## Board art is 800x720. The cream plaque is the top-center strip (x 240–563, y 0–58).
 const _TITLE_POS := Vector2(240, 2)
@@ -135,23 +137,29 @@ func setup(audio) -> void:
 	_board.add_child(_btn_victory_code)
 	_hook_hover(_btn_victory_code)
 
-	_btn_sparkles = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_sparkles.text = "Item sparkles: on"
-	_btn_sparkles.pressed.connect(_on_sparkles)
-	_board.add_child(_btn_sparkles)
-	_hook_hover(_btn_sparkles)
-
-	_btn_invert = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_invert.text = "Invert scroll: off"
-	_btn_invert.pressed.connect(_on_invert_scroll)
-	_board.add_child(_btn_invert)
-	_hook_hover(_btn_invert)
-
-	_btn_reduce = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_reduce.text = "Reduce motion: off"
-	_btn_reduce.pressed.connect(_on_reduce_motion)
-	_board.add_child(_btn_reduce)
-	_hook_hover(_btn_reduce)
+	## Shared SettingsPanel (3 toggles + 5 sliders) — same type as title Settings.
+	_settings_panel = SETTINGS_PANEL.new()
+	_settings_panel.setup(audio, false)
+	if _settings_panel._btn_back:
+		_settings_panel._btn_back.visible = false
+	_settings_panel.sparkles_toggled.connect(func(on: bool) -> void:
+		sparkles_on = on
+		sparkles_toggled.emit(on)
+	)
+	_settings_panel.invert_scroll_toggled.connect(func(on: bool) -> void:
+		invert_scroll = on
+		invert_scroll_toggled.emit(on)
+	)
+	_settings_panel.reduce_motion_toggled.connect(func(on: bool) -> void:
+		reduce_motion = on
+		reduce_motion_toggled.emit(on)
+	)
+	_board.add_child(_settings_panel)
+	## Aliases so existing layout/copy paths keep working.
+	_btn_sparkles = _settings_panel._btn_sparkles
+	_btn_invert = _settings_panel._btn_invert
+	_btn_reduce = _settings_panel._btn_reduce
+	_master = _settings_panel.volume_slider("Master")
 
 	_btn_quit = KIT.choice_tag("pause.quit", Vector2(128, 16))
 	_btn_quit.pressed.connect(_on_quit)
@@ -209,8 +217,6 @@ func setup(audio) -> void:
 		_btn_dev_back.visible = false
 		_board.add_child(_btn_dev_back)
 		_hook_hover(_btn_dev_back)
-
-	_master = _add_slider(_board, "Master", COPY.text("pause.master", "Master"))
 
 	_confirm = PanelContainer.new()
 	_confirm.visible = false
@@ -305,15 +311,18 @@ func _layout_buttons() -> void:
 		_btn_go_deeper.visible = (not on_dev) and show_go_deeper
 	if _btn_victory_code:
 		_btn_victory_code.visible = (not on_dev) and show_victory_code
+	if _settings_panel:
+		_settings_panel.visible = not on_dev
+		_settings_panel.sparkles_on = sparkles_on
+		_settings_panel.invert_scroll = invert_scroll
+		_settings_panel.reduce_motion = reduce_motion
+		_settings_panel.apply_toggle_labels()
 	if _btn_sparkles:
 		_btn_sparkles.visible = not on_dev
-		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
 	if _btn_invert:
 		_btn_invert.visible = not on_dev
-		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
 	if _btn_reduce:
 		_btn_reduce.visible = not on_dev
-		_btn_reduce.text = "Reduce motion: on" if reduce_motion else "Reduce motion: off"
 	if _btn_quit:
 		_btn_quit.visible = (not on_dev) and not OS.has_feature("web")
 	if _btn_dev:
@@ -335,15 +344,15 @@ func _layout_buttons() -> void:
 	if _master:
 		_master.visible = not on_dev
 	var shown: Array = []
-	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_victory_code, _btn_sparkles, _btn_invert, _btn_reduce, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_path_quick, _btn_path_deeper, _btn_path_big, _btn_complete, _btn_dev_back]
+	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_victory_code, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_path_quick, _btn_path_deeper, _btn_path_big, _btn_complete, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
 		shown.append(b)
-	var slider_on: bool = _master != null and _master.visible
-	var row_count: int = shown.size() + (1 if slider_on else 0)
-	var gap: float = _ROW_GAP
-	var row_h: float = _ROW_H
+	var panel_rows: int = 8 if (_settings_panel != null and _settings_panel.visible) else 0
+	var row_count: int = shown.size() + panel_rows
+	var gap: float = 4.0 if panel_rows > 0 else _ROW_GAP
+	var row_h: float = 52.0 if panel_rows > 0 else _ROW_H
 	var avail: float = _CONTENT_BOTTOM - _CONTENT_TOP
 	var block: float = 0.0
 	if row_count > 0:
@@ -355,7 +364,7 @@ func _layout_buttons() -> void:
 			block = float(row_count) * row_h + float(maxi(row_count - 1, 0)) * gap
 			if block > avail:
 				gap = 0.0
-				row_h = maxf(48.0, avail / float(row_count))
+				row_h = maxf(40.0, avail / float(row_count))
 				block = float(row_count) * row_h
 	var y: float = _CONTENT_TOP + maxf(0.0, (avail - block) * 0.5)
 	var tag_w: float = 128.0 * PX
@@ -367,10 +376,15 @@ func _layout_buttons() -> void:
 		var x: float = (_BOARD_W - w) * 0.5 if wide else _BTN_X
 		b2.position = Vector2(x, y)
 		y += row_h + gap
-	if slider_on:
-		_master.custom_minimum_size = Vector2(tag_w, row_h)
-		_master.position = Vector2(_BTN_X, y)
-		_master.size = Vector2(tag_w, row_h)
+	if _settings_panel != null and _settings_panel.visible:
+		_settings_panel.position = Vector2((_BOARD_W - 512.0) * 0.5, y)
+		## Shrink panel row heights to fit remaining band.
+		if _settings_panel._rows:
+			_settings_panel._rows.add_theme_constant_override("separation", int(gap))
+			for child in _settings_panel._rows.get_children():
+				if child is Control:
+					(child as Control).custom_minimum_size = Vector2(512.0, row_h)
+					(child as Control).size = Vector2(512.0, row_h)
 
 
 func _set_page(page: String) -> void:
@@ -430,7 +444,10 @@ func open_menu(in_run: bool = true) -> void:
 	apply_copy()
 	if _audio:
 		_sfx_ready = false
-		if _master:
+		if _settings_panel and _settings_panel.has_method("sync_from_audio"):
+			_settings_panel._audio = _audio
+			_settings_panel.sync_from_audio()
+		elif _master:
 			_master.set_linear(_audio.master_lin)
 		_sfx_ready = true
 		if _audio.has_method("on_pause"):
@@ -486,24 +503,31 @@ func _on_slider(value: float, which: String) -> void:
 				_audio.play_event(&"ui.slider_tick", {"bus": "UI"})
 
 
+func settings_panel_node():
+	return _settings_panel
+
+
 func _on_sparkles() -> void:
 	sparkles_on = not sparkles_on
-	if _btn_sparkles:
-		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
+	if _settings_panel:
+		_settings_panel.sparkles_on = sparkles_on
+		_settings_panel.apply_toggle_labels()
 	sparkles_toggled.emit(sparkles_on)
 
 
 func _on_invert_scroll() -> void:
 	invert_scroll = not invert_scroll
-	if _btn_invert:
-		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
+	if _settings_panel:
+		_settings_panel.invert_scroll = invert_scroll
+		_settings_panel.apply_toggle_labels()
 	invert_scroll_toggled.emit(invert_scroll)
 
 
 func _on_reduce_motion() -> void:
 	reduce_motion = not reduce_motion
-	if _btn_reduce:
-		_btn_reduce.text = "Reduce motion: on" if reduce_motion else "Reduce motion: off"
+	if _settings_panel:
+		_settings_panel.reduce_motion = reduce_motion
+		_settings_panel.apply_toggle_labels()
 	reduce_motion_toggled.emit(reduce_motion)
 
 
