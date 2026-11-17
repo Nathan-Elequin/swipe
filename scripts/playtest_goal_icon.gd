@@ -1,5 +1,8 @@
 extends Control
 ## Persistent playtest goal chip (slice 2). Top-left pictograph + progress hint + hover tip.
+## Slice 4: done-BIG click reopens the compact victory-code card.
+
+signal victory_code_wanted
 
 const COPY := preload("res://scripts/player_copy.gd")
 const C := preload("res://scripts/playtest_commitment.gd")
@@ -14,6 +17,7 @@ const COL_BODY := Color("f4ede3")
 var _tier: int = C.TIER_NONE
 var _done: bool = false
 var _progress: String = ""
+var _offramp_shown_big: bool = false
 var _panel: PanelContainer
 var _glyph: Control
 var _hint: Label
@@ -38,8 +42,15 @@ func setup() -> void:
 	_build()
 
 
-func apply_state(tier: int, reached_quick: bool, reached_deeper: bool, reached_big: bool) -> void:
+func apply_state(
+	tier: int,
+	reached_quick: bool,
+	reached_deeper: bool,
+	reached_big: bool,
+	offramp_shown_big: bool = false
+) -> void:
 	_tier = clampi(int(tier), C.TIER_NONE, C.TIER_BIG)
+	_offramp_shown_big = bool(offramp_shown_big)
 	match _tier:
 		C.TIER_QUICK:
 			_done = reached_quick
@@ -138,6 +149,7 @@ func _build() -> void:
 		_hover = false
 		_tip.visible = false
 	)
+	gui_input.connect(_on_gui_input)
 
 
 func _refresh() -> void:
@@ -153,6 +165,11 @@ func _refresh() -> void:
 
 
 func _tip_text() -> String:
+	if _done and _tier >= C.TIER_BIG and _offramp_shown_big:
+		return COPY.text(
+			"playtest.goal.done_big",
+			"Shadow Abyss reached! Click for your victory code."
+		)
 	if _done:
 		return COPY.text("playtest.goal.done", "Goal complete! Keep playing, or go deeper from the pause menu.")
 	match _tier:
@@ -163,6 +180,16 @@ func _tip_text() -> String:
 		C.TIER_BIG:
 			return COPY.text("playtest.goal.big", "Goal: Finish a run that reaches the Shadow Abyss.")
 	return ""
+
+
+func _on_gui_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if not (_done and _tier >= C.TIER_BIG and _offramp_shown_big):
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		victory_code_wanted.emit()
+		accept_event()
 
 
 func _place_tip(show: bool) -> void:

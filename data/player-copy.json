@@ -7957,7 +7957,126 @@
 			"key": "playtest.offramp.retry",
 			"text": "Could not send. Your answers are still here — try Send again.",
 			"where": "Commitment offramp send failure"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.title",
+			"text": "You reached the Shadow Abyss!",
+			"where": "BIG victory screen title"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.line",
+			"text": "You made it further than almost anyone. I meant what I said: let's design a monster or item for this game together.",
+			"where": "BIG victory Nathan line"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.instructions",
+			"text": "Screenshot this screen and post it in my Discord to claim your spot.",
+			"where": "BIG victory screenshot instructions"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.code_label",
+			"text": "VICTORY CODE",
+			"where": "BIG victory code frame caption"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.copy",
+			"text": "Copy code",
+			"where": "BIG victory copy button"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.copied",
+			"text": "Copied!",
+			"where": "BIG victory after clipboard copy"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.discord",
+			"text": "Join the Discord",
+			"where": "BIG victory Discord button"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.discord_soon",
+			"text": "Discord link coming soon",
+			"where": "BIG victory Discord button when URL empty"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.email",
+			"text": "Or email: {email}",
+			"where": "BIG victory optional email row"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.code_card_title",
+			"text": "Your victory code",
+			"where": "Compact victory code re-view title"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.victory.close",
+			"text": "Close",
+			"where": "Compact victory code card close"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.big.q1",
+			"text": "What kept you playing this long?",
+			"where": "BIG victory prompt 1"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.big.q2",
+			"text": "What feels off balance this deep in?",
+			"where": "BIG victory prompt 2"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.big.q3",
+			"text": "What's your go-to strategy?",
+			"where": "BIG victory prompt 3"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.big.q4",
+			"text": "Pitch me a monster or item.",
+			"where": "BIG victory prompt 4"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.goal.done_big",
+			"text": "Shadow Abyss reached! Click for your victory code.",
+			"where": "Goal icon tooltip after BIG victory"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "pause.victory_code",
+			"text": "My victory code",
+			"where": "Pause menu re-view victory code"
 		}
 	],
-	"updated": "2026-11-16T23:55:00Z"
+	"updated": "2026-11-17T00:15:00Z"
 }

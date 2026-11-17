@@ -11,6 +11,8 @@ const C := preload("res://scripts/playtest_commitment.gd")
 const PICKER := preload("res://scripts/playtest_commitment_picker.gd")
 const GOAL := preload("res://scripts/playtest_goal_icon.gd")
 const OFFRAMP := preload("res://scripts/playtest_offramp.gd")
+const VICTORY := preload("res://scripts/playtest_victory.gd")
+const VC := preload("res://scripts/playtest_victory_code.gd")
 const COPY := preload("res://scripts/player_copy.gd")
 
 
@@ -356,6 +358,109 @@ func _run() -> void:
 		main_src.find("_maybe_open_commitment_victory") >= 0, "") or failed
 	failed = _check(rows, failed, "main.offramp_not_big_panel",
 		main_src.find("M_BIG") >= 0 and main_src.find("_maybe_open_commitment_victory") >= 0, "") or failed
+
+	## --- Slice 4: BIG victory ---
+	var code_a: String = VC.generate("anon-test-1", C.M_BIG)
+	var code_b: String = VC.generate("anon-test-1", C.M_BIG)
+	var code_c: String = VC.generate("anon-test-2", C.M_BIG)
+	failed = _check(rows, failed, "victory.code.format",
+		VC.is_valid_format(code_a) and code_a.begins_with("ABYSS-") and code_a.length() == 15, code_a) or failed
+	failed = _check(rows, failed, "victory.code.deterministic",
+		code_a == code_b, "%s vs %s" % [code_a, code_b]) or failed
+	failed = _check(rows, failed, "victory.code.diff_anon",
+		code_a != code_c, "") or failed
+	failed = _check(rows, failed, "victory.code.verify_ok",
+		VC.verify("anon-test-1", code_a, C.M_BIG), "") or failed
+	failed = _check(rows, failed, "victory.code.verify_bad",
+		not VC.verify("anon-test-1", code_c, C.M_BIG), "") or failed
+	## Ambiguous-char normalize still verifies.
+	var messy := code_a.to_lower().replace("-", "")
+	failed = _check(rows, failed, "victory.code.normalize",
+		VC.verify("anon-test-1", messy, C.M_BIG), messy) or failed
+
+	## Python verifier agrees (when present).
+	var py := "res://tools/playtest/verify_victory_code.py"
+	if FileAccess.file_exists(py):
+		var py_abs := ProjectSettings.globalize_path(py)
+		var out: Array = []
+		var exit_code: int = OS.execute("python3", [py_abs, "anon-test-1", code_a, "big"], out, true)
+		var joined := "\n".join(PackedStringArray(out))
+		failed = _check(rows, failed, "victory.verifier_py",
+			exit_code == 0 and joined.find("VALID") >= 0, "exit=%s %s" % [exit_code, joined]) or failed
+
+	## Big offramp ignores tier gate; auto-upgrade path.
+	var v: PlaytestCommitment = C.new()
+	v.debug_reset()
+	v.debug_set_tier(C.TIER_QUICK)
+	v.anon_id = "anon-test-1"
+	v.debug_force_milestone(C.M_BIG)
+	failed = _check(rows, failed, "victory.should_without_big_tier",
+		v.should_offramp(C.M_BIG), "tier=%s" % v.tier) or failed
+	failed = _check(rows, failed, "victory.ensure_upgrade",
+		v.ensure_big_tier() and v.tier == C.TIER_BIG, "tier=%s" % v.tier) or failed
+	var stored: String = v.ensure_victory_code()
+	failed = _check(rows, failed, "victory.code.stored",
+		stored == code_a and v.victory_code == code_a, stored) or failed
+	v.save_state()
+	var v2: PlaytestCommitment = C.new()
+	v2.load_state()
+	failed = _check(rows, failed, "victory.code.persist",
+		v2.victory_code == code_a, v2.victory_code) or failed
+	v.mark_offramp_shown(C.M_BIG)
+	failed = _check(rows, failed, "victory.shown_once",
+		not v.should_offramp(C.M_BIG) and bool(v.offramp_shown_big), "") or failed
+
+	## Victory UI: empty Discord disables; payload includes code.
+	var win = VICTORY.new()
+	o_host.add_child(win)
+	win.call("setup")
+	win.call("open_victory", code_a, {
+		"tier": C.TIER_BIG,
+		"run_count": 4,
+		"anon_id": "anon-test-1",
+		"build_id": "slice4",
+		"biomes_unlocked": 5,
+		"cabinet_count": 9,
+		"play_seconds": 9000,
+	})
+	failed = _check(rows, failed, "victory.ui_shows", bool(win.visible), "") or failed
+	var discord_btn = win.get("_btn_discord")
+	failed = _check(rows, failed, "victory.discord_disabled_empty",
+		discord_btn != null and bool(discord_btn.disabled), "") or failed
+	var soon := str(discord_btn.text) if discord_btn else ""
+	failed = _check(rows, failed, "victory.discord_soon_label",
+		soon.find("soon") >= 0 or soon == COPY.text("playtest.victory.discord_soon", "Discord link coming soon"), soon) or failed
+	var v_payload: Dictionary = win.call("build_payload")
+	failed = _check(rows, failed, "victory.payload_shape",
+		VICTORY.payload_shape_ok(v_payload), "%s" % str(v_payload.keys())) or failed
+	failed = _check(rows, failed, "victory.payload_code",
+		str(v_payload.get("victory_code", "")) == code_a, str(v_payload.get("victory_code", ""))) or failed
+	## No Go deeper on victory.
+	failed = _check(rows, failed, "victory.no_deeper_btn",
+		win.get("_btn_deeper") == null, "") or failed
+	win.call("close_panel")
+	win.call("open_code_card", code_a, {"anon_id": "anon-test-1"})
+	failed = _check(rows, failed, "victory.code_card",
+		bool(win.visible) and bool(win.call("is_code_card")), "") or failed
+	win.call("close_panel")
+	win.queue_free()
+
+	## Offramp still refuses big (separate victory panel).
+	failed = _check(rows, failed, "offramp.still_not_big",
+		not OFFRAMP.shows_for_milestone(C.M_BIG), "") or failed
+
+	failed = _check(rows, failed, "copy.victory.title",
+		COPY.text("playtest.victory.title", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.victory.big.q1",
+		COPY.text("playtest.offramp.big.q1", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.pause.victory_code",
+		COPY.text("pause.victory_code", "") != "", "") or failed
+	failed = _check(rows, failed, "main.victory_preload",
+		main_src.find("playtest_victory.gd") >= 0, "") or failed
+	failed = _check(rows, failed, "main.victory_open",
+		main_src.find("open_victory") >= 0 or main_src.find("_maybe_open_commitment_victory") >= 0, "") or failed
+	failed = _check(rows, failed, "links.file",
+		FileAccess.file_exists("res://data/playtest-links.json"), "") or failed
 
 	_print_rows(rows)
 	if failed:
