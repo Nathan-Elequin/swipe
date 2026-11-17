@@ -1,3 +1,5 @@
+> Superseded by SCREEN-title.md (Living trophy room, Nov 2026)
+
 # SCREEN — Title framed (study B) · Spinheritance · Godot 4.7
 
 Status: **approved by Nathan** (final mockup B). Spec header on the studies note that called this preliminary is **superseded**.
