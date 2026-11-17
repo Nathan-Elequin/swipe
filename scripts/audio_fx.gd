@@ -344,9 +344,10 @@ func _load_beds() -> void:
 		}
 		if spec.has("loop_offset"):
 			_beds[str(bed_id)]["loop_offset"] = float(spec.get("loop_offset", 0.0))
-	# Boot stream: framed title menu bed when present, else the cave drip.
-	var boot_id: String = "title_theme" if _beds.has("title_theme") else "title"
-	if _beds.has(boot_id):
+	# Boot stream is always the cave drip. Dungeon Quest (`title_theme`) starts
+	# only when the framed title / playtest hub is actually shown.
+	var boot_id: String = "title" if _beds.has("title") else ""
+	if boot_id != "" and _beds.has(boot_id):
 		_music_a.stream = _beds[boot_id]["stream"]
 		_music_a.volume_db = float(_beds[boot_id]["gain_db"])
 		music = _music_a
@@ -1521,13 +1522,23 @@ func music_defeat() -> void:
 
 
 func start_music(_db: float = 0.0) -> void:
-	## Boot / return to the framed title menu. In-run drip uses music_title().
-	music_title_menu()
-	var boot_id: String = "title_theme" if _beds.has("title_theme") else "title"
+	## Boot / non-menu title return: cave drip (`title`). Dungeon Quest is only
+	## for the framed hub / credits — callers must use music_title_menu() when
+	## that hub is actually on screen (see main._show_playtest_hub).
+	music_title()
+	var boot_id: String = "title"
 	if music != null and not music.playing and _beds.has(boot_id):
 		music.stream = _beds[boot_id]["stream"]
 		music.volume_db = float(_beds[boot_id]["gain_db"])
 		music.play()
+
+
+func music_leave_title_menu() -> void:
+	## Drop Dungeon Quest when leaving the hub for tutorial / feedback / intro /
+	## teaser / any non-run surface. No-op if already off title_theme.
+	if String(_current_bed) != "title_theme":
+		return
+	music_title()
 
 
 func set_combat_music(on: bool) -> void:
