@@ -1,6 +1,6 @@
 ---
 id: REQ-20261117-title-living-trophy-room
-status: open
+status: done
 priority: high
 pr: 547
 tip_sha: f1b0fdb89ba12c2727a2cbb744fd45ecd18d39de
