@@ -2137,6 +2137,8 @@ func _build_overlay() -> void:
 		endless_hud.bind_sfx(sfx)
 	endless_clear_menu = ENDLESS_CLEAR.new()
 	add_child(endless_clear_menu)
+	if endless_clear_menu.has_method("bind_host"):
+		endless_clear_menu.bind_host(sfx, endless_hud, wheel_view)
 	endless_clear_menu.continue_pressed.connect(_endless_continue)
 
 
@@ -3180,9 +3182,33 @@ func _enter_dungeon_clear() -> void:
 		_clear_resolving = true
 		await _play_clear_parade(true)
 		_clear_resolving = false
+		## Hold the old floor on the HUD until the +1 lands (tally sequence).
+		var from_n: int = dungeon_index
+		var to_n: int = dungeon_index + 1
+		var best_n: int = 0
+		if _campaign != null:
+			best_n = int(_campaign.state.get("endless_best", 0))
+		if endless_hud != null and endless_hud.has_method("hold_floor"):
+			endless_hud.hold_floor(from_n, best_n)
 		_commit_dungeon_clear_endless()
 		if endless_clear_menu:
-			endless_clear_menu.open_menu()
+			if endless_clear_menu.has_method("bind_host"):
+				endless_clear_menu.bind_host(sfx, endless_hud, wheel_view)
+			var reduce := false
+			if home_cabin != null and "reduce_motion" in home_cabin:
+				reduce = bool(home_cabin.reduce_motion)
+			elif settings_ui != null and "reduce_motion" in settings_ui:
+				reduce = bool(settings_ui.reduce_motion)
+			await endless_clear_menu.open_menu({
+				"from_n": from_n,
+				"to_n": to_n,
+				"best": best_n,
+				"new_best": to_n > best_n,
+				"reduce_motion": reduce,
+				"sfx": sfx,
+				"hud": endless_hud,
+				"wheel": wheel_view,
+			})
 		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		_refresh()
 		return
@@ -3274,7 +3300,8 @@ func _endless_continue() -> void:
 	## start the next bed here — before the wipe and the HUD fly.
 	if sfx and sfx.has_method("music_biome_dungeon"):
 		sfx.music_biome_dungeon(biome_id)
-	_endless_hud_show(true)
+	## Tally already bumped the counter; refresh without a second fly.
+	_endless_hud_show(false)
 	await _biome_dissolve_out(0.35)
 	_undo_clear()
 	overlay.visible = false
