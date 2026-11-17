@@ -4,7 +4,7 @@ status: blocked
 fulfilled_by: cloud-agent
 fulfilled_at: 2026-11-17T00:20:00Z
 machine: cloud
-tip_sha: pending
+tip_sha: 57d09324
 godot: headless fallback compose (dummy renderer — no real viewport texture)
 ---
 

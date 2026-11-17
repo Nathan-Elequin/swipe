@@ -3,7 +3,7 @@ id: REQ-20261117-commitment-tiers-slice4
 status: open
 priority: high
 branch: cursor/playtest-commitment-tiers-slice4-64ec
-tip_sha: pending
+tip_sha: 57d09324
 created: 2026-11-17T00:20:00Z
 created_by: cloud-agent
 viewport: 1680x1040
