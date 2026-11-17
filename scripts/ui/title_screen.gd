@@ -341,7 +341,7 @@ func _add_board_labels() -> void:
 		nm.add_theme_color_override("font_color", MUTED)
 		nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var key := "biome.name.%s" % SLUGS[i]
-		nm.text = COPY.text(key, key)
+		nm.text = COPY.text(key, "")
 		labels.add_child(nm)
 		_names.append(nm)
 
@@ -358,7 +358,7 @@ func _add_title_word() -> void:
 	_title_word.add_theme_constant_override("shadow_offset_x", 0)
 	_title_word.add_theme_constant_override("shadow_offset_y", 5)
 	_title_word.add_theme_constant_override("shadow_outline_size", 0)
-	_title_word.text = COPY.text("title.overlay", "title.overlay")
+	_title_word.text = COPY.text("title.overlay", "")
 	_title_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_title_word)
 
@@ -463,15 +463,10 @@ func _configure_row(i: int, id: StringName) -> void:
 	var info: Dictionary = _rows[i]
 	info["id"] = id
 	var tag: Button = info["tag"]
-	## Spin keys: title.new_game / title.continue / title.settings / title.feedback
-	## (title.menu.* aliases also resolve to the same text when present).
+	## Pixel visual keys: title.menu.{continue,new_game,settings,feedback}
 	var sid := String(id)
-	var key := "title.%s" % sid
-	var menu_key := "title.menu.%s" % sid
-	var txt := COPY.text(key, "")
-	if txt == "":
-		txt = COPY.text(menu_key, menu_key)
-	tag.text = txt
+	var key := "title.menu.%s" % sid
+	tag.text = COPY.text(key, "")
 	tag.visible = true
 	info["row"].visible = true
 
@@ -492,7 +487,7 @@ func _add_start_over() -> void:
 	_start_over.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 	_start_over.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
 	_start_over.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	_start_over.text = COPY.text("title.start_over", COPY.text("title.menu.start_over", "Start over"))
+	_start_over.text = COPY.text("title.menu.start_over", "Start over")
 	_start_over.visible = false
 	_start_over.pressed.connect(func() -> void:
 		option_activated.emit(&"start_over")
@@ -579,7 +574,7 @@ func _add_settings_screen() -> void:
 	plaque.add_theme_font_override("font", _font(FONT_TITLE))
 	plaque.add_theme_font_size_override("font_size", 32)
 	plaque.add_theme_color_override("font_color", Color("2a1c10"))
-	plaque.text = COPY.text("pause.settings", "pause.settings")
+	plaque.text = COPY.text("pause.settings", "Settings")
 	plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_settings_host.add_child(plaque)
 
@@ -653,11 +648,7 @@ func _add_confirm() -> void:
 	ask.add_theme_font_override("font", _font(FONT_SEMI))
 	ask.add_theme_font_size_override("font_size", 22)
 	ask.add_theme_color_override("font_color", CREAM)
-	## Specced confirm copy is title.start_over.confirm; ask/body aliases optional.
-	var ask_txt := COPY.text("title.start_over.confirm", "")
-	if ask_txt == "":
-		ask_txt = COPY.text("title.start_over.ask", "title.start_over.ask")
-	ask.text = ask_txt
+	ask.text = COPY.text("title.start_over.ask", "Start over from scratch?")
 	col.add_child(ask)
 
 	var body := Label.new()
@@ -667,9 +658,11 @@ func _add_confirm() -> void:
 	body.add_theme_font_override("font", _font(FONT_REG))
 	body.add_theme_font_size_override("font_size", 17)
 	body.add_theme_color_override("font_color", Color("9c8f7d"))
-	var body_txt := COPY.text("title.start_over.body", "")
-	body.text = body_txt
-	body.visible = body_txt != ""
+	body.text = COPY.text(
+		"title.start_over.body",
+		"This wipes your progress, your trophies, and your goal."
+	)
+	body.visible = body.text != ""
 	col.add_child(body)
 
 	var buttons := HBoxContainer.new()
@@ -679,14 +672,14 @@ func _add_confirm() -> void:
 
 	var keep := KIT.choice_tag("title.start_over.no", Vector2(56, 16))
 	keep.name = "Keep"
-	keep.text = COPY.text("title.start_over.no", "title.start_over.no")
+	keep.text = COPY.text("title.start_over.no", "Keep my save")
 	keep.focus_mode = Control.FOCUS_ALL
 	keep.pressed.connect(close_start_over_confirm)
 	buttons.add_child(keep)
 
 	var wipe := KIT.choice_tag("title.start_over.yes", Vector2(56, 16))
 	wipe.name = "Wipe"
-	wipe.text = COPY.text("title.start_over.yes", "title.start_over.yes")
+	wipe.text = COPY.text("title.start_over.yes", "Wipe it")
 	wipe.focus_mode = Control.FOCUS_ALL
 	wipe.pressed.connect(func() -> void:
 		if _audio and _audio.has_method("play_event"):

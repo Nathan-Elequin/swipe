@@ -265,10 +265,12 @@ func _run() -> void:
 	failed = _check(rows, failed, "wipe.after.no_victory", wipe_c.victory_code == "", wipe_c.victory_code) or failed
 	failed = _check(rows, failed, "wipe.after.anon_kept", wipe_c.anon_id == "keep-me-anon", wipe_c.anon_id) or failed
 
-	failed = _check(rows, failed, "copy.title.new_game",
-		COPY.text("title.new_game", "") != "", "") or failed
-	failed = _check(rows, failed, "copy.title.start_over.confirm",
-		COPY.text("title.start_over.confirm", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.title.menu.new_game",
+		COPY.text("title.menu.new_game", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.title.start_over.ask",
+		COPY.text("title.start_over.ask", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.title.start_over.body",
+		COPY.text("title.start_over.body", "") != "", "") or failed
 	failed = _check(rows, failed, "copy.settings.sparkles.on",
 		COPY.text("settings.sparkles.on", "") != "", "") or failed
 	failed = _check(rows, failed, "copy.settings.back",
@@ -277,6 +279,12 @@ func _run() -> void:
 		COPY.text("playtest.goal.ticker_line", "").find("{goal}") >= 0, "") or failed
 	failed = _check(rows, failed, "copy.tier.quick.goal",
 		COPY.text("playtest.tier.quick.goal", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.intro.preview.caption",
+		COPY.text("intro.preview.caption", "") != "", "") or failed
+	## Between-dungeon Continue stays on title.continue (not title.menu.continue).
+	failed = _check(rows, failed, "copy.title.continue.dungeon",
+		COPY.text("title.continue", "") != "", "") or failed
+	failed = _assert_visual_copy_keys(rows, failed) or failed
 
 	## --- Main hook contracts (source) ---
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
@@ -351,7 +359,7 @@ func _run() -> void:
 	failed = _check(rows, failed, "main.intro_skips_picker",
 		main_src.find("func _playtest_intro_done") >= 0
 		and main_src.find("_maybe_open_teaser") >= 0
-		and hub_src.find("title.new_game") >= 0, "") or failed
+		and hub_src.find("title.menu.new_game") >= 0, "") or failed
 	failed = _check(rows, failed, "main.start_over_wipe",
 		main_src.find("_wipe_playtest_progress_keep_anon") >= 0
 		and main_src.find("wipe_progress") >= 0, "") or failed
@@ -365,11 +373,12 @@ func _run() -> void:
 		settings_src.find("go_deeper_pressed") >= 0
 		and settings_src.find("show_go_deeper") >= 0
 		and settings_src.find("pause.go_deeper") >= 0, "") or failed
+	var panel_src := FileAccess.get_file_as_string("res://scripts/ui/settings_panel.gd")
 	failed = _check(rows, failed, "settings.toggle_copy_keys",
-		settings_src.find("settings.sparkles.on") >= 0
-		and settings_src.find("settings.invert_scroll.off") >= 0
-		and settings_src.find("settings.reduce_motion.on") >= 0
-		and settings_src.find("settings.back") >= 0, "") or failed
+		panel_src.find("settings.sparkles.on") >= 0
+		and panel_src.find("settings.invert_scroll.off") >= 0
+		and panel_src.find("settings.reduce_motion.on") >= 0
+		and panel_src.find("settings.back") >= 0, "") or failed
 	failed = _check(rows, failed, "picker.goal_tooltip_src",
 		FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("tooltip_text") >= 0
 		and FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("biome_key") >= 0
@@ -570,6 +579,65 @@ func _run() -> void:
 	else:
 		print(OK_MARK)
 		quit(0)
+
+
+func _assert_visual_copy_keys(rows: Array, failed: bool) -> bool:
+	## Every literal copy key read by title_screen / settings_panel must exist in player-copy.json.
+	var paths: Array[String] = [
+		"res://scripts/ui/title_screen.gd",
+		"res://scripts/ui/settings_panel.gd",
+	]
+	var found: Dictionary = {} ## key -> true
+	var re := RegEx.new()
+	re.compile("\"((?:title|settings|biome|pause|intro|picker|playtest)\\.[a-z0-9_.]+)\"")
+	for path in paths:
+		var src := FileAccess.get_file_as_string(path)
+		for m in re.search_all(src):
+			var k: String = str(m.get_string(1))
+			if k.ends_with("."):
+				continue
+			## Expand sprintf templates used by the visual layer.
+			if k == "title.menu.%s" or k.ends_with(".%s"):
+				var stem := k.trim_suffix("%s")
+				match stem:
+					"title.menu.":
+						for id in ["continue", "new_game", "settings", "feedback", "start_over"]:
+							found[stem + id] = true
+					"biome.name.":
+						for id in ["verdant", "crystal", "ashen", "cinder", "shadow"]:
+							found[stem + id] = true
+					_:
+						pass
+				continue
+			found[k] = true
+	## Always require the Pixel key set Nathan named for this screen.
+	for k in [
+		"title.menu.continue", "title.menu.new_game", "title.menu.settings",
+		"title.menu.feedback", "title.menu.start_over",
+		"title.start_over.ask", "title.start_over.body", "title.start_over.no", "title.start_over.yes",
+		"settings.sparkles.on", "settings.sparkles.off",
+		"settings.invert_scroll.on", "settings.invert_scroll.off",
+		"settings.reduce_motion.on", "settings.reduce_motion.off", "settings.back",
+		"intro.preview.caption",
+	]:
+		found[k] = true
+	var missing: Array[String] = []
+	for k in found.keys():
+		var ks := str(k)
+		if not COPY.has_key(ks):
+			missing.append(ks)
+			continue
+		## Labels must never fall through to a raw key name — text must be non-empty.
+		if COPY.text(ks, "") == "":
+			missing.append("%s(empty)" % ks)
+	missing.sort()
+	return _check(
+		rows,
+		failed,
+		"copy.visual_keys_present",
+		missing.is_empty(),
+		",".join(missing)
+	)
 
 
 func _check(rows: Array, failed: bool, name: String, ok: bool, detail: String) -> bool:

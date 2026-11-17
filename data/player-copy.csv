@@ -1,4 +1,4 @@
-category,key,where,text
+﻿category,key,where,text
 Title,title.overlay,Title parchment headline,{game_title}
 Title,title.tagline,Title screen tagline,"Where there's a will, there's a slay."
 Title,title.how_to_play,Title + pause button,How to Play
@@ -15,7 +15,7 @@ Title,challenge.full_hand,Challenge loot at 10,Hand is full. Click an item to th
 Title,challenge.begin_cue,Challenge Begin cue,Begin when you're ready.
 Title,title.rest,Between-dungeon headline,On to the next haul.
 Title,title.rest_sub,Between-dungeon subtitle,So you've cleared {n} Dungeons. Better hold on to that loot — you'll need it in the next one.
-Title,title.continue,Between-dungeon Continue,Delve Deeper
+Title,title.continue,Between-dungeon Continue,Continue
 Title,title.leave,Between-dungeon Leave,Exit
 Title,title.dungeons_cleared,Adventure tally,{n} Dungeons Cleared!
 Title,adventure.scarier,Opening-owner transform line,The dungeon gets more dangerous...
@@ -262,7 +262,10 @@ Cabin,cabin.brag.swiped,Brag-o-Meter card,Curiosities home: {n} of {total}
 Cabin,cabin.brag.met,Brag-o-Meter card,Monsters met: {n} of {total}
 Cabin,cabin.brag.close,Brag-o-Meter card,Put it down
 Cabin,cabin.credits.title,Patents (credits) card headline,Patents Pending
-Cabin,cabin.credits.body,Patents (credits) card body (Jam/Nathan to confirm names),"{game_title}, by Nathan Elequin.Art: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).Sounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).Patent No. 1: The Self-Buttering Biscuit (pending)."
+Cabin,cabin.credits.body,Patents (credits) card body (Jam/Nathan to confirm names),"{game_title}, by Nathan Elequin.
+Art: 0x72, Kenney, Shade, HomoHikka, Jetrel, Flare/AntumDeluge (all CC0).
+Sounds: Kenney, Mjorlaja, Aureolus_Omicron, iamoneabe, Eldritch Grim, Trex0n, PagDev, Kerzoven, and yd (all CC0).
+Patent No. 1: The Self-Buttering Biscuit (pending)."
 Cabin,cabin.credits.close,Patents card close,Close
 Cabin,cabin.bed.ask,Bed click on desktop,Turn in for the night?
 Cabin,cabin.bed.yes,Bed choice (desktop) = Quit,Sleep (Quit)
@@ -503,7 +506,8 @@ Playtest,playtest.play_chip,Playtest bottom-left during play,"Right-click a Mons
 Playtest,playtest.intro.speaker,Playtest intro talk-box name,Nathan
 Playtest,playtest.intro.back,Playtest intro back button,Back
 Playtest,playtest.intro.done,Playtest intro last button,Continue
-Playtest,playtest.intro.01,Playtest intro beat 01,"Hey friends — thanks for playtesting my game, {game_title}.Just a few notes before you jump in."
+Playtest,playtest.intro.01,Playtest intro beat 01,"Hey friends — thanks for playtesting my game, {game_title}.
+Just a few notes before you jump in."
 Playtest,playtest.intro.02,Playtest intro beat 02,"First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game."
 Playtest,playtest.intro.03,Playtest intro beat 03,Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours.
 Playtest,playtest.intro.04,Playtest intro beat 04,"And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests."
@@ -525,7 +529,7 @@ Rope,rope.campaign.push_eyebrow,Campaign extract right door eyebrow,Into the dar
 Rope,rope.campaign.push,Campaign extract right door title,Push deeper
 Rope,rope.campaign.chip_biome,Campaign extract run chip biome line,{biome} cabinet
 Rope,rope.campaign.chip_count,Campaign extract run chip count,{n}/5
-Nib,nib.push_block.1,Hover Push deeper while biome cabinet under 5/5,"Whoa, whoa. Not down there. Your {biome} cabinet's only at {n} of 5. You're not ready for what's below. Let me take you home?"
+Nib,nib.push_block.1,Hover Push deeper while biome cabinet under 5/5,"Whoa, whoa. Not down there. Your {biome} board only has {n} lights. You're not ready for what's below. Let me take you home?"
 Nib,nib.push_block.yes,Push-block interrupt CTA (only choice),"Yes, take me home"
 Nib,nib.homecoming,After Push-block dissolve into that biome's case hall,Five from the {biome}. Then we talk about going deeper.
 Extract,extract.banner,Campaign two-door extract banner,Extracted · {biome}
@@ -738,3 +742,29 @@ Door,item.rank.3.name,Item rank for internal tier 3. Never show the word Tier.,R
 Door,monster.rank.1.name,Monster rank for internal tier 1. Never show the word Tier.,Minion
 Door,monster.rank.2.name,Monster rank for internal tier 2. Never show the word Tier.,Elite
 Door,monster.rank.3.name,Monster rank for internal tier 3. Never show the word Tier.,Boss
+Title,title.menu.continue,Title menu Continue (alias),Continue
+Title,title.menu.new_game,Title menu New Game (alias),New Game
+Title,title.menu.settings,Title menu Settings (alias),Settings
+Title,title.menu.feedback,Title menu Feedback (alias),Feedback
+Title,title.menu.start_over,Title menu Start over (alias),Start over
+Title,title.start_over.ask,Start-over confirm ask (alias),Start over from scratch?
+Title,title.start_over.body,Start-over confirm body (optional),"This wipes your progress, your trophies, and your goal."
+Title,title.start_over.no,Start over confirm no,Keep my save
+Title,title.start_over.yes,Start over confirm yes,Wipe it
+Title,biome.name.verdant,Title board biome name (verdant),Verdant Hollow
+Title,biome.name.crystal,Title board biome name (crystal),Crystal Cavern
+Title,biome.name.ashen,Title board biome name (ashen),Ashen Crypt
+Title,biome.name.cinder,Title board biome name (cinder),Cinder Forge
+Title,biome.name.shadow,Title board biome name (shadow),Shadow Abyss
+Title,picker.pick.quick,Commitment picker pick button (quick),Pick
+Title,picker.pick.deeper,Commitment picker pick button (deeper),Pick
+Title,picker.pick.big,Commitment picker pick button (big),Pick
+Title,picker.back,Commitment picker back,Back
+Settings,settings.sparkles.on,Settings toggle,Item sparkles: on
+Settings,settings.sparkles.off,Settings toggle,Item sparkles: off
+Settings,settings.invert_scroll.on,Settings toggle,Invert scroll: on
+Settings,settings.invert_scroll.off,Settings toggle,Invert scroll: off
+Settings,settings.reduce_motion.on,Settings toggle,Reduce motion: on
+Settings,settings.reduce_motion.off,Settings toggle,Reduce motion: off
+Settings,settings.back,Settings back / title settings close,Back
+Title,intro.preview.caption,Intro preview still caption (placeholder),"Right-click a Monster/Item, or press F2, to send a note."

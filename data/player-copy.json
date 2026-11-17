@@ -8115,55 +8115,6 @@
 		},
 		{
 			"cat": "Title",
-			"key": "title.continue.sub",
-			"text": "Pick up right where you left off.",
-			"where": "Title menu Continue helper",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.new_game",
-			"text": "New Game",
-			"where": "Title menu New Game",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.new_game.sub",
-			"text": "Start your inheritance.",
-			"where": "Title menu New Game helper",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.settings",
-			"text": "Settings",
-			"where": "Title menu Settings",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.feedback",
-			"text": "Feedback",
-			"where": "Title menu Feedback",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.start_over",
-			"text": "Start over",
-			"where": "Title menu Start over",
-			"draft": true
-		},
-		{
-			"cat": "Title",
-			"key": "title.start_over.confirm",
-			"text": "Start over from scratch? This wipes your progress, your trophies, and your goal.",
-			"where": "Start over confirm dialog",
-			"draft": true
-		},
-		{
-			"cat": "Title",
 			"key": "title.start_over.yes",
 			"text": "Wipe it",
 			"where": "Start over confirm yes",
@@ -8301,7 +8252,7 @@
 		},
 		{
 			"key": "title.start_over.ask",
-			"text": "Start over from scratch? This wipes your progress, your trophies, and your goal.",
+			"text": "Start over from scratch?",
 			"where": "Start-over confirm ask (alias)"
 		},
 		{
@@ -8351,8 +8302,13 @@
 		},
 		{
 			"key": "title.start_over.body",
-			"text": "",
+			"text": "This wipes your progress, your trophies, and your goal.",
 			"where": "Start-over confirm body (optional)"
+		},
+		{
+			"key": "intro.preview.caption",
+			"text": "Right-click a Monster/Item, or press F2, to send a note.",
+			"where": "Intro preview still caption (placeholder)"
 		}
 	],
 	"updated": "2026-11-17"

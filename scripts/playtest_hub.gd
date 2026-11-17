@@ -1,6 +1,7 @@
 extends ColorRect
 ## Playtest title hub — hosts Pixel's Living trophy room (`title_screen`) and owns menu flow.
-## Copy keys stay Spin-owned (`title.new_game`, `title.start_over.*`, …). Visual nodes stay Pixel's.
+## Copy keys: title.menu.* / title.start_over.* (Pixel visual layer). Visual nodes stay Pixel's.
+## Between-dungeon Continue stays on title.continue — do not reuse title.menu.continue there.
 
 signal brand_new
 signal middle_progress
@@ -135,7 +136,7 @@ func sync_settings_toggles(sparkles_on: bool, invert_scroll: bool, reduce_motion
 func _apply_menu_state(has_save: bool) -> void:
 	_has_save = has_save
 	_option_ids.clear()
-	## title.new_game / title.continue / title.settings / title.feedback / title.start_over
+	## title.menu.{new_game|continue|settings|feedback|start_over}
 	if has_save:
 		_option_ids.append(&"continue")
 	else:
@@ -215,16 +216,9 @@ func _focus_default() -> void:
 		var tag: Button = row.find_child("Tag", true, false) as Button
 		if tag == null:
 			continue
-		## Tag text is player copy (title.new_game / title.continue / …).
-		var key_guess := "title.%s" % want
-		var label := COPY.text(key_guess, key_guess)
-		if tag.text == label or String(tag.text).to_lower().find(want.replace("_", " ")) >= 0:
-			tag.grab_focus()
-			return
-		if want == "new_game" and tag.text == COPY.text("title.new_game", "New Game"):
-			tag.grab_focus()
-			return
-		if want == "continue" and tag.text == COPY.text("title.continue", "Continue"):
+		## Tag text is player copy (title.menu.new_game / title.menu.continue / …).
+		var label := COPY.text("title.menu.%s" % want, "")
+		if label != "" and tag.text == label:
 			tag.grab_focus()
 			return
 	## Fallback: first visible row tag.

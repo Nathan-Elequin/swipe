@@ -84,7 +84,7 @@ func _build() -> void:
 	]:
 		var which: String = pair[0]
 		var key: String = pair[1]
-		var label := COPY.text(key, key)
+		var label := COPY.text(key, which)
 		var sl := VolumeSlider.new()
 		sl.setup(which, label)
 		sl.value_changed.connect(_on_slider.bind(which))
@@ -93,7 +93,7 @@ func _build() -> void:
 		_hook_hover(sl)
 
 	_btn_back = KIT.choice_tag("settings.back", Vector2(88, 16))
-	_btn_back.text = COPY.text("settings.back", "settings.back")
+	_btn_back.text = COPY.text("settings.back", "Back")
 	_btn_back.custom_minimum_size = Vector2(352, 64)
 	_btn_back.size = Vector2(352, 64)
 	_btn_back.visible = show_back
