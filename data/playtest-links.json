@@ -1,0 +1,5 @@
+{
+  "discord_url": "",
+  "contact_email": "",
+  "_doc": "Playtest external links. Empty discord_url disables the Discord button (copy: playtest.victory.discord_soon). Empty contact_email hides the email row."
+}

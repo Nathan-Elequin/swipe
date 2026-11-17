@@ -101,6 +101,7 @@ const PLAYTEST_COMMITMENT := preload("res://scripts/playtest_commitment.gd")
 const PLAYTEST_COMMITMENT_PICKER := preload("res://scripts/playtest_commitment_picker.gd")
 const PLAYTEST_GOAL_ICON := preload("res://scripts/playtest_goal_icon.gd")
 const PLAYTEST_OFFRAMP := preload("res://scripts/playtest_offramp.gd")
+const PLAYTEST_VICTORY := preload("res://scripts/playtest_victory.gd")
 const SESSION_LOG := preload("res://scripts/session_log.gd")
 const PLAYTEST_INTRO := preload("res://scripts/playtest_intro.gd")
 const TITLE_TEASER := preload("res://scripts/title_teaser.gd")
@@ -966,12 +967,14 @@ var playtest_commitment
 var playtest_commitment_picker
 var playtest_goal_icon
 var playtest_offramp
+var playtest_victory
 var playtest_intro
 var playtest_teaser
 var playtest_fab: Button
 var playtest_voice: Label
 var _commitment_picker_from_pause: bool = false
 var _offramp_send_pending: bool = false
+var _victory_send_pending: bool = false
 var _playtest_preset: String = ""
 var _playtest_boot: bool = false
 
@@ -1915,6 +1918,7 @@ func _build_ui() -> void:
 	settings_ui.invert_scroll_toggled.connect(_on_invert_scroll_toggled)
 	settings_ui.reduce_motion_toggled.connect(_on_reduce_motion_toggled)
 	settings_ui.go_deeper_pressed.connect(_open_commitment_upgrade)
+	settings_ui.victory_code_pressed.connect(_open_commitment_victory_code_card)
 	settings_ui.quit_pressed.connect(_quit_game)
 	home_cabin = HOME_CABIN.new()
 	add_child(home_cabin)
@@ -3475,6 +3479,8 @@ func _can_peek_campaign_map() -> bool:
 	if playtest_feedback != null and playtest_feedback.visible:
 		return false
 	if playtest_offramp != null and playtest_offramp.visible:
+		return false
+	if playtest_victory != null and playtest_victory.visible:
 		return false
 	if playtest_tier != null and playtest_tier.visible:
 		return false
@@ -8508,6 +8514,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if playtest_offramp != null and playtest_offramp.visible:
 				## Offramp handles Esc itself (skip / leave thanks).
 				pass
+			elif playtest_victory != null and playtest_victory.visible:
+				## Victory handles Esc itself (skip / close code / leave thanks).
+				pass
 			elif playtest_feedback != null:
 				playtest_feedback.close_box()
 			get_viewport().set_input_as_handled()
@@ -8654,6 +8663,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if playtest_offramp != null and playtest_offramp.visible:
+		get_viewport().set_input_as_handled()
+		return
+	if playtest_victory != null and playtest_victory.visible:
 		get_viewport().set_input_as_handled()
 		return
 	if playtest_tier != null and playtest_tier.visible:
@@ -8812,6 +8824,13 @@ func _build_playtest() -> void:
 	playtest_offramp.setup()
 	playtest_offramp.send_wanted.connect(_on_offramp_send)
 	playtest_offramp.action_wanted.connect(_on_offramp_action)
+	playtest_victory = PLAYTEST_VICTORY.new()
+	add_child(playtest_victory)
+	playtest_victory.setup()
+	playtest_victory.send_wanted.connect(_on_victory_send)
+	playtest_victory.action_wanted.connect(_on_victory_action)
+	if playtest_goal_icon != null and playtest_goal_icon.has_signal("victory_code_wanted"):
+		playtest_goal_icon.victory_code_wanted.connect(_open_commitment_victory_code_card)
 	_sync_commitment_goal_icon()
 	if not PLAYTEST_FLAG.on():
 		return
@@ -8890,6 +8909,8 @@ func _show_playtest_hub(over_still: bool = false) -> void:
 		playtest_commitment_picker.close_picker()
 	if playtest_offramp:
 		playtest_offramp.close_panel()
+	if playtest_victory:
+		playtest_victory.close_panel()
 	if playtest_feedback:
 		playtest_feedback.force_close()
 	var can_continue: bool = home_cabin != null and home_cabin.has_save()
@@ -9012,7 +9033,8 @@ func _sync_commitment_goal_icon() -> void:
 		playtest_commitment.tier,
 		playtest_commitment.reached_quick,
 		playtest_commitment.reached_deeper,
-		playtest_commitment.reached_big
+		playtest_commitment.reached_big,
+		playtest_commitment.offramp_shown_big
 	)
 	_sync_commitment_pause_entry()
 	_layout_playtest_voice_for_goal()
@@ -9022,9 +9044,12 @@ func _sync_commitment_pause_entry() -> void:
 	if settings_ui == null:
 		return
 	var show := false
+	var show_code := false
 	if PLAYTEST_FLAG.on() and playtest_commitment != null:
 		show = playtest_commitment.tier < PlaytestCommitment.TIER_BIG
+		show_code = playtest_commitment.offramp_shown_big and str(playtest_commitment.victory_code).strip_edges() != ""
 	settings_ui.show_go_deeper = show
+	settings_ui.show_victory_code = show_code
 
 
 func _layout_playtest_voice_for_goal() -> void:
@@ -9049,7 +9074,7 @@ func _on_commitment_milestone(id: String, _tier: int, _run_count: int) -> void:
 	call_deferred("_maybe_show_commitment_milestone_ui", str(id))
 
 
-## Slice 3: quick/deeper offramp. Slice 4: big victory (hook only).
+## Slice 3: quick/deeper offramp. Slice 4: big victory screen.
 func _maybe_show_commitment_milestone_ui(id: String) -> void:
 	if playtest_commitment == null:
 		return
@@ -9061,9 +9086,61 @@ func _maybe_show_commitment_milestone_ui(id: String) -> void:
 	_open_commitment_offramp(id)
 
 
-## Slice 4 hook — big milestone victory screen. Pending stays until that ships.
+## Slice 4 — BIG milestone victory screen. Carrot open to all tiers.
 func _maybe_open_commitment_victory(_id: String) -> void:
-	pass
+	if playtest_victory == null or playtest_commitment == null:
+		return
+	if not playtest_commitment.should_offramp(PlaytestCommitment.M_BIG):
+		return
+	if playtest_hub != null and playtest_hub.visible:
+		return
+	if playtest_intro != null and playtest_intro.visible:
+		return
+	if playtest_commitment_picker != null and playtest_commitment_picker.visible:
+		return
+	if playtest_offramp != null and playtest_offramp.visible:
+		return
+	## Silent auto-upgrade so the goal chip / pause match the carrot they just earned.
+	if playtest_commitment.ensure_big_tier():
+		_telem("tier_upgraded", {
+			"tier": PlaytestCommitment.TIER_BIG,
+			"silent": true,
+			"reason": "big_milestone",
+			"anon_id": playtest_commitment.anon_id,
+		})
+	var code: String = playtest_commitment.ensure_victory_code()
+	## Mark immediately so dismiss / reload never re-asks this milestone.
+	playtest_commitment.mark_offramp_shown(PlaytestCommitment.M_BIG)
+	_telem("victory_shown", {
+		"milestone": PlaytestCommitment.M_BIG,
+		"tier": playtest_commitment.tier,
+		"run_count": playtest_commitment.run_count,
+		"anon_id": playtest_commitment.anon_id,
+		"victory_code": code,
+	})
+	var ctx := _offramp_context()
+	ctx["victory_code"] = code
+	playtest_victory.open_victory(code, ctx)
+	if sfx != null and sfx.has_method("play_event"):
+		sfx.play_event(&"sting.victory")
+	_sync_commitment_goal_icon()
+	_sync_playtest_chrome()
+
+
+func _open_commitment_victory_code_card() -> void:
+	if playtest_victory == null or playtest_commitment == null:
+		return
+	if not playtest_commitment.offramp_shown_big and not playtest_commitment.reached_big:
+		return
+	var code: String = playtest_commitment.ensure_victory_code()
+	if code == "":
+		return
+	if playtest_offramp != null and playtest_offramp.visible:
+		return
+	var ctx := _offramp_context()
+	ctx["victory_code"] = code
+	playtest_victory.open_code_card(code, ctx)
+	_sync_playtest_chrome()
 
 
 func _open_commitment_offramp(id: String) -> void:
@@ -9148,6 +9225,36 @@ func _on_offramp_action(action: String) -> void:
 		"done":
 			if playtest_offramp:
 				playtest_offramp.show_thanks()
+		_:
+			pass
+
+
+func _on_victory_send(payload: Dictionary) -> void:
+	if playtest_inbox == null:
+		return
+	_victory_send_pending = true
+	var body: Dictionary = _playtest_payload(payload)
+	playtest_inbox.send(body)
+
+
+func _on_victory_action(action: String) -> void:
+	var act := str(action).strip_edges().to_lower()
+	_telem("offramp_action", {
+		"action": act,
+		"milestone": PlaytestCommitment.M_BIG,
+		"tier": playtest_commitment.tier if playtest_commitment else 0,
+		"anon_id": playtest_commitment.anon_id if playtest_commitment else "",
+		"victory_code": playtest_commitment.victory_code if playtest_commitment else "",
+	})
+	match act:
+		"keep", "skip", "close_code":
+			if playtest_victory:
+				playtest_victory.close_panel()
+			_sync_commitment_goal_icon()
+			_sync_playtest_chrome()
+		"done":
+			if playtest_victory:
+				playtest_victory.show_thanks()
 		_:
 			pass
 
@@ -9434,6 +9541,25 @@ func _on_playtest_sent(ok: bool, detail: String) -> void:
 			)
 			playtest_offramp.show_result(false, retry if retry != "" else detail)
 		return
+	if _victory_send_pending and playtest_victory != null and playtest_victory.visible:
+		_victory_send_pending = false
+		if ok:
+			if playtest_commitment != null:
+				playtest_commitment.mark_feedback_sent(PlaytestCommitment.M_BIG)
+			_telem("offramp_sent", {
+				"milestone": PlaytestCommitment.M_BIG,
+				"tier": playtest_commitment.tier if playtest_commitment else 0,
+				"anon_id": playtest_commitment.anon_id if playtest_commitment else "",
+				"victory_code": playtest_commitment.victory_code if playtest_commitment else "",
+			})
+			playtest_victory.show_result(ok, detail)
+		else:
+			var retry_v := PLAYER_COPY.text(
+				"playtest.offramp.retry",
+				"Could not send. Your answers are still here — try Send again."
+			)
+			playtest_victory.show_result(false, retry_v if retry_v != "" else detail)
+		return
 	if playtest_tier != null and playtest_tier.visible:
 		playtest_tier.show_result(ok, detail)
 		return
@@ -9492,6 +9618,7 @@ func _sync_playtest_chrome() -> void:
 	var teaser_up: bool = playtest_teaser != null and playtest_teaser.visible
 	var picker_up: bool = playtest_commitment_picker != null and playtest_commitment_picker.visible
 	var offramp_up: bool = playtest_offramp != null and playtest_offramp.visible
+	var victory_up: bool = playtest_victory != null and playtest_victory.visible
 	var cut_up: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("cutscene_playing") and home_cabin.cutscene_playing()
 	var cabin_talk: bool = home_cabin != null and home_cabin.visible and home_cabin.has_method("dialog_open") and home_cabin.dialog_open()
 	var dev_strip: bool = false
@@ -9499,16 +9626,16 @@ func _sync_playtest_chrome() -> void:
 		dev_strip = home_cabin._editor_strip.visible
 	var tut_up: bool = in_tutorial and tut != null and tut.visible
 	if playtest_fab:
-		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and not picker_up and not offramp_up and (not intro_up or playtest_intro.showing_fab())
+		var show_fab: bool = PLAYTEST_FLAG.on() and not hub_up and not cut_up and not teaser_up and not picker_up and not offramp_up and not victory_up and (not intro_up or playtest_intro.showing_fab())
 		playtest_fab.visible = show_fab
 	if playtest_voice:
 		## Hide while any caption / Nib talk chrome is up so the tip never overlaps dialog.
 		## The hint sits on Play Latest. Hide it while those dev buttons are up.
-		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
+		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up and not victory_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
 	if playtest_goal_icon != null and playtest_commitment != null:
 		var goal_ok: bool = PLAYTEST_FLAG.on() and playtest_commitment.tier > PlaytestCommitment.TIER_NONE
 		## Keep the icon during cabin/runs; hide under boot chrome so it does not fight the picker.
-		playtest_goal_icon.visible = goal_ok and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up
+		playtest_goal_icon.visible = goal_ok and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up and not victory_up
 		_layout_playtest_voice_for_goal()
 
 

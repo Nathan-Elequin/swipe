@@ -20,6 +20,7 @@ const M_DEEPER := "deeper"
 const M_BIG := "big"
 
 const MILESTONES := [M_QUICK, M_DEEPER, M_BIG]
+const VICTORY_CODE := preload("res://scripts/playtest_victory_code.gd")
 
 ## Live state (also mirrored into playtest_meta.json → commitment).
 var tier: int = TIER_NONE
@@ -39,6 +40,8 @@ var reached_at_quick: String = ""
 var reached_at_deeper: String = ""
 var reached_at_big: String = ""
 var pending_milestone: String = ""
+## Deterministic BIG victory code (ABYSS-XXXX-XXXX). Empty until first generate.
+var victory_code: String = ""
 
 ## Ephemeral — current run only (not persisted).
 var _run_active: bool = false
@@ -103,7 +106,29 @@ func should_offramp(milestone: String) -> bool:
 		return false
 	if _offramp_shown(id):
 		return false
+	## BIG carrot is open to every playtester who reaches Shadow Abyss —
+	## tier gate does not apply (slice 4). Quick / deeper still need their tier.
+	if id == M_BIG:
+		return true
 	return tier >= need
+
+
+## Ensure a stable victory code is stored. Returns the code.
+func ensure_victory_code() -> String:
+	var existing := str(victory_code).strip_edges().to_upper()
+	if existing != "" and VICTORY_CODE.is_valid_format(existing):
+		victory_code = VICTORY_CODE.normalize(existing)
+		return victory_code
+	victory_code = VICTORY_CODE.generate(anon_id, M_BIG)
+	_write_all()
+	return victory_code
+
+
+## Silent upgrade used when BIG milestone opens for a lower-tier player.
+func ensure_big_tier() -> bool:
+	if tier >= TIER_BIG:
+		return false
+	return upgrade(TIER_BIG)
 
 
 func mark_offramp_shown(milestone: String) -> void:
@@ -273,6 +298,7 @@ func to_dict() -> Dictionary:
 		"reached_at_deeper": reached_at_deeper,
 		"reached_at_big": reached_at_big,
 		"pending_milestone": pending_milestone,
+		"victory_code": victory_code,
 	}
 
 
@@ -296,6 +322,7 @@ static func merge_dicts(a: Dictionary, b: Dictionary) -> Dictionary:
 		"reached_at_deeper": _later_stamp(str(a.get("reached_at_deeper", "")), str(b.get("reached_at_deeper", ""))),
 		"reached_at_big": _later_stamp(str(a.get("reached_at_big", "")), str(b.get("reached_at_big", ""))),
 		"pending_milestone": "",
+		"victory_code": _prefer_code(str(a.get("victory_code", "")), str(b.get("victory_code", ""))),
 	}
 	## Recompute pending from merged flags + tier.
 	var tmp := PlaytestCommitment.new()
@@ -325,6 +352,7 @@ func _apply_dict(d: Dictionary) -> void:
 	reached_at_deeper = str(d.get("reached_at_deeper", ""))
 	reached_at_big = str(d.get("reached_at_big", ""))
 	pending_milestone = str(d.get("pending_milestone", ""))
+	victory_code = str(d.get("victory_code", "")).strip_edges().to_upper()
 
 
 func _mark_reached(id: String) -> bool:
@@ -434,6 +462,16 @@ static func _later_stamp(a: String, b: String) -> String:
 	if b == "":
 		return a
 	return a if a >= b else b
+
+
+static func _prefer_code(a: String, b: String) -> String:
+	var aa := str(a).strip_edges()
+	var bb := str(b).strip_edges()
+	if aa != "" and VICTORY_CODE.is_valid_format(aa):
+		return VICTORY_CODE.normalize(aa)
+	if bb != "" and VICTORY_CODE.is_valid_format(bb):
+		return VICTORY_CODE.normalize(bb)
+	return aa if aa != "" else bb
 
 
 func _merge_commitment(a: Dictionary, b: Dictionary) -> Dictionary:
