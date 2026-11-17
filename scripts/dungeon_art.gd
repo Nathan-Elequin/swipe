@@ -3,6 +3,8 @@ extends Node
 
 const ATLAS_PATH := "res://assets/dungeon/atlas.png"
 const LIST_PATH := "res://assets/dungeon/tile_list.txt"
+## Shared idle advance for wheel seats and fight callout (200ms per frame).
+const IDLE_FRAME_SEC := 0.2
 
 const MONSTER_STEM := {
 	"wizard": "wizzard_m",
@@ -512,31 +514,47 @@ func monster_facing_idle(card_id: String) -> Array:
 	return monster_idle(card_id)
 
 
-func wheel_frames_all() -> Dictionary:
+## Seat strip for one monster — same result wheel_frames_all() stores for that id
+## (byte-dup skip + facing fallback). Rebuilds the seen walk in MONSTER_PNG order.
+func monster_seat_frames(card_id: String) -> Array:
+	var want: String = str(card_id).strip_edges()
+	if want == "":
+		return []
+	var seen := {}
+	var last: Array = []
+	for mid in MONSTER_PNG.keys():
+		last = _seat_frames_for(str(mid), seen)
+		if str(mid) == want:
+			return last
+	return []
+
+
+func _seat_frames_for(id: String, seen: Dictionary) -> Array:
 	# Seat art is the difficulty-sized facing crop: 48 native (Weak/Tough) or
 	# 64 native (Deadly), drawn at WHEEL_SPRITE_SCALE. Prefer the full idle
-	# strip so boss_wheel._wheel_tex can loop it at 200ms/frame. A wheel base
+	# strip so boss_wheel._wheel_tex can loop it at IDLE_FRAME_SEC. A wheel base
 	# that is a byte copy of an earlier monster is skipped (Phoenix once
-	# shipped the egg's wheel file). Fight callout still uses
-	# monster_portrait_frames (the closer facing idle).
+	# shipped the egg's wheel file).
+	var path := "res://assets/dungeon/anim/wheel/%s_wheel_base.png" % id
+	var sig := _file_sig(path)
+	var frames: Array = monster_wheel_frames(id)
+	if not frames.is_empty() and sig != "" and not seen.has(sig):
+		seen[sig] = id
+		return frames
+	if not frames.is_empty() and sig == "":
+		return frames
+	# Last resort: full facing idle strip (not f0 alone — that freezes seats).
+	var face: Array = _facing_strip(id)
+	if not face.is_empty():
+		return face
+	return frames
+
+
+func wheel_frames_all() -> Dictionary:
 	var d := {}
 	var seen := {}
 	for id in MONSTER_PNG.keys():
-		var path := "res://assets/dungeon/anim/wheel/%s_wheel_base.png" % str(id)
-		var sig := _file_sig(path)
-		var frames: Array = monster_wheel_frames(str(id))
-		if not frames.is_empty() and sig != "" and not seen.has(sig):
-			seen[sig] = str(id)
-			d[str(id)] = frames
-			continue
-		if not frames.is_empty() and sig == "":
-			d[str(id)] = frames
-			continue
-		# Last resort: full facing idle strip (not f0 alone — that freezes seats).
-		var face: Array = _facing_strip(str(id))
-		if not face.is_empty():
-			d[str(id)] = face
-			continue
+		var frames: Array = _seat_frames_for(str(id), seen)
 		if not frames.is_empty():
 			d[str(id)] = frames
 	return d
@@ -558,18 +576,17 @@ func _file_sig(path: String) -> String:
 var _portrait_cache: Dictionary = {}
 
 
-## Facing art with a flat backdrop removed and every frame cropped to the same box.
-## Fight callout only. Wheel seats use difficulty-sized full-body frames
-## (48 native Weak/Tough, 64 native Deadly) from monster_wheel_frames.
+## Seat (wheel) idle with backdrop knocked and every frame cropped to one union box.
+## Fight callout only. Falls back to facing idle when no seat strip exists.
 func monster_portrait_frames(card_id: String) -> Array:
 	var id: String = str(card_id).strip_edges()
 	if id == "":
 		return []
 	if _portrait_cache.has(id):
 		return _portrait_cache[id]
-	var src: Array = monster_facing_idle(id)
+	var src: Array = monster_seat_frames(id)
 	if src.is_empty():
-		src = monster_wheel_frames(id)
+		src = monster_facing_idle(id)
 	var imgs: Array = []
 	for t in src:
 		if t == null:

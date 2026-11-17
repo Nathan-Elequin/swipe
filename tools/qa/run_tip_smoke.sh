@@ -139,5 +139,16 @@ if [[ "$HOUSE" -ne 0 ]]; then
   exit "$HOUSE"
 fi
 
+# Fight callout idle matches wheel seat (shared strip, strip framing, 200ms timing).
+chmod +x "$ROOT/tools/qa/run_callout_wheel_match.sh"
+set +e
+GODOT="$GODOT_BIN" "$ROOT/tools/qa/run_callout_wheel_match.sh"
+CALLOUT=$?
+set -e
+if [[ "$CALLOUT" -ne 0 ]]; then
+  echo "CALLOUT_WHEEL_MATCH_SMOKE failed (exit $CALLOUT)" >&2
+  exit "$CALLOUT"
+fi
+
 echo "TIP_SMOKE local run OK"
 exit 0

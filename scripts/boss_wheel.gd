@@ -19,6 +19,7 @@ const ABILITY_CARD := preload("res://scripts/ui/ability_card.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
+const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
 const SHADOW_COL := Color(0.039, 0.024, 0.016, 0.47)
@@ -2036,11 +2037,25 @@ func _wheel_tex(i: int) -> Texture2D:
 		if tex_portraits.has(pid):
 			return tex_portraits[pid]
 		return null
-	if frames.size() == 1 or _wheel_idle_held(i):
+	var fi: int = seat_frame_index(i)
+	if fi < 0:
 		return frames[0]
-	# 200ms per frame. Process delta already follows Engine.time_scale, so Shift speeds this.
-	var fi: int = int(_glow_t / 0.2 + float(i) * 0.37) % frames.size()
 	return frames[fi]
+
+
+## Pure idle frame index for seat i. Matches `_wheel_tex` (sans slash overlay).
+## Returns -1 when there are no frames; 0 when idle is held or the strip is 1 frame.
+func seat_frame_index(i: int) -> int:
+	if i < 0 or i >= slices.size():
+		return -1
+	var pid: String = str(slices[i].get("card_id", ""))
+	var frames: Array = tex_wheel_frames.get(pid, [])
+	if frames.is_empty():
+		return -1
+	if frames.size() == 1 or _wheel_idle_held(i):
+		return 0
+	# IDLE_FRAME_SEC (200ms). Process delta already follows Engine.time_scale.
+	return int(_glow_t / DUNGEON_ART.IDLE_FRAME_SEC + float(i) * 0.37) % frames.size()
 
 
 func _wheel_idle_held(i: int) -> bool:

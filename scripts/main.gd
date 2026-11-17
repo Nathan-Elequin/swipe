@@ -1795,6 +1795,14 @@ func _build_ui() -> void:
 	add_child(combat_stage)
 	combat_stage.setup(art)
 	combat_stage.z_index = 15
+	combat_stage.frame_source = func() -> int:
+		if wheel_view == null or not wheel_view.has_method("seat_frame_index"):
+			return -1
+		if facing_index < 0 or facing_index >= wheel.size():
+			return -1
+		if str(wheel[facing_index].get("card_id", "")) != combat_stage.card_id:
+			return -1
+		return int(wheel_view.seat_frame_index(facing_index))
 	if _authoring() or PLAYTEST_FLAG.on():
 		combat_stage.edit_wanted.connect(_on_monster_right_click)
 	player_stage = PLAYER_STAGE.new()
