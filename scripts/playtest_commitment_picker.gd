@@ -144,6 +144,8 @@ func _build() -> void:
 			"native": 48,
 			"scale": 5.0,
 			"title_key": "playtest.tier.quick.title",
+			"biome_key": "playtest.tier.quick.biome",
+			"goal_key": "playtest.tier.quick.goal",
 			"time_key": "playtest.tier.quick.time",
 			"line_key": "playtest.tier.quick.line",
 			"pick_key": "picker.pick.quick",
@@ -157,6 +159,8 @@ func _build() -> void:
 			"native": 48,
 			"scale": 5.0,
 			"title_key": "playtest.tier.deeper.title",
+			"biome_key": "playtest.tier.deeper.biome",
+			"goal_key": "playtest.tier.deeper.goal",
 			"time_key": "playtest.tier.deeper.time",
 			"line_key": "playtest.tier.deeper.line",
 			"pick_key": "picker.pick.deeper",
@@ -170,6 +174,8 @@ func _build() -> void:
 			"native": 64,
 			"scale": 4.0,
 			"title_key": "playtest.tier.big.title",
+			"biome_key": "playtest.tier.big.biome",
+			"goal_key": "playtest.tier.big.goal",
 			"time_key": "playtest.tier.big.time",
 			"line_key": "playtest.tier.big.line",
 			"pick_key": "picker.pick.big",
@@ -196,7 +202,7 @@ func _build() -> void:
 	_back.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 	_back.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
 	_back.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	_back.text = COPY.text("picker.back", "picker.back")
+	_back.text = COPY.text("picker.back", "Back")
 	_back.pressed.connect(func() -> void:
 		if _upgrade:
 			close_picker()
@@ -330,15 +336,21 @@ func _make_card(spec: Dictionary, index: int) -> PanelContainer:
 	biome.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(biome)
 
+	## Short goal (includes time). Longer .line text is the card tooltip.
+	var goal := Label.new()
+	goal.name = "Goal"
+	goal.position = Vector2(30, 470)
+	goal.size = Vector2(380, 40)
+	goal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	goal.max_lines_visible = 2
+	goal.add_theme_font_override("font", _font(FONT_REG))
+	goal.add_theme_font_size_override("font_size", 18)
+	goal.add_theme_color_override("font_color", COL_MUTED)
+	goal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(goal)
 	var line := Label.new()
 	line.name = "Line"
-	line.position = Vector2(30, 470)
-	line.size = Vector2(380, 40)
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.max_lines_visible = 2
-	line.add_theme_font_override("font", _font(FONT_REG))
-	line.add_theme_font_size_override("font_size", 18)
-	line.add_theme_color_override("font_color", COL_MUTED)
+	line.visible = false
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(line)
 
@@ -346,7 +358,7 @@ func _make_card(spec: Dictionary, index: int) -> PanelContainer:
 	pick.name = "Pick"
 	pick.position = Vector2(44, 518)
 	pick.focus_mode = Control.FOCUS_ALL
-	pick.text = COPY.text(str(spec.get("pick_key", "")), str(spec.get("pick_key", "")))
+	pick.text = COPY.text(str(spec.get("pick_key", "")), "Pick")
 	pick.pressed.connect(func() -> void:
 		_focus_i = _index_of_card(card)
 		_confirm_focus()
@@ -388,7 +400,7 @@ func _presenter_frames(monster: String) -> SpriteFrames:
 func _refresh_cards() -> void:
 	if _title:
 		var key := "playtest.tier.upgrade_title" if _upgrade else "playtest.tier.choose_title"
-		_title.text = COPY.text(key, key)
+		_title.text = COPY.text(key, "")
 	if _back:
 		_back.visible = _upgrade
 	for i in range(_card_nodes.size()):
@@ -398,19 +410,29 @@ func _refresh_cards() -> void:
 		var enabled: bool = _tier_enabled(tier)
 		var title_l: Label = card.find_child("Title", true, false) as Label
 		var biome_l: Label = card.find_child("Biome", true, false) as Label
+		var goal_l: Label = card.find_child("Goal", true, false) as Label
 		var line_l: Label = card.find_child("Line", true, false) as Label
 		var pick_b: Button = card.find_child("Pick", true, false) as Button
+		var title_txt := COPY.text(str(spec.get("title_key", "")), "")
+		var bk := "biome.name.%s" % str(spec.get("slug", "verdant"))
+		var biome_txt := COPY.text(bk, "")
+		if biome_txt == "" and str(spec.get("biome_key", "")) != "":
+			biome_txt = COPY.text(str(spec.get("biome_key", "")), "")
+		var goal_txt := COPY.text(str(spec.get("goal_key", "")), "")
+		var line_txt := COPY.text(str(spec.get("line_key", "")), "")
 		if title_l:
-			title_l.text = COPY.text(str(spec.get("title_key", "")), str(spec.get("title_key", "")))
+			title_l.text = title_txt
 		if biome_l:
-			var bk := "biome.name.%s" % str(spec.get("slug", "verdant"))
-			biome_l.text = COPY.text(bk, bk)
+			biome_l.text = biome_txt
+		if goal_l:
+			goal_l.text = goal_txt
 		if line_l:
-			line_l.text = COPY.text(str(spec.get("time_key", "")), str(spec.get("time_key", "")))
-			line_l.tooltip_text = COPY.text(str(spec.get("line_key", "")), str(spec.get("line_key", "")))
+			line_l.text = COPY.text(str(spec.get("time_key", "")), "")
 		if pick_b:
-			pick_b.text = COPY.text(str(spec.get("pick_key", "")), str(spec.get("pick_key", "")))
+			pick_b.text = COPY.text(str(spec.get("pick_key", "")), "Pick")
 			pick_b.disabled = not enabled
+		## Longer .line copy lives on the card tooltip (hover / focus).
+		card.tooltip_text = line_txt
 		card.modulate = Color.WHITE if enabled else COL_DIM
 		card.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 		card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW

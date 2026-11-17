@@ -4730,9 +4730,9 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.continue",
-			"locked_at": "2026-11-05",
-			"text": "Delve Deeper",
-			"where": "Between-dungeon Continue"
+			"locked_at": "2026-11-17",
+			"text": "Continue",
+			"where": "Title menu Continue; between-dungeon Continue"
 		},
 		{
 			"author_lock": true,
@@ -8112,7 +8112,204 @@
 			"key": "pause.victory_code",
 			"text": "My victory code",
 			"where": "Pause menu re-view victory code"
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over.yes",
+			"text": "Wipe it",
+			"where": "Start over confirm yes",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over.no",
+			"text": "Keep my save",
+			"where": "Start over confirm no",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.goal.ticker_line",
+			"text": "Your goal: {goal}",
+			"where": "Goal ticker line",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.sparkles.on",
+			"text": "Item sparkles: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.sparkles.off",
+			"text": "Item sparkles: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.invert_scroll.on",
+			"text": "Invert scroll: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.invert_scroll.off",
+			"text": "Invert scroll: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.reduce_motion.on",
+			"text": "Reduce motion: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.reduce_motion.off",
+			"text": "Reduce motion: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.back",
+			"text": "Back",
+			"where": "Settings back / title settings close",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.quick.biome",
+			"text": "Verdant Hollow",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.deeper.biome",
+			"text": "Crystal Cavern",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.big.biome",
+			"text": "Shadow Abyss",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.quick.goal",
+			"text": "Finish one solo run, then come home.\nAbout 15 minutes.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.deeper.goal",
+			"text": "Reach Crystal Cavern and finish a run there.\nUsually about an hour.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.big.goal",
+			"text": "Make it to the Shadow Abyss.\nSeveral hours.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
+		},
+		{
+			"key": "title.menu.new_game",
+			"text": "New Game",
+			"where": "Title menu New Game (alias)"
+		},
+		{
+			"key": "title.menu.continue",
+			"text": "Continue",
+			"where": "Title menu Continue (alias)"
+		},
+		{
+			"key": "title.menu.settings",
+			"text": "Settings",
+			"where": "Title menu Settings (alias)"
+		},
+		{
+			"key": "title.menu.feedback",
+			"text": "Feedback",
+			"where": "Title menu Feedback (alias)"
+		},
+		{
+			"key": "title.menu.start_over",
+			"text": "Start over",
+			"where": "Title menu Start over (alias)"
+		},
+		{
+			"key": "title.start_over.ask",
+			"text": "Start over from scratch?",
+			"where": "Start-over confirm ask (alias)"
+		},
+		{
+			"key": "biome.name.verdant",
+			"text": "Verdant Hollow",
+			"where": "Title board biome name (verdant)"
+		},
+		{
+			"key": "biome.name.crystal",
+			"text": "Crystal Cavern",
+			"where": "Title board biome name (crystal)"
+		},
+		{
+			"key": "biome.name.ashen",
+			"text": "Ashen Crypt",
+			"where": "Title board biome name (ashen)"
+		},
+		{
+			"key": "biome.name.cinder",
+			"text": "Cinder Forge",
+			"where": "Title board biome name (cinder)"
+		},
+		{
+			"key": "biome.name.shadow",
+			"text": "Shadow Abyss",
+			"where": "Title board biome name (shadow)"
+		},
+		{
+			"key": "picker.pick.quick",
+			"text": "Pick",
+			"where": "Commitment picker pick button (quick)"
+		},
+		{
+			"key": "picker.pick.deeper",
+			"text": "Pick",
+			"where": "Commitment picker pick button (deeper)"
+		},
+		{
+			"key": "picker.pick.big",
+			"text": "Pick",
+			"where": "Commitment picker pick button (big)"
+		},
+		{
+			"key": "picker.back",
+			"text": "Back",
+			"where": "Commitment picker back"
+		},
+		{
+			"key": "title.start_over.body",
+			"text": "This wipes your progress, your trophies, and your goal.",
+			"where": "Start-over confirm body (optional)"
+		},
+		{
+			"key": "intro.preview.caption",
+			"text": "Right-click a Monster/Item, or press F2, to send a note.",
+			"where": "Intro preview still caption (placeholder)"
 		}
 	],
-	"updated": "2026-11-17T00:15:00Z"
+	"updated": "2026-11-17"
 }

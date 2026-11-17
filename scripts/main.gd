@@ -979,6 +979,9 @@ var playtest_teaser
 var playtest_fab: Button
 var playtest_voice: Label
 var _commitment_picker_from_pause: bool = false
+var _commitment_picker_from_new_game: bool = false
+var _settings_from_title: bool = false
+var _settings_z_restore: int = 120
 var _dev_progress_dumping: bool = false
 var _offramp_send_pending: bool = false
 var _victory_send_pending: bool = false
@@ -8967,8 +8970,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if playtest_commitment_picker != null and playtest_commitment_picker.visible:
-		## First-pick cannot cancel; upgrade picker handles Esc itself.
-		get_viewport().set_input_as_handled()
+		## Picker owns Esc (cancel → hub for New Game, or close upgrade).
 		return
 	if playtest_offramp != null and playtest_offramp.visible:
 		get_viewport().set_input_as_handled()
@@ -8985,6 +8987,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if playtest_hub != null and playtest_hub.visible:
+		## Hub owns Start-over confirm Esc; otherwise keep title up (no Settings via Esc).
+		if settings_ui != null and settings_ui.visible:
+			return
 		get_viewport().set_input_as_handled()
 		return
 	if sack_peek != null and sack_peek.visible:
@@ -9103,10 +9108,14 @@ func _build_playtest() -> void:
 	playtest_hub = PLAYTEST_HUB.new()
 	add_child(playtest_hub)
 	playtest_hub.setup()
-	playtest_hub.brand_new.connect(_playtest_brand_new)
+	if playtest_hub.has_method("set_audio"):
+		playtest_hub.set_audio(sfx)
+	playtest_hub.brand_new.connect(_playtest_new_game)
 	playtest_hub.middle_progress.connect(_playtest_middle)
 	playtest_hub.continue_save.connect(_playtest_continue)
 	playtest_hub.feedback_wanted.connect(func() -> void: _open_playtest_comment("", ""))
+	playtest_hub.settings_wanted.connect(_playtest_open_title_settings)
+	playtest_hub.start_over_confirmed.connect(_playtest_start_over)
 	playtest_feedback = PLAYTEST_FEEDBACK.new()
 	add_child(playtest_feedback)
 	playtest_feedback.setup()
@@ -9216,7 +9225,8 @@ func _open_playtest_hub() -> void:
 		playtest_intro.open_intro()
 		_sync_playtest_chrome()
 		return
-	_maybe_open_commitment_picker()
+	## Intro already seen — title menu (teaser then hub). Picker only on New Game.
+	_maybe_open_teaser()
 
 
 func _show_playtest_hub(over_still: bool = false) -> void:
@@ -9266,19 +9276,18 @@ func _music_restore_hub_if_shown() -> void:
 
 func _playtest_intro_done() -> void:
 	_mark_playtest_intro_seen()
-	_maybe_open_commitment_picker()
+	## Picker moved to New Game — intro always lands on teaser / title.
+	_maybe_open_teaser()
 
 
 func _maybe_open_commitment_picker() -> void:
+	## First-pick picker: only from New Game (or pause upgrade via _open_commitment_upgrade).
 	if playtest_intro:
 		playtest_intro.close_intro()
 	if not PLAYTEST_FLAG.on():
 		_maybe_open_teaser()
 		return
-	if playtest_commitment == null or playtest_commitment.tier != PlaytestCommitment.TIER_NONE:
-		_maybe_open_teaser()
-		return
-	if playtest_commitment_picker == null:
+	if playtest_commitment == null or playtest_commitment_picker == null:
 		_maybe_open_teaser()
 		return
 	if playtest_hub:
@@ -9288,6 +9297,7 @@ func _maybe_open_commitment_picker() -> void:
 	if sfx and sfx.has_method("music_title"):
 		sfx.music_title()
 	_commitment_picker_from_pause = false
+	_commitment_picker_from_new_game = true
 	playtest_commitment_picker.open_picker("choose", PlaytestCommitment.TIER_NONE, {})
 	_sync_playtest_chrome()
 
@@ -9298,6 +9308,7 @@ func _open_commitment_upgrade() -> void:
 	if playtest_commitment.tier >= PlaytestCommitment.TIER_BIG:
 		return
 	_commitment_picker_from_pause = true
+	_commitment_picker_from_new_game = false
 	var reached := {
 		PlaytestCommitment.M_QUICK: playtest_commitment.reached_quick,
 		PlaytestCommitment.M_DEEPER: playtest_commitment.reached_deeper,
@@ -9311,6 +9322,7 @@ func _open_commitment_upgrade() -> void:
 func _on_commitment_picked(tier: int, upgrade: bool) -> void:
 	if playtest_commitment == null:
 		return
+	var from_new: bool = _commitment_picker_from_new_game
 	var ok := false
 	if upgrade or playtest_commitment.tier != PlaytestCommitment.TIER_NONE:
 		ok = playtest_commitment.upgrade(tier)
@@ -9323,10 +9335,14 @@ func _on_commitment_picked(tier: int, upgrade: bool) -> void:
 	if not ok:
 		## Fallback: still close so the player is not stuck.
 		playtest_commitment_picker.close_picker()
+		_commitment_picker_from_new_game = false
 		if _commitment_picker_from_pause:
 			_commitment_picker_from_pause = false
 			_sync_commitment_goal_icon()
 			_sync_playtest_chrome()
+			return
+		if from_new:
+			_show_playtest_hub()
 			return
 		_maybe_open_teaser()
 		return
@@ -9334,9 +9350,14 @@ func _on_commitment_picked(tier: int, upgrade: bool) -> void:
 	if playtest_commitment_picker:
 		playtest_commitment_picker.close_picker()
 	_sync_commitment_goal_icon()
+	_commitment_picker_from_new_game = false
 	if _commitment_picker_from_pause:
 		_commitment_picker_from_pause = false
 		_sync_playtest_chrome()
+		return
+	if from_new:
+		## Tier chosen as part of New Game — start the fresh save now.
+		_playtest_begin_new_game()
 		return
 	_maybe_open_teaser()
 
@@ -9344,7 +9365,12 @@ func _on_commitment_picked(tier: int, upgrade: bool) -> void:
 func _on_commitment_picker_cancelled() -> void:
 	if playtest_commitment_picker:
 		playtest_commitment_picker.close_picker()
+	var from_new: bool = _commitment_picker_from_new_game
 	_commitment_picker_from_pause = false
+	_commitment_picker_from_new_game = false
+	if from_new:
+		_show_playtest_hub()
+		return
 	_sync_playtest_chrome()
 
 
@@ -9725,7 +9751,20 @@ func _telem_offered(cards: Array) -> Array:
 	return ids
 
 
-func _playtest_brand_new() -> void:
+func _playtest_new_game() -> void:
+	## Title New Game → tier picker first (once per save start). Fresh save after pick.
+	_telem("funnel", {"step": "hub_new_game"})
+	if playtest_hub:
+		playtest_hub.close_hub()
+	_close_playtest_teaser()
+	if playtest_commitment != null and playtest_commitment.tier != PlaytestCommitment.TIER_NONE:
+		## Should not happen on the no-save title; still start clean.
+		_playtest_begin_new_game()
+		return
+	_maybe_open_commitment_picker()
+
+
+func _playtest_begin_new_game() -> void:
 	_telem("funnel", {"step": "hub_brand_new"})
 	if playtest_hub:
 		playtest_hub.close_hub()
@@ -9735,6 +9774,128 @@ func _playtest_brand_new() -> void:
 	_set_playtest_preset("new")
 	_sync_playtest_chrome()
 	_dev_fresh_save()
+
+
+func _playtest_open_title_settings() -> void:
+	## Living trophy room owns the SettingsScreen; sync cabin toggles into its shared panel.
+	_settings_from_title = true
+	if playtest_hub == null:
+		return
+	if playtest_hub.has_method("set_audio") and sfx != null:
+		playtest_hub.set_audio(sfx)
+	var sparkles_on := true
+	if settings_ui != null and "sparkles_on" in settings_ui:
+		sparkles_on = bool(settings_ui.sparkles_on)
+	var invert := false
+	var reduce := false
+	if home_cabin:
+		invert = bool(home_cabin.invert_scroll)
+		reduce = bool(home_cabin.reduce_motion)
+	elif settings_ui != null:
+		invert = bool(settings_ui.invert_scroll)
+		reduce = bool(settings_ui.reduce_motion)
+	if playtest_hub.has_method("sync_settings_toggles"):
+		playtest_hub.sync_settings_toggles(sparkles_on, invert, reduce)
+	_wire_title_settings_panel_once()
+	if playtest_hub.has_method("open_title_settings"):
+		playtest_hub.open_title_settings()
+
+
+var _title_settings_panel_wired: bool = false
+
+
+func _wire_title_settings_panel_once() -> void:
+	if _title_settings_panel_wired or playtest_hub == null:
+		return
+	if not playtest_hub.has_method("settings_panel_node"):
+		return
+	var panel = playtest_hub.settings_panel_node()
+	if panel == null:
+		return
+	_title_settings_panel_wired = true
+	if panel.has_signal("sparkles_toggled"):
+		panel.sparkles_toggled.connect(func(on: bool) -> void:
+			if settings_ui != null:
+				settings_ui.sparkles_on = on
+			_on_sparkles_toggled(on)
+		)
+	if panel.has_signal("invert_scroll_toggled"):
+		panel.invert_scroll_toggled.connect(func(on: bool) -> void:
+			if home_cabin:
+				home_cabin.invert_scroll = on
+			if settings_ui != null:
+				settings_ui.invert_scroll = on
+		)
+	if panel.has_signal("reduce_motion_toggled"):
+		panel.reduce_motion_toggled.connect(func(on: bool) -> void:
+			if home_cabin:
+				home_cabin.reduce_motion = on
+			if settings_ui != null:
+				settings_ui.reduce_motion = on
+			if playtest_goal_icon != null:
+				playtest_goal_icon.reduce_motion = on
+		)
+	if panel.has_signal("back_pressed"):
+		panel.back_pressed.connect(func() -> void:
+			_settings_from_title = false
+			if playtest_hub != null and playtest_hub.visible:
+				playtest_hub.call_deferred("_focus_default")
+				_sync_playtest_chrome()
+		)
+	if panel.has_signal("closed"):
+		panel.closed.connect(func() -> void:
+			_settings_from_title = false
+		)
+
+
+func _playtest_start_over() -> void:
+	_telem("funnel", {"step": "hub_start_over"})
+	_wipe_playtest_progress_keep_anon()
+	if playtest_commitment_picker:
+		playtest_commitment_picker.close_picker()
+	if playtest_offramp:
+		playtest_offramp.close_panel()
+	if playtest_victory:
+		playtest_victory.close_panel()
+	_sync_commitment_goal_icon()
+	_show_playtest_hub(false)
+
+
+func _wipe_playtest_progress_keep_anon() -> void:
+	## Wipe save + meta + commitment + victory/pending + LS mirrors. Keep swipe_pt_anon.
+	var anon := ""
+	if playtest_telemetry != null:
+		anon = str(playtest_telemetry._anon)
+	elif playtest_commitment != null:
+		anon = str(playtest_commitment.anon_id)
+	if _campaign != null:
+		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+	reset_bucket_progress()
+	_playtest_preset = ""
+	if home_cabin:
+		home_cabin.stop_story()
+		## Reset in-memory cabin, then delete the file so has_save() is false.
+		home_cabin.clear_to_fresh_save()
+		home_cabin.visible = false
+	if overlay:
+		overlay.visible = false
+	phase = "title"
+	if playtest_commitment != null:
+		playtest_commitment.wipe_progress()
+		playtest_commitment.anon_id = anon
+	## Delete after any reset that may have rewritten disk (cabin save, meta).
+	_remove_user_json("user://home_cabin.json")
+	_remove_user_json(CAMPAIGN_SHELL.SAVE_PATH)
+	_remove_user_json(BUCKET_PROGRESS_PATH)
+	_remove_user_json(PLAYTEST_META_PATH)
+
+
+func _remove_user_json(path: String) -> void:
+	var p := str(path).strip_edges()
+	if p == "":
+		return
+	if FileAccess.file_exists(p):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
 
 
 func _playtest_middle() -> void:

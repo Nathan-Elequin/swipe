@@ -138,6 +138,11 @@ func setup(audio) -> void:
 	_hook_hover(_btn_victory_code)
 
 	## Shared SettingsPanel (3 toggles + 5 sliders) — same type as title Settings.
+	## Toggle copy keys (also applied inside SettingsPanel.apply_toggle_labels):
+	## settings.sparkles.on / settings.sparkles.off
+	## settings.invert_scroll.on / settings.invert_scroll.off
+	## settings.reduce_motion.on / settings.reduce_motion.off
+	## settings.back
 	_settings_panel = SETTINGS_PANEL.new()
 	_settings_panel.setup(audio, false)
 	if _settings_panel._btn_back:

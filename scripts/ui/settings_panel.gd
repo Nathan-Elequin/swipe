@@ -1,6 +1,6 @@
 extends Control
 ## Shared settings panel (3 toggles + 5 volume sliders). Used by Esc pause and title Settings.
-## Toggle labels stay as hard-coded English until Spin keys land (LAUNCH OVERRIDE).
+## Toggle labels use settings.*.on/off copy keys (shared by Esc + title Settings).
 
 signal closed
 signal sparkles_toggled(on: bool)
@@ -39,6 +39,7 @@ func setup(audio, p_show_back: bool = true) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build()
 	sync_from_audio()
+	apply_toggle_labels()
 
 
 func _build() -> void:
@@ -53,7 +54,7 @@ func _build() -> void:
 	_btn_sparkles = KIT.choice_tag("pause.resume", Vector2(128, 16))
 	_btn_sparkles.custom_minimum_size = Vector2(ROW_W, ROW_H)
 	_btn_sparkles.size = Vector2(ROW_W, ROW_H)
-	_btn_sparkles.text = "Item sparkles: on"
+	_btn_sparkles.text = COPY.text("settings.sparkles.on", "Item sparkles: on")
 	_btn_sparkles.pressed.connect(_on_sparkles)
 	_rows.add_child(_btn_sparkles)
 	_hook_hover(_btn_sparkles)
@@ -61,7 +62,7 @@ func _build() -> void:
 	_btn_invert = KIT.choice_tag("pause.resume", Vector2(128, 16))
 	_btn_invert.custom_minimum_size = Vector2(ROW_W, ROW_H)
 	_btn_invert.size = Vector2(ROW_W, ROW_H)
-	_btn_invert.text = "Invert scroll: off"
+	_btn_invert.text = COPY.text("settings.invert_scroll.off", "Invert scroll: off")
 	_btn_invert.pressed.connect(_on_invert)
 	_rows.add_child(_btn_invert)
 	_hook_hover(_btn_invert)
@@ -69,7 +70,7 @@ func _build() -> void:
 	_btn_reduce = KIT.choice_tag("pause.resume", Vector2(128, 16))
 	_btn_reduce.custom_minimum_size = Vector2(ROW_W, ROW_H)
 	_btn_reduce.size = Vector2(ROW_W, ROW_H)
-	_btn_reduce.text = "Reduce motion: off"
+	_btn_reduce.text = COPY.text("settings.reduce_motion.off", "Reduce motion: off")
 	_btn_reduce.pressed.connect(_on_reduce)
 	_rows.add_child(_btn_reduce)
 	_hook_hover(_btn_reduce)
@@ -83,7 +84,7 @@ func _build() -> void:
 	]:
 		var which: String = pair[0]
 		var key: String = pair[1]
-		var label := COPY.text(key, key)
+		var label := COPY.text(key, which)
 		var sl := VolumeSlider.new()
 		sl.setup(which, label)
 		sl.value_changed.connect(_on_slider.bind(which))
@@ -92,7 +93,7 @@ func _build() -> void:
 		_hook_hover(sl)
 
 	_btn_back = KIT.choice_tag("settings.back", Vector2(88, 16))
-	_btn_back.text = COPY.text("settings.back", "settings.back")
+	_btn_back.text = COPY.text("settings.back", "Back")
 	_btn_back.custom_minimum_size = Vector2(352, 64)
 	_btn_back.size = Vector2(352, 64)
 	_btn_back.visible = show_back
@@ -142,11 +143,20 @@ func toggle_buttons() -> Array:
 
 func apply_toggle_labels() -> void:
 	if _btn_sparkles:
-		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
+		_btn_sparkles.text = COPY.text(
+			"settings.sparkles.on" if sparkles_on else "settings.sparkles.off",
+			"Item sparkles: on" if sparkles_on else "Item sparkles: off"
+		)
 	if _btn_invert:
-		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
+		_btn_invert.text = COPY.text(
+			"settings.invert_scroll.on" if invert_scroll else "settings.invert_scroll.off",
+			"Invert scroll: on" if invert_scroll else "Invert scroll: off"
+		)
 	if _btn_reduce:
-		_btn_reduce.text = "Reduce motion: on" if reduce_motion else "Reduce motion: off"
+		_btn_reduce.text = COPY.text(
+			"settings.reduce_motion.on" if reduce_motion else "settings.reduce_motion.off",
+			"Reduce motion: on" if reduce_motion else "Reduce motion: off"
+		)
 
 
 func _hook_hover(ctrl: Control) -> void:

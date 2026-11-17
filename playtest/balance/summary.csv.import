@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://d3gd5on6hm3tu"
+
+[deps]
+
+files=["res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.n.translation", "res://playtest/balance/summary.win.translation", "res://playtest/balance/summary.death.translation", "res://playtest/balance/summary.escape.translation", "res://playtest/balance/summary.mean.translation", "res://playtest/balance/summary.mean.translation"]
+
+source_file="res://playtest/balance/summary.csv"
+dest_files=["res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.monster.translation", "res://playtest/balance/summary.n.translation", "res://playtest/balance/summary.win.translation", "res://playtest/balance/summary.death.translation", "res://playtest/balance/summary.escape.translation", "res://playtest/balance/summary.mean.translation", "res://playtest/balance/summary.mean.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

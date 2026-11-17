@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b3g3a3rgflqn3"
+
+[deps]
+
+files=["res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.trial.translation", "res://playtest/balance/trials_sample.result.translation", "res://playtest/balance/trials_sample.win.translation", "res://playtest/balance/trials_sample.hp.translation", "res://playtest/balance/trials_sample.turns.translation", "res://playtest/balance/trials_sample.items.translation", "res://playtest/balance/trials_sample.seed.translation"]
+
+source_file="res://playtest/balance/trials_sample.csv"
+dest_files=["res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.monster.translation", "res://playtest/balance/trials_sample.trial.translation", "res://playtest/balance/trials_sample.result.translation", "res://playtest/balance/trials_sample.win.translation", "res://playtest/balance/trials_sample.hp.translation", "res://playtest/balance/trials_sample.turns.translation", "res://playtest/balance/trials_sample.items.translation", "res://playtest/balance/trials_sample.seed.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

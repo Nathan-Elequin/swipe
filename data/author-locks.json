@@ -4903,9 +4903,9 @@
 		},
 		"title.continue": {
 			"cat": "Title",
-			"locked_at": "2026-11-05",
-			"text": "Delve Deeper",
-			"where": "Between-dungeon Continue"
+			"locked_at": "2026-11-17",
+			"text": "Continue",
+			"where": "Title menu Continue; between-dungeon Continue"
 		},
 		"title.dive_in": {
 			"cat": "Title",
@@ -5724,5 +5724,5 @@
 			"where": "Used item this fight"
 		}
 	},
-	"updated": "2026-11-14"
+	"updated": "2026-11-17"
 }

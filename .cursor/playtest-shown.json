@@ -105,8 +105,7 @@
     "why": "Second show in Still broken in F5 on 2026-11-08, open-issues questions."
   },
   "542": {
-    "shown": 2,
-    "retired": true,
-    "why": "Second show in Still broken in F5 on 2026-11-16. Last list."
+    "shown": 1,
+    "retired": false
   }
 }
