@@ -130,7 +130,7 @@ func setup(audio) -> void:
 	_board.add_child(_btn_go_deeper)
 	_hook_hover(_btn_go_deeper)
 
-	_btn_victory_code = KIT.choice_tag("pause.victory_code", Vector2(152, 16))
+	_btn_victory_code = KIT.choice_tag("pause.victory_code", Vector2(128, 16))
 	_btn_victory_code.pressed.connect(_on_victory_code)
 	_board.add_child(_btn_victory_code)
 	_hook_hover(_btn_victory_code)
@@ -343,24 +343,34 @@ func _layout_buttons() -> void:
 	var slider_on: bool = _master != null and _master.visible
 	var row_count: int = shown.size() + (1 if slider_on else 0)
 	var gap: float = _ROW_GAP
-	var rows_h: float = float(shown.size()) * _ROW_H + (_ROW_H if slider_on else 0.0)
-	var block: float = rows_h + (float(row_count - 1) * gap if row_count > 1 else 0.0)
+	var row_h: float = _ROW_H
 	var avail: float = _CONTENT_BOTTOM - _CONTENT_TOP
-	if row_count > 1 and block > avail:
-		gap = maxf(4.0, (avail - rows_h) / float(row_count - 1))
-		block = rows_h + float(row_count - 1) * gap
+	var block: float = 0.0
+	if row_count > 0:
+		block = float(row_count) * row_h + float(maxi(row_count - 1, 0)) * gap
+		if block > avail:
+			gap = 0.0
+			if row_count > 1:
+				gap = maxf(0.0, (avail - float(row_count) * row_h) / float(row_count - 1))
+			block = float(row_count) * row_h + float(maxi(row_count - 1, 0)) * gap
+			if block > avail:
+				gap = 0.0
+				row_h = maxf(48.0, avail / float(row_count))
+				block = float(row_count) * row_h
 	var y: float = _CONTENT_TOP + maxf(0.0, (avail - block) * 0.5)
+	var tag_w: float = 128.0 * PX
 	for b2 in shown:
-		var w: float = b2.size.x
-		if w < 8.0:
-			w = b2.custom_minimum_size.x
 		var wide: bool = on_dev and b2 != _btn_dev_back
-		var x: float = ( _BOARD_W - w) * 0.5 if wide else _BTN_X
+		var w: float = (160.0 * PX) if wide else tag_w
+		b2.custom_minimum_size = Vector2(w, row_h)
+		b2.size = Vector2(w, row_h)
+		var x: float = (_BOARD_W - w) * 0.5 if wide else _BTN_X
 		b2.position = Vector2(x, y)
-		y += _ROW_H + gap
+		y += row_h + gap
 	if slider_on:
+		_master.custom_minimum_size = Vector2(tag_w, row_h)
 		_master.position = Vector2(_BTN_X, y)
-		_master.size = Vector2(512, _ROW_H)
+		_master.size = Vector2(tag_w, row_h)
 
 
 func _set_page(page: String) -> void:
