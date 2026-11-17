@@ -357,6 +357,10 @@ func _init() -> void:
 	failed = _check(failed, "fill every cabinet completes", Shell.cabinets_complete(rules, open_state)) or failed
 	failed = _check(failed, "fill every cabinet inks later stamps", (open_state["map_pieces"] as Array).has("b5")) or failed
 	failed = _check(failed, "fill every cabinet skips win drawer", bool(open_state.get("drawer_seen", false))) or failed
+	failed = _check(failed, "fill marks board ceremonies seen", (open_state["board_complete_seen"] as Array).has("b1") and (open_state["board_complete_seen"] as Array).has("b5")) or failed
+	failed = _check(failed, "fill clears pencil flash", (open_state["pencil_fresh"] as Array).is_empty()) or failed
+	failed = _check(failed, "fill unlocks endless", bool(open_state.get("endless_unlocked", false))) or failed
+	failed = _check(failed, "fill marks final dungeon cleared", bool(open_state.get("final_dungeon_cleared", false))) or failed
 	var locked_slice: Array = Shell.rows_for_biome(rules, locked_state, pooled, "b1")
 	var open_slice: Array = Shell.rows_for_biome(rules, open_state, pooled, "b1")
 	failed = _check(failed, "locked verdant slice is pool 1", locked_slice.size() == 16) or failed

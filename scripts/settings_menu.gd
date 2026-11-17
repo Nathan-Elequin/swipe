@@ -10,6 +10,7 @@ signal peek_pressed
 signal give_up_confirmed
 signal fresh_save_pressed
 signal complete_save_pressed
+signal playtest_path_pressed(kind: String)
 signal bucket_progress_pressed
 signal go_deeper_pressed
 signal victory_code_pressed
@@ -41,6 +42,9 @@ var _btn_victory_code: Button
 var _btn_dev: Button
 var _btn_fresh: Button
 var _btn_complete: Button
+var _btn_path_quick: Button
+var _btn_path_deeper: Button
+var _btn_path_big: Button
 var _btn_buckets: Button
 var _btn_sparkles: Button
 var sparkles_on: bool = true
@@ -175,6 +179,24 @@ func setup(audio) -> void:
 		_btn_complete.visible = false
 		_board.add_child(_btn_complete)
 		_hook_hover(_btn_complete)
+		_btn_path_quick = KIT.choice_tag("pause.resume", Vector2(160, 16))
+		_btn_path_quick.text = "Complete Quick Path"
+		_btn_path_quick.pressed.connect(_on_path.bind("quick"))
+		_btn_path_quick.visible = false
+		_board.add_child(_btn_path_quick)
+		_hook_hover(_btn_path_quick)
+		_btn_path_deeper = KIT.choice_tag("pause.resume", Vector2(160, 16))
+		_btn_path_deeper.text = "Complete Deeper Path"
+		_btn_path_deeper.pressed.connect(_on_path.bind("deeper"))
+		_btn_path_deeper.visible = false
+		_board.add_child(_btn_path_deeper)
+		_hook_hover(_btn_path_deeper)
+		_btn_path_big = KIT.choice_tag("pause.resume", Vector2(160, 16))
+		_btn_path_big.text = "Complete Big Path"
+		_btn_path_big.pressed.connect(_on_path.bind("big"))
+		_btn_path_big.visible = false
+		_board.add_child(_btn_path_big)
+		_hook_hover(_btn_path_big)
 		_btn_buckets = KIT.choice_tag("pause.resume", Vector2(152, 16))
 		_btn_buckets.text = "Bucket Progress"
 		_btn_buckets.pressed.connect(_on_buckets)
@@ -259,6 +281,12 @@ func apply_copy() -> void:
 		_btn_fresh.text = "Fresh Save"
 	if _btn_complete:
 		_btn_complete.text = "One Hundred Percent Complete"
+	if _btn_path_quick:
+		_btn_path_quick.text = "Complete Quick Path"
+	if _btn_path_deeper:
+		_btn_path_deeper.text = "Complete Deeper Path"
+	if _btn_path_big:
+		_btn_path_big.text = "Complete Big Path"
 	if _btn_buckets:
 		_btn_buckets.text = "Bucket Progress"
 	if _btn_dev_back:
@@ -294,6 +322,12 @@ func _layout_buttons() -> void:
 		_btn_fresh.visible = on_dev
 	if _btn_complete:
 		_btn_complete.visible = on_dev
+	if _btn_path_quick:
+		_btn_path_quick.visible = on_dev
+	if _btn_path_deeper:
+		_btn_path_deeper.visible = on_dev
+	if _btn_path_big:
+		_btn_path_big.visible = on_dev
 	if _btn_buckets:
 		_btn_buckets.visible = false
 	if _btn_dev_back:
@@ -301,7 +335,7 @@ func _layout_buttons() -> void:
 	if _master:
 		_master.visible = not on_dev
 	var shown: Array = []
-	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_victory_code, _btn_sparkles, _btn_invert, _btn_reduce, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_complete, _btn_dev_back]
+	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_victory_code, _btn_sparkles, _btn_invert, _btn_reduce, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_path_quick, _btn_path_deeper, _btn_path_big, _btn_complete, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
@@ -557,6 +591,12 @@ func _on_complete() -> void:
 	if _audio:
 		_audio.play("confirm", -8.0)
 	complete_save_pressed.emit()
+
+
+func _on_path(kind: String) -> void:
+	if _audio:
+		_audio.play("confirm", -8.0)
+	playtest_path_pressed.emit(kind)
 
 
 func _on_buckets() -> void:

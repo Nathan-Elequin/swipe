@@ -271,6 +271,36 @@ func debug_force_milestone(milestone: String) -> bool:
 	return true
 
 
+## DEV: mark this path done and fire its offramp / victory even if it already showed.
+func debug_retrigger_offramp(milestone: String) -> bool:
+	if not _debug_ok():
+		return false
+	var id := str(milestone).strip_edges().to_lower()
+	var need: int = _tier_for_milestone(id)
+	if need <= TIER_NONE:
+		return false
+	if id == M_BIG:
+		ensure_big_tier()
+	elif tier < need:
+		tier = need
+		if chosen_at == "":
+			chosen_at = _now()
+	_mark_reached(id)
+	match id:
+		M_QUICK:
+			offramp_shown_quick = false
+		M_DEEPER:
+			offramp_shown_deeper = false
+		M_BIG:
+			offramp_shown_big = false
+		_:
+			return false
+	pending_milestone = id
+	_write_all()
+	_emit_milestone(id, false)
+	return true
+
+
 func debug_reset() -> void:
 	if not _debug_ok():
 		return

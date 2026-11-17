@@ -416,6 +416,8 @@ func _run() -> void:
 	v.mark_offramp_shown(C.M_BIG)
 	failed = _check(rows, failed, "victory.shown_once",
 		not v.should_offramp(C.M_BIG) and bool(v.offramp_shown_big), "") or failed
+	failed = _check(rows, failed, "victory.retrigger",
+		v.debug_retrigger_offramp(C.M_BIG) and v.should_offramp(C.M_BIG), "") or failed
 
 	## Victory UI: empty Discord disables; payload includes code.
 	var win = VICTORY.new()

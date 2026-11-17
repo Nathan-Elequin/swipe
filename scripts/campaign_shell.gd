@@ -681,21 +681,39 @@ static func debug_bank_matching(rules: Dictionary, state: Dictionary, entries: A
 	return got
 
 
-## DEV: fill every biome cabinet, ink every portal, grant every shortcut, skip drawer.
+## DEV: bank matching live entries (all of them, not quota), ink portals, grant shortcuts.
+## Ceremonies already seen: no shortcut splash, no pencil flash, no ending drawer.
 static func debug_unlock_all_pools(rules: Dictionary, state: Dictionary, entries: Array) -> void:
 	normalize(state)
-	for raw in biomes_of(rules):
-		var pool := str((raw as Dictionary).get("id", ""))
-		if pool == "":
+	debug_bank_all_live(state, entries)
+	debug_mark_map_fully_open(rules, state)
+
+
+## DEV: put every entry onto its biome cabinet ledger.
+static func debug_bank_all_live(state: Dictionary, entries: Array) -> void:
+	normalize(state)
+	var banked: Dictionary = state["banked"]
+	for raw in entries:
+		if typeof(raw) != TYPE_DICTIONARY:
 			continue
-		var need: int = quota_of(rules) - cabinet_count(state, pool)
-		debug_bank_matching(rules, state, entries, maxi(0, need), pool)
+		var id := str(raw.get("id", ""))
+		var pool := str(raw.get("pool", ""))
+		if id == "" or pool == "":
+			continue
+		banked[id] = pool
+
+
+## DEV: all biomes known + launchable, Endless open, 100% ceremonies already seen.
+static func debug_mark_map_fully_open(rules: Dictionary, state: Dictionary) -> void:
+	normalize(state)
 	var pieces: Array = []
 	var shorts: Array = []
+	var complete: Array = []
 	for raw2 in biomes_of(rules):
 		var pid := str((raw2 as Dictionary).get("id", ""))
 		if pid == "":
 			continue
+		complete.append(pid)
 		if pid != "b1":
 			pieces.append(pid)
 			shorts.append(pid)
@@ -703,9 +721,30 @@ static func debug_unlock_all_pools(rules: Dictionary, state: Dictionary, entries
 	state["shortcuts"] = shorts
 	state["shortcut_fresh"] = []
 	state["shortcut_badge_seen"] = shorts.duplicate()
+	state["board_complete_seen"] = complete
+	state["pencil_fresh"] = []
 	state["won"] = true
 	state["endless_unlocked"] = true
 	state["drawer_seen"] = true
+	state["final_dungeon_cleared"] = true
+	state["migrated_board_v1"] = true
+
+
+## DEV: Crystal launchable after Verdant board 100% (Deeper playtest path).
+static func debug_unlock_deeper_path(rules: Dictionary, state: Dictionary, entries: Array) -> void:
+	normalize(state)
+	var need: int = quota_of(rules) - cabinet_count(state, "b1")
+	debug_bank_matching(rules, state, entries, maxi(0, need), "b1")
+	state["map_pieces"] = ["b2"]
+	state["shortcuts"] = ["b2"]
+	state["shortcut_fresh"] = []
+	state["shortcut_badge_seen"] = ["b2"]
+	state["board_complete_seen"] = ["b1"]
+	state["pencil_fresh"] = []
+	state["won"] = false
+	state["endless_unlocked"] = false
+	state["drawer_seen"] = true
+	state["final_dungeon_cleared"] = false
 	state["migrated_board_v1"] = true
 
 

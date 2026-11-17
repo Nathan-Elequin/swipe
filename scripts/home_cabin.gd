@@ -4084,23 +4084,11 @@ func fill_complete_save() -> void:
 	used.clear()
 	met_monsters.clear()
 	_just_mounted.clear()
+	_bank_hold.clear()
+	bank_pending.clear()
 	_clear_bank_anim()
 	_apply_defaults()
-	intro_seen = true
-	nib_first_done = true
-	tutorial_done = true
-	tutorial_declined = false
-	key_ring_seen = true
-	ending_seen = false
-	drawer_hint_said = false
-	drawer_opened = false
-	geode_on_mantel = false
-	milestones_said = [25, 50, 75]
-	counters = {"delves": 12, "homecomings": 12, "hauls": 12, "losses": 0}
-	deepest_belly = 12
-	for id in ROOM_ORDER:
-		if not rooms_unlocked.has(id):
-			rooms_unlocked.append(id)
+	_apply_dev_cabin_floor("complete")
 	for id2 in items_by_id.keys():
 		var card: Dictionary = items_by_id[id2]
 		if str(card.get("status", "live")) in ["retired", "hold"]:
@@ -4112,25 +4100,179 @@ func fill_complete_save() -> void:
 			continue
 		swiped[sid] = true
 		seen[sid] = true
-	var mons: Variant = catalog.get("monsters", [])
-	if typeof(mons) == TYPE_ARRAY:
-		for raw in mons:
-			if typeof(raw) != TYPE_DICTIONARY:
-				continue
-			var st: String = str(raw.get("status", "live"))
-			if st == "retired" or st == "hold":
-				continue
-			var mid: String = str(raw.get("id", ""))
-			if mid != "":
-				met_monsters[mid] = true
+		used[sid] = true
+	_fill_all_met_monsters(false)
+	_mark_bestiary_all_read()
+	mirror_swiped_into_banked()
 	_save()
 	_rebuild_shelves()
+	_mark_all_boards_viewed()
+	_place_nib_in_hall_quiet()
 	_refresh_rooms()
 	_apply_gate()
 	for r in _rooms.values():
 		if r.has_method("request_bg"):
 			r.request_bg()
 			r.ensure_bg()
+
+
+## DEV: cabin flags for a playtest path. Does not fill the full collection.
+func fill_playtest_path_save(kind: String) -> void:
+	stop_story()
+	seen.clear()
+	swiped.clear()
+	new_unseen.clear()
+	used.clear()
+	met_monsters.clear()
+	_just_mounted.clear()
+	_bank_hold.clear()
+	bank_pending.clear()
+	_clear_bank_anim()
+	_apply_defaults()
+	_apply_dev_cabin_floor(kind)
+	_save()
+	_rebuild_shelves()
+	if str(kind) == "big":
+		_place_nib_in_hall_quiet()
+	_refresh_rooms()
+	_apply_gate()
+	for r in _rooms.values():
+		if r.has_method("request_bg"):
+			r.request_bg()
+			r.ensure_bg()
+
+
+func _apply_dev_cabin_floor(kind: String) -> void:
+	var k := str(kind).strip_edges().to_lower()
+	intro_seen = true
+	intro_pack = 1
+	nib_first_done = true
+	tutorial_done = true
+	tutorial_declined = false
+	key_ring_seen = true
+	first_return_homecoming_done = true
+	first_light_seen = true
+	first_board_hover_done = true
+	board_pulse_id = ""
+	portal_cold_said = true
+	lesson_new_mark_said = true
+	lesson_extract_haul_said = true
+	lesson_five_finds_said = true
+	lesson_five_threshold_said = true
+	lesson_tutorial_return_said = true
+	seen_keywords = []
+	for kid in KeywordDefs.ids():
+		var sid := str(kid).strip_edges().to_lower()
+		if sid != "" and not seen_keywords.has(sid):
+			seen_keywords.append(sid)
+	if k == "quick":
+		rooms_unlocked = ["main", "hall"]
+		nib_in_hall = false
+		ending_seen = false
+		drawer_hint_said = false
+		drawer_opened = false
+		geode_on_mantel = false
+		will_read = false
+		letters_read = []
+		rug_secret_found = false
+		milestones_said = []
+		counters = {"delves": 1, "homecomings": 1, "hauls": 1, "losses": 0}
+		deepest_belly = 1
+		lifetime_dungeons_cleared = 1
+		return
+	for id in ROOM_ORDER:
+		if not rooms_unlocked.has(id):
+			rooms_unlocked.append(id)
+	nib_in_hall = k == "complete" or k == "big"
+	if k == "complete":
+		ending_seen = true
+		drawer_hint_said = true
+		drawer_opened = true
+		geode_on_mantel = true
+		will_read = true
+		letters_read = []
+		for letter in lore.get("letters", []):
+			if typeof(letter) != TYPE_DICTIONARY:
+				continue
+			var lid := str(letter.get("id", ""))
+			if lid != "" and not letters_read.has(lid):
+				letters_read.append(lid)
+		rug_secret_found = true
+		milestones_said = [25, 50, 75]
+		counters = {"delves": 12, "homecomings": 12, "hauls": 12, "losses": 0}
+		deepest_belly = 12
+		lifetime_dungeons_cleared = 12
+	elif k == "big":
+		ending_seen = false
+		drawer_hint_said = false
+		drawer_opened = false
+		geode_on_mantel = false
+		will_read = false
+		letters_read = []
+		rug_secret_found = false
+		milestones_said = [25, 50, 75]
+		counters = {"delves": 8, "homecomings": 8, "hauls": 8, "losses": 0}
+		deepest_belly = 8
+		lifetime_dungeons_cleared = 8
+	else:
+		ending_seen = false
+		drawer_hint_said = false
+		drawer_opened = false
+		geode_on_mantel = false
+		will_read = false
+		letters_read = []
+		rug_secret_found = false
+		milestones_said = [25]
+		counters = {"delves": 3, "homecomings": 3, "hauls": 3, "losses": 0}
+		deepest_belly = 3
+		lifetime_dungeons_cleared = 3
+
+
+func _fill_all_met_monsters(limit_early_buckets: bool) -> void:
+	var mons: Variant = catalog.get("monsters", [])
+	if typeof(mons) != TYPE_ARRAY:
+		return
+	for raw in mons:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var st: String = str(raw.get("status", "live"))
+		if st == "retired" or st == "hold":
+			continue
+		if limit_early_buckets and BucketRules.of_card(raw) > 3:
+			continue
+		var mid: String = str(raw.get("id", ""))
+		if mid != "":
+			met_monsters[mid] = true
+
+
+func _mark_bestiary_all_read() -> void:
+	bestiary_read = []
+	for id in met_monsters.keys():
+		var mid := str(id)
+		if mid != "" and not bestiary_read.has(mid):
+			bestiary_read.append(mid)
+
+
+func _mark_all_boards_viewed() -> void:
+	board_viewed.clear()
+	var faces: Array = TrophyBoardModel.faces(_biome_rules(), items_by_id)
+	for raw in faces:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var pid := str(raw.get("pool_id", ""))
+		if pid != "":
+			board_viewed[pid] = true
+	if _trophy_board != null and is_instance_valid(_trophy_board) and _trophy_board.has_method("set_board_viewed"):
+		_trophy_board.set_board_viewed(board_viewed)
+
+
+func _place_nib_in_hall_quiet() -> void:
+	if not nib_in_hall:
+		return
+	var hall = _rooms.get("hall", null)
+	if hall != null and typeof(hall) == TYPE_OBJECT and hall.has_method("set_nib_in_hall"):
+		hall.set_nib_in_hall(true)
+	NIB_HOST.apply_visibility(self)
 
 
 func _arrow(delta: int) -> void:

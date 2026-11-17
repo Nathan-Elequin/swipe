@@ -974,6 +974,7 @@ var playtest_teaser
 var playtest_fab: Button
 var playtest_voice: Label
 var _commitment_picker_from_pause: bool = false
+var _dev_progress_dumping: bool = false
 var _offramp_send_pending: bool = false
 var _victory_send_pending: bool = false
 var _playtest_preset: String = ""
@@ -1944,6 +1945,7 @@ func _build_ui() -> void:
 	if DevFlag.on():
 		settings_ui.fresh_save_pressed.connect(_dev_fresh_save)
 		settings_ui.complete_save_pressed.connect(_dev_complete_save)
+		settings_ui.playtest_path_pressed.connect(_dev_playtest_path)
 		settings_ui.bucket_progress_pressed.connect(_dev_open_buckets)
 	rope_exit = preload("res://scripts/cabin/rope_exit.gd").new()
 	add_child(rope_exit)
@@ -4111,7 +4113,7 @@ func _open_home_cabin(walk_in: bool, kind: String = "win", new_ids: Array = [], 
 	get_tree().paused = true
 	_hide_fight_hover()
 	## Non-walk-in cabin open (Continue / menu): surface any pending offramp from a prior quit.
-	if not walk_in:
+	if not walk_in and not _dev_progress_dumping:
 		call_deferred("_commitment_note_cabin_visit")
 
 
@@ -4878,23 +4880,91 @@ func _dev_fresh_save() -> void:
 
 
 func _dev_complete_save() -> void:
+	_dev_apply_progress_dump("complete")
+	_log("on_click", "One Hundred Percent Complete")
+
+
+func _dev_playtest_path(kind: String) -> void:
+	_dev_apply_progress_dump(str(kind))
+	_log("on_click", "Playtest Path %s" % str(kind))
+
+
+func _dev_apply_progress_dump(kind: String) -> void:
+	var k := str(kind).strip_edges().to_lower()
+	_dev_progress_dumping = true
 	if home_cabin:
 		home_cabin.stop_story()
 	if settings_ui:
 		settings_ui.close_menu()
 	_reset_run()
-	_dev_set_buckets(BucketRules.MAX_BUCKET)
 	phase = "title"
 	if overlay:
 		overlay.visible = false
+	if k == "complete" or k == "big":
+		_dev_set_buckets(BucketRules.MAX_BUCKET)
+	elif k == "deeper":
+		_dev_set_buckets(maxi(2, _first_mill_bucket()))
+	else:
+		_dev_set_buckets(_first_mill_bucket())
+	if _campaign != null:
+		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+		if k == "complete":
+			CAMPAIGN_SHELL.debug_unlock_all_pools(_campaign.rules, _campaign.state, _campaign_complete_item_entries())
+		elif k == "big":
+			CAMPAIGN_SHELL.debug_unlock_all_pools(_campaign.rules, _campaign.state, _campaign_item_entries())
+		elif k == "deeper":
+			CAMPAIGN_SHELL.debug_unlock_deeper_path(_campaign.rules, _campaign.state, _campaign_item_entries())
+		_campaign.write()
 	if home_cabin:
 		home_cabin.items_by_id = items_by_id
 		home_cabin.tex_by_item = tex_by_item
 		home_cabin.buckets_open = _buckets_revealed
-		home_cabin.fill_complete_save()
+		if home_cabin.has_method("bind_campaign"):
+			home_cabin.bind_campaign(_campaign)
+		if k == "complete":
+			home_cabin.fill_complete_save()
+		else:
+			home_cabin.fill_playtest_path_save(k)
+		if home_cabin.has_method("bind_campaign"):
+			home_cabin.bind_campaign(_campaign)
+		if _campaign != null:
+			_campaign.write()
 		_open_home_cabin(false)
-		home_cabin.play_ending()
-	_log("on_click", "One Hundred Percent Complete")
+		if k == "complete":
+			_open_campaign_map()
+	var milestone := ""
+	match k:
+		"quick":
+			milestone = PlaytestCommitment.M_QUICK
+		"deeper":
+			milestone = PlaytestCommitment.M_DEEPER
+		"big", "complete":
+			milestone = PlaytestCommitment.M_BIG
+	if milestone != "":
+		call_deferred("_dev_fire_path_offramp", milestone)
+	else:
+		_dev_progress_dumping = false
+
+
+func _dev_fire_path_offramp(milestone: String) -> void:
+	if playtest_commitment != null:
+		playtest_commitment.debug_retrigger_offramp(str(milestone))
+	_dev_progress_dumping = false
+
+
+func _campaign_complete_item_entries() -> Array:
+	var out: Array = []
+	for raw in _campaign_item_entries():
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var id := str(raw.get("id", ""))
+		if id == "" or id == "spider_egg":
+			continue
+		var card: Dictionary = items_by_id.get(id, {})
+		if BucketRules.is_token(card):
+			continue
+		out.append(raw)
+	return out
 
 
 func _dev_open_buckets() -> void:
