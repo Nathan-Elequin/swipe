@@ -1,5 +1,5 @@
 extends Control
-## Fighting portrait: idle bob, lunge on attack, hit flash, cartoon blood, impact stars.
+## Fighting portrait: seat-matched idle, lunge on attack, hit flash, cartoon blood, impact stars.
 
 signal edit_wanted(card_id: String)
 
@@ -7,6 +7,7 @@ const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
+const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 
 var art
 var card_id: String = ""
@@ -18,6 +19,11 @@ var _flash: float = 0.0
 var _blood: Array = []
 var _bursts: Array = []
 var _bob: float = 0.0
+## Optional: returns the wheel seat frame index (>=0) while this stage shows that seat.
+var frame_source: Callable
+var _strip_region: Rect2 = Rect2()
+var _strip_scale: float = 1.0
+var _strip_fit_size: Vector2 = Vector2.ZERO
 var _lunge_x: float = 0.0:
 	set(v):
 		if is_equal_approx(_lunge_x, v):
@@ -124,7 +130,36 @@ func show_monster(id: String, p_tier: int = 1) -> void:
 	modulate = Color.WHITE
 	visible = true
 	pivot_offset = size * 0.5
+	_recompute_strip_fit()
 	_place_sprite()
+
+
+func _recompute_strip_fit() -> void:
+	_strip_region = Rect2()
+	_strip_scale = 1.0
+	_strip_fit_size = size
+	if _idle.is_empty():
+		return
+	var union := Rect2()
+	var have := false
+	for t in _idle:
+		if t == null:
+			continue
+		var used: Rect2 = _opaque_rect(t)
+		if used.size.x < 1.0 or used.size.y < 1.0:
+			continue
+		union = used if not have else union.merge(used)
+		have = true
+	if not have:
+		return
+	_strip_region = union
+	var uw: float = maxf(1.0, union.size.x)
+	var uh: float = maxf(1.0, union.size.y)
+	var fit_w: float = maxf(1.0, size.x - 8.0)
+	var fit_h: float = maxf(1.0, size.y - 12.0)
+	var scale_n: float = minf(fit_h / uh, fit_w / uw)
+	scale_n = floor(scale_n / 0.25) * 0.25
+	_strip_scale = clampf(scale_n, 0.25, 4.0)
 
 
 func _on_gui(event: InputEvent) -> void:
@@ -161,6 +196,9 @@ func hide_stage() -> void:
 	_shown_fi = -1
 	_shown_bob = -1
 	_placed_sig = ""
+	_strip_region = Rect2()
+	_strip_scale = 1.0
+	_strip_fit_size = Vector2.ZERO
 
 
 func take_hit() -> void:
@@ -281,13 +319,20 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	var hold_idle: bool = FX_BUDGET.hold_low_priority_idles() and _mode == "idle"
-	if not hold_idle:
+	if _mode == "idle":
+		var synced := -1
+		if frame_source.is_valid():
+			var got: Variant = frame_source.call()
+			if typeof(got) == TYPE_INT:
+				synced = int(got)
+		if synced >= 0:
+			_fi = float(synced)
+		elif not hold_idle:
+			_fi += delta / DUNGEON_ART.IDLE_FRAME_SEC
+			_bob += delta
+	elif not hold_idle:
 		if _mode == "run":
 			_fi += delta * 10.0
-		elif _idle.size() >= 4:
-			_fi += delta / 0.140
-		else:
-			_fi += delta * 6.0
 		_bob += delta
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 4.2)
@@ -364,11 +409,8 @@ func _portrait_dirty() -> bool:
 		return true
 	if _lunge_x != 0.0:
 		return true
-	if _mode == "idle" and _idle.size() < 4 and not FX_BUDGET.hold_low_priority_idles():
-		var bob_i: int = int(_bob * 12.0)
-		if bob_i != _shown_bob:
-			_shown_bob = bob_i
-			return true
+	if size != _strip_fit_size:
+		return true
 	return false
 
 
@@ -431,26 +473,45 @@ func _place_sprite() -> void:
 		_sprite.material = null
 		_placed_sig = ""
 		return
+	if size != _strip_fit_size or _strip_region.size.x < 1.0:
+		_recompute_strip_fit()
 	var tex: Texture2D = frames[int(_fi) % frames.size()]
 	if tex == null or not is_instance_valid(tex):
 		_sprite.texture = null
 		_sprite.material = null
 		return
-	var used: Rect2 = _opaque_rect(tex)
+	# Strip-level framing: one region + scale for every idle frame (and lunge
+	# frames from the same strip). Matches the wheel's fixed canvas / foot line.
+	var used: Rect2 = _strip_region
+	var same_strip := false
+	for t in _idle:
+		if t == tex:
+			same_strip = true
+			break
+	if not same_strip and _mode == "run":
+		# Different strip (facing run vs seat idle): keep scale, crop this frame.
+		used = _opaque_rect(tex)
 	var uw: float = maxf(1.0, used.size.x)
 	var uh: float = maxf(1.0, used.size.y)
-	var fit_w: float = maxf(1.0, size.x - 8.0)
-	var fit_h: float = maxf(1.0, size.y - 12.0)
-	var scale_n: float = minf(fit_h / uh, fit_w / uw)
-	scale_n = floor(scale_n / 0.25) * 0.25
-	scale_n = clampf(scale_n, 0.25, 4.0)
+	var scale_n: float = _strip_scale
+	if scale_n < 0.25:
+		var fit_w: float = maxf(1.0, size.x - 8.0)
+		var fit_h: float = maxf(1.0, size.y - 12.0)
+		scale_n = minf(fit_h / uh, fit_w / uw)
+		scale_n = floor(scale_n / 0.25) * 0.25
+		scale_n = clampf(scale_n, 0.25, 4.0)
 	var dw: float = uw * scale_n
 	var dh: float = uh * scale_n
-	var bob: float = 0.0 if _idle.size() >= 4 else sin(_bob * 3.2) * 3.0
 	if _crop == null:
 		_crop = AtlasTexture.new()
 	_crop.atlas = tex
-	_crop.region = used
+	var atlas_r: Rect2 = used
+	var tw: float = float(tex.get_width())
+	var th: float = float(tex.get_height())
+	atlas_r = atlas_r.intersection(Rect2(0, 0, tw, th))
+	if atlas_r.size.x < 1.0 or atlas_r.size.y < 1.0:
+		atlas_r = Rect2(0, 0, tw, th)
+	_crop.region = atlas_r
 	_sprite.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_sprite.texture = _crop
 	_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -458,11 +519,12 @@ func _place_sprite() -> void:
 	_sprite.size = Vector2(dw, dh)
 	_sprite.pivot_offset = Vector2(dw * 0.5, dh)
 	var rest_y: float = size.y - 6.0 - dh
-	var y: float = clampf(rest_y + bob, 0.0, maxf(0.0, rest_y))
+	var y: float = clampf(rest_y, 0.0, maxf(0.0, rest_y))
 	_sprite.position = Vector2(size.x * 0.5 - dw * 0.5 + _lunge_x, y)
 	_body_center = Vector2(size.x * 0.5, rest_y + dh * 0.5)
 	_plinth_foot = Vector2(size.x * 0.5, rest_y + dh)
 	_plinth_w = clampf(dw * 0.55, 56.0, 112.0)
+	# Seat parity: callout faces "L" like the wheel (hypno_stage keeps face_want "R").
 	if art != null and art.has_method("monster_flip_h"):
 		_sprite.flip_h = art.monster_flip_h(card_id, face_want)
 	else:
