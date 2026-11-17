@@ -263,6 +263,13 @@ func _run() -> void:
 		main_src.find("playtest_commitment_picker.gd") >= 0, "") or failed
 	failed = _check(rows, failed, "main.goal_preload",
 		main_src.find("playtest_goal_icon.gd") >= 0, "") or failed
+	failed = _check(rows, failed, "main.goal_stays_over_boot",
+		main_src.find("PlaytestGoalLayer") >= 0
+		and main_src.find("playtest_goal_icon.visible = goal_ok") >= 0
+		and main_src.find("goal_ok and not hub_up") < 0, "") or failed
+	failed = _check(rows, failed, "view.log_clears_goal",
+		FileAccess.get_file_as_string("res://scripts/ui/view_frame.gd").find("LOG_Y") >= 0
+		and FileAccess.get_file_as_string("res://scripts/ui/view_frame.gd").find("LOG_BTN_Y") >= 0, "") or failed
 	failed = _check(rows, failed, "main.after_intro_picker",
 		main_src.find("_maybe_open_commitment_picker") >= 0, "") or failed
 	failed = _check(rows, failed, "main.tier_chosen_telem",

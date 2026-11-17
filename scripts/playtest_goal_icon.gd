@@ -1,6 +1,7 @@
 extends Control
 ## Persistent playtest goal chip (slice 2). Top-left pictograph + progress hint + hover tip.
 ## Slice 4: done-BIG click reopens the compact victory-code card.
+## Lives on CanvasLayer 220 so intro, teaser, hub, dialog, and combat never cover it.
 
 signal victory_code_wanted
 
@@ -29,7 +30,7 @@ var _hover: bool = false
 func setup() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	name = "playtest_goal_icon"
-	z_index = 121
+	z_index = 1
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = SIZE
@@ -119,7 +120,7 @@ func _build() -> void:
 
 	_tip = PanelContainer.new()
 	_tip.visible = false
-	_tip.z_index = 130
+	_tip.z_index = 2
 	_tip.top_level = true
 	_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tsb := StyleBoxFlat.new()

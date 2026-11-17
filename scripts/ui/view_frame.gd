@@ -5,8 +5,12 @@ class_name ViewFrame
 const DESIGN := Vector2(1680, 1040)
 const MARGIN := 8.0
 ## Combat log overlay (left gutter). Callout uses the matching right gutter.
+## Top is low enough to clear the playtest goal chip (16,16 56×64) and the
+## F2 note that sits under it. Permanent, not playtest-only.
 const LOG_W := 240.0
 const LOG_BTN_GAP := 8.0
+const LOG_BTN_Y := 132.0
+const LOG_Y := 170.0
 const CALLOUT_RIGHT_MARGIN := 12.0
 const ARROW_CALLOUT_GAP := 16.0
 ## Retired #199 left-nudge. Wheel / arrows / hotbar are dead-centered now.

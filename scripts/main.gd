@@ -8816,8 +8816,13 @@ func _build_playtest() -> void:
 	playtest_commitment_picker.setup()
 	playtest_commitment_picker.chosen.connect(_on_commitment_picked)
 	playtest_commitment_picker.cancelled.connect(_on_commitment_picker_cancelled)
+	var goal_layer := CanvasLayer.new()
+	goal_layer.name = "PlaytestGoalLayer"
+	goal_layer.layer = 220
+	goal_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(goal_layer)
 	playtest_goal_icon = PLAYTEST_GOAL_ICON.new()
-	add_child(playtest_goal_icon)
+	goal_layer.add_child(playtest_goal_icon)
 	playtest_goal_icon.setup()
 	playtest_offramp = PLAYTEST_OFFRAMP.new()
 	add_child(playtest_offramp)
@@ -8855,14 +8860,13 @@ func _build_playtest() -> void:
 	playtest_voice.add_theme_constant_override("outline_size", 2)
 	playtest_voice.z_index = 120
 	playtest_voice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	## Top-left so it never sits on the bottom caption / Nib dialog bar.
-	## When the goal icon is up, voice shifts right so the two do not overlap.
+	## Under the goal chip so hover-tip space to the right stays clear.
 	playtest_voice.set_anchors_preset(PRESET_TOP_LEFT)
 	playtest_voice.grow_vertical = Control.GROW_DIRECTION_END
 	playtest_voice.offset_left = 16
-	playtest_voice.offset_top = 16
+	playtest_voice.offset_top = 88
 	playtest_voice.offset_right = 420
-	playtest_voice.offset_bottom = 56
+	playtest_voice.offset_bottom = 128
 	add_child(playtest_voice)
 	playtest_intro = PLAYTEST_INTRO.new()
 	add_child(playtest_intro)
@@ -9056,11 +9060,12 @@ func _layout_playtest_voice_for_goal() -> void:
 	if playtest_voice == null:
 		return
 	var goal_up: bool = playtest_goal_icon != null and playtest_goal_icon.visible
+	## Always under the chip (not beside it) so the hover tip has a clear lane.
 	if goal_up:
-		playtest_voice.offset_left = 84
-		playtest_voice.offset_top = 20
-		playtest_voice.offset_right = 480
-		playtest_voice.offset_bottom = 60
+		playtest_voice.offset_left = 16
+		playtest_voice.offset_top = 88
+		playtest_voice.offset_right = 420
+		playtest_voice.offset_bottom = 128
 	else:
 		playtest_voice.offset_left = 16
 		playtest_voice.offset_top = 16
@@ -9634,8 +9639,8 @@ func _sync_playtest_chrome() -> void:
 		playtest_voice.visible = PLAYTEST_FLAG.on() and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up and not victory_up and not cut_up and not cabin_talk and not tut_up and not dev_strip
 	if playtest_goal_icon != null and playtest_commitment != null:
 		var goal_ok: bool = PLAYTEST_FLAG.on() and playtest_commitment.tier > PlaytestCommitment.TIER_NONE
-		## Keep the icon during cabin/runs; hide under boot chrome so it does not fight the picker.
-		playtest_goal_icon.visible = goal_ok and not hub_up and not intro_up and not teaser_up and not picker_up and not offramp_up and not victory_up
+		## Goal chip outranks intro, teaser, hub, picker, offramp, and victory.
+		playtest_goal_icon.visible = goal_ok
 		_layout_playtest_voice_for_goal()
 
 
@@ -25192,11 +25197,11 @@ func _place_log_overlay() -> void:
 	var btn_x: float = VIEW_FRAME.LOG_BTN_GAP
 	if trophy != null and trophy.visible:
 		btn_x = maxf(btn_x, trophy.position.x + trophy.size.x + VIEW_FRAME.LOG_BTN_GAP)
-	log_btn.position = Vector2(btn_x, 6.0)
+	log_btn.position = Vector2(btn_x, VIEW_FRAME.LOG_BTN_Y)
 	log_btn.size = bsz
 	if log_label == null:
 		return
-	var log_y: float = 44.0
+	var log_y: float = VIEW_FRAME.LOG_Y
 	if trophy != null and trophy.visible:
 		log_y = maxf(log_y, trophy.position.y + trophy.size.y + 4.0)
 	var next_pos := Vector2(VIEW_FRAME.LOG_BTN_GAP, log_y)
