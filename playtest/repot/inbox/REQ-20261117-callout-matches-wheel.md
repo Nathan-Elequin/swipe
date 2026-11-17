@@ -3,7 +3,7 @@ id: REQ-20261117-callout-matches-wheel
 status: open
 priority: high
 branch: cursor/callout-matches-wheel-ef97
-tip_sha: 91f795a1
+tip_sha: f75505f6
 created: 2026-11-17T05:30:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
