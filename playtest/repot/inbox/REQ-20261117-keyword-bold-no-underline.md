@@ -2,6 +2,7 @@
 id: REQ-20261117-keyword-bold-no-underline
 status: open
 priority: high
+tip_sha: 62533141
 branch: cursor/keyword-bold-no-underline-9b52
 created: 2026-11-17T04:55:00Z
 created_by: cloud-agent
