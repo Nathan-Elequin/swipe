@@ -2,6 +2,8 @@
 id: REQ-20261117-endless-clear-tally
 status: open
 priority: high
+pr: 556
+tip_sha: c7284c38
 branch: cursor/endless-clear-tally-fly-5de5
 base: playtest/latest
 created: 2026-11-17T20:20:00Z
