@@ -211,23 +211,18 @@ func _font(path: String) -> Font:
 
 
 func _add_backdrop() -> void:
+	## Full-rect floor art (scale the 1680×832 verdant plate to the viewport).
+	## Do not leave a solid BackdropFloor ColorRect band under y=832 — QA saw that
+	## as a black strip at 1680×1040 and under stretch/expand.
 	var bg := TextureRect.new()
 	bg.name = "Backdrop"
 	bg.texture = _tex("res://assets/ui/biome_splash/bg_verdant.png")
 	bg.texture_filter = TEXTURE_FILTER_NEAREST
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP
-	bg.position = Vector2(0, 0)
-	bg.size = Vector2(1680, 832)
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
-	var floor_c := ColorRect.new()
-	floor_c.name = "BackdropFloor"
-	floor_c.color = Color("0b0908")
-	floor_c.position = Vector2(0, 832)
-	floor_c.size = Vector2(1680, 208)
-	floor_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(floor_c)
 	var dim := ColorRect.new()
 	dim.name = "Dim"
 	dim.color = Color(0.043, 0.035, 0.031, 0.52)
@@ -544,20 +539,14 @@ func _add_settings_screen() -> void:
 	add_child(_settings_host)
 
 	var bg := TextureRect.new()
+	bg.name = "Backdrop"
 	bg.texture = _tex("res://assets/ui/biome_splash/bg_verdant.png")
 	bg.texture_filter = TEXTURE_FILTER_NEAREST
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP
-	bg.position = Vector2(0, 0)
-	bg.size = Vector2(1680, 832)
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_settings_host.add_child(bg)
-	var floor_c := ColorRect.new()
-	floor_c.color = Color("0b0908")
-	floor_c.position = Vector2(0, 832)
-	floor_c.size = Vector2(1680, 208)
-	floor_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_settings_host.add_child(floor_c)
 	var dim := ColorRect.new()
 	dim.color = Color(0.043, 0.035, 0.031, 0.62)
 	dim.set_anchors_and_offsets_preset(PRESET_FULL_RECT)

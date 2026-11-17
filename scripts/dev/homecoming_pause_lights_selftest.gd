@@ -53,6 +53,15 @@ func _run() -> void:
 	failed = _check(rows, failed, "src.go_home_pause_before_dissolve",
 		_func_contains(main_src, "_go_home(", "Pause immediately so arrive owns")
 		and _go_home_pauses_before_dissolve(main_src), "") or failed
+	## Give up / limp home must clear SceneTree.paused before dissolve / cabin arrive.
+	failed = _check(rows, failed, "src.give_up_clears_pause",
+		_func_contains(main_src, "_give_up(", "get_tree().paused = false")
+		and _func_contains(main_src, "_go_home_loss(", "get_tree().paused = false"), "") or failed
+	failed = _check(rows, failed, "src.dissolve_out_runs_while_paused",
+		_func_contains(main_src, "_biome_dissolve_out(", "TWEEN_PAUSE_PROCESS"), "") or failed
+	var settings_src := FileAccess.get_file_as_string("res://scripts/settings_menu.gd")
+	failed = _check(rows, failed, "src.give_up_yes_drops_keep_paused",
+		_func_contains(settings_src, "_on_give_up_yes(", "_keep_paused = false"), "") or failed
 	failed = _check(rows, failed, "src.idle_pause_guard",
 		cabin_src.find("func _guard_cabin_idle_unpaused") >= 0, "") or failed
 	failed = _check(rows, failed, "src.board_landed",

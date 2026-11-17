@@ -96,6 +96,19 @@ func _check_title_api(rows: Array, failed: bool) -> bool:
 
 	title.call("set_options", [&"continue", &"settings", &"feedback"])
 	await process_frame
+	## No solid BackdropFloor band — verdant plate fills the full title rect.
+	var floor_band: Node = title.find_child("BackdropFloor", true, false)
+	failed = _check(rows, failed, "backdrop.no_floor_band", floor_band == null, "") or failed
+	var backdrop: TextureRect = title.find_child("Backdrop", true, false) as TextureRect
+	failed = _check(rows, failed, "backdrop.exists", backdrop != null, "") or failed
+	if backdrop != null:
+		failed = _check(rows, failed, "backdrop.stretch_scale",
+			backdrop.stretch_mode == TextureRect.STRETCH_SCALE, str(backdrop.stretch_mode)) or failed
+		var br: Rect2 = backdrop.get_rect()
+		failed = _check(rows, failed, "backdrop.full_rect",
+			absf(br.position.x) <= 1.0 and absf(br.position.y) <= 1.0
+			and absf(br.size.x - title.size.x) <= 2.0 and absf(br.size.y - title.size.y) <= 2.0,
+			"bg=%s title=%s" % [str(br), str(title.size)]) or failed
 	var visible_rows := 0
 	for i in range(3):
 		var row: Control = title.find_child("Row_%d" % i, true, false) as Control

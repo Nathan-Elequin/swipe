@@ -69,7 +69,8 @@ func _compose_title_nosave(filename: String) -> bool:
 func _compose_picker(filename: String) -> bool:
 	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
 	img.fill(Color("0b0908"))
-	_blit_scaled(img, "res://assets/ui/biome_splash/bg_verdant.png", 0, 0, 1680, 832)
+	## Full-viewport floor art (no solid y=832 band).
+	_blit_scaled(img, "res://assets/ui/biome_splash/bg_verdant.png", 0, 0, W, H)
 	_fill(img, Rect2i(0, 0, W, H), Color(0.043, 0.035, 0.031, 0.68))
 	_fill_label(img, 80, 60, "playtest.tier.choose_title", Color("f4ede3"))
 	var ids := ["quick", "deeper", "big"]
@@ -179,8 +180,8 @@ func _compose_ticker_title(filename: String) -> bool:
 func _base_title() -> Image:
 	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
 	img.fill(Color("0b0908"))
-	_blit_scaled(img, "res://assets/ui/biome_splash/bg_verdant.png", 0, 0, 1680, 832)
-	_fill(img, Rect2i(0, 832, 1680, 208), Color("0b0908"))
+	## Full-viewport floor art (no solid BackdropFloor band under y=832).
+	_blit_scaled(img, "res://assets/ui/biome_splash/bg_verdant.png", 0, 0, W, H)
 	_fill(img, Rect2i(0, 0, W, H), Color(0.043, 0.035, 0.031, 0.52))
 	_blit_scaled(img, "res://assets/ui/title/title_nib_lantern.png", 560, 624, 274, 274)
 	return img

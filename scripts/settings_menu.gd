@@ -623,6 +623,8 @@ func _on_victory_code() -> void:
 
 func _on_give_up_yes() -> void:
 	_confirm.visible = false
+	## Leaving the run — never keep the pre-menu pause latch (stuck SceneTree.paused).
+	_keep_paused = false
 	close_menu()
 	give_up_confirmed.emit()
 
