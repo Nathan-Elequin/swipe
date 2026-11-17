@@ -3104,7 +3104,7 @@
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.01",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-17",
 			"text": "Hey friends — thanks for playtesting my game, {game_title}.\nJust a few notes before you jump in.",
 			"where": "Playtest intro beat 01"
 		},
@@ -3112,7 +3112,7 @@
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.02",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-17",
 			"text": "First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game.",
 			"where": "Playtest intro beat 02"
 		},
@@ -3120,113 +3120,49 @@
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.03",
-			"locked_at": "2026-11-05",
-			"text": "Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours.",
+			"locked_at": "2026-11-17",
+			"text": "Be honest and picky. I want YOUR take. And have fun: break the game, find cool combos, and dream big with your requests.",
 			"where": "Playtest intro beat 03"
 		},
 		{
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.04",
-			"locked_at": "2026-11-05",
-			"text": "And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests.",
+			"locked_at": "2026-11-17",
+			"text": "This is the title screen. **Continue** always picks up where you left off. Your progress saves right here in your browser.",
 			"where": "Playtest intro beat 04"
 		},
 		{
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.05",
-			"locked_at": "2026-11-05",
-			"text": "This is the menu you'll land on.",
+			"locked_at": "2026-11-17",
+			"text": "Starting fresh? **New Game** lets you pick how deep you want to go: a quick taste, a deeper run, or all the way to the Shadow Abyss. Reach the Abyss and I'll hop on a call with you and we'll design a monster or item together.",
 			"where": "Playtest intro beat 05"
 		},
 		{
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.06",
-			"locked_at": "2026-11-05",
-			"text": "**Brand New** starts from the beginning, as if you had never played.",
+			"locked_at": "2026-11-17",
+			"text": "Spot something? Right-click any monster or item, or press **F2** (or click **Feedback**), and type me a note. It lands straight in my dev console.",
 			"where": "Playtest intro beat 06"
 		},
 		{
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.07",
-			"locked_at": "2026-11-05",
-			"text": "**Middle Progress** puts you a few dungeons in, with some items already unlocked.",
+			"locked_at": "2026-11-17",
+			"text": "Want to give the BEST feedback? Run a voice memo on your phone while you play and think out loud. Then email me the file at nathan.elequin@gmail.com.",
 			"where": "Playtest intro beat 07"
 		},
 		{
 			"author_lock": true,
 			"cat": "Playtest",
 			"key": "playtest.intro.08",
-			"locked_at": "2026-11-05",
-			"text": "**Continue** picks up your last playtest save.",
-			"where": "Playtest intro beat 08"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.09",
-			"locked_at": "2026-11-05",
-			"text": "**Feedback** opens a note to me. Use it for anything that is not tied to one card.",
-			"where": "Playtest intro beat 09"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.10",
-			"locked_at": "2026-11-05",
-			"text": "You can right-click any item or monster in the game and leave feedback. That is useful for bugs, confusion, or balance issues.",
-			"where": "Playtest intro beat 10"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.11",
-			"locked_at": "2026-11-05",
-			"text": "For general comments while you play, click **Feedback** in the bottom right, or press **F2**.",
-			"where": "Playtest intro beat 11"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.12",
-			"locked_at": "2026-11-05",
-			"text": "This is the F2 screen. Type a note, click Send, and it goes to my game development console. Next time I sit down to work, I will see it and can make the fix or the change.",
-			"where": "Playtest intro beat 12"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.13",
-			"locked_at": "2026-11-05",
-			"text": "However — for those who want to give the best kind of feedback, I would love to actually HEAR your experience.",
-			"where": "Playtest intro beat 13"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.14",
-			"locked_at": "2026-11-05",
-			"text": "Consider taking your phone, setting it to a voice memo or recorder, and just letting it run while you play. Talk out loud about your thought process, your first impressions, your feedback, anything at all.",
-			"where": "Playtest intro beat 14"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.15",
-			"locked_at": "2026-11-05",
-			"text": "Then send me the entire file when you are done, because I can turn that into a much more detailed look at your player experience. If you are interested in doing that, you can email the files to me at nathan.elequin@gmail.com.",
-			"where": "Playtest intro beat 15"
-		},
-		{
-			"author_lock": true,
-			"cat": "Playtest",
-			"key": "playtest.intro.16",
-			"locked_at": "2026-11-05",
+			"locked_at": "2026-11-17",
 			"text": "So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!",
-			"where": "Playtest intro beat 16"
+			"where": "Playtest intro beat 08"
 		},
 		{
 			"author_lock": true,
@@ -8307,8 +8243,11 @@
 		},
 		{
 			"key": "intro.preview.caption",
-			"text": "Right-click a Monster/Item, or press F2, to send a note.",
-			"where": "Intro preview still caption (placeholder)"
+			"text": "Your progress, right on the title screen.",
+			"where": "Intro preview still caption",
+			"author_lock": true,
+			"locked_at": "2026-11-17",
+			"cat": "Title"
 		}
 	],
 	"updated": "2026-11-17"

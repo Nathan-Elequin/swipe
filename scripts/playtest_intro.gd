@@ -1,5 +1,6 @@
 extends ColorRect
 ## First-open playtest talk. Nib's face, Nathan's name. Skip, Back, click anywhere.
+## Title beats show a static screenshot of the living-trophy title (with-save look).
 
 signal finished
 signal skipped
@@ -7,11 +8,14 @@ signal wants_f2(on: bool)
 signal wants_fab(on: bool)
 
 const COPY := preload("res://scripts/player_copy.gd")
-const UX := preload("res://scripts/ux_style.gd")
 
 const TALK_W := 520.0
 const EDGE := 16.0
 const GAP := 16.0
+const TITLE_PREVIEW := preload("res://assets/ui/title/intro_menu_preview.png")
+## Framed still size — matches design/visual/SCREEN-title.md intro preview band.
+const PREVIEW_W := 780.0
+const PREVIEW_H := 486.0
 
 var step: int = -1
 var sfx
@@ -26,11 +30,9 @@ var _go: Button
 var _skip: Button
 var _back: Button
 var _ring: Panel
-var _mock: VBoxContainer
-var _btn_new: Button
-var _btn_mid: Button
-var _btn_cont: Button
-var _btn_feed: Button
+var _panel: Control
+var _preview: TextureRect
+var _caption: Label
 var _beats: Array = []
 var _pin_fab: Control
 var _pin_send: Control
@@ -61,7 +63,7 @@ func setup(art, p_sfx = null, fab: Control = null, send_btn: Control = null) -> 
 				_frames.append(blink)
 		if _frames.is_empty() and art.has_method("nib_frames"):
 			_frames = art.nib_frames()
-	_build_mock()
+	_build_title_panel()
 	_build_ring()
 	_build_talk()
 	set_process(true)
@@ -95,23 +97,16 @@ func showing_fab() -> bool:
 
 
 func _beats_of() -> Array:
+	## Eight beats. Keys playtest.intro.01 … .08 only (old .09–.16 removed).
 	return [
 		{"key": "playtest.intro.01", "fallback": "Hey friends — thanks for playtesting my game, Spinheritance.\nJust a few notes before you jump in."},
 		{"key": "playtest.intro.02", "fallback": "First. This game is in early prototype mode. The things I most want to hear from your feedback are about what is fun, what is boring, what is confusing, and what things you think I should add to the game."},
-		{"key": "playtest.intro.03", "fallback": "Second. Be honest and picky! You don't need to consider anyone else's perspective. I just want to hear yours."},
-		{"key": "playtest.intro.04", "fallback": "And finally, have fun! Break the game, find cool combos, test the limits. And don't be afraid to dream big with your requests."},
-		{"key": "playtest.intro.05", "fallback": "This is the menu you'll land on.", "focus": "hub"},
-		{"key": "playtest.intro.06", "fallback": "**Brand New** starts from the beginning, as if you had never played.", "focus": "new"},
-		{"key": "playtest.intro.07", "fallback": "**Middle Progress** puts you a few dungeons in, with some items already unlocked.", "focus": "mid"},
-		{"key": "playtest.intro.08", "fallback": "**Continue** picks up your last playtest save.", "focus": "cont"},
-		{"key": "playtest.intro.09", "fallback": "**Feedback** opens a note to me. Use it for anything that is not tied to one card.", "focus": "feed"},
-		{"key": "playtest.intro.10", "fallback": "You can right-click any item or monster in the game and leave feedback. That is useful for bugs, confusion, or balance issues.", "focus": "hub"},
-		{"key": "playtest.intro.11", "fallback": "For general comments while you play, click **Feedback** in the bottom right, or press **F2**.", "focus": "fab"},
-		{"key": "playtest.intro.12", "fallback": "This is the F2 screen. Type a note, click Send, and it goes to my game development console. Next time I sit down to work, I will see it and can make the fix or the change.", "focus": "send"},
-		{"key": "playtest.intro.13", "fallback": "However — for those who want to give the best kind of feedback, I would love to actually HEAR your experience."},
-		{"key": "playtest.intro.14", "fallback": "Consider taking your phone, setting it to a voice memo or recorder, and just letting it run while you play. Talk out loud about your thought process, your first impressions, your feedback, anything at all."},
-		{"key": "playtest.intro.15", "fallback": "Then send me the entire file when you are done, because I can turn that into a much more detailed look at your player experience. If you are interested in doing that, you can email the files to me at nathan.elequin@gmail.com."},
-		{"key": "playtest.intro.16", "fallback": "So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!", "go": "done"},
+		{"key": "playtest.intro.03", "fallback": "Be honest and picky. I want YOUR take. And have fun: break the game, find cool combos, and dream big with your requests."},
+		{"key": "playtest.intro.04", "fallback": "This is the title screen. **Continue** always picks up where you left off. Your progress saves right here in your browser.", "focus": "title"},
+		{"key": "playtest.intro.05", "fallback": "Starting fresh? **New Game** lets you pick how deep you want to go: a quick taste, a deeper run, or all the way to the Shadow Abyss. Reach the Abyss and I'll hop on a call with you and we'll design a monster or item together.", "focus": "title"},
+		{"key": "playtest.intro.06", "fallback": "Spot something? Right-click any monster or item, or press **F2** (or click **Feedback**), and type me a note. It lands straight in my dev console.", "focus": "fab"},
+		{"key": "playtest.intro.07", "fallback": "Want to give the BEST feedback? Run a voice memo on your phone while you play and think out loud. Then email me the file at nathan.elequin@gmail.com.", "focus": "send"},
+		{"key": "playtest.intro.08", "fallback": "So thank you again for playtesting. If you have any questions, you can always reach out to me. Now enjoy!", "go": "done"},
 	]
 
 
@@ -158,8 +153,10 @@ func _show() -> void:
 	_back.visible = step > 0
 	_arm = 0.35
 	var tag: String = str(b.get("focus", ""))
-	var on_hub: bool = tag in ["hub", "new", "mid", "cont", "feed"]
-	_mock.visible = on_hub
+	var on_title: bool = tag == "title"
+	_panel.visible = on_title
+	if on_title and _caption != null:
+		_caption.text = COPY.text("intro.preview.caption", "Your progress, right on the title screen.")
 	wants_fab.emit(tag == "fab")
 	wants_f2.emit(tag == "send")
 	_talk.reset_size()
@@ -183,22 +180,22 @@ func _place_talk() -> void:
 	var ts: Vector2 = _talk.get_combined_minimum_size()
 	ts.x = maxf(ts.x, TALK_W)
 	_talk.size = ts
-	if _mock.visible:
-		_mock.reset_size()
-		var ms: Vector2 = _mock.get_combined_minimum_size()
+	if _panel.visible:
+		_panel.reset_size()
+		var ms: Vector2 = _panel.get_combined_minimum_size()
 		if ms.x < 8.0:
-			ms = _mock.size
-		_mock.size = ms
+			ms = _panel.size
+		_panel.size = ms
 		var mx: float = (vp.x - ms.x) * 0.5
 		var my: float = EDGE + ts.y + GAP
 		if my + ms.y > vp.y - EDGE:
 			my = maxf(EDGE, vp.y - EDGE - ms.y)
-		_mock.position = Vector2(mx, my)
+		_panel.position = Vector2(mx, my)
 	var pos := Vector2((vp.x - ts.x) * 0.5, (vp.y - ts.y) * 0.5)
 	var tag: String = _tag()
 	var block := Rect2()
-	if tag in ["hub", "new", "mid", "cont", "feed"] and _mock.visible:
-		block = _mock.get_global_rect()
+	if tag == "title" and _panel.visible:
+		block = _panel.get_global_rect()
 	elif tag == "send" and _pin_panel != null and is_instance_valid(_pin_panel) and _pin_panel.is_visible_in_tree():
 		block = _pin_panel.get_global_rect()
 	elif tag == "fab" and _pin_fab != null and is_instance_valid(_pin_fab) and _pin_fab.is_visible_in_tree():
@@ -236,16 +233,8 @@ func _place_ring() -> void:
 	var tag: String = _tag()
 	var target: Control = null
 	match tag:
-		"hub":
-			target = _mock
-		"new":
-			target = _btn_new
-		"mid":
-			target = _btn_mid
-		"cont":
-			target = _btn_cont
-		"feed":
-			target = _btn_feed
+		"title":
+			target = _panel
 		"fab":
 			target = _pin_fab
 		"send":
@@ -286,39 +275,30 @@ func _is_advance_click(event: InputEvent) -> bool:
 	return event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not event.double_click
 
 
-func _build_mock() -> void:
-	_mock = VBoxContainer.new()
-	_mock.alignment = BoxContainer.ALIGNMENT_CENTER
-	_mock.add_theme_constant_override("separation", 14)
-	_mock.custom_minimum_size = Vector2(320, 0)
-	_mock.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_mock)
-	var title := Label.new()
-	title.text = COPY.text("playtest.hub_title", "Playtest")
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 40)
-	title.add_theme_color_override("font_color", Color("e8c36a"))
-	title.add_theme_color_override("font_outline_color", Color("100e0c"))
-	title.add_theme_constant_override("outline_size", 3)
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_mock.add_child(title)
-	_btn_new = _fake_btn(COPY.text("playtest.brand_new", "Brand New"))
-	_btn_mid = _fake_btn(COPY.text("playtest.middle", "Middle Progress"))
-	_btn_cont = _fake_btn(COPY.text("playtest.continue", "Continue"))
-	_btn_feed = _fake_btn(COPY.text("playtest.feedback", "Feedback"))
-	_mock.add_child(_btn_new)
-	_mock.add_child(_btn_mid)
-	_mock.add_child(_btn_cont)
-	_mock.add_child(_btn_feed)
-	_mock.visible = false
-
-
-func _fake_btn(label: String) -> Button:
-	var b := Button.new()
-	b.text = label
-	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UX.dress_title_button(b, 280)
-	return b
+func _build_title_panel() -> void:
+	_panel = VBoxContainer.new()
+	_panel.alignment = BoxContainer.ALIGNMENT_CENTER
+	_panel.add_theme_constant_override("separation", 10)
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_panel)
+	_preview = TextureRect.new()
+	_preview.texture = TITLE_PREVIEW
+	_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_preview.texture_filter = TEXTURE_FILTER_LINEAR
+	_preview.custom_minimum_size = Vector2(PREVIEW_W, PREVIEW_H)
+	_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(_preview)
+	_caption = Label.new()
+	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_caption.custom_minimum_size = Vector2(PREVIEW_W, 0)
+	_caption.add_theme_font_size_override("font_size", 20)
+	_caption.add_theme_color_override("font_color", Color("f4ede3"))
+	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.text = COPY.text("intro.preview.caption", "Your progress, right on the title screen.")
+	_panel.add_child(_caption)
+	_panel.visible = false
 
 
 func _build_ring() -> void:
