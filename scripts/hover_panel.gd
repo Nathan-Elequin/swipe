@@ -1,6 +1,6 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
-## Hover inspects show keyword capsules after a short delay, offset from this plate.
+## Hover inspects show keyword capsules after a short delay, hugging this plate's top-right.
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_STACK := preload("res://scripts/keyword_stack.gd")

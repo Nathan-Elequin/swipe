@@ -560,8 +560,15 @@ func _place() -> void:
 		rail_x = maxf(vp.x * 0.72, 1252.0)
 	var clamp_r := Rect2(24, 24, maxf(vp.x - 48.0, 100.0), maxf(vp.y - 48.0, 100.0))
 	var anchor := _anchor_global()
-	var candidates: Array = _dock_candidates(anchor, sz, keep, rail_x, vp)
-	var pos: Vector2 = _first_fit(candidates, sz, keep, clamp_r)
+	var pos: Vector2
+	if _source == "item" and anchor.size.x > 0.0:
+		pos = Vector2(anchor.end.x, anchor.position.y)
+		pos.y = clampf(pos.y, clamp_r.position.y, maxf(clamp_r.position.y, clamp_r.end.y - sz.y))
+		if pos.x + sz.x > clamp_r.end.x:
+			pos.x = maxf(clamp_r.position.x, clamp_r.end.x - sz.x)
+	else:
+		var candidates: Array = _dock_candidates(anchor, sz, keep, rail_x, vp)
+		pos = _first_fit(candidates, sz, keep, clamp_r)
 	global_position = pos
 	size = sz
 	_layout_chrome()
@@ -595,10 +602,11 @@ func _dock_candidates(anchor: Rect2, sz: Vector2, keep: Rect2, rail_x: float, vp
 			out.append(Vector2(anchor.position.x, anchor.position.y - 8.0 - sz.y))
 			out.append(Vector2(rail_x, 24.0))
 		"item":
-			## Prefer above the plate when it clears the wheel — avoids covering hotbar neighbors.
+			## Top-left of the parchment hugs the inspect plate's top-right corner.
+			out.append(Vector2(anchor.end.x, anchor.position.y))
+			out.append(Vector2(anchor.end.x + 12.0, anchor.position.y))
 			out.append(Vector2(anchor.position.x, anchor.position.y - 8.0 - sz.y))
 			out.append(Vector2(anchor.end.x - sz.x, anchor.position.y - 8.0 - sz.y))
-			out.append(Vector2(anchor.end.x + 12.0, anchor.position.y))
 			out.append(Vector2(anchor.position.x - 12.0 - sz.x, anchor.position.y))
 			out.append(Vector2(rail_x, clamp(anchor.position.y, 24.0, vp.y - 24.0 - sz.y)))
 		"pip":

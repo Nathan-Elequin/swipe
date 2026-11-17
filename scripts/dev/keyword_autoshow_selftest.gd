@@ -16,6 +16,7 @@ func _run() -> void:
 	failed = await _check_catalog_inspect_stacks() or failed
 	failed = await _check_log_line_stack() or failed
 	failed = _check_text_fits_long_def() or failed
+	failed = _check_item_stack_hugs_top_right() or failed
 	if failed:
 		push_error("keyword_autoshow self-test failed")
 		quit(1)
@@ -386,7 +387,7 @@ func _check_text_fits_long_def() -> bool:
 	anchor.size = Vector2(260, 160)
 	root.add_child(anchor)
 	## Poison is the longest def in keyword-defs.json.
-	stack.show_ids(["poison", "defeated", "spin", "always"], anchor, "item")
+	stack.show_ids(["poison", "defeated", "spin", "always"], anchor, "item", 0.0)
 	## Force a layout pass.
 	for _i in 3:
 		stack.call("_place")
@@ -403,6 +404,34 @@ func _check_text_fits_long_def() -> bool:
 		and union.end.x <= 1680.0 + 2.0
 		and union.end.y <= 1040.0 + 2.0
 	) or failed
+	stack.hide_stack()
+	stack.queue_free()
+	anchor.queue_free()
+	return failed
+
+
+func _check_item_stack_hugs_top_right() -> bool:
+	var failed := false
+	var stray: Node = root.get_node_or_null("Main")
+	if stray != null:
+		stray.free()
+	var stack: Control = (load("res://scripts/keyword_stack.gd") as GDScript).new()
+	root.add_child(stack)
+	stack.setup()
+	var anchor := Control.new()
+	## Room on the right so the hug does not have to clamp into the viewport.
+	anchor.position = Vector2(720, 220)
+	anchor.size = Vector2(260, 160)
+	root.add_child(anchor)
+	stack.show_ids(["spin"], anchor, "item", 0.0)
+	for _i in 3:
+		stack.call("_place")
+	var union: Rect2 = stack.call("stack_rect")
+	var plate := Rect2(anchor.position, anchor.size)
+	print("NOTE item_hug_rect=%s plate=%s" % [union, plate])
+	failed = _check("item_hug_showing", bool(stack.call("is_showing"))) or failed
+	failed = _check("item_hug_left", absf(union.position.x - plate.end.x) <= 1.0) or failed
+	failed = _check("item_hug_top", absf(union.position.y - plate.position.y) <= 1.0) or failed
 	stack.hide_stack()
 	stack.queue_free()
 	anchor.queue_free()

@@ -347,7 +347,12 @@ func _place() -> void:
 	## Start high enough that the real column fits inside the design viewport.
 	origin.y = minf(origin.y, vp.y - EDGE - stack_h)
 	origin.y = maxf(origin.y, EDGE)
-	origin.x = clampf(origin.x, EDGE, maxf(EDGE, vp.x - EDGE - stack_w))
+	if _source != "item":
+		origin.x = clampf(origin.x, EDGE, maxf(EDGE, vp.x - EDGE - stack_w))
+	else:
+		## Keep the hug on the inspect's right; only pull in if we would leave the screen.
+		origin.x = minf(origin.x, maxf(EDGE, vp.x - EDGE - stack_w))
+		origin.x = maxf(origin.x, EDGE)
 	## Place each column's cards top-down from origin (no per-card Y clamp —
 	## that would leave the first card low while later cards pile up).
 	for c in range(cols):
@@ -364,9 +369,12 @@ func _place() -> void:
 					tip._layout_chrome()
 			y += sz.y + STACK_GAP
 	## Final shift: keep the whole stack inside the design viewport.
-	_shift_stack_into_viewport(vp, keep, plate)
-	## Debug keep-out assert on the union.
-	if OS.is_debug_build() and keep.size.x > 0.0:
+	## Item inspects stay hugged to the plate's top-right; do not walk them left of the plate.
+	if _source != "item":
+		_shift_stack_into_viewport(vp, keep, plate)
+	## Debug keep-out assert on the union. Item hug is allowed to sit over the wheel
+	## bounding box because the inspect plate already lives there.
+	if OS.is_debug_build() and keep.size.x > 0.0 and _source != "item":
 		var union: Rect2 = stack_rect()
 		if union.size.x > 0.0 and union.intersects(keep):
 			push_warning("KeywordStack overlaps wheel keep-out: %s vs %s" % [union, keep])
@@ -436,6 +444,15 @@ func _dock_origin(plate: Rect2, stack_sz: Vector2, keep: Rect2, vp: Vector2) -> 
 	if keep.size.x > 0.0:
 		left_rail = maxf(EDGE, keep.position.x - PLATE_GAP - stack_sz.x)
 	var candidates: Array = []
+	if _source == "item" and plate.size.x > 0.0:
+		## Item inspect: parchment top-left hugs the inspect plate's top-right corner.
+		## Do not skip this slot for the wheel keep-out — the plate already sits near the wheel,
+		## and Nathan wants the defs on the plate's right, not in the gap to its left.
+		var hug := Vector2(plate.end.x, plate.position.y)
+		hug.y = clampf(hug.y, EDGE, maxf(EDGE, vp.y - EDGE - stack_sz.y))
+		if hug.x + stack_sz.x > vp.x - EDGE:
+			hug.x = maxf(EDGE, vp.x - EDGE - stack_sz.x)
+		return hug
 	if prefer_left:
 		candidates.append(Vector2(plate.position.x - PLATE_GAP - stack_sz.x, plate.position.y))
 		candidates.append(Vector2(plate.end.x + PLATE_GAP, plate.position.y))
