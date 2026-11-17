@@ -2,7 +2,7 @@
 id: REQ-20261117-band-seed-pause
 status: open
 priority: high
-tip_sha: 5c4fd32e899c7de7690c584120c08f1237619df8
+tip_sha: 7ab51bf0b7b60dc66098344806f7bf5b9dbe3918
 branch: cursor/band-seed-pause-c389
 created: 2026-11-17T18:30:00Z
 created_by: cursor-cloud
