@@ -7810,7 +7810,154 @@
 			"key": "pause.go_deeper",
 			"text": "Go deeper",
 			"where": "Pause menu commitment upgrade"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.header",
+			"text": "You finished your first run!",
+			"where": "Commitment offramp header (quick)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.line",
+			"text": "Thanks for playing this far. A few quick thoughts would help me a ton. Everything is optional.",
+			"where": "Commitment offramp Nathan line (quick)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.header",
+			"text": "You reached the Crystal Cavern!",
+			"where": "Commitment offramp header (deeper)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.line",
+			"text": "You've seen the game open up. Now I can ask about the deeper stuff. Everything is optional.",
+			"where": "Commitment offramp Nathan line (deeper)"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.rating",
+			"text": "How fun was it?",
+			"where": "Commitment offramp 1-5 rating label"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.q1",
+			"text": "What was the most fun moment?",
+			"where": "Commitment offramp quick prompt 1"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.q2",
+			"text": "What confused you or needed more explaining?",
+			"where": "Commitment offramp quick prompt 2"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.q3",
+			"text": "What did you expect to see that wasn't there?",
+			"where": "Commitment offramp quick prompt 3"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.quick.q4",
+			"text": "What do you want more of?",
+			"where": "Commitment offramp quick prompt 4"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.q1",
+			"text": "How did unlocking new items and the Crystal Cavern feel?",
+			"where": "Commitment offramp deeper prompt 1"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.q2",
+			"text": "Did the story in the background land, or get in the way?",
+			"where": "Commitment offramp deeper prompt 2"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.q3",
+			"text": "Did any items or monsters feel too strong or too weak?",
+			"where": "Commitment offramp deeper prompt 3"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper.q4",
+			"text": "What would make you want to play another run?",
+			"where": "Commitment offramp deeper prompt 4"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.else",
+			"text": "Anything else?",
+			"where": "Commitment offramp freeform label"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.send",
+			"text": "Send",
+			"where": "Commitment offramp send button"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.keep",
+			"text": "Keep playing",
+			"where": "Commitment offramp keep playing button"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.deeper",
+			"text": "Go deeper",
+			"where": "Commitment offramp open upgrade picker"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.done",
+			"text": "I'm done for now",
+			"where": "Commitment offramp done button"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.skip",
+			"text": "Skip",
+			"where": "Commitment offramp skip/close"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.thanks",
+			"text": "Thank you. Seriously. You can close the tab anytime, and your progress stays in this browser.",
+			"where": "Commitment offramp thank-you card"
+		},
+		{
+			"cat": "Playtest",
+			"draft": true,
+			"key": "playtest.offramp.retry",
+			"text": "Could not send. Your answers are still here — try Send again.",
+			"where": "Commitment offramp send failure"
 		}
 	],
-	"updated": "2026-11-16T23:30:00Z"
+	"updated": "2026-11-16T23:55:00Z"
 }

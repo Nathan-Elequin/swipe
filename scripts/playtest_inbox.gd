@@ -88,6 +88,28 @@ func format_plain(payload: Dictionary) -> String:
 		lines.append("")
 		lines.append("Tier list:")
 		lines.append(JSON.stringify(ranks, "\t"))
+	if str(payload.get("type", "")) == "offramp" or str(payload.get("kind", "")) == "offramp":
+		lines.append("")
+		lines.append("offramp milestone=%s tier=%s rating=%s" % [
+			payload.get("milestone", ""),
+			payload.get("tier", ""),
+			payload.get("rating", ""),
+		])
+		var answers: Variant = payload.get("answers", null)
+		if typeof(answers) == TYPE_DICTIONARY:
+			for k in (answers as Dictionary).keys():
+				lines.append("%s: %s" % [k, answers[k]])
+		var else_text: String = str(payload.get("else", "")).strip_edges()
+		if else_text != "":
+			lines.append("else: %s" % else_text)
+		lines.append("anon_id=%s build_id=%s run_count=%s biomes=%s cabinets=%s play_s=%s" % [
+			payload.get("anon_id", ""),
+			payload.get("build_id", ""),
+			payload.get("run_count", ""),
+			payload.get("biomes_unlocked", ""),
+			payload.get("cabinet_count", ""),
+			payload.get("play_seconds", ""),
+		])
 	return "\n".join(lines)
 
 
