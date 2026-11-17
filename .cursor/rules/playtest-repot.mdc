@@ -45,3 +45,7 @@ If this chat is a cloud agent or otherwise cannot shoot: you still **must** add/
 - Do not paste huge PNGs into chat as the only deliverable — files in outbox + push are the source of truth (chat thumbnails optional).
 - Do not change game code while fulfilling unless the request’s pass criteria fail and the fix is trivial + in scope; prefer fail the row and let Pixel open a fix loop.
 - Do not rewrite player-facing copy (Spin / Jam).
+
+## Input (hard, Nathan 2026-11-16)
+
+Drive the game ONLY through godot-mcp input injection (mouse moves, hovers, clicks, key presses into the running game, or Viewport.push_input). Never use computer-use or OS-level mouse/keyboard control of Nathan's screen, even when a request says 'real mouse'. Still: fresh save, real player path, no _dev_* / preview_* / Grant / DevChrome shortcuts / forced poses.
