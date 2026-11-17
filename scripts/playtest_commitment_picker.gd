@@ -103,23 +103,18 @@ func _tex(path: String) -> Texture2D:
 
 
 func _build() -> void:
-	## Backdrop
+	## Backdrop — full-rect scaled verdant plate (no solid floor ColorRect band).
 	var bg := TextureRect.new()
+	bg.name = "Backdrop"
 	bg.texture = _tex("res://assets/ui/biome_splash/bg_verdant.png")
 	bg.texture_filter = TEXTURE_FILTER_NEAREST
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP
-	bg.position = Vector2(0, 0)
-	bg.size = Vector2(1680, 832)
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
-	var floor_c := ColorRect.new()
-	floor_c.color = Color("0b0908")
-	floor_c.position = Vector2(0, 832)
-	floor_c.size = Vector2(1680, 208)
-	floor_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(floor_c)
 	var dim := ColorRect.new()
+	dim.name = "Dim"
 	dim.color = Color(0.043, 0.035, 0.031, 0.68)
 	dim.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -3712,6 +3712,8 @@ func _biome_dissolve_out(seconds: float = 0.35) -> void:
 	wipe.mouse_filter = Control.MOUSE_FILTER_STOP
 	wipe.modulate.a = 0.0
 	var tw := create_tween()
+	## Give-up / limp-home can leave the tree paused around this fade; keep it moving.
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_trans(Tween.TRANS_SINE)
 	tw.set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(wipe, "modulate:a", 1.0, seconds)
@@ -3862,6 +3864,28 @@ func _campaign_rows(for_seed: bool = false) -> Array:
 	return rows
 
 
+## Optional explicit next-run seed for tests / smoke (0 = unset). Env SPIN_RUN_SEED also wins.
+var _forced_next_run_seed: int = 0
+
+
+func _campaign_next_run_seed() -> int:
+	## Explicit test seed (member or env) — keep shot harness / CI deterministic.
+	var env_raw := OS.get_environment("SPIN_RUN_SEED").strip_edges()
+	if env_raw.is_valid_int():
+		var env_n: int = int(env_raw)
+		return env_n if env_n != 0 else 1
+	if _forced_next_run_seed != 0:
+		return _forced_next_run_seed
+	## Fresh entropy every call. Boot used to XOR unix-seconds with an
+	## un-randomized rng (first randi always the same), so same-second
+	## fresh saves / mid-session wipes reused one next_run seed.
+	rng.randomize()
+	var seed: int = int(Time.get_ticks_usec()) ^ int(Time.get_unix_time_from_system()) ^ rng.randi()
+	if seed == 0:
+		seed = int(Time.get_ticks_msec()) | 1
+	return seed
+
+
 func _campaign_seed_next_run_if_needed(force: bool = false) -> void:
 	if _campaign == null:
 		return
@@ -3874,9 +3898,7 @@ func _campaign_seed_next_run_if_needed(force: bool = false) -> void:
 			deals = raw_deals
 	if not force and not deals.is_empty():
 		return
-	var seed: int = int(Time.get_unix_time_from_system()) ^ rng.randi()
-	if seed == 0:
-		seed = 1
+	var seed: int = _campaign_next_run_seed()
 	CAMPAIGN_SHELL.seed_next_run(_campaign.rules, _campaign.state, _campaign_rows(true), seed)
 	_campaign.write()
 
@@ -4092,6 +4114,9 @@ func _campaign_draft_decision() -> Dictionary:
 
 func _go_home_loss() -> void:
 	# Tip #247: clear Verdant ambient. Splash: soft dissolve out, no splash.
+	## Leave any pause-menu pause before the dissolve / cabin arrive cycle.
+	if get_tree() != null:
+		get_tree().paused = false
 	if defeat_spotlight != null and defeat_spotlight.has_method("dismiss"):
 		defeat_spotlight.dismiss()
 	if playtest_commitment != null:
@@ -4161,6 +4186,10 @@ func _on_defeat_quick_start() -> void:
 
 
 func _give_up() -> void:
+	## Pause menu set tree.paused; clear it before dissolve so the wipe and
+	## cabin arrive cannot stall with SceneTree stuck paused (REQ-20261117).
+	if get_tree() != null:
+		get_tree().paused = false
 	if playtest_commitment != null:
 		playtest_commitment.note_run_end("dead")
 	if endless_clear_menu:
@@ -5013,6 +5042,8 @@ func _on_settings_closed() -> void:
 func _dev_fresh_save() -> void:
 	if _campaign != null:
 		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+		## New save always rolls a new next_run seed (unless SPIN_RUN_SEED / forced).
+		_campaign_seed_next_run_if_needed(true)
 		_campaign.write()
 	if home_cabin:
 		home_cabin.stop_story()
@@ -9869,6 +9900,7 @@ func _wipe_playtest_progress_keep_anon() -> void:
 	elif playtest_commitment != null:
 		anon = str(playtest_commitment.anon_id)
 	if _campaign != null:
+		## Drop in-memory next_run so a wiped save cannot reuse the old seed.
 		_campaign.state = CAMPAIGN_SHELL.fresh_state()
 	reset_bucket_progress()
 	_playtest_preset = ""
@@ -9914,11 +9946,21 @@ func _playtest_middle() -> void:
 	phase = "title"
 	if overlay:
 		overlay.visible = false
+	## Middle Progress is a fresh mid-run dump each click: reset campaign memory
+	## (so a prior next_run seed / wiped user:// mid-session cannot stick), open
+	## b2+b3 portals so pool-2 mill cards (e.g. Juggernaut) can seat, then reseed.
+	if _campaign != null:
+		_campaign.state = CAMPAIGN_SHELL.fresh_state()
+		_campaign.state["map_pieces"] = ["b2", "b3"]
+		_campaign_seed_next_run_if_needed(true)
+		_campaign.write()
 	if home_cabin:
 		home_cabin.items_by_id = items_by_id
 		home_cabin.tex_by_item = tex_by_item
 		home_cabin.buckets_open = _buckets_revealed
 		home_cabin.fill_middle_save()
+		if home_cabin.has_method("bind_campaign"):
+			home_cabin.bind_campaign(_campaign)
 		_open_home_cabin(false)
 		_open_campaign_map()
 	_sync_playtest_chrome()
