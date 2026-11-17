@@ -2,7 +2,7 @@
 id: REQ-20261117-title-picker-vignettes
 status: open
 priority: normal
-tip_sha: deef5dc29aa681f7815c3288732f3f17bff5b6e2
+tip_sha: 9154292096521a174fe8d459dbfb61c827aa1887
 branch: cursor/title-picker-card-art-7b32
 created: 2026-11-17T07:30:00Z
 created_by: cloud-agent
