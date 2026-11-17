@@ -26506,21 +26506,22 @@ func _inspect_item(it: Dictionary, force: bool = false) -> void:
 	_place_fly(_fly_card)
 
 
-func _bb(hex: String, text: String) -> String:
+func _bb(hex: String, text: String, with_icon: bool = false) -> String:
 	var shown: String = UxStyle.chip(text, hex)
 	## Keyword stems (Keep, Flee, Attack, …) become kw: chips for the autoshow stack.
-	return UxStyle.with_def_link(shown, text, hex)
+	## Inspect Ability / equation lines skip the inline icon; log and tutorial keep it.
+	return UxStyle.with_def_link(shown, text, hex, false, with_icon)
 
 
-func _paint_explainer(raw: String, num_hex: String = "#E07A7A") -> String:
-	return _rewrite_keywords(raw, true, num_hex)
+func _paint_explainer(raw: String, num_hex: String = "#E07A7A", with_icon: bool = true) -> String:
+	return _rewrite_keywords(raw, true, num_hex, with_icon)
 
 
 func _capitalize_keywords(raw: String) -> String:
 	return _rewrite_keywords(raw, false, "")
 
 
-func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
+func _rewrite_keywords(raw: String, colored: bool, num_hex: String, with_icon: bool = true) -> String:
 	var t: String = raw.strip_edges()
 	if t == "" or t.find("[color") >= 0:
 		return raw
@@ -26606,8 +26607,8 @@ func _rewrite_keywords(raw: String, colored: bool, num_hex: String) -> String:
 		var shown: String = _format_keyword(piece)
 		if colored:
 			var hex: String = _paint_hex(piece, t, m.get_start(), m.get_end(), num_hex, gold, hp_c, atk_c, var_c, blk_c, phrases)
-			shown = _bb(hex, shown)
-		shown = UxStyle.with_def_link(shown, piece)
+			shown = _bb(hex, shown, with_icon)
+		shown = UxStyle.with_def_link(shown, piece, "", false, with_icon)
 		out = out.substr(0, m.get_start()) + shown + out.substr(m.get_end())
 	return out
 
@@ -27349,21 +27350,21 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			ab = str(face.get("ability", ab))
 			var fex: String = str(face.get("explainer", ""))
 			if fex != "":
-				out["equation"] = _paint_explainer(fex, cream)
+				out["equation"] = _paint_explainer(fex, cream, false)
 			if ab != "" and ab != "---":
-				out["body"] = _paint_explainer(ab, cream)
+				out["body"] = _paint_explainer(ab, cream, false)
 			return out
 	var show_unp: bool = _kind_always_unplayable(kind) or kind == "echo" or _item_stoned(it)
 	if show_unp:
 		ab = _strip_unplayable_lead(ab)
 	if ab != "" and ab != "---":
-		out["body"] = _paint_explainer(ab, cream)
+		out["body"] = _paint_explainer(ab, cream, false)
 	var ex: String = str(it.get("explainer", ""))
 	if ex != "" and ex != "---":
-		out["equation"] = _paint_explainer(ex, cream)
+		out["equation"] = _paint_explainer(ex, cream, false)
 	if show_unp and (_value_is_unplayable_title(str(out.get("value", ""))) or str(out.get("value", "")).strip_edges() == ""):
 		if ex != "" and ex != "---":
-			out["value"] = _paint_explainer(ex, cream)
+			out["value"] = _paint_explainer(ex, cream, false)
 			out["equation"] = ""
 	return out
 
@@ -27406,7 +27407,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 		out["reminder"] = ""
 	if _shift_held:
 		if reminder != "" and not hide_owner_math:
-			out["equation"] = _paint_explainer(reminder, atk_c)
+			out["equation"] = _paint_explainer(reminder, atk_c, false)
 	elif call_n != "":
 		out["call_chip"] = call_n
 		out["equation"] = ""
@@ -27416,7 +27417,7 @@ func _monster_rule(s: Dictionary) -> Dictionary:
 	if speech == "" or speech == "---":
 		speech = str(s.get("special_text", "")).strip_edges()
 	if speech != "":
-		out["speech"] = _rewrite_keywords(speech, true, "#E8C36A")
+		out["speech"] = _rewrite_keywords(speech, true, "#E8C36A", false)
 	return out
 
 
@@ -29812,7 +29813,12 @@ func _apply_imp_on_spin() -> bool:
 	var dir: int = _imp_walk_dir(target)
 	if dir == 0:
 		return false
-	_log_begin_monster(imp_i)
+	## Execution Escort: slash portrait on the Imp, then the Move to the highest Attack.
+	await _announce_slice(imp_i, _slice_hp_pos(target), false, false)
+	if hp <= 0 or phase != "fighting":
+		return true
+	if facing_index != imp_i:
+		return false
 	_move_busy = true
 	_sync_move_ui()
 	var ended := false
