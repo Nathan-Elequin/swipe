@@ -269,8 +269,22 @@ func _make_card(spec: Dictionary, index: int) -> PanelContainer:
 	art.stretch_mode = TextureRect.STRETCH_SCALE
 	art.position = Vector2(-204, 0)
 	art.size = Vector2(840, 416)
+	## Dim deep splash under the vignette (SCREEN-title §3 + batch2 picker art).
+	art.modulate = Color(0.42, 0.38, 0.34, 1.0)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(art)
+
+	## Native 200×112 vignette shown at 2× = 400×224; side margin 20 px; bottom ≤ y 240.
+	var vignette := TextureRect.new()
+	vignette.name = "Vignette"
+	vignette.texture = _tex("res://assets/ui/title/picker/card_vignette_%s.png" % str(spec.get("id", "quick")))
+	vignette.texture_filter = TEXTURE_FILTER_NEAREST
+	vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	vignette.position = Vector2(20, 12)
+	vignette.size = Vector2(400, 224)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(vignette)
 
 	var fade := TextureRect.new()
 	fade.name = "Fade"
@@ -382,7 +396,8 @@ func _presenter_frames(monster: String) -> SpriteFrames:
 		if t:
 			sf.add_frame(&"idle", t)
 	var have_present := true
-	for f in range(4):
+	## Batch-2 presenters ship 6 frames (f0..f5), play once at 10 fps, then hold.
+	for f in range(6):
 		var pp := "res://assets/ui/title/presenters/%s_present_f%d.png" % [monster, f]
 		var pt := _tex(pp)
 		if pt == null:

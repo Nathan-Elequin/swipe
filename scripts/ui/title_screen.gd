@@ -7,7 +7,9 @@ signal option_activated(id: StringName)
 const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 const BIOME := preload("res://scripts/ui/biome_progress.gd")
+const PRESENTERS := preload("res://scripts/ui/title_presenters.gd")
 const SETTINGS_PANEL := preload("res://scripts/ui/settings_panel.gd")
+const PRESENT_FRAME_COUNT := 6
 
 const FONT_TITLE := "res://assets/ui/fonts/eb_garamond/EBGaramond-SemiBold.ttf"
 const FONT_SEMI := "res://assets/ui/fonts/open_sans/OpenSans-SemiBold.ttf"
@@ -254,10 +256,11 @@ func _add_board() -> void:
 		var face := TextureRect.new()
 		face.name = "Face"
 		face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		face.stretch_mode = TextureRect.STRETCH_SCALE
+		face.stretch_mode = TextureRect.STRETCH_KEEP
 		face.texture_filter = TEXTURE_FILTER_NEAREST
-		face.position = Vector2(-126, 0)
-		face.size = Vector2(308, 154)
+		## Batch-2 pane dioramas are native 56×154 (one per window). Fallback: crop face_bg_*.
+		face.position = Vector2(0, 0)
+		face.size = Vector2(56, 154)
 		face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		win.add_child(face)
 		_windows.append(face)
@@ -385,10 +388,11 @@ func _add_menu() -> void:
 	_menu.size = Vector2(560, 328)
 	_menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_menu)
+	## Title rows stay goblin / gargoyle / lich (biome defaults for b1 / b2 / b5).
 	var presenters := [
-		{"idle": "goblin", "present": "goblin", "native": 48},
-		{"idle": "gargoyle", "present": "gargoyle", "native": 48},
-		{"idle": "lich", "present": "lich", "native": 64},
+		{"idle": PRESENTERS.for_biome("verdant"), "present": PRESENTERS.for_biome("verdant"), "native": 48},
+		{"idle": PRESENTERS.for_biome("crystal"), "present": PRESENTERS.for_biome("crystal"), "native": 48},
+		{"idle": PRESENTERS.for_biome("shadow"), "present": PRESENTERS.for_biome("shadow"), "native": 64},
 	]
 	for i in range(3):
 		var row := Control.new()
@@ -409,9 +413,6 @@ func _add_menu() -> void:
 		spr.animation = &"idle"
 		spr.frame = 0
 		spr.pause()
-		## Gargoyle: crop dirt/ground base if present (transparent pad check via region).
-		if str(presenters[i].get("present", "")) == "gargoyle":
-			_maybe_crop_gargoyle(spr)
 		row.add_child(spr)
 
 		var tag := KIT.choice_tag("title.menu.settings", Vector2(110, 20))
@@ -444,15 +445,14 @@ func _make_presenter_frames(spec: Dictionary) -> SpriteFrames:
 	sf.set_animation_loop(&"present", false)
 	var idle_name: String = str(spec.get("idle", "goblin"))
 	var present_name: String = str(spec.get("present", idle_name))
-	var native: int = int(spec.get("native", 48))
 	var have_present := true
 	for f in range(4):
-		var idle_path := "res://assets/dungeon/anim/facing/%s_facing_idle_f%d.png" % [idle_name, f]
+		var idle_path := PRESENTERS.idle_path(idle_name, f)
 		var tex := _tex(idle_path)
 		if tex:
 			sf.add_frame(&"idle", tex)
-	for f in range(4):
-		var present_path := "res://assets/ui/title/presenters/%s_present_f%d.png" % [present_name, f]
+	for f in range(PRESENT_FRAME_COUNT):
+		var present_path := PRESENTERS.present_path(present_name, f)
 		var ptex := _tex(present_path)
 		if ptex == null:
 			have_present = false
@@ -465,11 +465,6 @@ func _make_presenter_frames(spec: Dictionary) -> SpriteFrames:
 		for f in range(sf.get_frame_count(&"idle")):
 			sf.add_frame(&"present", sf.get_frame_texture(&"idle", f))
 	return sf
-
-
-func _maybe_crop_gargoyle(spr: AnimatedSprite2D) -> void:
-	## Frames are 48x48 with no bottom transparent pad; leave full. Note in PR if dirt shows.
-	spr.offset = Vector2.ZERO
 
 
 func _configure_row(i: int, id: StringName) -> void:
@@ -712,7 +707,18 @@ func _add_confirm() -> void:
 func _apply_window(i: int, slug: String, state: StringName, pct: int) -> void:
 	var face: TextureRect = _windows[i]
 	var full := BIOME.full_slug(slug)
-	face.texture = _tex("res://assets/ui/trophy_board/face_bg_%s.png" % slug)
+	var pane := _tex("res://assets/ui/title/panes/pane_%s.png" % slug)
+	if pane:
+		face.texture = pane
+		face.position = Vector2(0, 0)
+		face.size = Vector2(56, 154)
+		face.stretch_mode = TextureRect.STRETCH_KEEP
+	else:
+		## Pre-batch-2 fallback: crop of the wide face_bg plate.
+		face.texture = _tex("res://assets/ui/trophy_board/face_bg_%s.png" % slug)
+		face.position = Vector2(-126, 0)
+		face.size = Vector2(308, 154)
+		face.stretch_mode = TextureRect.STRETCH_SCALE
 	var icon: TextureRect = _icons[i]
 	var cap: TextureRect = _caps[i]
 	var pct_l: Label = _pcts[i]

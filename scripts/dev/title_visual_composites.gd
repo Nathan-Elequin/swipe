@@ -82,6 +82,8 @@ func _compose_picker(filename: String) -> bool:
 		var yy := y - (8 if hovered else 0)
 		_draw_box(img, x, yy, 440, 586, Color("100e0c"), Color("e8c36a") if hovered else Color("6b5235"), 4)
 		_blit_scaled(img, "res://assets/ui/biome_splash/bg_%s.png" % splashes[i], x - 20, yy, 480, 240)
+		## Card vignette (native 200×112 → 400×224) over the dim splash well.
+		_blit_scaled(img, "res://assets/ui/title/picker/card_vignette_%s.png" % ids[i], x + 20, yy + 12, 400, 224)
 		_blit_scaled(img, "res://assets/dungeon/anim/facing/%s_facing_idle_f0.png" % monsters[i], x + 180, yy + 100, 80 if monsters[i] != "lich" else 96, 80 if monsters[i] != "lich" else 96)
 		_blit_scaled(img, "res://assets/ui/title/goal/goal_ring_%s.png" % ids[i], x + 181, yy + 290, 78, 78)
 		_fill_label(img, x + 30, yy + 400, "playtest.tier.%s.title" % ids[i], Color("e8c36a"))
@@ -115,6 +117,8 @@ func _compose_intro_preview(filename: String) -> bool:
 	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
 	img.fill(Color("0b0908"))
 	_draw_box(img, 252, 72, 1176, 736, Color("0b0908"), Color("8a693e"), 4)
+	## Painted hall still (200×124 → 6×) behind the live SubViewport letterbox.
+	_blit_scaled(img, "res://assets/ui/title/intro/intro_frame.png", 252, 72 + 3, 1176, 730)
 	## Nested title preview (no-save) scaled into frame.
 	var inner := _base_title()
 	_blit_board(inner, [
