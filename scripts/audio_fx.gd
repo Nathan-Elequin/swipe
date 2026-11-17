@@ -828,6 +828,7 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	var dur: float = maxf(fade_s, 0.01)
 	_xfade_tw = create_tween()
 	_xfade_tw.set_ignore_time_scale(true)
+	_xfade_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_xfade_tw.set_parallel(true)
 	_xfade_tw.tween_method(_set_in_lin.bind(incoming, gain), 0.0, 1.0, dur)
 	_xfade_tw.tween_method(_set_out_lin.bind(outgoing, out_gain), 0.0, 1.0, dur)
@@ -938,6 +939,7 @@ func music_biome_dungeon(biome_id: String, fade_s: float = -1.0) -> void:
 	_dungeon_music_lock = true
 	music_state = &"dungeon"
 	_between_duck = 0.0
+	_cue_duck = 0.0
 	_mix_duck(0.3)
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 	var use_fade: float = fade_s if fade_s >= 0.0 else float(fades.get("default", 0.8))
@@ -1692,6 +1694,7 @@ func _mix_duck(attack: float) -> void:
 		_duck_tw.kill()
 	_duck_tw = create_tween()
 	_duck_tw.set_ignore_time_scale(true)
+	_duck_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_duck_tw.tween_property(fx, "volume_db", db, maxf(attack, 0.01))
 
 
@@ -1748,7 +1751,7 @@ func _after_ms(ms: float, cb: Callable) -> void:
 	if ms <= 0.0:
 		cb.call()
 		return
-	var t: SceneTreeTimer = get_tree().create_timer(ms / 1000.0, true, true, false)
+	var t: SceneTreeTimer = get_tree().create_timer(ms / 1000.0, true, true, true)
 	t.timeout.connect(cb)
 
 

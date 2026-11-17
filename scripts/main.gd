@@ -3264,8 +3264,12 @@ func _endless_continue() -> void:
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
 	_campaign.write()
 	dungeon_index += 1
-	_endless_hud_show(true)
 	var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	## Campaign starts biome music at splash appear. Endless has no splash, so
+	## start the next bed here — before the wipe and the HUD fly.
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	_endless_hud_show(true)
 	await _biome_dissolve_out(0.35)
 	_undo_clear()
 	overlay.visible = false
@@ -3273,8 +3277,6 @@ func _endless_continue() -> void:
 		rope_exit.hide_exit()
 	_sync_dungeon_biome(biome_id)
 	_sync_biome_ambient(biome_id)
-	if sfx and sfx.has_method("music_biome_dungeon"):
-		sfx.music_biome_dungeon(biome_id)
 	silenced = {}
 	phase = "draft"
 	draft_action = "busy"
@@ -3659,7 +3661,9 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 		splash = await _present_campaign_splash(biome_id, dungeon_n)
 	var used_map_wipe := false
 	if splash == null:
-		if not endless and sfx and sfx.has_method("music_biome_dungeon"):
+		## Same moment as splash appear: biome bed starts before the wipe, so it
+		## is at full gain when the wheel shows. Endless skips splash on purpose.
+		if sfx and sfx.has_method("music_biome_dungeon"):
 			sfx.music_biome_dungeon(biome_id)
 		# Soft dissolve of the map (no splash). Stay covered until setup + reveal.
 		await _biome_dissolve_out(0.35)
@@ -3667,8 +3671,6 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 	if campaign_map:
 		campaign_map.hide_map()
 		campaign_map.mouse_filter = Control.MOUSE_FILTER_STOP
-	if endless and sfx and sfx.has_method("music_biome_dungeon"):
-		sfx.music_biome_dungeon(biome_id)
 	await _begin_campaign_delve(index, shortcut, endless, splash, used_map_wipe)
 	_splash_busy = false
 

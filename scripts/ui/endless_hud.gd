@@ -69,10 +69,10 @@ func _fly_in() -> void:
 	_n.scale = Vector2(2.4, 2.4)
 	_n.modulate.a = 0.0
 	_n.pivot_offset = Vector2(260, 40)
+	## Confirm tick only. Do not fire sting.clear — that cue ducks the Music bus
+	## −12 dB, and campaign never stings on dungeon enter.
 	if _sfx != null and _sfx.has_method("play"):
 		_sfx.play("confirm_big", -4.0)
-		if _sfx.has_method("play_event"):
-			_sfx.play_event(&"sting.clear")
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.set_trans(Tween.TRANS_BACK)
