@@ -275,6 +275,8 @@ func _run() -> void:
 		COPY.text("settings.sparkles.on", "") != "", "") or failed
 	failed = _check(rows, failed, "copy.settings.back",
 		COPY.text("settings.back", "") == "Back" or COPY.text("settings.back", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.settings.sound",
+		COPY.text("settings.sound", "") == "Sound Settings", "") or failed
 	failed = _check(rows, failed, "copy.goal.ticker_line",
 		COPY.text("playtest.goal.ticker_line", "").find("{goal}") >= 0, "") or failed
 	failed = _check(rows, failed, "copy.tier.quick.goal",
@@ -379,7 +381,8 @@ func _run() -> void:
 		panel_src.find("settings.sparkles.on") >= 0
 		and panel_src.find("settings.invert_scroll.off") >= 0
 		and panel_src.find("settings.reduce_motion.on") >= 0
-		and panel_src.find("settings.back") >= 0, "") or failed
+		and panel_src.find("settings.back") >= 0
+		and panel_src.find("settings.sound") >= 0, "") or failed
 	failed = _check(rows, failed, "picker.goal_tooltip_src",
 		FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("tooltip_text") >= 0
 		and FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("biome_key") >= 0
@@ -654,7 +657,7 @@ func _assert_visual_copy_keys(rows: Array, failed: bool) -> bool:
 		"title.start_over.ask", "title.start_over.body", "title.start_over.no", "title.start_over.yes",
 		"settings.sparkles.on", "settings.sparkles.off",
 		"settings.invert_scroll.on", "settings.invert_scroll.off",
-		"settings.reduce_motion.on", "settings.reduce_motion.off", "settings.back",
+		"settings.reduce_motion.on", "settings.reduce_motion.off", "settings.back", "settings.sound",
 		"intro.preview.caption",
 	]:
 		found[k] = true

@@ -241,6 +241,8 @@ func _check_settings(rows: Array, failed: bool) -> bool:
 			if sl != null:
 				count_sliders += 1
 		failed = _check(rows, failed, "settings.sliders", count_sliders == 5, str(count_sliders)) or failed
+		if panel_title.has_method("show_page"):
+			panel_title.show_page("sound", false)
 		var music = panel_title.volume_slider("Music")
 		if music:
 			var before := AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music"))

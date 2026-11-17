@@ -8120,6 +8120,13 @@
 			"draft": true
 		},
 		{
+			"cat": "Settings",
+			"key": "settings.sound",
+			"text": "Sound Settings",
+			"where": "Settings: opens the volume sliders page",
+			"draft": true
+		},
+		{
 			"cat": "Playtest",
 			"key": "playtest.tier.quick.biome",
 			"text": "Verdant Hollow",

@@ -759,4 +759,5 @@ Settings,settings.invert_scroll.off,Settings toggle,Invert scroll: off
 Settings,settings.reduce_motion.on,Settings toggle,Reduce motion: on
 Settings,settings.reduce_motion.off,Settings toggle,Reduce motion: off
 Settings,settings.back,Settings back / title settings close,Back
+Settings,settings.sound,Settings: opens the volume sliders page,Sound Settings
 Title,intro.preview.caption,Intro preview still caption,"Your progress, right on the title screen."

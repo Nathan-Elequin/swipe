@@ -137,16 +137,14 @@ func setup(audio) -> void:
 	_board.add_child(_btn_victory_code)
 	_hook_hover(_btn_victory_code)
 
-	## Shared SettingsPanel (3 toggles + 5 sliders) — same type as title Settings.
+	## Shared SettingsPanel (3 toggles + Sound Settings page) — same type as title Settings.
 	## Toggle copy keys (also applied inside SettingsPanel.apply_toggle_labels):
 	## settings.sparkles.on / settings.sparkles.off
 	## settings.invert_scroll.on / settings.invert_scroll.off
 	## settings.reduce_motion.on / settings.reduce_motion.off
-	## settings.back
+	## settings.sound / settings.back
 	_settings_panel = SETTINGS_PANEL.new()
 	_settings_panel.setup(audio, false)
-	if _settings_panel._btn_back:
-		_settings_panel._btn_back.visible = false
 	_settings_panel.sparkles_toggled.connect(func(on: bool) -> void:
 		sparkles_on = on
 		sparkles_toggled.emit(on)
@@ -158,6 +156,10 @@ func setup(audio) -> void:
 	_settings_panel.reduce_motion_toggled.connect(func(on: bool) -> void:
 		reduce_motion = on
 		reduce_motion_toggled.emit(on)
+	)
+	_settings_panel.page_changed.connect(func(_p: String) -> void:
+		apply_copy()
+		_layout_buttons()
 	)
 	_board.add_child(_settings_panel)
 	## Aliases so existing layout/copy paths keep working.
@@ -270,6 +272,8 @@ func apply_copy() -> void:
 	if _title:
 		if _page == "developer":
 			_title.text = "Developer Mode"
+		elif _settings_panel != null and _settings_panel.has_method("page") and str(_settings_panel.page()) == "sound":
+			_title.text = COPY.text("settings.sound", "Sound Settings")
 		else:
 			_title.text = COPY.text("pause.settings", "Settings")
 	if _hint:
@@ -306,16 +310,17 @@ func apply_copy() -> void:
 
 func _layout_buttons() -> void:
 	var on_dev: bool = _page == "developer"
+	var on_sound: bool = (not on_dev) and _settings_panel != null and _settings_panel.has_method("page") and str(_settings_panel.page()) == "sound"
 	if _btn_resume:
-		_btn_resume.visible = not on_dev
+		_btn_resume.visible = not on_dev and not on_sound
 	if _btn_peek:
 		_btn_peek.visible = false
 	if _btn_give_up:
-		_btn_give_up.visible = (not on_dev) and _in_run
+		_btn_give_up.visible = (not on_dev) and (not on_sound) and _in_run
 	if _btn_go_deeper:
-		_btn_go_deeper.visible = (not on_dev) and show_go_deeper
+		_btn_go_deeper.visible = (not on_dev) and (not on_sound) and show_go_deeper
 	if _btn_victory_code:
-		_btn_victory_code.visible = (not on_dev) and show_victory_code
+		_btn_victory_code.visible = (not on_dev) and (not on_sound) and show_victory_code
 	if _settings_panel:
 		_settings_panel.visible = not on_dev
 		_settings_panel.sparkles_on = sparkles_on
@@ -323,15 +328,15 @@ func _layout_buttons() -> void:
 		_settings_panel.reduce_motion = reduce_motion
 		_settings_panel.apply_toggle_labels()
 	if _btn_sparkles:
-		_btn_sparkles.visible = not on_dev
+		_btn_sparkles.visible = (not on_dev) and (not on_sound)
 	if _btn_invert:
-		_btn_invert.visible = not on_dev
+		_btn_invert.visible = (not on_dev) and (not on_sound)
 	if _btn_reduce:
-		_btn_reduce.visible = not on_dev
+		_btn_reduce.visible = (not on_dev) and (not on_sound)
 	if _btn_quit:
-		_btn_quit.visible = (not on_dev) and not OS.has_feature("web")
+		_btn_quit.visible = (not on_dev) and (not on_sound) and not OS.has_feature("web")
 	if _btn_dev:
-		_btn_dev.visible = not on_dev
+		_btn_dev.visible = not on_dev and not on_sound
 	if _btn_fresh:
 		_btn_fresh.visible = on_dev
 	if _btn_complete:
@@ -347,14 +352,21 @@ func _layout_buttons() -> void:
 	if _btn_dev_back:
 		_btn_dev_back.visible = on_dev
 	if _master:
-		_master.visible = not on_dev
+		_master.visible = on_sound
 	var shown: Array = []
 	var buttons: Array = [_btn_resume, _btn_go_deeper, _btn_victory_code, _btn_give_up, _btn_quit, _btn_dev] if not on_dev else [_btn_fresh, _btn_path_quick, _btn_path_deeper, _btn_path_big, _btn_complete, _btn_dev_back]
 	for b in buttons:
 		if b == null or not b.visible or b.get_parent() != _board:
 			continue
 		shown.append(b)
-	var panel_rows: int = 8 if (_settings_panel != null and _settings_panel.visible) else 0
+	var panel_rows: int = 0
+	if _settings_panel != null and _settings_panel.visible:
+		if _settings_panel.has_method("visible_row_count"):
+			panel_rows = int(_settings_panel.visible_row_count())
+		else:
+			panel_rows = 4
+		if on_sound:
+			panel_rows += 1
 	var row_count: int = shown.size() + panel_rows
 	var gap: float = 4.0 if panel_rows > 0 else _ROW_GAP
 	var row_h: float = 52.0 if panel_rows > 0 else _ROW_H
@@ -383,8 +395,9 @@ func _layout_buttons() -> void:
 		y += row_h + gap
 	if _settings_panel != null and _settings_panel.visible:
 		_settings_panel.position = Vector2((_BOARD_W - 512.0) * 0.5, y)
-		## Shrink panel row heights to fit remaining band.
-		if _settings_panel._rows:
+		if _settings_panel.has_method("layout_rows"):
+			_settings_panel.layout_rows(row_h, gap)
+		elif _settings_panel._rows:
 			_settings_panel._rows.add_theme_constant_override("separation", int(gap))
 			for child in _settings_panel._rows.get_children():
 				if child is Control:
@@ -443,6 +456,8 @@ func open_menu(in_run: bool = true) -> void:
 	_in_run = in_run
 	_keep_paused = get_tree().paused
 	_page = "main"
+	if _settings_panel and _settings_panel.has_method("show_page"):
+		_settings_panel.show_page("main", false)
 	if _confirm:
 		_confirm.visible = false
 	_layout_buttons()
@@ -479,6 +494,8 @@ func close_menu() -> void:
 	if _audio and _audio.has_method("on_pause"):
 		_audio.on_pause(false)
 	_page = "main"
+	if _settings_panel and _settings_panel.has_method("show_page"):
+		_settings_panel.show_page("main", false)
 	visible = false
 	if not _keep_paused:
 		get_tree().paused = false
@@ -510,6 +527,13 @@ func _on_slider(value: float, which: String) -> void:
 
 func settings_panel_node():
 	return _settings_panel
+
+
+func open_sound_page() -> void:
+	if _settings_panel and _settings_panel.has_method("show_page"):
+		_settings_panel.show_page("sound")
+		apply_copy()
+		_layout_buttons()
 
 
 func _on_sparkles() -> void:
@@ -655,6 +679,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_confirm.visible = false
 		elif _page == "developer":
 			_set_page("main")
+		elif _settings_panel != null and _settings_panel.has_method("page") and str(_settings_panel.page()) == "sound":
+			_settings_panel.show_page("main")
 		else:
 			close_menu()
 		get_viewport().set_input_as_handled()
