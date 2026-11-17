@@ -8038,6 +8038,22 @@ func _play_stat_delta(index: int, hp_stat: bool, delta: int, from_pos: Vector2 =
 		_show_sync_slice(index, hp_stat)
 
 
+func _skeleton_overwrite_hp(s: Dictionary) -> void:
+	## Grave Echo copies the spun enemy's current HP. Martyr gifts, Fairy, Anvil,
+	## leftover damage, and hp_locked must not ride along into the next Spin.
+	if str(s.get("card_id", "")) != "skeleton":
+		return
+	if _is_silenced(s) or bool(s.get("kiss_lifelink", false)):
+		return
+	var n: int = maxi(last_mob_hp, 0)
+	s["hp"] = n
+	s["hp_max"] = n
+	s["hp_locked"] = false
+	s["fairy_dust"] = 0
+	s["leech_bonus"] = 0
+	s["sync_hp"] = 0
+
+
 func _echo_skeletons() -> void:
 	if facing_index < 0 or facing_index >= wheel.size():
 		return
@@ -8050,7 +8066,12 @@ func _echo_skeletons() -> void:
 			continue
 		if int(wheel[i].get("hp", 0)) <= 0:
 			continue
+		if i == facing_index:
+			continue
+		if _is_silenced(wheel[i]) or bool(wheel[i].get("kiss_lifelink", false)):
+			continue
 		before[i] = int(wheel[i].get("hp", 0))
+		_skeleton_overwrite_hp(wheel[i])
 	if before.is_empty():
 		return
 	_sync_wheel_stats()
@@ -8395,7 +8416,12 @@ func _apply_formulas_to(s: Dictionary) -> void:
 	## Kiss of Death keeps Wraith Lifelink text after formula refresh.
 	if str(s.get("special_id", "")) == "lifelink" and id != "wraith":
 		_paint_kiss_lifelink(s)
-	if hp_locked:
+	if id == "skeleton":
+		## Echo is the only Spin overwrite. Keep the current number through
+		## refreshes so Martyr/Fairy gifts stay until the next Spin replaces them.
+		s["hp"] = hold_hp
+		s["hp_max"] = maxi(hold_max, hold_hp)
+	elif hp_locked:
 		s["hp"] = hold_hp
 		if bool(s.get("bag_kept", false)) or id == "vampire" or id == "amalgam" or id == "bushido" or id == "commander" or id == "cowardly_king":
 			s["hp_max"] = maxi(hold_max, hold_hp)
