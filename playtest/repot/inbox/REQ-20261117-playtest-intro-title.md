@@ -2,7 +2,7 @@
 id: REQ-20261117-playtest-intro-title
 status: open
 priority: high
-tip_sha: 9f3d9e99b3c3
+tip_sha: b028e2111bb3
 branch: cursor/playtest-intro-title-rewrite-05d5
 created: 2026-11-17T07:20:00Z
 created_by: cloud-agent
