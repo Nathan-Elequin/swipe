@@ -2606,6 +2606,90 @@
 			]
 		},
 		{
+			"id": "pacemaker-lethal-overkill",
+			"title": "Pacemaker does not save a 3-hit into 2 HP",
+			"family": "item",
+			"items": [
+				"pacemaker"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"hp_before": 2,
+			"clicks": [
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Start at 2 HP. Golem hits 3. That is a 3-loss, not 2. Pacemaker does not Heal. Defeat screen.",
+			"expected": {
+				"hp": 0,
+				"log_has": [
+					"dead"
+				]
+			},
+			"cards": [
+				{
+					"id": "pacemaker",
+					"kind": "item",
+					"name": "Pacemaker",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
+					"sprite": "assets/dungeon/items/pacemaker.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
+			"id": "pacemaker-lethal-exact-2",
+			"title": "Pacemaker does not save an exact-2 hit that reaches 0",
+			"family": "item",
+			"items": [
+				"pacemaker"
+			],
+			"monsters": [
+				"phoenix_egg"
+			],
+			"face": "phoenix_egg",
+			"challenge": true,
+			"hp_before": 2,
+			"clicks": [
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Start at 2 HP. A 2-damage hit reaches 0. Pacemaker does not Heal. Defeat screen. Only Revival Potion would save.",
+			"expected": {
+				"hp": 0,
+				"log_has": [
+					"dead"
+				]
+			},
+			"cards": [
+				{
+					"id": "pacemaker",
+					"kind": "item",
+					"name": "Pacemaker",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
+					"sprite": "assets/dungeon/items/pacemaker.png"
+				},
+				{
+					"id": "phoenix_egg",
+					"kind": "monster",
+					"name": "Phoenix Egg",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/phoenix_egg.png"
+				}
+			]
+		},
+		{
 			"id": "catapult-fires",
 			"title": "Catapult fires vs a dummy",
 			"family": "item",

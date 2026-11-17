@@ -11543,7 +11543,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		await _note_hp_lost(lost)
+		await _note_hp_lost(incoming)
 	if pierce:
 		_log("on_resolve", "hit %s  ATK %s  (ignores BLK)" % [hit_n, m.get("atk", 0)])
 		if at >= 0:
@@ -11599,8 +11599,8 @@ func _apply_egg_hurt(n: int) -> void:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		await _note_hp_lost(lost)
-		_log("hp", "take -%s  now %s" % [lost, hp])
+		await _note_hp_lost(incoming)
+		_log("hp", "take -%s  now %s" % [incoming, hp])
 		_flash_screen(Color("e07a7a"), 0.16)
 		_refresh_hearts()
 		_refresh_blk(false)
@@ -15619,7 +15619,7 @@ func _tick_player_poison() -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		await _note_hp_lost(before - hp)
+		await _note_hp_lost(n)
 	_log("hp", "poison -%s  now %s" % [n, hp])
 	_flash_screen(Color("2e4a32"), 0.28)
 	_refresh_hearts()
@@ -18053,6 +18053,8 @@ func _highest_hand_atk() -> int:
 
 
 func _note_hp_lost(n: int) -> void:
+	# n is the size of the HP-loss event (incoming after Block), not hearts
+	# actually removed. Overkill of 5 into 2 HP is a loss of 5, not 2.
 	if n <= 0:
 		return
 	last_hp_lost = n
@@ -20181,6 +20183,9 @@ func _lantern_set_n(it: Dictionary, n: int) -> void:
 
 
 func _maybe_pacemaker_heal() -> void:
+	# Lethal is death. Pacemaker is not a save; only Revival Potion is.
+	if hp <= 0:
+		return
 	if last_hp_lost != 2:
 		return
 	for it in hotbar:
@@ -20269,7 +20274,7 @@ func _bleed(n: int) -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		await _note_hp_lost(before - hp)
+		await _note_hp_lost(n)
 	_log("hp", "bleed -%s  now %s" % [n, hp])
 	_flash_screen(Color("5c1a6a"), 0.38)
 	_refresh_hearts()
@@ -22102,7 +22107,7 @@ func _player_take_atk(n: int) -> bool:
 		hp_loss_events += 1
 		_bleed_losses += 1
 		lost_hp_this_combat = true
-		await _note_hp_lost(lost)
+		await _note_hp_lost(incoming)
 	if incoming == 0:
 		_log("hp", "poke 0")
 		_refresh_blk(false)
