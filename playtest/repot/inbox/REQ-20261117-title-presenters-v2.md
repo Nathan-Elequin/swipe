@@ -2,6 +2,7 @@
 id: REQ-20261117-title-presenters-v2
 status: open
 priority: high
+pr: 554
 tip_sha: deef5dc29aa681f7815c3288732f3f17bff5b6e2
 branch: pixel/title-presenters-v2
 created: 2026-11-17T07:30:00Z
