@@ -251,6 +251,7 @@ func _build_talk(art) -> void:
 	col.add_child(_name)
 	_body = RichTextLabel.new()
 	_body.bbcode_enabled = true
+	_body.meta_underlined = false
 	_body.fit_content = true
 	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -258,6 +259,7 @@ func _build_talk(art) -> void:
 	_body.clip_contents = false
 	_body.add_theme_color_override("default_color", Color("1c120c"))
 	_body.add_theme_font_size_override("normal_font_size", 20)
+	_body.add_theme_font_size_override("bold_font_size", 20)
 	_body.custom_minimum_size = Vector2(230, 48)
 	col.add_child(_body)
 	_kw_layer = CanvasLayer.new()

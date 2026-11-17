@@ -15,27 +15,29 @@ Copy rule: the card body is `KeywordDefs.def_of(id)`, rendered **verbatim**. The
 
 ## 1. Chip (inline keyword in RichTextLabel)
 
-**Anatomy:** 24×24 icon (12px native ×2) + 4px gap + word in its keyword ink + 2px underline at 45% alpha.
+**Anatomy:** 24×24 icon (12px native ×2) + 4px gap + **bold** word in its keyword ink. No underline (match Attack/HP chip weight).
 
-**BBCode** (built in `UxStyle.with_def_link`, replacing the current paint):
+**BBCode** (built in `UxStyle.chip_bbcode` / `with_def_link`):
 
 ```
-[url=kw:<id> underline=never][img=24x24 valign=center,center]res://assets/ui/keyword/kw_<id>.png[/img] [u color=<ink>73][color=<ink>]<Word>[/color][/u][/url]
+[url=kw:<id> underline=never][img=24x24 valign=center,center]res://assets/ui/keyword/kw_<id>.png[/img] [color=<ink>][b]<Word>[/b][/color][/url]
 ```
+
+RichTextLabel hosts set `meta_underlined = false` so Godot does not re-underline `[url]`.
 
 **Inks:**
 - Dark surfaces: reuse `_stem_hex`, i.e. gold `#E8C36A`, defeat family `#C9A0FF`, unplayable `#C8C2BA`.
 - Talk paper (panel_beige): gold `#6A3C00`, defeat `#4E1C86`, unplayable `#5A564E`. These are the tutorial's existing paper inks.
-- Coloured stats (Attack `#E07A7A`, HP `#E8A0A0`) stay plain coloured text. They are **not** chips because they are not `def_of()` ids.
+- Coloured stats (Attack `#E07A7A`, HP `#E8A0A0`) stay plain coloured bold text via `chip()`. They are **not** tooltip chips because they are not `def_of()` ids.
 
 **States:** `meta_hover_started` / `meta_hover_ended` re-render only that run.
 
-| State | Background | Underline | Extra |
+| State | Background | Word | Extra |
 |---|---|---|---|
-| rest | none | ink @45% | none |
-| hover | `[bgcolor=#E8C36A2E]` (18%) | ink @100% | cursor = pointing hand |
-| pinned | `[bgcolor=#E8C36A42]` (26%) | ink @100% | none |
-| first sighting | `kw_chip_halo_9` NinePatchRect behind the run (margins 6) | ink @100% | 3 gold pulses, §4 |
+| rest | none | bold + ink | none |
+| hover | `[bgcolor=#E8C36A2E]` (18%) | bold + ink | cursor = pointing hand |
+| pinned | `[bgcolor=#E8C36A42]` (26%) | bold + ink | none |
+| first sighting | `kw_chip_halo_9` NinePatchRect behind the run (margins 6) | bold + ink | 3 gold pulses, §4 |
 
 The first-sighting halo needs a rect. Get it from `RichTextLabel` via a `[hint]`-free approach: tag the run with `[url]` and use `get_character_bounds`. If that is unavailable in the 4.7 build, use the Label's custom `_draw` with the cached glyph rect from `RichTextLabel.get_line_range`/offset helpers. Fallback: pulse the whole line's background.
 

@@ -224,6 +224,7 @@ func show_rule(
 	elif value_line != "":
 		var e := RichTextLabel.new()
 		e.bbcode_enabled = true
+		e.meta_underlined = false
 		e.fit_content = true
 		e.scroll_active = false
 		e.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -250,11 +251,13 @@ func show_rule(
 	if equation != "":
 		var eq := RichTextLabel.new()
 		eq.bbcode_enabled = true
+		eq.meta_underlined = false
 		eq.fit_content = true
 		eq.scroll_active = false
 		eq.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		eq.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if center_copy else HORIZONTAL_ALIGNMENT_LEFT
 		eq.add_theme_font_size_override("normal_font_size", 18)
+		eq.add_theme_font_size_override("bold_font_size", 18)
 		eq.add_theme_color_override("default_color", ink)
 		eq.text = equation
 		eq.custom_minimum_size = Vector2(216, 0)
