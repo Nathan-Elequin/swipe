@@ -234,7 +234,7 @@ func _init() -> void:
 	Shell.begin_run(full, 0, false, true)
 	failed = _check(failed, "endless first visual verdant", Shell.current_biome_id(rules, full) == "b1") or failed
 	failed = _check(failed, "endless first mix verdant", int(Shell.mix_for_state(rules, full).get("deadly", 0)) == 1) or failed
-	failed = _check(failed, "endless mill only b1", Shell.mill_pool_open(rules, full, "b1") and not Shell.mill_pool_open(rules, full, "b2")) or failed
+	failed = _check(failed, "endless mill all pools from floor 1", Shell.mill_pool_open(rules, full, "b1") and Shell.mill_pool_open(rules, full, "b5")) or failed
 	for _step in 4:
 		failed = _check(failed, "endless climb %s" % _step, Shell.push_deeper(rules, full)) or failed
 	failed = _check(failed, "endless fifth visual abyss", Shell.current_biome_id(rules, full) == "b5") or failed
@@ -364,6 +364,18 @@ func _init() -> void:
 			leaked = true
 			break
 	failed = _check(failed, "verdant stays pool 1 until portal opens", b1_ids.size() == 10 and not leaked) or failed
+	var endless_mill: Dictionary = Shell.fresh_state()
+	Shell.begin_run(endless_mill, 0, false, true)
+	Shell.seed_next_run(rules, endless_mill, pooled, 22)
+	var endless_b1: Array = ((endless_mill.get("next_run", {}) as Dictionary).get("deals", {}) as Dictionary).get("b1", {}).get("ids", [])
+	var endless_has_b2 := false
+	for raw_eb1 in endless_b1:
+		if str(raw_eb1).begins_with("b2"):
+			endless_has_b2 = true
+			break
+	failed = _check(failed, "endless verdant mill mixes later pools", endless_b1.size() == 10 and endless_has_b2) or failed
+	var endless_slice: Array = Shell.rows_for_biome(rules, endless_mill, pooled, "b1")
+	failed = _check(failed, "endless floor 1 mill includes crystal rows", endless_slice.size() == pooled.size()) or failed
 	var item_entries: Array = []
 	for biome_id4 in ["b1", "b2", "b3", "b4", "b5"]:
 		for k in 5:

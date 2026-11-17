@@ -319,27 +319,18 @@ static func mix_biome_id(rules: Dictionary, state: Dictionary) -> String:
 	return current_biome_id(rules, state)
 
 
-## Item/monster mill openness. Endless loop 1 pretends only the walked biomes
-## are open (same as campaign). Loop 2+ uses every tip pool.
+## Item/monster mill openness. Endless is post-game: every mapped pool is open
+## from floor 1, regardless of how far this run has walked. Campaign still uses
+## pulled portals (pool_unlocked).
 static func mill_pool_open(rules: Dictionary, state: Dictionary, pool: String) -> bool:
 	var id := str(pool)
 	if id == "":
 		return false
 	var run: Dictionary = state.get("run", {})
 	if bool(run.get("endless", false)) and bool(run.get("active", false)):
-		var biomes := biomes_of(rules)
-		var idx: int = int(run.get("biome_index", 0))
-		var cap: int = biomes.size() - 1
-		if idx >= biomes.size():
-			cap = biomes.size() - 1
-		else:
-			cap = idx
-		var i := 0
-		for raw in biomes:
-			var b: Dictionary = raw
-			if str(b.get("id", "")) == id:
-				return i <= cap
-			i += 1
+		for raw in biomes_of(rules):
+			if str((raw as Dictionary).get("id", "")) == id:
+				return true
 		return false
 	return pool_unlocked(rules, state, id)
 
