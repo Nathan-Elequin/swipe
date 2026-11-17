@@ -1,6 +1,6 @@
 ---
 id: REQ-20261117-juggernaut-A
-status: open
+status: done
 priority: high
 pr: 546
 tip_sha: c78a64fe
