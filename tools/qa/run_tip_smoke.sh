@@ -150,5 +150,16 @@ if [[ "$CALLOUT" -ne 0 ]]; then
   exit "$CALLOUT"
 fi
 
+# Living trophy room title visual layer (assets, options, progress, goal/ticker, settings, text sweep).
+chmod +x "$ROOT/tools/qa/run_title_visual_selftest.sh"
+set +e
+GODOT="$GODOT_BIN" "$ROOT/tools/qa/run_title_visual_selftest.sh"
+TITLEVIS=$?
+set -e
+if [[ "$TITLEVIS" -ne 0 ]]; then
+  echo "TITLE_VISUAL_SMOKE failed (exit $TITLEVIS)" >&2
+  exit "$TITLEVIS"
+fi
+
 echo "TIP_SMOKE local run OK"
 exit 0
