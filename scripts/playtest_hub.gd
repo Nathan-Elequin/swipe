@@ -1,11 +1,14 @@
 extends ColorRect
 ## Framed title hub (approved study B): quiet #15120f, cabin vignette LEFT, live title/menu RIGHT.
-## Copy bindings unchanged. Continue visibility still follows actual save availability.
+## Playtest export: New Game XOR Continue, plus Settings / Feedback / Start over.
+## Editor keeps Middle Progress behind the existing editor flag.
 
 signal brand_new
 signal middle_progress
 signal continue_save
 signal feedback_wanted
+signal settings_wanted
+signal start_over_confirmed
 
 const COPY := preload("res://scripts/player_copy.gd")
 const TRIANGLE_SCRIPT := preload("res://scripts/ui/title_framed_triangle.gd")
@@ -42,6 +45,8 @@ const MENU_W := 460.0
 const ROW_H := 90.0
 const ROW_YS := [414.0, 504.0, 594.0]
 const FEEDBACK_POS := Vector2(966, 712)
+const SETTINGS_POS := Vector2(1140, 712)
+const START_OVER_POS := Vector2(966, 760)
 const NATIVE_CABIN := Vector2(340, 220)
 const DISPLAY_CABIN := Vector2(680, 440)
 
@@ -55,12 +60,16 @@ var _btn_new: Button
 var _btn_mid: Button
 var _btn_continue: Button
 var _btn_feedback: Button
+var _btn_settings: Button
+var _btn_start_over: Button
+var _confirm: PanelContainer
 var _rows: Array = []
 var _font_title: Font
 var _font_action: Font
 var _font_helper: Font
 var _layout_mode: String = "b"
 var _built: bool = false
+var _has_save: bool = false
 
 
 func setup() -> void:
@@ -82,16 +91,8 @@ func setup() -> void:
 func open_hub(can_continue: bool, _see_through: bool = false) -> void:
 	## Framed B owns the screen; quiet opaque ground (see_through kept for call-site compat).
 	color = COL_BG
-	if _btn_mid:
-		## Public itch playtest: hide Middle Progress. Keep it in the editor for Nathan/agents.
-		_btn_mid.visible = middle_progress_allowed()
-	if _btn_continue:
-		_btn_continue.visible = can_continue
-	## Layout only visible action rows so hiding Middle Progress does not leave a gap.
-	_rows = []
-	for b in [_btn_new, _btn_mid, _btn_continue]:
-		if b != null and b.visible:
-			_rows.append(b)
+	_has_save = bool(can_continue)
+	_apply_menu_state(_has_save)
 	visible = true
 	move_to_front()
 	_layout()
@@ -108,8 +109,69 @@ static func middle_progress_allowed() -> bool:
 	return true
 
 
+## Pure menu-visibility contract for selftests (no node tree required).
+static func menu_visibility(has_save: bool, allow_middle: bool = false) -> Dictionary:
+	return {
+		"new_game": not has_save,
+		"continue": has_save,
+		"start_over": has_save,
+		"middle": bool(allow_middle),
+		"settings": true,
+		"feedback": true,
+		"default_focus": "continue" if has_save else "new_game",
+	}
+
+
 func close_hub() -> void:
+	if _confirm:
+		_confirm.visible = false
 	visible = false
+
+
+func visible_action_ids() -> Array:
+	var out: Array = []
+	if _btn_new != null and _btn_new.visible:
+		out.append("new_game")
+	if _btn_mid != null and _btn_mid.visible:
+		out.append("middle")
+	if _btn_continue != null and _btn_continue.visible:
+		out.append("continue")
+	if _btn_settings != null and _btn_settings.visible:
+		out.append("settings")
+	if _btn_feedback != null and _btn_feedback.visible:
+		out.append("feedback")
+	if _btn_start_over != null and _btn_start_over.visible:
+		out.append("start_over")
+	return out
+
+
+func default_focus_id() -> String:
+	if _has_save:
+		return "continue"
+	return "new_game"
+
+
+func _apply_menu_state(has_save: bool) -> void:
+	_has_save = has_save
+	if _btn_new:
+		_btn_new.visible = not has_save
+	if _btn_mid:
+		_btn_mid.visible = middle_progress_allowed()
+	if _btn_continue:
+		_btn_continue.visible = has_save
+	if _btn_start_over:
+		_btn_start_over.visible = has_save
+	if _btn_settings:
+		_btn_settings.visible = true
+	if _btn_feedback:
+		_btn_feedback.visible = true
+	if _confirm:
+		_confirm.visible = false
+	## Layout only visible action rows so hidden entries do not leave a gap.
+	_rows = []
+	for b in [_btn_new, _btn_mid, _btn_continue]:
+		if b != null and b.visible:
+			_rows.append(b)
 
 
 func _on_resized() -> void:
@@ -178,9 +240,9 @@ func _build() -> void:
 	_stage.add_child(_title)
 
 	_btn_new = _make_action_row(
-		"BrandNew",
-		COPY.text("playtest.brand_new", "Brand New"),
-		COPY.text("playtest.brand_new_blurb", "Start from scratch."),
+		"NewGame",
+		COPY.text("title.new_game", "New Game"),
+		COPY.text("title.new_game.sub", "Start your inheritance."),
 		func() -> void: brand_new.emit()
 	)
 	_btn_mid = _make_action_row(
@@ -191,14 +253,29 @@ func _build() -> void:
 	)
 	_btn_continue = _make_action_row(
 		"Continue",
-		COPY.text("playtest.continue", "Continue"),
-		COPY.text("playtest.continue_blurb", "Last save."),
+		COPY.text("title.continue", "Continue"),
+		COPY.text("title.continue.sub", "Pick up right where you left off."),
 		func() -> void: continue_save.emit()
 	)
-	_btn_feedback = _make_feedback(
-		COPY.text("playtest.feedback", "Feedback"),
-		func() -> void: feedback_wanted.emit()
+	_btn_feedback = _make_text_btn(
+		"Feedback",
+		COPY.text("title.feedback", "Feedback"),
+		func() -> void: feedback_wanted.emit(),
+		22
 	)
+	_btn_settings = _make_text_btn(
+		"Settings",
+		COPY.text("title.settings", "Settings"),
+		func() -> void: settings_wanted.emit(),
+		22
+	)
+	_btn_start_over = _make_text_btn(
+		"StartOver",
+		COPY.text("title.start_over", "Start over"),
+		func() -> void: _show_start_over_confirm(),
+		18
+	)
+	_build_start_over_confirm()
 	_rows = [_btn_new, _btn_mid, _btn_continue]
 
 
@@ -265,9 +342,9 @@ func _make_action_row(p_name: String, action: String, helper: String, cb: Callab
 	return b
 
 
-func _make_feedback(label: String, cb: Callable) -> Button:
+func _make_text_btn(p_name: String, label: String, cb: Callable, font_px: int) -> Button:
 	var b := Button.new()
-	b.name = "Feedback"
+	b.name = p_name
 	b.text = label
 	b.flat = true
 	b.focus_mode = Control.FOCUS_ALL
@@ -277,7 +354,7 @@ func _make_feedback(label: String, cb: Callable) -> Button:
 	b.add_theme_color_override("font_hover_color", COL_SELECTED_TITLE)
 	b.add_theme_color_override("font_pressed_color", COL_SELECTED_HELPER)
 	b.add_theme_color_override("font_focus_color", COL_SELECTED_TITLE)
-	b.add_theme_font_size_override("font_size", 22)
+	b.add_theme_font_size_override("font_size", font_px)
 	b.add_theme_constant_override("outline_size", 0)
 	if _font_helper:
 		b.add_theme_font_override("font", _font_helper)
@@ -295,6 +372,83 @@ func _make_feedback(label: String, cb: Callable) -> Button:
 	b.pressed.connect(cb)
 	_stage.add_child(b)
 	return b
+
+
+func _build_start_over_confirm() -> void:
+	_confirm = PanelContainer.new()
+	_confirm.name = "StartOverConfirm"
+	_confirm.visible = false
+	_confirm.z_index = 5
+	_confirm.custom_minimum_size = Vector2(420, 180)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("100e0ce8")
+	sb.border_color = COL_CURSOR
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 20
+	sb.content_margin_right = 20
+	sb.content_margin_top = 16
+	sb.content_margin_bottom = 16
+	_confirm.add_theme_stylebox_override("panel", sb)
+	_stage.add_child(_confirm)
+
+	var ask := VBoxContainer.new()
+	ask.add_theme_constant_override("separation", 12)
+	_confirm.add_child(ask)
+
+	var ask_l := Label.new()
+	ask_l.name = "Ask"
+	ask_l.text = COPY.text(
+		"title.start_over.confirm",
+		"Start over from scratch? This wipes your progress, your trophies, and your goal."
+	)
+	ask_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ask_l.add_theme_font_size_override("font_size", 18)
+	ask_l.add_theme_color_override("font_color", COL_TITLE)
+	if _font_helper:
+		ask_l.add_theme_font_override("font", _font_helper)
+	ask.add_child(ask_l)
+
+	var yes := Button.new()
+	yes.name = "Yes"
+	yes.text = COPY.text("title.start_over.yes", "Wipe it")
+	yes.focus_mode = Control.FOCUS_ALL
+	yes.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	yes.custom_minimum_size = Vector2(180, 40)
+	yes.pressed.connect(_on_start_over_yes)
+	ask.add_child(yes)
+
+	var no := Button.new()
+	no.name = "No"
+	no.text = COPY.text("title.start_over.no", "Keep my save")
+	no.focus_mode = Control.FOCUS_ALL
+	no.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	no.custom_minimum_size = Vector2(180, 40)
+	no.pressed.connect(_on_start_over_no)
+	ask.add_child(no)
+
+
+func _show_start_over_confirm() -> void:
+	if _confirm == null:
+		return
+	_confirm.visible = true
+	_confirm.move_to_front()
+	var no := _confirm.find_child("No", true, false) as Control
+	if no:
+		no.grab_focus()
+
+
+func _on_start_over_yes() -> void:
+	if _confirm:
+		_confirm.visible = false
+	start_over_confirmed.emit()
+
+
+func _on_start_over_no() -> void:
+	if _confirm:
+		_confirm.visible = false
+	if _btn_start_over and _btn_start_over.visible:
+		_btn_start_over.grab_focus()
 
 
 func _apply_row_styles(b: Button, selected: bool, pressed: bool) -> void:
@@ -377,6 +531,10 @@ func _on_row_state(b: Button) -> void:
 
 
 func _focus_default() -> void:
+	if _has_save and _btn_continue and _btn_continue.visible and not _btn_continue.disabled:
+		_btn_continue.grab_focus()
+		_on_row_state(_btn_continue)
+		return
 	if _btn_new and _btn_new.visible and not _btn_new.disabled:
 		_btn_new.grab_focus()
 		_on_row_state(_btn_new)
@@ -384,7 +542,7 @@ func _focus_default() -> void:
 
 func _wire_focus_loop() -> void:
 	var chain: Array = []
-	for b in [_btn_new, _btn_mid, _btn_continue, _btn_feedback]:
+	for b in [_btn_new, _btn_mid, _btn_continue, _btn_settings, _btn_feedback, _btn_start_over]:
 		if b != null and b.visible and not b.disabled:
 			chain.append(b)
 	var n: int = chain.size()
@@ -408,13 +566,8 @@ func _layout() -> void:
 		vp = Vector2(BASE_W, BASE_H)
 	## Keep B when the baseline composition fits with readable helpers; else compact A reflow.
 	var need_w := 1516.0 - 162.0 + 80.0
-	var need_h := 758.0 - 284.0 + 120.0
 	var can_b: bool = vp.x >= need_w and vp.y >= 720.0 and vp.x >= 1280.0
-	if can_b and vp.y >= 800.0:
-		_layout_mode = "b"
-		_layout_b(vp)
-	elif can_b:
-		## 16:9-ish tall enough: still B, centered with quiet surround.
+	if can_b:
 		_layout_mode = "b"
 		_layout_b(vp)
 	else:
@@ -454,7 +607,16 @@ func _layout_b(vp: Vector2) -> void:
 		_place_triangle(b, 16, 26, 8, 12)
 	_btn_feedback.position = Vector2(FEEDBACK_POS.x + ox, FEEDBACK_POS.y + oy)
 	_btn_feedback.add_theme_font_size_override("font_size", 22)
-	_btn_feedback.size = Vector2(200, 38)
+	_btn_feedback.size = Vector2(160, 38)
+	_btn_settings.position = Vector2(SETTINGS_POS.x + ox, SETTINGS_POS.y + oy)
+	_btn_settings.add_theme_font_size_override("font_size", 22)
+	_btn_settings.size = Vector2(160, 38)
+	_btn_start_over.position = Vector2(START_OVER_POS.x + ox, START_OVER_POS.y + oy)
+	_btn_start_over.add_theme_font_size_override("font_size", 18)
+	_btn_start_over.size = Vector2(200, 34)
+	if _confirm:
+		_confirm.position = Vector2(MENU_X + ox, 520.0 + oy)
+		_confirm.size = Vector2(420, 200)
 
 
 func _layout_a_compact(vp: Vector2) -> void:
@@ -497,9 +659,19 @@ func _layout_a_compact(vp: Vector2) -> void:
 		var copy := b.get_node_or_null("Copy") as Control
 		if copy:
 			copy.offset_left = 40.0
-	_btn_feedback.position = Vector2(floor((vp.x - 160.0) * 0.5), y0 + 3.0 * (row_h + 12.0) + 16.0)
+	var foot_y: float = y0 + float(_rows.size()) * (row_h + 12.0) + 8.0
+	_btn_settings.position = Vector2(mx, foot_y)
+	_btn_settings.add_theme_font_size_override("font_size", 21)
+	_btn_settings.size = Vector2(160, 36)
+	_btn_feedback.position = Vector2(mx + 180.0, foot_y)
 	_btn_feedback.add_theme_font_size_override("font_size", 21)
 	_btn_feedback.size = Vector2(160, 36)
+	_btn_start_over.position = Vector2(mx, foot_y + 40.0)
+	_btn_start_over.add_theme_font_size_override("font_size", 17)
+	_btn_start_over.size = Vector2(200, 32)
+	if _confirm:
+		_confirm.position = Vector2(mx, y0)
+		_confirm.size = Vector2(menu_w, 200)
 
 
 func _place_frame(origin: Vector2) -> void:
@@ -535,3 +707,11 @@ func _place_triangle(b: Button, left: float, top: float, w: float, h: float) -> 
 	tri.position = Vector2(left, top)
 	tri.size = Vector2(w, h)
 	tri.custom_minimum_size = Vector2(w, h)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if _confirm != null and _confirm.visible and event.is_action_pressed("ui_cancel"):
+		_on_start_over_no()
+		get_viewport().set_input_as_handled()

@@ -304,9 +304,25 @@ func debug_retrigger_offramp(milestone: String) -> bool:
 func debug_reset() -> void:
 	if not _debug_ok():
 		return
+	wipe_progress()
+
+
+## Start over / selftest: clear tier, milestones, pending, victory. Keeps anon_id.
+## Also clears the localStorage commitment mirror on web.
+func wipe_progress() -> void:
 	_apply_dict({})
 	_clear_run_ephemeral()
 	_write_all()
+	_clear_ls()
+
+
+func _clear_ls() -> void:
+	if not OS.has_feature("web") or not ClassDB.class_exists("JavaScriptBridge"):
+		return
+	JavaScriptBridge.eval(
+		"(function(){try{localStorage.removeItem(%s);}catch(e){}})();" % JSON.stringify(LS_KEY),
+		true
+	)
 
 
 func to_dict() -> Dictionary:

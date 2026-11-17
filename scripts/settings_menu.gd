@@ -136,19 +136,19 @@ func setup(audio) -> void:
 	_hook_hover(_btn_victory_code)
 
 	_btn_sparkles = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_sparkles.text = "Item sparkles: on"
+	_btn_sparkles.text = COPY.text("settings.sparkles.on", "Item sparkles: on")
 	_btn_sparkles.pressed.connect(_on_sparkles)
 	_board.add_child(_btn_sparkles)
 	_hook_hover(_btn_sparkles)
 
 	_btn_invert = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_invert.text = "Invert scroll: off"
+	_btn_invert.text = COPY.text("settings.invert_scroll.off", "Invert scroll: off")
 	_btn_invert.pressed.connect(_on_invert_scroll)
 	_board.add_child(_btn_invert)
 	_hook_hover(_btn_invert)
 
 	_btn_reduce = KIT.choice_tag("pause.resume", Vector2(128, 16))
-	_btn_reduce.text = "Reduce motion: off"
+	_btn_reduce.text = COPY.text("settings.reduce_motion.off", "Reduce motion: off")
 	_btn_reduce.pressed.connect(_on_reduce_motion)
 	_board.add_child(_btn_reduce)
 	_hook_hover(_btn_reduce)
@@ -204,7 +204,7 @@ func setup(audio) -> void:
 		_board.add_child(_btn_buckets)
 		_hook_hover(_btn_buckets)
 		_btn_dev_back = KIT.choice_tag("pause.resume", Vector2(128, 16))
-		_btn_dev_back.text = "Back"
+		_btn_dev_back.text = COPY.text("settings.back", "Back")
 		_btn_dev_back.pressed.connect(_on_dev_back)
 		_btn_dev_back.visible = false
 		_board.add_child(_btn_dev_back)
@@ -264,7 +264,10 @@ func apply_copy() -> void:
 	if _hint:
 		_hint.text = COPY.text("pause.hint", "")
 	if _btn_resume:
-		_btn_resume.text = COPY.text("pause.resume", "Resume")
+		if _in_run:
+			_btn_resume.text = COPY.text("pause.resume", "Resume")
+		else:
+			_btn_resume.text = COPY.text("settings.back", "Back")
 	if _btn_quit:
 		_btn_quit.text = COPY.text("pause.quit", "Quit")
 	if _btn_peek:
@@ -290,7 +293,8 @@ func apply_copy() -> void:
 	if _btn_buckets:
 		_btn_buckets.text = "Bucket Progress"
 	if _btn_dev_back:
-		_btn_dev_back.text = "Back"
+		_btn_dev_back.text = COPY.text("settings.back", "Back")
+	_refresh_toggle_labels()
 
 
 func _layout_buttons() -> void:
@@ -307,13 +311,11 @@ func _layout_buttons() -> void:
 		_btn_victory_code.visible = (not on_dev) and show_victory_code
 	if _btn_sparkles:
 		_btn_sparkles.visible = not on_dev
-		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
 	if _btn_invert:
 		_btn_invert.visible = not on_dev
-		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
 	if _btn_reduce:
 		_btn_reduce.visible = not on_dev
-		_btn_reduce.text = "Reduce motion: on" if reduce_motion else "Reduce motion: off"
+	_refresh_toggle_labels()
 	if _btn_quit:
 		_btn_quit.visible = (not on_dev) and not OS.has_feature("web")
 	if _btn_dev:
@@ -486,24 +488,39 @@ func _on_slider(value: float, which: String) -> void:
 				_audio.play_event(&"ui.slider_tick", {"bus": "UI"})
 
 
+func _refresh_toggle_labels() -> void:
+	if _btn_sparkles:
+		_btn_sparkles.text = COPY.text(
+			"settings.sparkles.on" if sparkles_on else "settings.sparkles.off",
+			"Item sparkles: on" if sparkles_on else "Item sparkles: off"
+		)
+	if _btn_invert:
+		_btn_invert.text = COPY.text(
+			"settings.invert_scroll.on" if invert_scroll else "settings.invert_scroll.off",
+			"Invert scroll: on" if invert_scroll else "Invert scroll: off"
+		)
+	if _btn_reduce:
+		_btn_reduce.text = COPY.text(
+			"settings.reduce_motion.on" if reduce_motion else "settings.reduce_motion.off",
+			"Reduce motion: on" if reduce_motion else "Reduce motion: off"
+		)
+
+
 func _on_sparkles() -> void:
 	sparkles_on = not sparkles_on
-	if _btn_sparkles:
-		_btn_sparkles.text = "Item sparkles: on" if sparkles_on else "Item sparkles: off"
+	_refresh_toggle_labels()
 	sparkles_toggled.emit(sparkles_on)
 
 
 func _on_invert_scroll() -> void:
 	invert_scroll = not invert_scroll
-	if _btn_invert:
-		_btn_invert.text = "Invert scroll: on" if invert_scroll else "Invert scroll: off"
+	_refresh_toggle_labels()
 	invert_scroll_toggled.emit(invert_scroll)
 
 
 func _on_reduce_motion() -> void:
 	reduce_motion = not reduce_motion
-	if _btn_reduce:
-		_btn_reduce.text = "Reduce motion: on" if reduce_motion else "Reduce motion: off"
+	_refresh_toggle_labels()
 	reduce_motion_toggled.emit(reduce_motion)
 
 

@@ -4730,9 +4730,9 @@
 			"author_lock": true,
 			"cat": "Title",
 			"key": "title.continue",
-			"locked_at": "2026-11-05",
-			"text": "Delve Deeper",
-			"where": "Between-dungeon Continue"
+			"locked_at": "2026-11-17",
+			"text": "Continue",
+			"where": "Title menu Continue; between-dungeon Continue"
 		},
 		{
 			"author_lock": true,
@@ -8112,7 +8112,168 @@
 			"key": "pause.victory_code",
 			"text": "My victory code",
 			"where": "Pause menu re-view victory code"
+		},
+		{
+			"cat": "Title",
+			"key": "title.continue.sub",
+			"text": "Pick up right where you left off.",
+			"where": "Title menu Continue helper",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.new_game",
+			"text": "New Game",
+			"where": "Title menu New Game",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.new_game.sub",
+			"text": "Start your inheritance.",
+			"where": "Title menu New Game helper",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.settings",
+			"text": "Settings",
+			"where": "Title menu Settings",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.feedback",
+			"text": "Feedback",
+			"where": "Title menu Feedback",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over",
+			"text": "Start over",
+			"where": "Title menu Start over",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over.confirm",
+			"text": "Start over from scratch? This wipes your progress, your trophies, and your goal.",
+			"where": "Start over confirm dialog",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over.yes",
+			"text": "Wipe it",
+			"where": "Start over confirm yes",
+			"draft": true
+		},
+		{
+			"cat": "Title",
+			"key": "title.start_over.no",
+			"text": "Keep my save",
+			"where": "Start over confirm no",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.goal.ticker_line",
+			"text": "Your goal: {goal}",
+			"where": "Goal ticker line",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.sparkles.on",
+			"text": "Item sparkles: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.sparkles.off",
+			"text": "Item sparkles: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.invert_scroll.on",
+			"text": "Invert scroll: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.invert_scroll.off",
+			"text": "Invert scroll: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.reduce_motion.on",
+			"text": "Reduce motion: on",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.reduce_motion.off",
+			"text": "Reduce motion: off",
+			"where": "Settings toggle",
+			"draft": true
+		},
+		{
+			"cat": "Settings",
+			"key": "settings.back",
+			"text": "Back",
+			"where": "Settings back / title settings close",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.quick.biome",
+			"text": "Verdant Hollow",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.deeper.biome",
+			"text": "Crystal Cavern",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.big.biome",
+			"text": "Shadow Abyss",
+			"where": "Commitment picker biome",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.quick.goal",
+			"text": "Finish one solo run, then come home.\nAbout 15 minutes.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.deeper.goal",
+			"text": "Reach Crystal Cavern and finish a run there.\nUsually about an hour.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
+		},
+		{
+			"cat": "Playtest",
+			"key": "playtest.tier.big.goal",
+			"text": "Make it to the Shadow Abyss.\nSeveral hours.",
+			"where": "Commitment picker goal+time (up to 2 lines)",
+			"draft": true
 		}
 	],
-	"updated": "2026-11-17T00:15:00Z"
+	"updated": "2026-11-17"
 }

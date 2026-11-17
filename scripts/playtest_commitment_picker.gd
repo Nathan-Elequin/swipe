@@ -125,6 +125,10 @@ func _build() -> void:
 			"id": "quick",
 			"title_key": "playtest.tier.quick.title",
 			"title_fb": "Finish your first run",
+			"biome_key": "playtest.tier.quick.biome",
+			"biome_fb": "Verdant Hollow",
+			"goal_key": "playtest.tier.quick.goal",
+			"goal_fb": "Finish one solo run, then come home.\nAbout 15 minutes.",
 			"line_key": "playtest.tier.quick.line",
 			"line_fb": "Learn the ropes with my tutorial, then take one run on your own. Tell me what clicked and what didn't.",
 			"time_key": "playtest.tier.quick.time",
@@ -135,6 +139,10 @@ func _build() -> void:
 			"id": "deeper",
 			"title_key": "playtest.tier.deeper.title",
 			"title_fb": "Reach the Crystal Cavern",
+			"biome_key": "playtest.tier.deeper.biome",
+			"biome_fb": "Crystal Cavern",
+			"goal_key": "playtest.tier.deeper.goal",
+			"goal_fb": "Reach Crystal Cavern and finish a run there.\nUsually about an hour.",
 			"line_key": "playtest.tier.deeper.line",
 			"line_fb": "Escape Verdant Hollow with five unique items and pull the lever. This is where the game opens up and you start to feel real mastery.",
 			"time_key": "playtest.tier.deeper.time",
@@ -145,6 +153,10 @@ func _build() -> void:
 			"id": "big",
 			"title_key": "playtest.tier.big.title",
 			"title_fb": "Reach the Shadow Abyss",
+			"biome_key": "playtest.tier.big.biome",
+			"biome_fb": "Shadow Abyss",
+			"goal_key": "playtest.tier.big.goal",
+			"goal_fb": "Make it to the Shadow Abyss.\nSeveral hours.",
 			"line_key": "playtest.tier.big.line",
 			"line_fb": "Make it to the Shadow Abyss and you get a victory code, a spot in my Discord, and we'll design a new monster or item for the game together.",
 			"time_key": "playtest.tier.big.time",
@@ -227,19 +239,34 @@ func _make_card(spec: Dictionary) -> PanelContainer:
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(title)
 
+	var biome := Label.new()
+	biome.name = "Biome"
+	biome.add_theme_font_size_override("font_size", 14)
+	biome.add_theme_color_override("font_color", COL_MUTED)
+	biome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(biome)
+
+	## Short goal (up to two lines, includes time). Longer `.line` text is the tooltip.
+	var goal := Label.new()
+	goal.name = "Goal"
+	goal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	goal.max_lines_visible = 2
+	goal.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	goal.add_theme_font_size_override("font_size", 14)
+	goal.add_theme_color_override("font_color", COL_BODY)
+	goal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(goal)
+
+	## Kept for upgrade status / selftests; not shown on the card face anymore.
 	var line := Label.new()
 	line.name = "Line"
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	line.add_theme_font_size_override("font_size", 14)
-	line.add_theme_color_override("font_color", COL_BODY)
+	line.visible = false
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(line)
 
 	var time := Label.new()
 	time.name = "Time"
-	time.add_theme_font_size_override("font_size", 13)
-	time.add_theme_color_override("font_color", COL_MUTED)
+	time.visible = false
 	time.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(time)
 
@@ -286,15 +313,30 @@ func _refresh_cards() -> void:
 		var enabled: bool = _tier_enabled(tier)
 		var done: bool = bool(_reached.get(_milestone_id(tier), false))
 		var title_l: Label = _find_label(card, "Title")
+		var biome_l: Label = _find_label(card, "Biome")
+		var goal_l: Label = _find_label(card, "Goal")
 		var line_l: Label = _find_label(card, "Line")
 		var time_l: Label = _find_label(card, "Time")
 		var status_l: Label = _find_label(card, "Status")
+		var title_txt := COPY.text(str(spec.get("title_key", "")), str(spec.get("title_fb", "")))
+		var biome_txt := COPY.text(str(spec.get("biome_key", "")), str(spec.get("biome_fb", "")))
+		var goal_txt := COPY.text(str(spec.get("goal_key", "")), str(spec.get("goal_fb", "")))
+		var line_txt := COPY.text(str(spec.get("line_key", "")), str(spec.get("line_fb", "")))
+		var time_txt := COPY.text(str(spec.get("time_key", "")), str(spec.get("time_fb", "")))
 		if title_l:
-			title_l.text = COPY.text(str(spec.get("title_key", "")), str(spec.get("title_fb", "")))
+			title_l.text = title_txt
+		if biome_l:
+			biome_l.text = biome_txt
+		if goal_l:
+			goal_l.text = goal_txt
 		if line_l:
-			line_l.text = COPY.text(str(spec.get("line_key", "")), str(spec.get("line_fb", "")))
+			line_l.text = line_txt
+			line_l.visible = false
 		if time_l:
-			time_l.text = COPY.text(str(spec.get("time_key", "")), str(spec.get("time_fb", "")))
+			time_l.text = time_txt
+			time_l.visible = false
+		## Longer `.line` copy lives on the card tooltip (hover / focus).
+		card.tooltip_text = line_txt
 		if status_l:
 			if done:
 				status_l.text = COPY.text("playtest.tier.done_check", "✓ Done")
@@ -373,7 +415,8 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or _busy:
 		return
-	if event.is_action_pressed("ui_cancel") and _upgrade:
+	if event.is_action_pressed("ui_cancel"):
+		## Upgrade always cancels; first pick (New Game) returns to the title hub.
 		close_picker()
 		cancelled.emit()
 		get_viewport().set_input_as_handled()

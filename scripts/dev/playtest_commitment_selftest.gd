@@ -14,6 +14,7 @@ const OFFRAMP := preload("res://scripts/playtest_offramp.gd")
 const VICTORY := preload("res://scripts/playtest_victory.gd")
 const VC := preload("res://scripts/playtest_victory_code.gd")
 const COPY := preload("res://scripts/player_copy.gd")
+const HUB := preload("res://scripts/playtest_hub.gd")
 
 
 func _init() -> void:
@@ -204,6 +205,79 @@ func _run() -> void:
 		and hub_src.find("middle_progress_allowed") >= 0,
 		"open_hub must hide Middle Progress in exported playtest") or failed
 
+	## --- Title menu states (no save / save / after start-over) ---
+	var vis_new: Dictionary = HUB.menu_visibility(false, false)
+	failed = _check(rows, failed, "hub.menu.no_save.new",
+		bool(vis_new.get("new_game", false)) and not bool(vis_new.get("continue", true))
+		and not bool(vis_new.get("start_over", true))
+		and bool(vis_new.get("settings", false)) and bool(vis_new.get("feedback", false))
+		and str(vis_new.get("default_focus", "")) == "new_game",
+		"%s" % str(vis_new)) or failed
+	var vis_save: Dictionary = HUB.menu_visibility(true, false)
+	failed = _check(rows, failed, "hub.menu.save.continue",
+		bool(vis_save.get("continue", false)) and not bool(vis_save.get("new_game", true))
+		and bool(vis_save.get("start_over", false))
+		and bool(vis_save.get("settings", false)) and bool(vis_save.get("feedback", false))
+		and str(vis_save.get("default_focus", "")) == "continue",
+		"%s" % str(vis_save)) or failed
+	var vis_editor: Dictionary = HUB.menu_visibility(false, true)
+	failed = _check(rows, failed, "hub.menu.editor.middle",
+		bool(vis_editor.get("middle", false)) and bool(vis_editor.get("new_game", false)),
+		"%s" % str(vis_editor)) or failed
+
+	var hub_host: Window = get_root()
+	var hub_ui = HUB.new()
+	hub_host.add_child(hub_ui)
+	hub_ui.call("setup")
+	hub_ui.call("open_hub", false)
+	var ids_new: Array = hub_ui.call("visible_action_ids")
+	## Editor may still show Middle Progress; playtest export hides it via middle_progress_allowed().
+	failed = _check(rows, failed, "hub.ui.no_save.ids",
+		ids_new.has("new_game") and ids_new.has("settings") and ids_new.has("feedback")
+		and not ids_new.has("continue") and not ids_new.has("start_over"),
+		"%s" % str(ids_new)) or failed
+	failed = _check(rows, failed, "hub.ui.no_save.focus",
+		str(hub_ui.call("default_focus_id")) == "new_game", "") or failed
+	hub_ui.call("open_hub", true)
+	var ids_save: Array = hub_ui.call("visible_action_ids")
+	failed = _check(rows, failed, "hub.ui.save.ids",
+		ids_save.has("continue") and ids_save.has("start_over") and ids_save.has("settings")
+		and ids_save.has("feedback") and not ids_save.has("new_game"),
+		"%s" % str(ids_save)) or failed
+	failed = _check(rows, failed, "hub.ui.save.focus",
+		str(hub_ui.call("default_focus_id")) == "continue", "") or failed
+	hub_ui.queue_free()
+
+	## Start over wipe: no tier, anon kept.
+	var wipe_c: PlaytestCommitment = C.new()
+	wipe_c.debug_reset()
+	wipe_c.anon_id = "keep-me-anon"
+	wipe_c.choose(C.TIER_DEEPER)
+	wipe_c.debug_force_milestone(C.M_QUICK)
+	wipe_c.ensure_victory_code()
+	failed = _check(rows, failed, "wipe.before.tier", wipe_c.tier == C.TIER_DEEPER, "") or failed
+	failed = _check(rows, failed, "wipe.before.anon", wipe_c.anon_id == "keep-me-anon", wipe_c.anon_id) or failed
+	wipe_c.wipe_progress()
+	failed = _check(rows, failed, "wipe.after.tier_none", wipe_c.tier == C.TIER_NONE, "tier=%s" % wipe_c.tier) or failed
+	failed = _check(rows, failed, "wipe.after.no_reached",
+		not wipe_c.reached_quick and not wipe_c.reached_deeper and not wipe_c.reached_big, "") or failed
+	failed = _check(rows, failed, "wipe.after.no_pending", wipe_c.pending_milestone == "", wipe_c.pending_milestone) or failed
+	failed = _check(rows, failed, "wipe.after.no_victory", wipe_c.victory_code == "", wipe_c.victory_code) or failed
+	failed = _check(rows, failed, "wipe.after.anon_kept", wipe_c.anon_id == "keep-me-anon", wipe_c.anon_id) or failed
+
+	failed = _check(rows, failed, "copy.title.new_game",
+		COPY.text("title.new_game", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.title.start_over.confirm",
+		COPY.text("title.start_over.confirm", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.settings.sparkles.on",
+		COPY.text("settings.sparkles.on", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.settings.back",
+		COPY.text("settings.back", "") == "Back" or COPY.text("settings.back", "") != "", "") or failed
+	failed = _check(rows, failed, "copy.goal.ticker_line",
+		COPY.text("playtest.goal.ticker_line", "").find("{goal}") >= 0, "") or failed
+	failed = _check(rows, failed, "copy.tier.quick.goal",
+		COPY.text("playtest.tier.quick.goal", "") != "", "") or failed
+
 	## --- Main hook contracts (source) ---
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	failed = _check(rows, failed, "main.commitment_preload",
@@ -270,8 +344,17 @@ func _run() -> void:
 	failed = _check(rows, failed, "view.log_clears_goal",
 		FileAccess.get_file_as_string("res://scripts/ui/view_frame.gd").find("LOG_Y") >= 0
 		and FileAccess.get_file_as_string("res://scripts/ui/view_frame.gd").find("LOG_BTN_Y") >= 0, "") or failed
-	failed = _check(rows, failed, "main.after_intro_picker",
-		main_src.find("_maybe_open_commitment_picker") >= 0, "") or failed
+	failed = _check(rows, failed, "main.new_game_opens_picker",
+		main_src.find("_playtest_new_game") >= 0
+		and main_src.find("_maybe_open_commitment_picker") >= 0
+		and main_src.find("_commitment_picker_from_new_game") >= 0, "") or failed
+	failed = _check(rows, failed, "main.intro_skips_picker",
+		main_src.find("func _playtest_intro_done") >= 0
+		and main_src.find("_maybe_open_teaser") >= 0
+		and hub_src.find("title.new_game") >= 0, "") or failed
+	failed = _check(rows, failed, "main.start_over_wipe",
+		main_src.find("_wipe_playtest_progress_keep_anon") >= 0
+		and main_src.find("wipe_progress") >= 0, "") or failed
 	failed = _check(rows, failed, "main.tier_chosen_telem",
 		main_src.find("tier_chosen") >= 0 and main_src.find("tier_upgraded") >= 0, "") or failed
 	failed = _check(rows, failed, "main.debug_reset_key",
@@ -282,6 +365,15 @@ func _run() -> void:
 		settings_src.find("go_deeper_pressed") >= 0
 		and settings_src.find("show_go_deeper") >= 0
 		and settings_src.find("pause.go_deeper") >= 0, "") or failed
+	failed = _check(rows, failed, "settings.toggle_copy_keys",
+		settings_src.find("settings.sparkles.on") >= 0
+		and settings_src.find("settings.invert_scroll.off") >= 0
+		and settings_src.find("settings.reduce_motion.on") >= 0
+		and settings_src.find("settings.back") >= 0, "") or failed
+	failed = _check(rows, failed, "picker.goal_tooltip_src",
+		FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("tooltip_text") >= 0
+		and FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("biome_key") >= 0
+		and FileAccess.get_file_as_string("res://scripts/playtest_commitment_picker.gd").find("goal_key") >= 0, "") or failed
 
 	## --- Slice 3: offramp panel contracts ---
 	failed = _check(rows, failed, "offramp.shows_quick",
