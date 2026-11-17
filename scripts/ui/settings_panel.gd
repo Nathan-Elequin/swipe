@@ -1,12 +1,13 @@
 extends Control
-## Shared settings panel (3 toggles + 5 volume sliders). Used by Esc pause and title Settings.
-## Toggle labels use settings.*.on/off copy keys (shared by Esc + title Settings).
+## Shared settings panel. Main page: 3 toggles + Sound Settings. Sound page: 5 volume sliders.
+## Used by Esc pause and title Settings. Toggle labels use settings.*.on/off copy keys.
 
 signal closed
 signal sparkles_toggled(on: bool)
 signal invert_scroll_toggled(on: bool)
 signal reduce_motion_toggled(on: bool)
 signal back_pressed
+signal page_changed(page: String)
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
@@ -25,10 +26,13 @@ var reduce_motion: bool = false
 var _btn_sparkles: Button
 var _btn_invert: Button
 var _btn_reduce: Button
+var _btn_sound: Button
 var _sliders: Dictionary = {} ## which -> VolumeSlider
 var _btn_back: Button
 var _rows: VBoxContainer
 var show_back: bool = true
+var _page: String = "main"
+var _custom_back_pos: bool = false
 
 
 func setup(audio, p_show_back: bool = true) -> void:
@@ -75,6 +79,14 @@ func _build() -> void:
 	_rows.add_child(_btn_reduce)
 	_hook_hover(_btn_reduce)
 
+	_btn_sound = KIT.choice_tag("settings.sound", Vector2(128, 16))
+	_btn_sound.custom_minimum_size = Vector2(ROW_W, ROW_H)
+	_btn_sound.size = Vector2(ROW_W, ROW_H)
+	_btn_sound.text = COPY.text("settings.sound", "Sound Settings")
+	_btn_sound.pressed.connect(_on_sound)
+	_rows.add_child(_btn_sound)
+	_hook_hover(_btn_sound)
+
 	for pair in [
 		["Master", "pause.master"],
 		["Music", "pause.music"],
@@ -96,23 +108,83 @@ func _build() -> void:
 	_btn_back.text = COPY.text("settings.back", "Back")
 	_btn_back.custom_minimum_size = Vector2(352, 64)
 	_btn_back.size = Vector2(352, 64)
-	_btn_back.visible = show_back
 	_btn_back.pressed.connect(_on_back)
 	add_child(_btn_back)
 	_hook_hover(_btn_back)
-	_layout_back()
+	_apply_page()
+
+
+func page() -> String:
+	return _page
+
+
+func visible_row_count() -> int:
+	if _rows == null:
+		return 0
+	var n := 0
+	for child in _rows.get_children():
+		if child is Control and (child as Control).visible:
+			n += 1
+	return n
+
+
+func show_page(p_page: String, emit_change: bool = true) -> void:
+	var next: String = "sound" if p_page == "sound" else "main"
+	if _page == next:
+		_apply_page()
+		return
+	_page = next
+	_apply_page()
+	if emit_change:
+		page_changed.emit(_page)
+
+
+func _apply_page() -> void:
+	var on_sound: bool = _page == "sound"
+	if _btn_sparkles:
+		_btn_sparkles.visible = not on_sound
+	if _btn_invert:
+		_btn_invert.visible = not on_sound
+	if _btn_reduce:
+		_btn_reduce.visible = not on_sound
+	if _btn_sound:
+		_btn_sound.visible = not on_sound
+	for sl in _sliders.values():
+		if sl is Control:
+			(sl as Control).visible = on_sound
+	if _btn_back:
+		_btn_back.visible = on_sound or show_back
+		_layout_back()
 
 
 func _layout_back() -> void:
-	if _btn_back == null:
+	if _btn_back == null or _custom_back_pos:
 		return
-	## Title SettingsScreen places Back under the board; here default under rows.
-	_btn_back.position = Vector2((ROW_W - 352.0) * 0.5, 8.0 * ROW_H + 7.0 * ROW_SEP + 24.0)
+	var n: int = visible_row_count()
+	var y: float = float(n) * ROW_H + float(maxi(n, 0)) * ROW_SEP + 24.0
+	if n <= 0:
+		y = 24.0
+	_btn_back.position = Vector2((ROW_W - 352.0) * 0.5, y)
 
 
 func set_back_position(pos: Vector2) -> void:
+	_custom_back_pos = true
 	if _btn_back:
 		_btn_back.position = pos
+
+
+func layout_rows(row_h: float, gap: float) -> void:
+	if _rows:
+		_rows.add_theme_constant_override("separation", int(gap))
+		for child in _rows.get_children():
+			if child is Control and (child as Control).visible:
+				(child as Control).custom_minimum_size = Vector2(ROW_W, row_h)
+				(child as Control).size = Vector2(ROW_W, row_h)
+	if _btn_back and _btn_back.visible and not _custom_back_pos:
+		var n: int = visible_row_count()
+		_btn_back.custom_minimum_size = Vector2(352.0, row_h)
+		_btn_back.size = Vector2(352.0, row_h)
+		_btn_back.position = Vector2((ROW_W - 352.0) * 0.5, float(n) * (row_h + gap))
 
 
 func sync_from_audio() -> void:
@@ -157,6 +229,8 @@ func apply_toggle_labels() -> void:
 			"settings.reduce_motion.on" if reduce_motion else "settings.reduce_motion.off",
 			"Reduce motion: on" if reduce_motion else "Reduce motion: off"
 		)
+	if _btn_sound:
+		_btn_sound.text = COPY.text("settings.sound", "Sound Settings")
 
 
 func _hook_hover(ctrl: Control) -> void:
@@ -214,8 +288,17 @@ func _on_reduce() -> void:
 	reduce_motion_toggled.emit(reduce_motion)
 
 
+func _on_sound() -> void:
+	if _audio and _audio.has_method("play_event"):
+		_audio.play_event(&"ui.menu_open")
+	show_page("sound")
+
+
 func _on_back() -> void:
 	if _audio and _audio.has_method("play_event"):
 		_audio.play_event(&"ui.resume")
+	if _page == "sound":
+		show_page("main")
+		return
 	back_pressed.emit()
 	closed.emit()

@@ -3419,6 +3419,8 @@ func _shot_cabin_wiring() -> void:
 		_skip("77_drop_sack.png", "debug_drop_sack missing")
 	if main.settings_ui:
 		main.settings_ui.open_menu(false)
+		if main.settings_ui.has_method("open_sound_page"):
+			main.settings_ui.open_sound_page()
 		await _wait(0.15)
 		await _capture("78_settings_sliders.png", "pause sliders with cabin track/grabber")
 		if main.settings_ui.has_method("close_menu"):

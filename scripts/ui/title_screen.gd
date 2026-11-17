@@ -114,6 +114,9 @@ func open_settings() -> void:
 	if _settings_host == null:
 		return
 	_settings_host.visible = true
+	if _settings_panel and _settings_panel.has_method("show_page"):
+		_settings_panel.show_page("main", false)
+	_apply_settings_plaque()
 	if _settings_panel and _settings_panel.has_method("sync_from_audio"):
 		_settings_panel.sync_from_audio()
 	if _audio and _audio.has_method("play_event"):
@@ -121,6 +124,8 @@ func open_settings() -> void:
 
 
 func close_settings() -> void:
+	if _settings_panel and _settings_panel.has_method("show_page"):
+		_settings_panel.show_page("main", false)
 	if _settings_host:
 		_settings_host.visible = false
 
@@ -160,6 +165,16 @@ func close_start_over_confirm() -> void:
 
 func settings_panel_node():
 	return _settings_panel
+
+
+func _apply_settings_plaque() -> void:
+	if _settings_host == null:
+		return
+	var plaque: Label = _settings_host.get_node_or_null("Plaque") as Label
+	if plaque == null:
+		return
+	var on_sound: bool = _settings_panel != null and _settings_panel.has_method("page") and str(_settings_panel.page()) == "sound"
+	plaque.text = COPY.text("settings.sound", "Sound Settings") if on_sound else COPY.text("pause.settings", "Settings")
 
 
 func _build() -> void:
@@ -583,6 +598,9 @@ func _add_settings_screen() -> void:
 	_settings_panel.position = Vector2(584, 148)
 	_settings_panel.set_back_position(Vector2(664 - 584, 796 - 148))
 	_settings_panel.back_pressed.connect(close_settings)
+	_settings_panel.page_changed.connect(func(_p: String) -> void:
+		_apply_settings_plaque()
+	)
 	_settings_panel.reduce_motion_toggled.connect(func(on: bool) -> void:
 		reduce_motion = on
 	)
@@ -809,5 +827,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _settings_host and _settings_host.visible and event.is_action_pressed("ui_cancel"):
-		close_settings()
+		if _settings_panel != null and _settings_panel.has_method("page") and str(_settings_panel.page()) == "sound":
+			_settings_panel.show_page("main")
+		else:
+			close_settings()
 		get_viewport().set_input_as_handled()
