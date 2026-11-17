@@ -2,7 +2,7 @@
 id: REQ-20261117-juggernaut-A
 status: open
 priority: high
-pr: TBD
+pr: 546
 tip_sha: c78a64fe
 branch: cursor/juggernaut-a-art-9a98
 created: 2026-11-17T05:35:00Z
