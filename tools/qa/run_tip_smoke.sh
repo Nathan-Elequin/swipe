@@ -172,5 +172,15 @@ if [[ "$PRESV2" -ne 0 ]]; then
   exit "$PRESV2"
 fi
 
+# Endless clear tally-and-fly (centered Continue/title, counter +1 once).
+set +e
+"$GODOT_BIN" --headless --path "$ROOT" --script res://scripts/dev/endless_clear_tally_selftest.gd
+ENDLESS_CLEAR=$?
+set -e
+if [[ "$ENDLESS_CLEAR" -ne 0 ]]; then
+  echo "ENDLESS_CLEAR_TALLY_SMOKE failed (exit $ENDLESS_CLEAR)" >&2
+  exit "$ENDLESS_CLEAR"
+fi
+
 echo "TIP_SMOKE local run OK"
 exit 0

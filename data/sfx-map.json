@@ -1581,6 +1581,96 @@
       "max_voices": 2,
       "priority": 1
     },
+    "endless.clear_ring": {
+      "files": [
+        "confirm"
+      ],
+      "bus": "UI",
+      "db": -14,
+      "pitch": [
+        0.92,
+        0.96
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 1,
+      "doc": "TODO Reel: soft gold swell for Endless clear ring pulse. Placeholder = confirm."
+    },
+    "endless.plus_stamp": {
+      "files": [
+        "confirm_big"
+      ],
+      "bus": "UI",
+      "db": -8,
+      "pitch": [
+        1.0,
+        1.0
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2,
+      "doc": "TODO Reel: thunk for +1 stamp. Placeholder = confirm_big."
+    },
+    "endless.plus_fly": {
+      "files": [
+        "whoosh"
+      ],
+      "bus": "UI",
+      "db": -12,
+      "pitch": [
+        1.05,
+        1.12
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 1,
+      "doc": "TODO Reel: whoosh for +1 fly into counter. Placeholder = whoosh."
+    },
+    "endless.counter_tick": {
+      "files": [
+        "board_light_chime_1"
+      ],
+      "bus": "UI",
+      "db": -10,
+      "pitch": [
+        1.0,
+        1.04
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2,
+      "doc": "TODO Reel: chime when Endless counter ticks. Placeholder = board_light_chime_1."
+    },
+    "endless.new_best": {
+      "files": [
+        "heal_sparkle"
+      ],
+      "bus": "UI",
+      "db": -10,
+      "pitch": [
+        1.05,
+        1.1
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 2,
+      "doc": "TODO Reel: sparkle on new Endless best. Placeholder = heal_sparkle."
+    },
+    "ui.continue_appear": {
+      "files": [
+        "ui_tick"
+      ],
+      "bus": "UI",
+      "db": -14,
+      "pitch": [
+        1.0,
+        1.02
+      ],
+      "cooldown_ms": 0,
+      "max_voices": 1,
+      "priority": 0,
+      "doc": "TODO Reel: light tick when Continue fades in. Placeholder = ui_tick."
+    },
     "draft.offer": {
       "files": [
         "creak"

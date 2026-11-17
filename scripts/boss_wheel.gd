@@ -261,6 +261,17 @@ var hub_sting: float = 0.0:
 		hub_sting = v
 		queue_redraw()
 var hub_sting_kind: String = "hurt"
+## Endless clear tally: gold hub ring pulse + staggered heart pops.
+var _tally_ring_scale: float = 1.0:
+	set(v):
+		_tally_ring_scale = v
+		queue_redraw()
+var _tally_ring_bright: float = 0.0:
+	set(v):
+		_tally_ring_bright = v
+		queue_redraw()
+var _tally_heart_scales: Array = []
+var _tally_tw: Tween
 var hub_nudge: Vector2 = Vector2.ZERO:
 	set(v):
 		hub_nudge = v
@@ -757,7 +768,10 @@ func _draw_hub_heart_arc(dim: float) -> void:
 			tint = Color("6ebd6e", dim)
 		elif not live:
 			tint = Color(1, 1, 1, 0.9 * dim)
-		_draw_hub_pip(pts[i], sz, live, soon, tint)
+		var pop: float = 1.0
+		if i < _tally_heart_scales.size():
+			pop = float(_tally_heart_scales[i])
+		_draw_hub_pip(pts[i], sz * pop, live, soon, tint)
 
 
 func _ready() -> void:
@@ -1772,6 +1786,53 @@ func hub_hearts_global() -> Vector2:
 	return get_global_transform() * pts[mid]
 
 
+func hub_center_global() -> Vector2:
+	return get_global_transform() * _center()
+
+
+## Gold ring pulse + staggered heart pop for Endless clear tally.
+func pulse_endless_clear_tally(reduce_motion: bool = false) -> void:
+	if _tally_tw:
+		_tally_tw.kill()
+	var n: int = maxi(hub_hp_max, 1)
+	_tally_heart_scales.clear()
+	for _i in n:
+		_tally_heart_scales.append(1.0)
+	_tally_ring_scale = 1.0
+	_tally_ring_bright = 0.0
+	_tally_tw = create_tween()
+	_tally_tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if reduce_motion:
+		_tally_ring_bright = 0.55
+		_tally_tw.tween_property(self, "_tally_ring_bright", 0.0, 0.18)
+		for i in n:
+			_tally_heart_scales[i] = 1.12
+		queue_redraw()
+		_tally_tw.tween_callback(_reset_tally_heart_scales)
+		return
+	_tally_tw.tween_property(self, "_tally_ring_scale", 1.06, 0.12)
+	_tally_tw.parallel().tween_property(self, "_tally_ring_bright", 1.0, 0.12)
+	_tally_tw.tween_property(self, "_tally_ring_scale", 1.0, 0.14)
+	_tally_tw.parallel().tween_property(self, "_tally_ring_bright", 0.0, 0.18)
+	for i in n:
+		var delay: float = float(i) * 0.04
+		_tally_tw.parallel().tween_method(_set_tally_heart_scale.bind(i), 1.0, 1.25, 0.08).set_delay(delay)
+		_tally_tw.parallel().tween_method(_set_tally_heart_scale.bind(i), 1.25, 1.0, 0.1).set_delay(delay + 0.08)
+
+
+func _set_tally_heart_scale(v: float, idx: int) -> void:
+	if idx < 0 or idx >= _tally_heart_scales.size():
+		return
+	_tally_heart_scales[idx] = v
+	queue_redraw()
+
+
+func _reset_tally_heart_scales() -> void:
+	for i in _tally_heart_scales.size():
+		_tally_heart_scales[i] = 1.0
+	queue_redraw()
+
+
 func hub_blk_global() -> Vector2:
 	var c: Vector2 = _center()
 	var local: Rect2 = _badge_rect_from_c("blk")
@@ -2728,6 +2789,12 @@ func _draw() -> void:
 	draw_circle(c, radius * HUB_FRAC, HUB)
 	draw_arc(c, radius * HUB_FRAC, 0.0, TAU, 48, RING, 2.6, true)
 	draw_arc(c, radius, 0.0, TAU, 80, RING, 3.0, true)
+	if _tally_ring_bright > 0.01:
+		var gold := Color("e8c36a")
+		gold.a = 0.35 + 0.55 * _tally_ring_bright
+		var rr: float = radius * HUB_FRAC * _tally_ring_scale
+		draw_arc(c, rr, 0.0, TAU, 56, gold, 3.4 + 2.0 * _tally_ring_bright, true)
+		draw_arc(c, rr * 1.08, 0.0, TAU, 48, Color(gold.r, gold.g, gold.b, gold.a * 0.45), 2.0, true)
 	for i in top:
 		_draw_slice(c, radius, starts[i], starts[i] + _span(i), i)
 	_draw_pointer(c, radius)
