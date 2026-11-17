@@ -1,5 +1,6 @@
 extends SceneTree
-## Title theme bed: Dungeon Quest on title_theme only; drip stays on title.
+## Title theme bed: Dungeon Quest on title_theme only while the hub is shown;
+## drip stays on title for tutorial / feedback / boot / start_music.
 ## Run: godot --headless --path . --script res://scripts/dev/title_theme_selftest.gd
 
 const OK_MARK := "TITLE_THEME_OK"
@@ -51,11 +52,18 @@ func _run() -> void:
 	if sfx.has_method("setup"):
 		sfx.setup()
 
+	## Boot / load_beds defaults to the drip, not Dungeon Quest.
+	failed = _check(
+		rows, failed, "runtime.boot_bed_drip",
+		String(sfx.current_bed()) == "title"
+	) or failed
+
+	## Hub shown → title_theme.
 	failed = _check(rows, failed, "runtime.has_menu", sfx.has_method("music_title_menu")) or failed
 	if sfx.has_method("music_title_menu"):
 		sfx.music_title_menu()
 	await _wait_s(0.2)
-	failed = _check(rows, failed, "runtime.menu_bed", String(sfx.current_bed()) == "title_theme") or failed
+	failed = _check(rows, failed, "runtime.hub_bed", String(sfx.current_bed()) == "title_theme") or failed
 	var stream: Variant = sfx.music.stream if sfx.music != null else null
 	failed = _check(rows, failed, "runtime.stream_loaded", stream is AudioStreamOggVorbis) or failed
 	if stream is AudioStreamOggVorbis:
@@ -66,15 +74,58 @@ func _run() -> void:
 			is_equal_approx(ogg.loop_offset, 26.281)
 		) or failed
 
-	if sfx.has_method("music_title"):
+	## Tutorial start → drip (`title`), never title_theme.
+	if sfx.has_method("music_leave_title_menu"):
+		sfx.music_leave_title_menu()
+	elif sfx.has_method("music_title"):
 		sfx.music_title()
 	await _wait_s(0.2)
-	failed = _check(rows, failed, "runtime.drip_bed", String(sfx.current_bed()) == "title") or failed
+	failed = _check(
+		rows, failed, "runtime.tutorial_bed",
+		String(sfx.current_bed()) == "title"
+	) or failed
+	failed = _check(
+		rows, failed, "runtime.tutorial_not_theme",
+		String(sfx.current_bed()) != "title_theme"
+	) or failed
 
+	## Feedback / thanks screen: leave menu → not title_theme.
+	if sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
+	await _wait_s(0.15)
+	if sfx.has_method("music_leave_title_menu"):
+		sfx.music_leave_title_menu()
+	await _wait_s(0.2)
+	failed = _check(
+		rows, failed, "runtime.feedback_not_theme",
+		String(sfx.current_bed()) != "title_theme"
+	) or failed
+	failed = _check(
+		rows, failed, "runtime.feedback_drip",
+		String(sfx.current_bed()) == "title"
+	) or failed
+
+	## start_music is drip boot, not an automatic hub theme.
+	if sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
+	await _wait_s(0.1)
 	if sfx.has_method("start_music"):
 		sfx.start_music()
 	await _wait_s(0.2)
-	failed = _check(rows, failed, "runtime.start_music_menu", String(sfx.current_bed()) == "title_theme") or failed
+	failed = _check(
+		rows, failed, "runtime.start_music_drip",
+		String(sfx.current_bed()) == "title"
+	) or failed
+	failed = _check(
+		rows, failed, "runtime.start_music_not_theme",
+		String(sfx.current_bed()) != "title_theme"
+	) or failed
+
+	## Explicit drip still works.
+	if sfx.has_method("music_title"):
+		sfx.music_title()
+	await _wait_s(0.15)
+	failed = _check(rows, failed, "runtime.drip_bed", String(sfx.current_bed()) == "title") or failed
 
 	for row in rows:
 		print(row)

@@ -2933,8 +2933,8 @@ func _reset_run() -> void:
 	if sfx:
 		sfx.play("confirm_big", -8.0)
 		# Map→biome already started dungeon music in `_on_campaign_start`.
-		# `start_music()` is the framed title theme and would wipe that one shot.
-		# In-run reset uses the cave drip (`music_title`), not Dungeon Quest.
+		# `start_music()` / `music_title_menu()` would wipe that one shot —
+		# Dungeon Quest is hub-only. In-run reset uses the cave drip (`music_title`).
 		# Climb / leave homecoming must keep cabin music, not title or the
 		# leftover between_dungeons / biome "cave" bed from Rope Exit.
 		# `_cabin_from_leave` must NOT beat `_splash_busy`: after Leave→cabin→map
@@ -4478,8 +4478,15 @@ func _on_home_cabin_closed() -> void:
 		_cabin_from_leave = false
 		_reset_run()
 		phase = "title"
+		## `_reset_run` already took the cave drip. Only Dungeon Quest when the
+		## playtest hub is the screen the player sees.
 		if sfx:
-			sfx.start_music()
+			if playtest_hub != null and playtest_hub.visible and sfx.has_method("music_title_menu"):
+				sfx.music_title_menu()
+			elif sfx.has_method("music_title"):
+				sfx.music_title()
+			else:
+				sfx.start_music()
 	_refresh()
 
 
@@ -9105,6 +9112,7 @@ func _build_playtest() -> void:
 	playtest_feedback.setup()
 	playtest_feedback.send_wanted.connect(_on_playtest_note)
 	playtest_feedback.tier_wanted.connect(_open_playtest_tier)
+	playtest_feedback.closed.connect(_music_restore_hub_if_shown)
 	playtest_tier = PLAYTEST_TIER.new()
 	add_child(playtest_tier)
 	playtest_tier.setup()
@@ -9198,6 +9206,10 @@ func _open_playtest_hub() -> void:
 	if playtest_intro != null and not _playtest_intro_seen():
 		if playtest_hub:
 			playtest_hub.close_hub()
+		## Intro is not the framed hub — cave drip, not Dungeon Quest.
+		_music_leave_title_menu()
+		if sfx and sfx.has_method("music_title"):
+			sfx.music_title()
 		playtest_intro.pin_send(playtest_feedback.send_button() if playtest_feedback else null)
 		if playtest_feedback:
 			playtest_intro.pin_panel(playtest_feedback.panel())
@@ -9220,7 +9232,36 @@ func _show_playtest_hub(over_still: bool = false) -> void:
 		playtest_feedback.force_close()
 	var can_continue: bool = home_cabin != null and home_cabin.has_save()
 	playtest_hub.open_hub(can_continue, over_still)
+	## Hub is the only playtest surface that owns Dungeon Quest (`title_theme`).
+	if sfx and sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
+	elif sfx and sfx.has_method("music_title"):
+		sfx.music_title()
 	_sync_playtest_chrome()
+
+
+func _music_leave_title_menu() -> void:
+	## Tutorial / feedback / offramp / thanks / intro / teaser: never title_theme.
+	if sfx == null:
+		return
+	if sfx.has_method("music_leave_title_menu"):
+		sfx.music_leave_title_menu()
+	elif sfx.has_method("music_title"):
+		sfx.music_title()
+
+
+func _music_restore_hub_if_shown() -> void:
+	## After closing feedback on top of the hub, put Dungeon Quest back.
+	if sfx == null or playtest_hub == null or not playtest_hub.visible:
+		return
+	if playtest_feedback != null and playtest_feedback.visible:
+		return
+	if playtest_offramp != null and playtest_offramp.visible:
+		return
+	if playtest_victory != null and playtest_victory.visible:
+		return
+	if sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
 
 
 func _playtest_intro_done() -> void:
@@ -9242,6 +9283,10 @@ func _maybe_open_commitment_picker() -> void:
 		return
 	if playtest_hub:
 		playtest_hub.close_hub()
+	## Picker sits before the hub — drip, not Dungeon Quest.
+	_music_leave_title_menu()
+	if sfx and sfx.has_method("music_title"):
+		sfx.music_title()
 	_commitment_picker_from_pause = false
 	playtest_commitment_picker.open_picker("choose", PlaytestCommitment.TIER_NONE, {})
 	_sync_playtest_chrome()
@@ -9426,6 +9471,8 @@ func _maybe_open_commitment_victory(_id: String) -> void:
 	})
 	var ctx := _offramp_context()
 	ctx["victory_code"] = code
+	## Victory / thanks is not the framed hub — never keep title_theme under it.
+	_music_leave_title_menu()
 	playtest_victory.open_victory(code, ctx)
 	if sfx != null and sfx.has_method("play_event"):
 		sfx.play_event(&"sting.victory")
@@ -9471,6 +9518,8 @@ func _open_commitment_offramp(id: String) -> void:
 		"anon_id": playtest_commitment.anon_id,
 	})
 	var ctx := _offramp_context()
+	## Offramp / thanks is not the framed hub — drip (or prior non-menu bed).
+	_music_leave_title_menu()
 	playtest_offramp.open_offramp(id, ctx)
 	_sync_playtest_chrome()
 
@@ -9578,12 +9627,9 @@ func _maybe_open_teaser() -> void:
 		playtest_intro.close_intro()
 	if TITLE_TEASER.archived():
 		## Framed title hub (study B) owns the boot still — no full-bleed H3p under the menu.
+		## `_show_playtest_hub` starts title_theme; teaser itself stays on drip.
 		if playtest_teaser:
 			playtest_teaser.close_teaser()
-		if sfx and sfx.has_method("music_title_menu"):
-			sfx.music_title_menu()
-		elif sfx and sfx.has_method("music_title"):
-			sfx.music_title()
 		_show_playtest_hub(false)
 		return
 	if playtest_teaser == null or not _teaser_should_play():
@@ -9591,6 +9637,10 @@ func _maybe_open_teaser() -> void:
 		return
 	if playtest_hub:
 		playtest_hub.close_hub()
+	## Teaser is not the hub — keep / switch to cave drip.
+	_music_leave_title_menu()
+	if sfx and sfx.has_method("music_title"):
+		sfx.music_title()
 	playtest_teaser.open_teaser(_playtest_teaser_seen())
 	_sync_playtest_chrome()
 
@@ -9599,10 +9649,7 @@ func _playtest_teaser_done() -> void:
 	_mark_playtest_teaser_seen()
 	if playtest_teaser:
 		playtest_teaser.close_teaser()
-	if sfx and sfx.has_method("music_title_menu"):
-		sfx.music_title_menu()
-	elif sfx and sfx.has_method("music_title"):
-		sfx.music_title()
+	## Hub open owns title_theme (via `_show_playtest_hub`).
 	_show_playtest_hub(false)
 
 
@@ -9623,6 +9670,8 @@ func _playtest_intro_f2(on: bool) -> void:
 	if playtest_feedback == null:
 		return
 	if on:
+		## Demo feedback over intro: drip, never title_theme.
+		_music_leave_title_menu()
 		playtest_feedback.set_demo(true)
 		playtest_feedback.open_box("", "", "")
 		playtest_feedback.z_index = 145
@@ -9632,6 +9681,8 @@ func _playtest_intro_f2(on: bool) -> void:
 	else:
 		playtest_feedback.force_close()
 		playtest_feedback.z_index = 130
+		if sfx and sfx.has_method("music_title"):
+			sfx.music_title()
 
 
 func _playtest_intro_fab(on: bool) -> void:
@@ -9678,6 +9729,8 @@ func _playtest_brand_new() -> void:
 	_telem("funnel", {"step": "hub_brand_new"})
 	if playtest_hub:
 		playtest_hub.close_hub()
+	## Leaving the hub: drop Dungeon Quest before cabin / tutorial beds.
+	_music_leave_title_menu()
 	_close_playtest_teaser()
 	_set_playtest_preset("new")
 	_sync_playtest_chrome()
@@ -9688,6 +9741,7 @@ func _playtest_middle() -> void:
 	_telem("funnel", {"step": "hub_middle"})
 	if playtest_hub:
 		playtest_hub.close_hub()
+	_music_leave_title_menu()
 	_close_playtest_teaser()
 	_set_playtest_preset("middle")
 	if settings_ui:
@@ -9714,6 +9768,7 @@ func _playtest_continue() -> void:
 	_telem("funnel", {"step": "hub_continue"})
 	if playtest_hub:
 		playtest_hub.close_hub()
+	_music_leave_title_menu()
 	_close_playtest_teaser()
 	if _playtest_preset == "":
 		_set_playtest_preset("continue")
@@ -9739,6 +9794,8 @@ func _open_playtest_comment(kind: String, card_id: String) -> void:
 		return
 	if playtest_tier != null and playtest_tier.visible:
 		playtest_tier.close_list()
+	## Feedback / survey panel must not keep Dungeon Quest from the hub underneath.
+	_music_leave_title_menu()
 	playtest_feedback.open_box(kind, card_id, _playtest_card_name(kind, card_id))
 
 
@@ -32022,6 +32079,12 @@ func _tut_seat_monster(id: String, slot_i: int, tag: String = "") -> void:
 
 func _start_tutorial() -> void:
 	_hide_cabin_for_run()
+	if playtest_hub != null and playtest_hub.visible:
+		playtest_hub.close_hub()
+	## states.tutorial = title (cave drip). Never keep Dungeon Quest from the menu.
+	_music_leave_title_menu()
+	if sfx and sfx.has_method("music_title"):
+		sfx.music_title()
 	_tut_boot = true
 	_tut_next_dungeon = false
 	_tut_intro_step = {}
@@ -32082,6 +32145,7 @@ func _start_tutorial() -> void:
 	_log("var", "HP %s" % hp)
 	if sfx:
 		## Ambush/tutorial segment: existing dungeon combat bed (verdant / combat).
+		## Drip already set above (states.tutorial = title); combat bed takes over in fights.
 		sfx.set_combat_music(true)
 		sfx.play("book", -10.0)
 		sfx.play("door_open", -8.0)
