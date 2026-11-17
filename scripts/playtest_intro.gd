@@ -1,6 +1,6 @@
 extends ColorRect
 ## First-open playtest talk. Nib's face, Nathan's name. Skip, Back, click anywhere.
-## Title beats show a static screenshot of the living-trophy title (with-save look).
+## Title beats: living-trophy SubViewport preview (preview_mode) over intro_frame still.
 
 signal finished
 signal skipped
@@ -8,14 +8,19 @@ signal wants_f2(on: bool)
 signal wants_fab(on: bool)
 
 const COPY := preload("res://scripts/player_copy.gd")
+const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
+const INTRO_FRAME := preload("res://assets/ui/title/intro/intro_frame.png")
 
 const TALK_W := 520.0
 const EDGE := 16.0
 const GAP := 16.0
-const TITLE_PREVIEW := preload("res://assets/ui/title/intro_menu_preview.png")
-## Framed still size — matches design/visual/SCREEN-title.md intro preview band.
-const PREVIEW_W := 780.0
-const PREVIEW_H := 486.0
+## Framed still — design/visual/SCREEN-title.md §5.
+const FRAME_W := 1176.0
+const FRAME_H := 736.0
+const WELL_W := 1168.0
+const WELL_H := 728.0
+const STILL_H := 730.0
+const TITLE_SCALE := 0.6952 ## 1168 / 1680
 
 var step: int = -1
 var sfx
@@ -31,7 +36,10 @@ var _skip: Button
 var _back: Button
 var _ring: Panel
 var _panel: Control
-var _preview: TextureRect
+var _frame: Panel
+var _intro_still: TextureRect
+var _preview_host: SubViewportContainer
+var _title_preview: Control
 var _caption: Label
 var _beats: Array = []
 var _pin_fab: Control
@@ -281,19 +289,63 @@ func _build_title_panel() -> void:
 	_panel.add_theme_constant_override("separation", 10)
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_panel)
-	_preview = TextureRect.new()
-	_preview.texture = TITLE_PREVIEW
-	_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_preview.texture_filter = TEXTURE_FILTER_LINEAR
-	_preview.custom_minimum_size = Vector2(PREVIEW_W, PREVIEW_H)
-	_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.add_child(_preview)
+
+	_frame = Panel.new()
+	_frame.name = "IntroFrame"
+	_frame.custom_minimum_size = Vector2(FRAME_W, FRAME_H)
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_sb := StyleBoxFlat.new()
+	frame_sb.bg_color = Color("0b0908")
+	frame_sb.border_color = Color("8a693e")
+	frame_sb.set_border_width_all(4)
+	frame_sb.shadow_color = Color("080706")
+	frame_sb.shadow_size = 0
+	frame_sb.shadow_offset = Vector2(0, 12)
+	_frame.add_theme_stylebox_override("panel", frame_sb)
+	_panel.add_child(_frame)
+
+	## Painted hall still behind the live SubViewport (letterbox / fallback cover).
+	_intro_still = TextureRect.new()
+	_intro_still.name = "IntroStill"
+	_intro_still.texture = INTRO_FRAME
+	_intro_still.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_intro_still.stretch_mode = TextureRect.STRETCH_SCALE
+	_intro_still.texture_filter = TEXTURE_FILTER_NEAREST
+	_intro_still.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_intro_still.position = Vector2(0.0, (FRAME_H - STILL_H) * 0.5)
+	_intro_still.size = Vector2(FRAME_W, STILL_H)
+	_frame.add_child(_intro_still)
+
+	_preview_host = SubViewportContainer.new()
+	_preview_host.name = "IntroPreviewHost"
+	_preview_host.stretch = false
+	_preview_host.texture_filter = TEXTURE_FILTER_LINEAR
+	_preview_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_preview_host.position = Vector2(4.0, 4.0)
+	_preview_host.size = Vector2(WELL_W, WELL_H)
+	_frame.add_child(_preview_host)
+
+	var sv := SubViewport.new()
+	sv.name = "IntroPreviewViewport"
+	sv.size = Vector2i(1680, 1040)
+	sv.transparent_bg = true
+	sv.handle_input_locally = false
+	sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_preview_host.add_child(sv)
+
+	var title = TITLE_SCENE.instantiate()
+	title.name = "TitlePreview"
+	title.preview_mode = true
+	title.scale = Vector2(TITLE_SCALE, TITLE_SCALE)
+	sv.add_child(title)
+	_title_preview = title as Control
+
 	_caption = Label.new()
+	_caption.name = "IntroCaption"
 	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_caption.custom_minimum_size = Vector2(PREVIEW_W, 0)
-	_caption.add_theme_font_size_override("font_size", 20)
+	_caption.custom_minimum_size = Vector2(FRAME_W, 0)
+	_caption.add_theme_font_size_override("font_size", 22)
 	_caption.add_theme_color_override("font_color", Color("f4ede3"))
 	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_caption.text = COPY.text("intro.preview.caption", "Your progress, right on the title screen.")
