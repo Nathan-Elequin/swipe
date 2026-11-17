@@ -2914,7 +2914,8 @@ func _reset_run() -> void:
 	if sfx:
 		sfx.play("confirm_big", -8.0)
 		# Map→biome already started dungeon music in `_on_campaign_start`.
-		# `start_music()` is `music_title()` and would wipe that one shot.
+		# `start_music()` is the framed title theme and would wipe that one shot.
+		# In-run reset uses the cave drip (`music_title`), not Dungeon Quest.
 		# Climb / leave homecoming must keep cabin music, not title or the
 		# leftover between_dungeons / biome "cave" bed from Rope Exit.
 		# `_cabin_from_leave` must NOT beat `_splash_busy`: after Leave→cabin→map
@@ -2926,7 +2927,10 @@ func _reset_run() -> void:
 			if sfx.has_method("music_cabin"):
 				sfx.music_cabin()
 		else:
-			sfx.start_music()
+			if sfx.has_method("music_title"):
+				sfx.music_title()
+			else:
+				sfx.start_music()
 	rng.randomize()
 	hp = HP_MAX
 	player_poison = 0
@@ -9433,7 +9437,9 @@ func _maybe_open_teaser() -> void:
 		## Framed title hub (study B) owns the boot still — no full-bleed H3p under the menu.
 		if playtest_teaser:
 			playtest_teaser.close_teaser()
-		if sfx and sfx.has_method("music_title"):
+		if sfx and sfx.has_method("music_title_menu"):
+			sfx.music_title_menu()
+		elif sfx and sfx.has_method("music_title"):
 			sfx.music_title()
 		_show_playtest_hub(false)
 		return
@@ -9450,7 +9456,9 @@ func _playtest_teaser_done() -> void:
 	_mark_playtest_teaser_seen()
 	if playtest_teaser:
 		playtest_teaser.close_teaser()
-	if sfx and sfx.has_method("music_title"):
+	if sfx and sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
+	elif sfx and sfx.has_method("music_title"):
 		sfx.music_title()
 	_show_playtest_hub(false)
 

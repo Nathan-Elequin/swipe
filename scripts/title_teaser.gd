@@ -603,7 +603,9 @@ func _sync_music_lab() -> void:
 func _apply_music_dip(on: bool) -> void:
 	if sfx == null:
 		return
-	if on and sfx.has_method("music_title"):
+	if on and sfx.has_method("music_title_menu"):
+		sfx.music_title_menu()
+	elif on and sfx.has_method("music_title"):
 		sfx.music_title()
 	elif sfx.has_method("set_combat_music"):
 		sfx.set_combat_music(true)

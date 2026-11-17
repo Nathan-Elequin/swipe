@@ -331,6 +331,9 @@ func _load_beds() -> void:
 		_maybe_loop(stream, str(spec.get("file", "")), do_loop)
 		if stream is AudioStreamOggVorbis and not do_loop:
 			(stream as AudioStreamOggVorbis).loop = false
+		# Belt-and-suspenders: map loop_offset wins over a reimport that zeros it.
+		if stream is AudioStreamOggVorbis and spec.has("loop_offset"):
+			(stream as AudioStreamOggVorbis).loop_offset = float(spec.get("loop_offset", 0.0))
 		_beds[str(bed_id)] = {
 			"stream": stream,
 			"gain_db": float(spec.get("gain_db", 0.0)),
@@ -339,11 +342,15 @@ func _load_beds() -> void:
 			"next": str(spec.get("next", "")),
 			"loop": do_loop,
 		}
-	if _beds.has("title"):
-		_music_a.stream = _beds["title"]["stream"]
-		_music_a.volume_db = float(_beds["title"]["gain_db"])
+		if spec.has("loop_offset"):
+			_beds[str(bed_id)]["loop_offset"] = float(spec.get("loop_offset", 0.0))
+	# Boot stream: framed title menu bed when present, else the cave drip.
+	var boot_id: String = "title_theme" if _beds.has("title_theme") else "title"
+	if _beds.has(boot_id):
+		_music_a.stream = _beds[boot_id]["stream"]
+		_music_a.volume_db = float(_beds[boot_id]["gain_db"])
 		music = _music_a
-		_current_bed = &"title"
+		_current_bed = StringName(boot_id)
 
 
 func _bind(id: String, path: String) -> void:
@@ -767,7 +774,7 @@ func stop_cue_voices(cue_id: StringName) -> void:
 
 func music_to(bed: StringName, fade_s: float) -> void:
 	var id: String = String(bed)
-	if id in ["combat", "title", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "cinder_forge_victory", "crystal_cavern", "ashen_crypt", "shadow_abyss", "shadow_abyss_victory"] or id.ends_with("_victory"):
+	if id in ["combat", "title", "title_theme", "deadly", "intro", "verdant_hollow", "verdant_hollow_intro", "verdant_hollow_victory", "cinder_forge", "cinder_forge_victory", "crystal_cavern", "ashen_crypt", "shadow_abyss", "shadow_abyss_victory"] or id.ends_with("_victory"):
 		loop_stop(&"amb.radio_static", 0.25)
 	# Leaving the dungeon for cabin / title / radio stations drops the biome bed.
 	# Refuse cabin/station while the delve lock is on — cabin `_play_station`
@@ -776,7 +783,7 @@ func music_to(bed: StringName, fade_s: float) -> void:
 	if (id == "cabin" or id.begins_with("station_")) and _dungeon_music_lock and music != null and music.playing:
 		log_audio("skip", "music_to_cabin_during_dungeon", {"bed": id, "keep": String(_current_bed)})
 		return
-	if id == "cabin" or id == "title" or id == "intro" or id == "ending" or id.begins_with("station_"):
+	if id == "cabin" or id == "title" or id == "title_theme" or id == "intro" or id == "ending" or id.begins_with("station_"):
 		_dungeon_music_lock = false
 		_dungeon_bed = &""
 		_stop_forge_layers(0.4)
@@ -841,13 +848,36 @@ func _set_out_lin(t: float, player: AudioStreamPlayer, start_db: float) -> void:
 
 
 func music_title() -> void:
+	## Cave drip bed (`title` / music.ogg). Draft, tutorial, challenge setup,
+	## victory-after-sting, and other in-run hub returns. Not Dungeon Quest.
+	_dungeon_music_lock = false
+	_clear_dungeon_bed()
+	music_state = &"draft"
+	_between_duck = 0.0
+	_mix_duck(0.3)
+	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
+	music_to(&"title", float(fades.get("to_title", 1.2)))
+
+
+func music_title_menu() -> void:
+	## Framed title / main menu / credits: Dungeon Quest (`title_theme`).
+	## Returning here replays the intro (no resume_position on the bed).
 	_dungeon_music_lock = false
 	_clear_dungeon_bed()
 	music_state = &"title"
 	_between_duck = 0.0
 	_mix_duck(0.3)
 	var fades: Dictionary = _music_cfg.get("crossfade_s", {})
-	music_to(&"title", float(fades.get("to_title", 1.2)))
+	music_to(&"title_theme", float(fades.get("to_title", 1.2)))
+	var off: float = 26.281
+	if _beds.has("title_theme"):
+		var spec: Dictionary = _beds["title_theme"]
+		if spec.has("loop_offset"):
+			off = float(spec["loop_offset"])
+		var stream: Variant = spec.get("stream", null)
+		if stream is AudioStreamOggVorbis:
+			off = float((stream as AudioStreamOggVorbis).loop_offset)
+	print("[music] title_theme start loop_offset=%s" % str(off))
 
 
 func music_deadly() -> void:
@@ -1439,7 +1469,7 @@ func music_resume_held(want_combat: bool = true) -> void:
 	var bed_id: String = str(_music_hold.get("bed", ""))
 	var pos: float = float(_music_hold.get("pos", 0.0))
 	_dungeon_bed = StringName(str(_music_hold.get("dungeon_bed", "")))
-	var same_bed: bool = _current_bed == StringName(bed_id) and music != null and music.playing and bed_id != "" and bed_id != "title"
+	var same_bed: bool = _current_bed == StringName(bed_id) and music != null and music.playing and bed_id != "" and bed_id != "title" and bed_id != "title_theme"
 	if same_bed:
 		music_state = StringName(str(_music_hold.get("state", "combat")))
 		_restore_held_layers(want_combat, pos)
@@ -1489,10 +1519,12 @@ func music_defeat() -> void:
 
 
 func start_music(_db: float = 0.0) -> void:
-	music_title()
-	if music != null and not music.playing and _beds.has("title"):
-		music.stream = _beds["title"]["stream"]
-		music.volume_db = float(_beds["title"]["gain_db"])
+	## Boot / return to the framed title menu. In-run drip uses music_title().
+	music_title_menu()
+	var boot_id: String = "title_theme" if _beds.has("title_theme") else "title"
+	if music != null and not music.playing and _beds.has(boot_id):
+		music.stream = _beds[boot_id]["stream"]
+		music.volume_db = float(_beds[boot_id]["gain_db"])
 		music.play()
 
 
@@ -1512,7 +1544,7 @@ func set_combat_music(on: bool) -> void:
 		var fades: Dictionary = _music_cfg.get("crossfade_s", {})
 		music_to(_combat_or_dungeon_bed(), float(fades.get("default", 0.8)))
 	else:
-		if music_state == &"title" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon" or music_state == &"rest":
+		if music_state == &"title" or music_state == &"draft" or music_state == &"cabin" or music_state == &"victory" or music_state == &"defeat" or music_state == &"dungeon" or music_state == &"rest":
 			if _is_forge_adaptive():
 				_forge_exit_combat()
 			return

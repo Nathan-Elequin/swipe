@@ -970,7 +970,14 @@
         "file": "music",
         "gain_db": 14.0,
         "loop": true,
-        "note": "yd Dungeon Ambience file is ~-40 LUFS; +14 dB puts it ~-26"
+        "note": "yd Dungeon Ambience (cave drip). Used by draft / tutorial / challenge_setup. File is ~-40 LUFS; +14 dB puts it ~-26"
+      },
+      "title_theme": {
+        "file": "music_title",
+        "gain_db": 0.0,
+        "loop": true,
+        "loop_offset": 26.281,
+        "note": "Nathan, Dungeon Quest, 2026-11-16. Title menu / credits only. Intro 0–26.281 s once, then loop 26.281–173.413 (exactly 147.132 s). 0.25 s equal-power crossfade baked into the tail. File is −14.0 LUFS / −1.7 dBTP; engine gain_db 0. No resume_position — returning to the title replays the intro. loop_offset must stay 26.281."
       },
       "combat": {
         "file": "music_combat",
@@ -1186,10 +1193,11 @@
       }
     },
     "states": {
-      "title": "title",
+      "title": "title_theme",
       "draft": "title",
       "tutorial": "title",
       "challenge_setup": "title",
+      "credits": "title_theme",
       "combat": "combat",
       "between_fights": "combat(ducked)",
       "deadly": "deadly",

@@ -57,6 +57,7 @@ door_slam.ogg — Kenney — RPG Audio (doorClose_4) — Kenney — CC0 1.0 — 
 metal_latch.ogg — Kenney — RPG Audio extras — Kenney — CC0 1.0 — https://kenney.nl/assets/rpg-audio
 bleed.wav — original drip made for Swipe — CC0 1.0
 music.ogg — "Dungeon Ambience" (dungeon002.ogg) — yd — CC0 1.0 — https://opengameart.org/content/dungeon-ambience
+music_title.ogg — "Dungeon Quest" title theme by Nathan Elequin (original) — Nathan-owned — intro 0–26.281, loop 26.281–173.413, 0.25 s baked equal-power seam, −14.0 LUFS, loop_offset 26.281 — 2026-11-16
 
 Audio pass 1 (2026-10-17) — new files
 -------------------------------------
