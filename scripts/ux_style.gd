@@ -458,8 +458,8 @@ static func paper_ink_for(id: String, dark_hex: String) -> String:
 	return "#6A3C00"
 
 
-static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool = false) -> String:
-	## Icon chip: 24×24 kw_<id> + bold colored word (same weight as Attack/HP chips).
+static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool = false, with_icon: bool = true) -> String:
+	## Keyword chip: bold colored word. Optional 24×24 kw_<id> (log / tutorial keep it; inspect Ability does not).
 	## Hover stays on [url]; no underline ([u] dropped; meta_underlined=false on RTLs).
 	var kid: String = id.strip_edges().to_lower()
 	if kid == "":
@@ -471,10 +471,12 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 		ink = ALWAYS
 	if paper:
 		ink = paper_ink_for(kid, ink)
-	var icon: String = KeywordDefs.icon_path(kid)
 	var word_shown: String = word.strip_edges()
 	## Same bold+color wrap Attack/HP use via chip(); keep ink, drop underline.
 	var word_bb: String = "[color=%s][b]%s[/b][/color]" % [ink, word_shown]
+	if not with_icon:
+		return "[url=kw:%s underline=never]%s[/url]" % [kid, word_bb]
+	var icon: String = KeywordDefs.icon_path(kid)
 	## ResourceLoader.exists can be true from a stale .import while .ctex failed —
 	## only emit [img] when load() actually returns a texture (broken imgs blank the row).
 	var tex_ok: bool = ResourceLoader.exists(icon) and (load(icon) as Texture2D) != null
@@ -483,7 +485,7 @@ static func chip_bbcode(word: String, id: String, ink_hex: String, paper: bool =
 	return "[url=kw:%s underline=never][img=24x24 valign=center,center]%s[/img] %s[/url]" % [kid, icon, word_bb]
 
 
-static func with_def_link(shown: String, piece: String, ink_hex: String = "", paper: bool = false) -> String:
+static func with_def_link(shown: String, piece: String, ink_hex: String = "", paper: bool = false, with_icon: bool = true) -> String:
 	var id: String = def_id_of(piece)
 	if id == "" or shown.find("[url=") >= 0:
 		return shown
@@ -501,7 +503,7 @@ static func with_def_link(shown: String, piece: String, ink_hex: String = "", pa
 	var ink: String = ink_hex
 	if ink == "":
 		ink = ALWAYS if id != "unplayable" else UNPLAYABLE
-	return chip_bbcode(word, id, ink, paper)
+	return chip_bbcode(word, id, ink, paper, with_icon)
 
 
 static func collect_kw_ids(text: String) -> Array:

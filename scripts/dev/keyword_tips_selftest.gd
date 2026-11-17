@@ -128,6 +128,11 @@ func _check_tip_api() -> bool:
 	## Reject explicit underline tags only — do not match the leading "[u" of "[url".
 	failed = _check("chip_no_u_tag", chip.find("[u ") < 0 and chip.find("[u]") < 0 and chip.find("[/u]") < 0) or failed
 	failed = _check("chip_underline_never", chip.find("underline=never") >= 0) or failed
+	var inspect_chip: String = UxStyle.chip_bbcode("Flee", "flee", "#E8C36A", false, false)
+	failed = _check("inspect_chip_no_img", inspect_chip.find("[img") < 0) or failed
+	failed = _check("inspect_chip_has_url", inspect_chip.find("[url=kw:flee") >= 0) or failed
+	failed = _check("inspect_chip_has_bold", inspect_chip.find("[b]Flee[/b]") >= 0) or failed
+	failed = _check("inspect_chip_has_color", inspect_chip.find("[color=#E8C36A]") >= 0) or failed
 	return failed
 
 

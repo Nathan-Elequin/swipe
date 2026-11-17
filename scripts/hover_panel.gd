@@ -624,7 +624,7 @@ func _append_kiss_lifelink(col: VBoxContainer) -> void:
 	col.add_child(_stage_ability(call_s, ink, medal))
 	var shown: String = body_s
 	if main != null and main.has_method("_paint_explainer"):
-		shown = str(main.call("_paint_explainer", body_s))
+		shown = str(main.call("_paint_explainer", body_s, "#E07A7A", false))
 	var b := RichTextLabel.new()
 	b.bbcode_enabled = true
 	b.fit_content = true
