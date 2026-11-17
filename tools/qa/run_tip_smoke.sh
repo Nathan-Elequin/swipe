@@ -161,5 +161,16 @@ if [[ "$TITLEVIS" -ne 0 ]]; then
   exit "$TITLEVIS"
 fi
 
+# Batch-2 title presenters (6-frame bows, dirt-free gargoyle, biome lookup).
+chmod +x "$ROOT/tools/qa/run_title_presenters_v2_selftest.sh"
+set +e
+GODOT="$GODOT_BIN" "$ROOT/tools/qa/run_title_presenters_v2_selftest.sh"
+PRESV2=$?
+set -e
+if [[ "$PRESV2" -ne 0 ]]; then
+  echo "TITLE_PRESENTERS_V2_SMOKE failed (exit $PRESV2)" >&2
+  exit "$PRESV2"
+fi
+
 echo "TIP_SMOKE local run OK"
 exit 0
