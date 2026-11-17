@@ -2,7 +2,7 @@
 id: REQ-20261117-title-living-trophy-room
 status: open
 priority: high
-pr: 0
+pr: 547
 tip_sha: f1b0fdb89ba12c2727a2cbb744fd45ecd18d39de
 branch: pixel/title-visual-layer
 created: 2026-11-17T06:00:00Z
