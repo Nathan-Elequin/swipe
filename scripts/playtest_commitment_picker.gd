@@ -382,7 +382,8 @@ func _presenter_frames(monster: String) -> SpriteFrames:
 		if t:
 			sf.add_frame(&"idle", t)
 	var have_present := true
-	for f in range(4):
+	## Batch-2 presenters ship 6 frames (f0..f5), play once at 10 fps, then hold.
+	for f in range(6):
 		var pp := "res://assets/ui/title/presenters/%s_present_f%d.png" % [monster, f]
 		var pt := _tex(pp)
 		if pt == null:
