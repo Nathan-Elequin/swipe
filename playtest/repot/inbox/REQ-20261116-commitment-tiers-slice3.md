@@ -1,9 +1,9 @@
 ---
 id: REQ-20261116-commitment-tiers-slice3
-status: open
+status: done
 priority: high
 branch: cursor/playtest-commitment-tiers-slice3-ecd9
-tip_sha: d426ef27
+tip_sha: bb1d1af9
 created: 2026-11-16T23:55:00Z
 created_by: cloud-agent
 viewport: 1680x1040
