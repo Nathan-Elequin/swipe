@@ -45,6 +45,9 @@ var _seq: int = 0
 var _wheel: Node = null
 var _art = null
 var _quote_y: float = 0.0
+var _endless: bool = false
+var _endless_n: int = 1
+var _depth: Label
 
 
 func _ready() -> void:
@@ -62,10 +65,16 @@ func buttons_ready() -> bool:
 	return _buttons_live
 
 
+func configure_endless(dungeon_n: int) -> void:
+	_endless = true
+	_endless_n = maxi(1, dungeon_n)
+
+
 func dismiss() -> void:
 	_seq += 1
 	_buttons_live = false
 	_quote_tweening = false
+	_endless = false
 	visible = false
 	_wheel = null
 	if _sprout:
@@ -129,6 +138,9 @@ func play_sequence(wheel: Node, art) -> void:
 	visible = true
 	_black.modulate.a = 1.0
 	_spot.modulate.a = 0.0
+	_apply_endless_chrome()
+	if _endless:
+		_punch_endless_depth()
 	_quote_box.modulate.a = 0.0
 	_reset_seal(false)
 	_btn_row.visible = false
@@ -240,6 +252,18 @@ func _build() -> void:
 	_sprout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sprout.custom_minimum_size = SPROUT_DRAW
 	_root.add_child(_sprout)
+
+	_depth = Label.new()
+	_depth.name = "EndlessDepth"
+	_depth.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_depth.add_theme_font_override("font", ThemeDB.fallback_font)
+	_depth.add_theme_font_size_override("font_size", 72)
+	_depth.add_theme_color_override("font_color", Color("e8c36a"))
+	_depth.add_theme_color_override("font_outline_color", Color("100e0c"))
+	_depth.add_theme_constant_override("outline_size", 10)
+	_depth.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_depth.visible = false
+	_root.add_child(_depth)
 
 	_quote_box = Control.new()
 	_quote_box.name = "QuoteBox"
@@ -454,7 +478,31 @@ func _pick_quote() -> void:
 	if _btn_home:
 		_btn_home.text = PLAYER_COPY.text("defeat.home", "Limp home")
 	if _btn_quick:
-		_btn_quick.text = PLAYER_COPY.text("defeat.quick", "Quick start")
+		if _endless:
+			_btn_quick.text = PLAYER_COPY.text("endless.death.try_again", "Try Again")
+		else:
+			_btn_quick.text = PLAYER_COPY.text("defeat.quick", "Quick start")
+
+
+func _apply_endless_chrome() -> void:
+	if _depth == null:
+		return
+	_depth.visible = _endless
+	if _endless:
+		_depth.text = PLAYER_COPY.fill("endless.death.n", {"n": _endless_n}, "Dungeon %s" % _endless_n)
+
+
+func _punch_endless_depth() -> void:
+	if _depth == null:
+		return
+	_depth.scale = Vector2(2.6, 2.6)
+	_depth.modulate.a = 0.0
+	var tw := create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.set_trans(Tween.TRANS_BACK)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(_depth, "scale", Vector2.ONE, 0.5)
+	tw.parallel().tween_property(_depth, "modulate:a", 1.0, 0.2)
 
 
 func _quote_home_y() -> float:
@@ -536,6 +584,10 @@ func _layout() -> void:
 	# Buttons near floor of the cone.
 	_btn_row.size = Vector2(520, 64)
 	_btn_row.position = Vector2((sz.x - 520.0) * 0.5, sz.y * 0.86)
+	if _depth:
+		_depth.size = Vector2(900, 90)
+		_depth.pivot_offset = Vector2(450, 45)
+		_depth.position = Vector2((sz.x - 900.0) * 0.5, sz.y * 0.08)
 
 
 func _sync_sprout_frame() -> void:

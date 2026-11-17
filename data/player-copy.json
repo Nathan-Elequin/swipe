@@ -1648,6 +1648,42 @@
 			"where": "Campaign complete toast"
 		},
 		{
+			"cat": "Campaign",
+			"key": "endless.clear.title",
+			"text": "You cleared this dungeon.",
+			"where": "Endless clear menu title"
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.clear.continue",
+			"text": "Continue",
+			"where": "Endless clear menu button"
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.hud.n",
+			"text": "{n}",
+			"where": "Endless in-run dungeon counter"
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.hud.best",
+			"text": "best {n}",
+			"where": "Endless in-run high score under the counter"
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.death.n",
+			"text": "Dungeon {n}",
+			"where": "Endless death celebration of the floor they died on"
+		},
+		{
+			"cat": "Campaign",
+			"key": "endless.death.try_again",
+			"text": "Try Again",
+			"where": "Endless death retry (not Quick start)"
+		},
+		{
 			"cat": "Extract",
 			"key": "extract.banner",
 			"text": "Extracted · {biome}",

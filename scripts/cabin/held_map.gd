@@ -304,8 +304,8 @@ func _rebuild() -> void:
 			var best_txt: String = KIT.fill_text("endless.best", {"n": best})
 			if best_txt.strip_edges() == "":
 				best_txt = "Deepest: %s" % best
-			## Depth record is not painted on the plate — keep as always-on.
-			_add_name(ENDLESS_AT + Vector2(-90, 56), best_txt, true, true)
+			## High score sits next to the Endless seal (always-on, even on the living plate).
+			_add_endless_best(ENDLESS_AT + Vector2(-70, 52), best_txt)
 		var open_tip: String = KIT.copy_text("map.endless.open")
 		if open_tip.strip_edges() != "":
 			## Open/unlocked status is not painted — keep as always-on.
@@ -813,6 +813,27 @@ func _spawn_pool_monsters(pool: String, spot: Vector2) -> void:
 		monster.setup(mid, display, spot + (lane.get("at", Vector2.ZERO) as Vector2), float(lane.get("dx", 40.0)), _lane_rng, card)
 		_monsters.add_child(monster)
 		slot += 1
+
+
+func _add_endless_best(at: Vector2, txt: String) -> void:
+	var lab: FitLabelBox = KIT.fit_label(
+		"",
+		Rect2(at, Vector2(240, 52)),
+		34,
+		18,
+		2,
+		Color("e8c36a"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		VERTICAL_ALIGNMENT_CENTER,
+		3
+	)
+	lab.set_plain(txt)
+	var inner := lab.get_node_or_null("Label") as Label
+	if inner:
+		inner.text = txt
+		inner.add_theme_color_override("font_outline_color", Color("100e0c"))
+		inner.add_theme_constant_override("outline_size", 6)
+	_pins.add_child(lab)
 
 
 func _add_name(at: Vector2, biome_name: String, ink: bool, keep_on_painted: bool = false) -> void:

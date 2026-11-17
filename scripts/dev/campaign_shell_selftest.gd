@@ -231,8 +231,24 @@ func _init() -> void:
 	failed = _check(failed, "endless push", Shell.push_deeper(rules, full)) or failed
 	failed = _check(failed, "endless still pushable", Shell.can_push(rules, full)) or failed
 	failed = _check(failed, "endless best grew", int(full.get("endless_best", 0)) >= 2) or failed
+	Shell.begin_run(full, 0, false, true)
+	failed = _check(failed, "endless first visual verdant", Shell.current_biome_id(rules, full) == "b1") or failed
+	failed = _check(failed, "endless first mix verdant", int(Shell.mix_for_state(rules, full).get("deadly", 0)) == 1) or failed
+	failed = _check(failed, "endless mill only b1", Shell.mill_pool_open(rules, full, "b1") and not Shell.mill_pool_open(rules, full, "b2")) or failed
+	for _step in 4:
+		failed = _check(failed, "endless climb %s" % _step, Shell.push_deeper(rules, full)) or failed
+	failed = _check(failed, "endless fifth visual abyss", Shell.current_biome_id(rules, full) == "b5") or failed
+	failed = _check(failed, "endless fifth mix three bosses", int(Shell.mix_for_state(rules, full).get("deadly", 0)) == 3) or failed
+	full["seen_deadly"] = ["keep_me"]
+	failed = _check(failed, "endless wrap push", Shell.push_deeper(rules, full)) or failed
+	failed = _check(failed, "endless sixth visual verdant", Shell.current_biome_id(rules, full) == "b1") or failed
+	failed = _check(failed, "endless sixth mix abyss", int(Shell.mix_for_state(rules, full).get("deadly", 0)) == 3) or failed
+	failed = _check(failed, "endless loop resets deadlies", (full.get("seen_deadly", ["x"]) as Array).is_empty()) or failed
+	failed = _check(failed, "endless loop mill all pools", Shell.mill_pool_open(rules, full, "b5")) or failed
+	Shell.note_endless_depth(full, 6)
+	failed = _check(failed, "endless depth includes death floor", int(full.get("endless_best", 0)) >= 6) or failed
 	Shell.end_run(full)
-	failed = _check(failed, "endless best kept at home", int(full.get("endless_best", 0)) >= 2) or failed
+	failed = _check(failed, "endless best kept at home", int(full.get("endless_best", 0)) >= 6) or failed
 	## Map pieces add delve rerolls when rerolls_per_map_piece is set.
 	var piece_state: Dictionary = Shell.fresh_state()
 	piece_state["map_pieces"] = ["b2", "b3"]

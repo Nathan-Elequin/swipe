@@ -235,7 +235,7 @@ static func rows_for_biome(rules: Dictionary, state: Dictionary, rows: Array, bi
 		var p := str(row.get("pool", ""))
 		if p != "":
 			tagged = true
-		if p == "" or pool_unlocked(rules, state, p):
+		if p == "" or mill_pool_open(rules, state, p):
 			out.append(row)
 	if not tagged:
 		return rows
@@ -297,14 +297,51 @@ static func push_block_key(rules: Dictionary, state: Dictionary) -> String:
 
 
 static func current_biome_id(rules: Dictionary, state: Dictionary) -> String:
-	var run: Dictionary = state.get("run", {})
-	if bool(run.get("endless", false)):
-		return str(rules.get("endless", {}).get("id", "endless"))
 	var biomes := biomes_of(rules)
+	if biomes.is_empty():
+		return "b1"
+	var run: Dictionary = state.get("run", {})
 	var i: int = int(run.get("biome_index", 0))
-	if i < 0 or i >= biomes.size():
+	if bool(run.get("endless", false)):
+		i = posmod(i, biomes.size())
+	elif i < 0 or i >= biomes.size():
 		return "b1"
 	return str((biomes[i] as Dictionary).get("id", "b1"))
+
+
+## Monster mix biome. First Endless loop uses each floor's own mix; after the
+## first Abyss every later floor uses Shadow Abyss counts (4/3/3).
+static func mix_biome_id(rules: Dictionary, state: Dictionary) -> String:
+	var biomes := biomes_of(rules)
+	var run: Dictionary = state.get("run", {})
+	if bool(run.get("endless", false)) and biomes.size() > 0 and int(run.get("biome_index", 0)) >= biomes.size():
+		return last_tip_biome_id(rules)
+	return current_biome_id(rules, state)
+
+
+## Item/monster mill openness. Endless loop 1 pretends only the walked biomes
+## are open (same as campaign). Loop 2+ uses every tip pool.
+static func mill_pool_open(rules: Dictionary, state: Dictionary, pool: String) -> bool:
+	var id := str(pool)
+	if id == "":
+		return false
+	var run: Dictionary = state.get("run", {})
+	if bool(run.get("endless", false)) and bool(run.get("active", false)):
+		var biomes := biomes_of(rules)
+		var idx: int = int(run.get("biome_index", 0))
+		var cap: int = biomes.size() - 1
+		if idx >= biomes.size():
+			cap = biomes.size() - 1
+		else:
+			cap = idx
+		var i := 0
+		for raw in biomes:
+			var b: Dictionary = raw
+			if str(b.get("id", "")) == id:
+				return i <= cap
+			i += 1
+		return false
+	return pool_unlocked(rules, state, id)
 
 
 static func biome_name(rules: Dictionary, biome_id: String) -> String:
@@ -354,11 +391,13 @@ static func next_biome_id(rules: Dictionary, state: Dictionary) -> String:
 	return str((biomes[i] as Dictionary).get("id", ""))
 
 
+static func mix_for_state(rules: Dictionary, state: Dictionary) -> Dictionary:
+	return mix_for(rules, mix_biome_id(rules, state))
+
+
 static func mix_for(rules: Dictionary, biome_id: String) -> Dictionary:
 	if biome_id == str(rules.get("endless", {}).get("id", "endless")):
-		var endless: Dictionary = rules.get("endless", {})
-		var em: Dictionary = endless.get("mix", {})
-		return em
+		return mix_for(rules, last_tip_biome_id(rules) if last_tip_biome_id(rules) != "" else "b5")
 	for raw in biomes_of(rules):
 		var b: Dictionary = raw
 		if str(b.get("id", "")) == biome_id:
@@ -476,6 +515,9 @@ static func push_deeper(rules: Dictionary, state: Dictionary) -> bool:
 	if bool(run.get("endless", false)):
 		var depth: int = maxi(1, int(run.get("biome_index", 0)) + 1)
 		state["endless_best"] = maxi(int(state.get("endless_best", 0)), depth)
+		var loop_len: int = biomes_of(rules).size()
+		if loop_len > 0 and int(run.get("biome_index", 0)) % loop_len == 0:
+			state["seen_deadly"] = []
 	return true
 
 
@@ -915,6 +957,12 @@ static func seed_next_run(rules: Dictionary, state: Dictionary, rows: Array, see
 		"seed": seed,
 		"deals": deals,
 	}
+
+
+## Record the dungeon they are on (entered, including a death on this floor).
+static func note_endless_depth(state: Dictionary, dungeon_n: int) -> void:
+	normalize(state)
+	state["endless_best"] = maxi(int(state.get("endless_best", 0)), maxi(1, dungeon_n))
 
 
 ## Consume a seeded biome deal for arm_delve. Filters against seen_deadly, refills

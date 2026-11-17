@@ -54,10 +54,13 @@ var _g_fall := 0.0
 var _victory: Array = []
 var _gear_victory: Array = []
 var _rope_exit = null
+## Endless: fold + arms-up, then stop. No crouch, jump, wipe, or Rope Exit.
+var in_place: bool = false
 
 
-func run(wheel, art, on_swap: Callable = Callable()) -> void:
+func run(wheel, art, on_swap: Callable = Callable(), hold_in_place: bool = false) -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	in_place = hold_in_place
 	_wheel = wheel
 	_art = art
 	_on_swap = on_swap
@@ -113,6 +116,8 @@ func run(wheel, art, on_swap: Callable = Callable()) -> void:
 	_v_exit = _g_fall * fall_dt
 	var hold_at := freeze_at
 	var end_t := TOTAL - 0.001
+	if in_place:
+		end_t = T_CROUCH_START - 0.02
 	if hold_at >= 0.0:
 		end_t = hold_at
 	var t := 0.0
@@ -133,8 +138,11 @@ func run(wheel, art, on_swap: Callable = Callable()) -> void:
 		await _wait(0.02)
 	if hold_at < 0.0:
 		## Ensure final pose + swap landed.
-		_pose(TOTAL)
-		var left := TOTAL - float(Time.get_ticks_msec() - t0) / 1000.0
+		if in_place:
+			_pose(T_CROUCH_START - 0.02)
+		else:
+			_pose(TOTAL)
+		var left := end_t - float(Time.get_ticks_msec() - t0) / 1000.0
 		if left > 0.02:
 			await _wait(left)
 		_teardown()

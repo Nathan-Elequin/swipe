@@ -43,6 +43,8 @@ const HUB_CUE_CAPSULE := preload("res://scripts/ui/hub_cue_capsule.gd")
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const CAMPAIGN_MAP := preload("res://scripts/campaign_map.gd")
 const DEFEAT_SPOTLIGHT := preload("res://scripts/ui/defeat_spotlight.gd")
+const ENDLESS_HUD := preload("res://scripts/ui/endless_hud.gd")
+const ENDLESS_CLEAR := preload("res://scripts/ui/endless_clear_menu.gd")
 const HOME_CABIN := preload("res://scripts/home_cabin.gd")
 const SHOT_CLI := preload("res://scripts/shot_cli.gd")
 const BUILD_STAMP := preload("res://scripts/build_stamp.gd")
@@ -916,6 +918,9 @@ var _splash_busy: bool = false
 ## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
 var _wheel_nest_offset: float = 0.0
 var _biome_wipe: ColorRect
+var endless_hud
+var endless_clear_menu
+var _endless_try_again: bool = false
 var dungeon_deck_ui
 var item_deal_ui
 ## Occupied hotbar cards tweening aside while a new card flies into its sorted seat.
@@ -1056,8 +1061,7 @@ func _sync_biome_ambient(biome_id: String = "", force_off: bool = false) -> void
 	if force_off:
 		biome_ambient.clear()
 		return
-	var endless := _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))
-	if endless or not _campaign_on:
+	if not _campaign_on:
 		biome_ambient.clear()
 		return
 	var id := str(biome_id).strip_edges()
@@ -2114,6 +2118,13 @@ func _build_overlay() -> void:
 	add_child(defeat_spotlight)
 	defeat_spotlight.home_pressed.connect(_on_defeat_limp_home)
 	defeat_spotlight.quick_pressed.connect(_on_defeat_quick_start)
+	endless_hud = ENDLESS_HUD.new()
+	add_child(endless_hud)
+	if endless_hud.has_method("bind_sfx"):
+		endless_hud.bind_sfx(sfx)
+	endless_clear_menu = ENDLESS_CLEAR.new()
+	add_child(endless_clear_menu)
+	endless_clear_menu.continue_pressed.connect(_endless_continue)
 
 
 func _build_copy_stamp() -> void:
@@ -3152,6 +3163,16 @@ func _enter_dungeon_clear() -> void:
 		await _classic_swipe_home()
 		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
 		return
+	if _endless_run():
+		_clear_resolving = true
+		await _play_clear_parade(true)
+		_clear_resolving = false
+		_commit_dungeon_clear_endless()
+		if endless_clear_menu:
+			endless_clear_menu.open_menu()
+		_clear_enter_depth = maxi(0, _clear_enter_depth - 1)
+		_refresh()
+		return
 	# Rope stays shut until the resolve finishes (~2.5s). No wax seal.
 	# Callers start this without await, then _refresh() while still in ready —
 	# so we must refresh again after rest, or the rope never opens (itch soft-lock).
@@ -3192,6 +3213,79 @@ func _commit_dungeon_clear() -> void:
 	if rope_exit != null:
 		rope_exit.open_instant = true
 	_refresh()
+
+
+func _endless_run() -> bool:
+	return _campaign_on and _campaign != null and bool(_campaign.state.get("run", {}).get("endless", false))
+
+
+func _endless_hud_show(fly: bool) -> void:
+	if endless_hud == null or not _endless_run():
+		return
+	var best: int = int(_campaign.state.get("endless_best", 0))
+	endless_hud.show_floor(dungeon_index, best, fly)
+
+
+func _endless_hud_hide() -> void:
+	if endless_hud and endless_hud.has_method("hide_hud"):
+		endless_hud.hide_hud()
+	if endless_clear_menu:
+		endless_clear_menu.hide_menu()
+
+
+func _commit_dungeon_clear_endless() -> void:
+	dungeons_cleared += 1
+	_log("end", "dungeon %s" % dungeons_cleared)
+	_telem("dungeon_cleared", {"n": dungeons_cleared, "hp": hp, "hand": hotbar.size(), "endless": true})
+	phase = "endless_clear"
+	facing_index = -1
+	if wheel_view and wheel_view.has_method("play_hero"):
+		wheel_view.hub_sprout_on = true
+		wheel_view.play_hero("victory", 2)
+	_player_play("victory", 2)
+	_refresh()
+
+
+func _endless_continue() -> void:
+	if not _endless_run() or phase != "endless_clear" or _adventure_busy:
+		return
+	_adventure_busy = true
+	if endless_clear_menu:
+		endless_clear_menu.hide_menu()
+	CAMPAIGN_SHELL.push_deeper(_campaign.rules, _campaign.state)
+	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
+	_campaign.write()
+	dungeon_index += 1
+	_endless_hud_show(true)
+	var biome_id := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	await _biome_dissolve_out(0.35)
+	_undo_clear()
+	overlay.visible = false
+	if rope_exit:
+		rope_exit.hide_exit()
+	_sync_dungeon_biome(biome_id)
+	_sync_biome_ambient(biome_id)
+	if sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
+	silenced = {}
+	phase = "draft"
+	draft_action = "busy"
+	_prep_next_dungeon()
+	_log("on_draft", "Dungeon %s" % dungeon_index)
+	_telem("funnel", {"step": "dungeon_enter", "n": dungeon_index, "endless": true})
+	_reset_moves()
+	_fill_challenge_pools()
+	_empty_wheel(CHALLENGE_SEATS)
+	if wheel_view:
+		wheel_view.fold = 0.0
+	await _campaign_arm_delve()
+	await _biome_dissolve_reveal(0.28)
+	await _nest_wheel()
+	await _run_challenge_setup()
+	if draft_action == "challenge_begin":
+		_challenge_begin_play()
+	_adventure_busy = false
+	_refresh()
 	## Keep resolve chrome hidden after refresh (phase was ready → spin pulse /
 	## _sync_buttons would otherwise restore Spin mid-wipe on freeze holds).
 	if _clear_resolving:
@@ -3226,7 +3320,7 @@ func _restore_clear_resolve_chrome() -> void:
 		(n as CanvasItem).modulate = m
 
 
-func _play_clear_parade() -> void:
+func _play_clear_parade(in_place: bool = false) -> void:
 	var saved := true
 	if wheel_view:
 		saved = wheel_view.hub_sprout_on
@@ -3245,7 +3339,7 @@ func _play_clear_parade() -> void:
 	if not parade.tree_exiting.is_connected(_parade_exiting):
 		parade.tree_exiting.connect(_parade_exiting)
 	if get_tree() != null:
-		await parade.run(wheel_view, art, _commit_dungeon_clear)
+		await parade.run(wheel_view, art, _commit_dungeon_clear, in_place)
 	if is_instance_valid(parade):
 		## freeze_at holds: never log/increment. Early freezes (before swap) also
 		## skip the rest transition so leaving a 0.16 hold doesn't open Rope Exit.
@@ -3565,6 +3659,8 @@ func _on_campaign_start(index: int, shortcut: bool, endless: bool) -> void:
 	if campaign_map:
 		campaign_map.hide_map()
 		campaign_map.mouse_filter = Control.MOUSE_FILTER_STOP
+	if endless and sfx and sfx.has_method("music_biome_dungeon"):
+		sfx.music_biome_dungeon(biome_id)
 	await _begin_campaign_delve(index, shortcut, endless, splash, used_map_wipe)
 	_splash_busy = false
 
@@ -3573,7 +3669,7 @@ func _campaign_biome_id_for_start(index: int, endless: bool) -> String:
 	if _campaign == null:
 		return "b1"
 	if endless:
-		return str(_campaign.rules.get("endless", {}).get("id", "endless"))
+		return "b1"
 	var biomes: Array = CAMPAIGN_SHELL.biomes_of(_campaign.rules)
 	if index < 0 or index >= biomes.size():
 		return "b1"
@@ -3686,6 +3782,8 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	challenge_route = false
 	CAMPAIGN_SHELL.begin_run(_campaign.state, index, shortcut, endless)
 	CAMPAIGN_SHELL.grant_delve_reroll(_campaign.rules, _campaign.state)
+	if endless:
+		_campaign_seed_next_run_if_needed(true)
 	_campaign.write()
 	if playtest_commitment != null:
 		## Campaign delves are never the tip tutorial rail.
@@ -3698,6 +3796,10 @@ func _begin_campaign_delve(index: int, shortcut: bool, endless: bool, splash = n
 	_reset_moves()
 	dungeon_index = 1 if endless else index + 1
 	dungeons_cleared = 0
+	if endless:
+		_endless_hud_show(true)
+	else:
+		_endless_hud_hide()
 	adventure_seat_tiers = [1, 1, 1, 1, 1, 1]
 	phase = "draft"
 	draft_action = "busy"
@@ -3770,15 +3872,26 @@ func _campaign_arm_delve() -> void:
 	if _campaign == null:
 		return
 	var biome := CAMPAIGN_SHELL.current_biome_id(_campaign.rules, _campaign.state)
+	var mix_id := CAMPAIGN_SHELL.mix_biome_id(_campaign.rules, _campaign.state)
 	var rows: Array = CAMPAIGN_SHELL.rows_for_biome(
 		_campaign.rules, _campaign.state, _campaign_rows(false), biome
 	)
 	_sync_dungeon_biome(biome)
 	_sync_biome_ambient(biome)
 	CAMPAIGN_SHELL.normalize(_campaign.state)
-	var deal: Dictionary = CAMPAIGN_SHELL.consume_next_run_deal(
-		_campaign.rules, _campaign.state, rows, biome, rng
-	)
+	var deal: Dictionary
+	var loop_n: int = CAMPAIGN_SHELL.biomes_of(_campaign.rules).size()
+	var idx: int = int(_campaign.state.get("run", {}).get("biome_index", 0))
+	if _endless_run() and loop_n > 0 and idx >= loop_n:
+		var used: Array = _campaign.state.get("seen_deadly", [])
+		if typeof(used) != TYPE_ARRAY:
+			used = []
+		deal = CAMPAIGN_SHELL.compose(_campaign.rules, rng, rows, mix_id, used)
+		_campaign.state["seen_deadly"] = used
+	else:
+		deal = CAMPAIGN_SHELL.consume_next_run_deal(
+			_campaign.rules, _campaign.state, rows, biome, rng
+		)
 	_campaign.write()
 	_campaign_queue = deal.get("ids", [])
 	_campaign_telegraph = deal.get("telegraph", [])
@@ -3821,7 +3934,8 @@ func _campaign_card_seed_ok(card: Dictionary) -> bool:
 func _campaign_card_ok(card: Dictionary) -> bool:
 	if not _campaign_card_base_ok(card):
 		return false
-	return CAMPAIGN_SHELL.pool_open_for_bucket(_campaign.rules, _campaign.state, BucketRules.of_card(card))
+	var pool := CAMPAIGN_SHELL.pool_for_bucket(_campaign.rules, BucketRules.of_card(card))
+	return CAMPAIGN_SHELL.mill_pool_open(_campaign.rules, _campaign.state, pool)
 
 
 func _campaign_item_entries() -> Array:
@@ -3969,6 +4083,7 @@ func _go_home_loss() -> void:
 		defeat_spotlight.dismiss()
 	if playtest_commitment != null:
 		playtest_commitment.note_run_end("dead")
+	_endless_hud_hide()
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -3987,6 +4102,17 @@ func _kick_defeat_spotlight(skip_pose: bool = false) -> void:
 func _run_defeat_spotlight(skip_pose: bool = false) -> void:
 	if defeat_spotlight == null:
 		return
+	_endless_try_again = _endless_run()
+	if _endless_try_again:
+		if _campaign != null:
+			CAMPAIGN_SHELL.note_endless_depth(_campaign.state, dungeon_index)
+			_campaign.write()
+		if sfx:
+			sfx.play("confirm_big", -2.0)
+			if sfx.has_method("play_event"):
+				sfx.play_event(&"sting.clear")
+		if defeat_spotlight.has_method("configure_endless"):
+			defeat_spotlight.configure_endless(dungeon_index)
 	if skip_pose and wheel_view != null and wheel_view.has_method("play_hero"):
 		# Toll-rescue path already played death; ensure hold frame for the mirror.
 		if str(wheel_view.hero_anim) != "death":
@@ -4008,6 +4134,8 @@ func _on_defeat_quick_start() -> void:
 	# New Verdant Hollow run, skip biome splash, land on dealing the hotbar.
 	if _campaign == null:
 		return
+	var retry_endless: bool = _endless_try_again
+	_endless_try_again = false
 	if _campaign_on:
 		_campaign_abort()
 	_splash_busy = true
@@ -4015,13 +4143,16 @@ func _on_defeat_quick_start() -> void:
 	if sfx and sfx.has_method("music_biome_dungeon"):
 		sfx.music_biome_dungeon(biome_id)
 	_sync_biome_ambient(biome_id)
-	await _begin_campaign_delve(0, false, false, null, false)
+	await _begin_campaign_delve(0, false, retry_endless, null, false)
 	_splash_busy = false
 
 
 func _give_up() -> void:
 	if playtest_commitment != null:
 		playtest_commitment.note_run_end("dead")
+	if endless_clear_menu:
+		endless_clear_menu.hide_menu()
+	_endless_hud_hide()
 	_sync_biome_ambient("", true)
 	await _biome_dissolve_out()
 	_campaign_abort()
@@ -4031,6 +4162,8 @@ func _give_up() -> void:
 
 
 func _rope_deeper() -> void:
+	if _endless_run():
+		return
 	if _campaign_on and _campaign != null and not CAMPAIGN_SHELL.can_push(_campaign.rules, _campaign.state):
 		return
 	_adventure_continue()
@@ -8532,7 +8665,7 @@ func _process(delta: float) -> void:
 		wheel_view.tutorial_pin_slice = -1
 	## During dungeon-clear resolve, clear_parade owns Spin alpha. The ready-phase
 	## pulse was restoring modulate.a=1 every frame (shot 05 Spin reappear).
-	if _clear_resolving or _dungeon_clear_pending:
+	if _clear_resolving or _dungeon_clear_pending or phase == "endless_clear":
 		_hide_clear_resolve_chrome()
 	else:
 		_restore_clear_resolve_chrome()
@@ -12178,7 +12311,7 @@ func _choose_option(opt: Dictionary) -> void:
 	else:
 		await _apply_ops(it, {"kind": "atk", "n": int(opt.get("atk", 0))}, opt)
 	await _end_item_resolve()
-	if phase == "rest" or phase == "victory" or phase == "defeat" or hp <= 0:
+	if phase == "rest" or phase == "endless_clear" or phase == "victory" or phase == "defeat" or hp <= 0:
 		FRAME_METRICS.span_cancel("use_item_resolve")
 		await _commit_after_item_use()
 		_undo_finish_item()
@@ -28368,9 +28501,9 @@ func _refresh_challenge_draft_cards() -> void:
 
 
 func _wheel_side_gutter() -> float:
-	if in_tutorial and _tut_show_deck and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest":
+	if in_tutorial and _tut_show_deck and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest" and phase != "endless_clear":
 		return 176.0
-	if not adventure or phase == "title" or phase == "victory" or phase == "defeat" or phase == "rest":
+	if not adventure or phase == "title" or phase == "victory" or phase == "defeat" or phase == "rest" or phase == "endless_clear":
 		return 0.0
 	if challenge_draft_ui != null and challenge_draft_ui.visible:
 		var dmin: Vector2 = challenge_draft_ui.get_combined_minimum_size()
@@ -28457,7 +28590,7 @@ func _layout_play_field() -> void:
 		btn_wrap.add_theme_constant_override("margin_left", 0)
 		btn_wrap.add_theme_constant_override("margin_right", 0)
 	if dungeon_deck_ui:
-		var show_deck: bool = (adventure or (in_tutorial and _tut_show_deck)) and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest"
+		var show_deck: bool = (adventure or (in_tutorial and _tut_show_deck)) and phase != "title" and phase != "victory" and phase != "defeat" and phase != "rest" and phase != "endless_clear"
 		dungeon_deck_ui.visible = show_deck
 		dungeon_deck_ui.size = Vector2(148, 168)
 		dungeon_deck_ui.position = Vector2(x + side + 8.0, wheel_y)
@@ -29166,7 +29299,7 @@ func _sync_buttons() -> void:
 	_sync_move_ui()
 	## Callers _refresh() while phase is still ready during the resolve — keep
 	## Spin / arrows / counter / Take arc hidden for the whole clear parade.
-	if _clear_resolving or _dungeon_clear_pending:
+	if _clear_resolving or _dungeon_clear_pending or phase == "endless_clear":
 		_hide_clear_resolve_chrome()
 	if btn_undo:
 		var undo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and _undo_can_undo()
@@ -29213,7 +29346,7 @@ func _sync_buttons() -> void:
 		_hide_take_burst()
 	## Take-arc sync runs after the clear hide and would turn the arc back on
 	## at alpha 0. Re-hide for the parade, or put alpha back for the next fight.
-	if _clear_resolving or _dungeon_clear_pending:
+	if _clear_resolving or _dungeon_clear_pending or phase == "endless_clear":
 		_hide_clear_resolve_chrome()
 	else:
 		_restore_clear_resolve_chrome()
@@ -29866,6 +29999,11 @@ func _sync_overlay() -> void:
 				home_cabin.show_menu()
 			if not cabin_already_open:
 				get_tree().paused = true
+		return
+	if phase == "endless_clear":
+		overlay.visible = false
+		if rope_exit:
+			rope_exit.hide_exit()
 		return
 	if phase == "rest":
 		overlay.visible = false
