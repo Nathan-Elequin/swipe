@@ -80,6 +80,27 @@ const ITEM_STEM := {
 	"danger_magnet": "weapon_arrow",
 }
 
+## Item id → strike stem under assets/dungeon/anim/items/<stem>_f*.png.
+const ITEM_STRIKE := {
+	"throwing_knife": "throwing_knife_spin",
+	"knucklers": "knucklers_punch",
+	"spiked_flail": "spiked_flail_swing",
+	"da_boot": "da_boot_stomp",
+	"spinning_top": "spinning_top_spin",
+	"sledgehammer": "sledgehammer_swing",
+}
+
+const FX_FRAME_DIRS := [
+	"res://assets/dungeon/vfx/hit",
+	"res://assets/dungeon/vfx/defeat",
+	"res://assets/dungeon/vfx/take",
+	"res://assets/dungeon/vfx/block",
+	"res://assets/dungeon/anim/items",
+	"res://assets/ui/wheel",
+	"res://assets/ui/hub",
+	"res://assets/ui/icons/pips",
+]
+
 const ITEM_PNG := {
 	"shield": "res://assets/dungeon/items/shield.png",
 	"helmet": "res://assets/dungeon/items/helmet.png",
@@ -356,6 +377,40 @@ func _load_tex(path: String) -> Texture2D:
 		return null
 	var tex: Texture2D = load(path) as Texture2D
 	return tex
+
+
+## Load `<dir>/<stem>_f0.png`, `_f1`… until a frame is missing. Tries FX_FRAME_DIRS.
+func fx_frames(stem: String) -> Array:
+	var id: String = str(stem).strip_edges()
+	var out: Array = []
+	if id == "":
+		return out
+	var base_dir := ""
+	for dir in FX_FRAME_DIRS:
+		var probe: Texture2D = _load_tex("%s/%s_f0.png" % [dir, id])
+		if probe != null:
+			base_dir = str(dir)
+			out.append(probe)
+			break
+	if base_dir == "":
+		return out
+	for i in range(1, 24):
+		var t: Texture2D = _load_tex("%s/%s_f%d.png" % [base_dir, id, i])
+		if t == null:
+			break
+		out.append(t)
+	return out
+
+
+func item_strike_stem(card_id: String) -> String:
+	return str(ITEM_STRIKE.get(str(card_id).strip_edges(), ""))
+
+
+func item_strike_frames(card_id: String) -> Array:
+	var stem: String = item_strike_stem(card_id)
+	if stem == "":
+		return []
+	return fx_frames(stem)
 
 
 func slice(name: String) -> AtlasTexture:

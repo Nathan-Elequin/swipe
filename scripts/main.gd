@@ -18,6 +18,7 @@ const SCRIPT_EDITOR := preload("res://scripts/script_editor.gd")
 const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
 const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
@@ -11360,14 +11361,24 @@ func _play_ended_visuals(banner: String = "slay") -> void:
 			var dctx := {"tier": _tier_of(dead) if not dead.is_empty() else 1, "monster_id": str(dead.get("card_id", ""))}
 			sfx.play_event(sfx.resolve(&"death", dctx), dctx)
 		if combat_stage:
-			combat_stage.take_hit()
+			combat_stage.take_hit(true)
+		var defeat_wait: Variant = null
+		if combat_stage and combat_stage.has_method("play_defeat_fx"):
+			defeat_wait = combat_stage.play_defeat_fx()
 		if wheel_view and facing_index >= 0:
 			await wheel_view.play_slay(facing_index)
+		if defeat_wait != null:
+			await defeat_wait
+		elif combat_stage:
+			await combat_stage.vanish()
 	elif banner == "escape":
 		if wheel_view and facing_index >= 0:
 			await wheel_view.play_escape(facing_index)
-	if combat_stage:
-		await combat_stage.vanish()
+		if combat_stage:
+			await combat_stage.vanish()
+	else:
+		if combat_stage:
+			await combat_stage.vanish()
 	if wheel_view and facing_index >= 0 and not adventure and not _tutorial_keeps_seat() and not _tut_hold_deck_refill and not _tut_defer_slice_close:
 		await wheel_view.collapse_slice(facing_index)
 
@@ -11519,6 +11530,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 			sfx.play_event(&"mon.lunge", {"monster_id": str(m.get("card_id", "")), "tier": _tier_of(m)})
 		await combat_stage.lunge(hit_n > 1)
 		_trace_resolve("lunge done")
+	var before_blk: int = blk
 	var swing: Dictionary = _swing(m, blk)
 	var pierce: bool = bool(swing.get("pierce", false))
 	var incoming: int = int(swing["dmg"])
@@ -11553,6 +11565,9 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 		_log("var", "BLK %s" % blk)
 	if incoming > 0:
 		_log("hp", "take -%s  now %s" % [incoming, hp])
+		_play_take_overlay_for(str(m.get("card_id", "")))
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
 		await _play_attack_connect()
 		await _hurt_ogres(lost)
 		await _grow_vampires()
@@ -11565,6 +11580,8 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 			sfx.play("glass", -10.0)
 	else:
 		_log("hp", "take 0")
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
 		await _play_attack_blocked(at)
 	# Pacemaker / potion / Druid land after the hit tell, as their own beat.
 	await _maybe_pacemaker_heal()
@@ -11589,6 +11606,7 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 ## no combat-stage burst, and no BLOCKED stamp on the faced slice.
 func _apply_egg_hurt(n: int) -> void:
 	var dummy := {"atk": n, "card_id": "spider_egg"}
+	var before_blk: int = blk
 	var swing: Dictionary = _swing(dummy, blk)
 	var incoming: int = int(swing["dmg"])
 	blk = int(swing["blk"])
@@ -11604,6 +11622,9 @@ func _apply_egg_hurt(n: int) -> void:
 		_flash_screen(Color("e07a7a"), 0.16)
 		_refresh_hearts()
 		_refresh_blk(false)
+		_play_take_overlay_for("spider_egg")
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
 		if sfx:
 			sfx.play_event(&"egg.hurt")
 		if wheel_view:
@@ -11622,6 +11643,9 @@ func _apply_egg_hurt(n: int) -> void:
 			sfx.play("block_heavy", -5.0)
 			sfx.play("bong", -8.0, 1.12)
 			sfx.play("glass", -12.0, 1.3)
+		_play_block_clang_hub()
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
 		if wheel_view:
 			await wheel_view.play_hub_sting("block", 0, true)
 		_player_play("block")
@@ -11652,6 +11676,7 @@ func _play_attack_blocked(src: int = -1) -> void:
 		sfx.play_event(&"player.blocked")
 	if combat_stage:
 		combat_stage.play_block()
+	_play_block_clang_hub()
 	_player_play("block")
 	if wheel_view == null:
 		return
@@ -12918,6 +12943,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 					sfx.play("error", -10.0)
 				return
 			last_item_atk = n2
+			await _play_item_strike_fx(it)
 			var atk_ended: bool = await _deal_atk(n2)
 			if not atk_ended:
 				_log("on_item_use", str(it["name"]))
@@ -13294,6 +13320,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if await _lich_chip_defeat(facing_index):
 					await _begin_slay()
 				return
+			await _play_item_strike_fx(it)
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -13323,6 +13350,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if await _lich_chip_defeat(facing_index):
 					await _begin_slay()
 				return
+			await _play_item_strike_fx(it)
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -13355,6 +13383,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if await _lich_chip_defeat(facing_index):
 					await _begin_slay()
 				return
+			await _play_item_strike_fx(it)
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -21898,7 +21927,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			sfx.play("glass", -8.0, 0.85)
 		if wheel_view:
 			wheel_view.hit_feedback(index, 0, 0)
-		_flash_hit_portrait(index)
+		_flash_hit_portrait(index, 0, false)
 		return false
 	var before_hp: int = int(m.get("hp", 0))
 	var before_atk: int = int(m.get("atk", 0))
@@ -21935,7 +21964,7 @@ func _deal_atk_at(index: int, n: int, skip_twins: bool = false, skip_redirect: b
 			sfx.play_event(sfx.resolve(&"hurt", hit_ctx), hit_ctx)
 		if wheel_view:
 			wheel_view.hit_feedback(index, before_hp - int(m["hp"]), int(m["atk"]) - before_atk)
-		_flash_hit_portrait(index)
+		_flash_hit_portrait(index, hit_n, before_hp > 0 and int(m["hp"]) <= 0)
 	if str(m.get("card_id", "")) == "needleback" and not _is_silenced(m) and before_hp > 0:
 		if _watch_skip_thorns:
 			pass
@@ -22097,6 +22126,7 @@ func _tut_note_hp_change() -> void:
 
 func _player_take_atk(n: int) -> bool:
 	var dummy := {"atk": n, "card_id": ""}
+	var before_blk: int = blk
 	var swing: Dictionary = _swing(dummy, blk)
 	var incoming: int = int(swing["dmg"])
 	blk = int(swing["blk"])
@@ -22113,11 +22143,20 @@ func _player_take_atk(n: int) -> bool:
 		_refresh_blk(false)
 		if sfx:
 			sfx.play("glass", -10.0)
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
+		_play_block_clang_hub()
 	else:
 		_log("hp", "poke -%s  now %s" % [incoming, hp])
 		_flash_screen(Color("e07a7a"), 0.22)
 		_refresh_hearts()
 		_refresh_blk(false)
+		var attacker_id := ""
+		if facing_index >= 0 and facing_index < wheel.size():
+			attacker_id = str(wheel[facing_index].get("card_id", ""))
+		_play_take_overlay_for(attacker_id)
+		if before_blk > 0 and blk <= 0:
+			_play_shield_crack()
 		if sfx:
 			sfx.play_event(&"player.poke")
 		await _hurt_ogres(lost)
@@ -23227,11 +23266,123 @@ func _show_fight_portrait() -> void:
 	_tune_combat_stage()
 
 
-func _flash_hit_portrait(index: int) -> void:
+func _flash_hit_portrait(index: int, dmg: int = 0, killing: bool = false) -> void:
+	var heavy: bool = killing or dmg >= 3
 	if combat_stage and combat_stage.visible and index == _fight_portrait_index():
-		combat_stage.take_hit()
+		combat_stage.take_hit(heavy)
 	if hypno_stage and hypno_stage.visible and index == _hypno_src and index != _fight_portrait_index():
-		hypno_stage.take_hit()
+		hypno_stage.take_hit(heavy)
+
+
+const TAKE_BITE_IDS := {
+	"dire_wolf": true, "shark": true, "eel": true, "basilisk": true, "glass_asp": true,
+	"mimic": true, "vampire": true, "zombie": true, "hydra": true, "dragon": true, "mouse": true,
+}
+const TAKE_CLAW_IDS := {
+	"goblin": true, "harpy": true, "imp": true, "magicat": true, "bandit": true,
+	"berserker": true, "bushido": true, "scorpion": true, "needleback": true,
+	"huntsman": true, "spider_queen": true,
+}
+
+
+func _take_overlay_variant(attacker_id: String) -> String:
+	var id: String = str(attacker_id).strip_edges()
+	if TAKE_BITE_IDS.has(id):
+		return "bite"
+	if TAKE_CLAW_IDS.has(id):
+		return "claw"
+	return "thud"
+
+
+func _play_take_overlay_for(attacker_id: String) -> void:
+	if wheel_view == null or not wheel_view.has_method("play_take_overlay"):
+		return
+	wheel_view.play_take_overlay(_take_overlay_variant(attacker_id))
+
+
+func _play_block_clang_hub() -> void:
+	var frames: Array = art.fx_frames("block_clang") if art != null and art.has_method("fx_frames") else []
+	if frames.is_empty():
+		frames = DUNGEON_ART.new().fx_frames("block_clang")
+	if frames.is_empty():
+		return
+	var at: Vector2 = _hub_hp_pos()
+	if take_arc != null and take_arc.visible and take_arc.has_method("block_pip_global"):
+		at = take_arc.block_pip_global()
+	elif wheel_view != null:
+		var c: Vector2 = wheel_view.get_global_rect().get_center()
+		at = c
+	FX_ONESHOT.play(self, frames, at, 4.0, 16.0, false, 48)
+
+
+func _play_shield_crack() -> void:
+	if take_arc != null and take_arc.has_method("play_shield_crack"):
+		take_arc.play_shield_crack()
+
+
+## Play mapped item strike over the combat portrait. Returns after the beat (≤~0.45s).
+func _play_item_strike_fx(it: Dictionary) -> void:
+	if it.is_empty() or combat_stage == null or not combat_stage.visible:
+		return
+	if OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy):
+		return
+	var cid: String = str(it.get("card_id", "")).strip_edges()
+	var frames: Array = []
+	if art != null and art.has_method("item_strike_frames"):
+		frames = art.item_strike_frames(cid)
+	else:
+		frames = DUNGEON_ART.new().item_strike_frames(cid)
+	if frames.is_empty():
+		return
+	var fps: float = 14.0
+	if cid == "throwing_knife" or cid == "spinning_top":
+		fps = 18.0
+	var center: Vector2 = combat_stage.body_center_global()
+	if cid == "throwing_knife":
+		await _play_knife_strike_arc(it, frames, center, fps)
+		return
+	var play_frames: Array = frames.duplicate()
+	if cid == "sledgehammer" and play_frames.size() > 4:
+		# Hold impact frame f4 for two ticks.
+		play_frames.insert(5, play_frames[4])
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, play_frames, center, 4.0, fps, false, 46)
+	if spr == null:
+		return
+	if cid == "sledgehammer":
+		var hit_done := false
+		var on_frame := func() -> void:
+			if hit_done or not is_instance_valid(spr):
+				return
+			if spr.frame >= 4:
+				hit_done = true
+				combat_stage.take_hit(true)
+				_shake_screen()
+		spr.frame_changed.connect(on_frame)
+	var t0: float = Time.get_ticks_msec() / 1000.0
+	while is_instance_valid(spr) and spr.is_playing():
+		if (Time.get_ticks_msec() / 1000.0) - t0 > 0.45:
+			break
+		await get_tree().process_frame
+	if is_instance_valid(spr) and spr.is_playing():
+		spr.queue_free()
+
+
+func _play_knife_strike_arc(it: Dictionary, frames: Array, dest: Vector2, fps: float) -> void:
+	var start: Vector2 = dest + Vector2(-120.0, 40.0)
+	var uid: int = int(it.get("uid", -1))
+	if hotbar_box != null:
+		for c in hotbar_box.get_children():
+			if _control_uid(c) == uid:
+				start = c.get_global_rect().get_center()
+				break
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, frames, start, 4.0, fps, true, 46)
+	if spr == null:
+		return
+	var tw := spr.create_tween()
+	tw.tween_property(spr, "global_position", dest, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tw.finished
+	if is_instance_valid(spr):
+		spr.queue_free()
 
 
 func _neighbors_of(index: int) -> Array[int]:
@@ -23743,6 +23894,7 @@ func _apply_spinning_top(index: int, it: Dictionary, token: int) -> void:
 		_undo_finish_item()
 		call_deferred("_refresh")
 		return
+	await _play_item_strike_fx(it)
 	it["spent"] = true
 	await _count_item_use()
 	_log("on_item_use", str(it["name"]))
