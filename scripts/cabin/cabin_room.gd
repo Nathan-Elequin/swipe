@@ -240,3 +240,17 @@ func _candle(origin: Vector2) -> void:
 	if sp.sprite_frames:
 		sp.frame = randi() % 3
 		sp.play("flame")
+	var glint: AnimatedSprite2D = KIT.anim_sprite(
+		[
+			"overlays/candle_glint_f0.png",
+			"overlays/candle_glint_f1.png",
+			"overlays/candle_glint_f2.png",
+			"overlays/candle_glint_f3.png",
+			"overlays/candle_glint_f4.png",
+		],
+		"glint", 8.0, true, origin + Vector2(0, -4)
+	)
+	glint.z_index = sp.z_index + 1
+	add_child(glint)
+	if glint.sprite_frames:
+		glint.play("glint")

@@ -80,7 +80,8 @@ const ITEM_STEM := {
 	"danger_magnet": "weapon_arrow",
 }
 
-## Item id → strike stem under assets/dungeon/anim/items/<stem>_f*.png.
+## Item id → strike stem under assets/dungeon/anim/items/<stem>_f*.png
+## (batch A) or assets/dungeon/fx/items/<item>/<stem>_f*.png (batch B).
 const ITEM_STRIKE := {
 	"throwing_knife": "throwing_knife_spin",
 	"knucklers": "knucklers_punch",
@@ -88,6 +89,34 @@ const ITEM_STRIKE := {
 	"da_boot": "da_boot_stomp",
 	"spinning_top": "spinning_top_spin",
 	"sledgehammer": "sledgehammer_swing",
+	## Batch B defeat signatures.
+	"tesla_coil": "tesla_coil_zap",
+	"napalm": "napalm_burst",
+	"catapult": "catapult_fling",
+	"last_match": "last_match_flame",
+	"measuring_tape": "measuring_tape_snap",
+	"love_potion": "love_potion_hearts",
+	"orb": "orb_pulse",
+	"polymorph": "polymorph_poof",
+	"hex": "hex_flare",
+}
+
+## Item id → projectile / spin flight stem (batch B #12). Arrow shared.
+const ITEM_PROJECTILE := {
+	"longbow": "arrow_flight",
+	"crossbow": "arrow_flight",
+	"arrow_head": "arrow_flight",
+	"shuriken": "shuriken_spin",
+	"chakram": "chakram_spin",
+	"double_axe": "double_axe_spin",
+}
+
+## Item id → utility moment stem played at announce (batch B #19).
+const ITEM_UTILITY_FX := {
+	"net": "net_throw",
+	"smoke_bomb": "smoke_bomb_puff",
+	"bag_of_holding": "bag_of_holding_gulp",
+	"flying_saucer": "flying_saucer_zoom",
 }
 
 const FX_FRAME_DIRS := [
@@ -96,9 +125,31 @@ const FX_FRAME_DIRS := [
 	"res://assets/dungeon/vfx/take",
 	"res://assets/dungeon/vfx/block",
 	"res://assets/dungeon/anim/items",
+	"res://assets/dungeon/fx",
+	"res://assets/dungeon/fx/items/arrow",
+	"res://assets/dungeon/fx/items/shuriken",
+	"res://assets/dungeon/fx/items/chakram",
+	"res://assets/dungeon/fx/items/double_axe",
+	"res://assets/dungeon/fx/items/tesla_coil",
+	"res://assets/dungeon/fx/items/napalm",
+	"res://assets/dungeon/fx/items/catapult",
+	"res://assets/dungeon/fx/items/last_match",
+	"res://assets/dungeon/fx/items/measuring_tape",
+	"res://assets/dungeon/fx/items/love_potion",
+	"res://assets/dungeon/fx/items/orb",
+	"res://assets/dungeon/fx/items/polymorph",
+	"res://assets/dungeon/fx/items/hex",
+	"res://assets/dungeon/fx/items/net",
+	"res://assets/dungeon/fx/items/smoke_bomb",
+	"res://assets/dungeon/fx/items/bag_of_holding",
+	"res://assets/dungeon/fx/items/flying_saucer",
 	"res://assets/ui/wheel",
+	"res://assets/ui/wheel/fx",
 	"res://assets/ui/hub",
 	"res://assets/ui/icons/pips",
+	"res://assets/ui/endless",
+	"res://assets/ui/transitions",
+	"res://assets/ui/tutorial",
 ]
 
 const ITEM_PNG := {
@@ -408,6 +459,28 @@ func item_strike_stem(card_id: String) -> String:
 
 func item_strike_frames(card_id: String) -> Array:
 	var stem: String = item_strike_stem(card_id)
+	if stem == "":
+		return []
+	return fx_frames(stem)
+
+
+func item_projectile_stem(card_id: String) -> String:
+	return str(ITEM_PROJECTILE.get(str(card_id).strip_edges(), ""))
+
+
+func item_projectile_frames(card_id: String) -> Array:
+	var stem: String = item_projectile_stem(card_id)
+	if stem == "":
+		return []
+	return fx_frames(stem)
+
+
+func item_utility_stem(card_id: String) -> String:
+	return str(ITEM_UTILITY_FX.get(str(card_id).strip_edges(), ""))
+
+
+func item_utility_frames(card_id: String) -> Array:
+	var stem: String = item_utility_stem(card_id)
 	if stem == "":
 		return []
 	return fx_frames(stem)

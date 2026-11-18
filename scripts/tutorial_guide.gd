@@ -69,6 +69,10 @@ var _idle: float = 0.0
 var _space_hint: Label
 var sfx
 var lift_dim: bool = false
+## Tutorial glove bob frames + static arrowhead (SpotInk draws these).
+var _tut_glove_tex: Array = []
+var _tut_arrow_tex: Texture2D = null
+var _tut_pointer_ready: bool = false
 ## Item-teach beats: the hotbar still receives hover while Nib is talking.
 var item_hover_open: bool = false
 var _type_full: String = ""
@@ -1618,10 +1622,36 @@ const BEATS := [
 
 class SpotInk extends Control:
 	var host
+	const ARROW_ART_ANGLE := -PI / 4.0
+
+	func _ready() -> void:
+		set_process(true)
+
+	func _process(_delta: float) -> void:
+		if host == null or host._arrows.is_empty():
+			return
+		if host._tut_glove_tex.is_empty():
+			return
+		queue_redraw()
+
+	func _ensure_tut_tex() -> void:
+		if host == null or host._tut_pointer_ready:
+			return
+		host._tut_pointer_ready = true
+		host._tut_glove_tex = []
+		for i in 5:
+			var path := "res://assets/ui/tutorial/tut_glove_bob_f%d.png" % i
+			if ResourceLoader.exists(path):
+				var tex: Texture2D = load(path) as Texture2D
+				if tex:
+					host._tut_glove_tex.append(tex)
+		if ResourceLoader.exists("res://assets/ui/tutorial/tut_arrowhead_f0.png"):
+			host._tut_arrow_tex = load("res://assets/ui/tutorial/tut_arrowhead_f0.png") as Texture2D
 
 	func _draw() -> void:
 		if host == null:
 			return
+		_ensure_tut_tex()
 		var origin: Vector2 = global_position
 		var gold := Color("e8c36a")
 		## Gold only around the line's spotlight. Hover plates punch the dim, they do not get a ring.
@@ -1633,6 +1663,12 @@ class SpotInk extends Control:
 			if r.size.x < 8.0 or r.size.y < 8.0:
 				continue
 			draw_rect(Rect2(r.position - origin, r.size).grow(4.0), gold, false, 4.0)
+		var gloves: Array = host._tut_glove_tex
+		var ah: Texture2D = host._tut_arrow_tex
+		var use_sprites: bool = gloves.size() > 0 and ah != null
+		var bob_i: int = 0
+		if use_sprites:
+			bob_i = int(Time.get_ticks_msec() / 166.0) % gloves.size()
 		for pair in host._arrows:
 			if typeof(pair) != TYPE_ARRAY or pair.size() < 2:
 				continue
@@ -1640,18 +1676,27 @@ class SpotInk extends Control:
 			var b: Vector2 = pair[1] - origin
 			if a.distance_to(b) < 12.0:
 				continue
-			draw_line(a, b, Color("100e0c"), 9.0, true)
-			draw_line(a, b, gold, 5.0, true)
 			var dir: Vector2 = (b - a).normalized()
-			var side: Vector2 = Vector2(-dir.y, dir.x)
-			var tip := PackedVector2Array([
-				b,
-				b - dir * 18.0 + side * 9.0,
-				b - dir * 18.0 - side * 9.0,
-			])
-			draw_colored_polygon(tip, Color("100e0c"))
-			draw_colored_polygon(PackedVector2Array([
-				b - dir * 2.0,
-				b - dir * 16.0 + side * 6.0,
-				b - dir * 16.0 - side * 6.0,
-			]), gold)
+			var ang: float = dir.angle()
+			if use_sprites:
+				var glove: Texture2D = gloves[bob_i]
+				draw_set_transform(a, ang, Vector2(2.5, 2.5))
+				draw_texture(glove, -glove.get_size() * 0.5)
+				draw_set_transform(b, ang - ARROW_ART_ANGLE, Vector2(2.5, 2.5))
+				draw_texture(ah, -ah.get_size() * 0.5)
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			else:
+				draw_line(a, b, Color("100e0c"), 9.0, true)
+				draw_line(a, b, gold, 5.0, true)
+				var side: Vector2 = Vector2(-dir.y, dir.x)
+				var tip := PackedVector2Array([
+					b,
+					b - dir * 18.0 + side * 9.0,
+					b - dir * 18.0 - side * 9.0,
+				])
+				draw_colored_polygon(tip, Color("100e0c"))
+				draw_colored_polygon(PackedVector2Array([
+					b - dir * 2.0,
+					b - dir * 16.0 + side * 6.0,
+					b - dir * 16.0 - side * 6.0,
+				]), gold)

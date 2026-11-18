@@ -106,6 +106,14 @@ static func gasp(cabin, sfx = null) -> void:
 	KIT.cue(sfx, &"speech.nib_gasp")
 
 
+static func cheer(cabin) -> void:
+	play(cabin, "cheer")
+
+
+static func shrug(cabin) -> void:
+	play(cabin, "shrug")
+
+
 static func bubble_anchor_native(cabin) -> Vector2:
 	var nib := sprite(cabin)
 	if nib == null:

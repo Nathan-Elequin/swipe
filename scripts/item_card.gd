@@ -13,6 +13,8 @@ const COPY := preload("res://scripts/player_copy.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
+const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 ## H3-B2: bigger 2×5 hotbar (reclaims old standalone Take row).
 const CARD_W := 172.0
 const CARD_H := 148.0
@@ -2337,6 +2339,10 @@ func toss(slow: bool = false) -> void:
 	z_index = 80
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_meta("tossing", true)
+	var frames: Array = DUNGEON_ART.new().fx_frames("defeat_poof")
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(host, frames, get_global_rect().get_center(), 3.0, 14.0, false, 81)
+	if spr:
+		spr.modulate = Color("d2b48c")
 	var dur: float = 1.15 if slow else 0.5
 	var tw := create_tween()
 	tw.set_parallel(true)

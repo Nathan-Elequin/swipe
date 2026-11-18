@@ -1254,6 +1254,7 @@ func pulse_arrive(index: int) -> void:
 		return
 	_lift[index] = 1.25
 	queue_redraw()
+	_play_land_burst(index)
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
@@ -1265,6 +1266,17 @@ func pulse_arrive(index: int) -> void:
 		0.0,
 		0.42
 	)
+
+
+## Gold ring + glints at the landed seat (batch B #13). Non-blocking, ≤~0.36s.
+func _play_land_burst(index: int) -> void:
+	if index < 0 or index >= slices.size():
+		return
+	var frames: Array = DUNGEON_ART.new().fx_frames("land_burst")
+	if frames.is_empty():
+		return
+	var at: Vector2 = slice_portrait_global(index)
+	FX_ONESHOT.play(self, frames, at, WHEEL_SPRITE_SCALE, 14.0, false, 34)
 
 
 func hit_feedback(index: int, hp_lost: int, atk_delta: int = 0) -> void:
@@ -1392,6 +1404,7 @@ func spin_to(index: int) -> void:
 		FX_BUDGET.set_spinning(false)
 		facing_index = index
 		play_pointer_land()
+		_play_land_burst(index)
 		queue_redraw()
 		return
 	var delta: float = fposmod(target - rot, TAU)
@@ -1412,6 +1425,7 @@ func spin_to(index: int) -> void:
 	FX_BUDGET.set_spinning(false)
 	facing_index = index
 	play_pointer_land()
+	_play_land_burst(index)
 	_play_threat()
 	queue_redraw()
 

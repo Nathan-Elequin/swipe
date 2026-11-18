@@ -54,7 +54,7 @@ const WAX := {
 ## Pool id → stamp filename slug (assets/ui/map/stamps/stamp_<slug>_<state>.png).
 const POOL_SLUG := {
 	"b1": "verdant_hollow",
-	"b2": "sunken_mire",
+	"b2": "crystal_cavern",
 	"b3": "ashen_crypt",
 	"b4": "cinder_forge",
 	"b5": "shadow_abyss",
@@ -1486,6 +1486,13 @@ class NodeDot extends Control:
 	var wax: Color = Color("3a2414")
 	var hollow: bool = false
 
+	func _ready() -> void:
+		pivot_offset = size * 0.5
+		scale = Vector2(0.6, 0.6)
+		var tw := create_tween()
+		tw.tween_property(self, "scale", Vector2(1.15, 1.15), 0.16)
+		tw.tween_property(self, "scale", Vector2.ONE, 0.12)
+
 	func _draw() -> void:
 		var c := size * 0.5
 		var rad: float = minf(size.x, size.y) * 0.45
@@ -1500,6 +1507,17 @@ class Hands extends Control:
 	const KIT := preload("res://scripts/cabin/cabin_kit.gd")
 	var _frame: int = 0
 	var _acc: float = 0.0
+	var _hop_y: float = 0.0
+
+	func _ready() -> void:
+		var tw := create_tween()
+		tw.set_loops()
+		tw.tween_method(_set_hop_y, 0.0, -10.0, 0.45)
+		tw.tween_method(_set_hop_y, -10.0, 0.0, 0.45)
+
+	func _set_hop_y(y: float) -> void:
+		_hop_y = y
+		queue_redraw()
 
 	func _process(delta: float) -> void:
 		if not is_visible_in_tree():
@@ -1517,7 +1535,7 @@ class Hands extends Control:
 		_mitt(Vector2(1320, 790), true)
 		var tex: Texture2D = KIT.load_tex("overlays/map_hero_f%d.png" % _frame)
 		if tex:
-			draw_texture_rect(tex, Rect2(760, 860, 160, 160), false)
+			draw_texture_rect(tex, Rect2(760, 860.0 + _hop_y, 160, 160), false)
 
 
 	func _mitt(origin: Vector2, flip: bool) -> void:
