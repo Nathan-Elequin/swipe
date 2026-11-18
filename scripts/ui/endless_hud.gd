@@ -23,6 +23,18 @@ func _ready() -> void:
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	if ResourceLoader.exists("res://assets/ui/endless/endless_plaque.png"):
+		var plaque := TextureRect.new()
+		plaque.name = "EndlessPlaque"
+		plaque.texture = load("res://assets/ui/endless/endless_plaque.png") as Texture2D
+		plaque.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		plaque.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		plaque.stretch_mode = TextureRect.STRETCH_SCALE
+		plaque.position = Vector2(1320, 16)
+		plaque.size = Vector2(320, 96)
+		plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		plaque.z_index = 0
+		root.add_child(plaque)
 	_n = Label.new()
 	_n.name = "DungeonN"
 	_n.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -35,7 +47,32 @@ func _ready() -> void:
 	_n.size = Vector2(260, 80)
 	_n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_n.pivot_offset = Vector2(260, 40)
+	_n.z_index = 1
 	root.add_child(_n)
+	var skull_sf := SpriteFrames.new()
+	skull_sf.add_animation("flip")
+	skull_sf.set_animation_speed("flip", 10.0)
+	skull_sf.set_animation_loop("flip", true)
+	var skull_ok := false
+	for i in 5:
+		var path := "res://assets/ui/endless/skull_coin_flip_f%d.png" % i
+		if not ResourceLoader.exists(path):
+			continue
+		var tex: Texture2D = load(path) as Texture2D
+		if tex:
+			skull_sf.add_frame("flip", tex)
+			skull_ok = true
+	if skull_ok:
+		var skull := AnimatedSprite2D.new()
+		skull.name = "SkullCoin"
+		skull.sprite_frames = skull_sf
+		skull.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		skull.centered = true
+		skull.scale = Vector2(2.0, 2.0)
+		skull.position = Vector2(1360, 114)
+		skull.z_index = 1
+		root.add_child(skull)
+		skull.play("flip")
 	_best = Label.new()
 	_best.name = "Best"
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -45,6 +82,7 @@ func _ready() -> void:
 	_best.position = Vector2(1380, 100)
 	_best.size = Vector2(260, 28)
 	_best.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_best.z_index = 1
 	root.add_child(_best)
 	visible = false
 

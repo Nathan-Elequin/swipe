@@ -37,6 +37,8 @@ func _build_special() -> void:
 	_add_anim(sf, "gasp", ["nib/nib_gasp.png"], 1.0, false)
 	_add_anim(sf, "walk", ["nib/nib_walk_f0.png", "nib/nib_walk_f1.png", "nib/nib_walk_f2.png", "nib/nib_walk_f3.png"], 8.0, true)
 	_add_anim(sf, "react", ["nib/nib_react_f0.png", "nib/nib_react_f1.png", "nib/nib_react_f2.png", "nib/nib_react_f3.png"], 10.0, false)
+	_add_anim(sf, "cheer", ["nib/nib_cheer_f0.png", "nib/nib_cheer_f1.png", "nib/nib_cheer_f2.png", "nib/nib_cheer_f3.png", "nib/nib_cheer_f4.png"], 10.0, false)
+	_add_anim(sf, "shrug", ["nib/nib_shrug_f0.png", "nib/nib_shrug_f1.png", "nib/nib_shrug_f2.png", "nib/nib_shrug_f3.png", "nib/nib_shrug_f4.png"], 10.0, false)
 	nib.sprite_frames = sf
 	add_child(nib)
 	nib.play("idle")

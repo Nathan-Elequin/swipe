@@ -3495,6 +3495,7 @@ func _dissolve_to_black(seconds: float = 0.6) -> void:
 	_hall_wipe.visible = true
 	_hall_wipe.mouse_filter = Control.MOUSE_FILTER_STOP
 	_hall_wipe.modulate.a = 0.0
+	_play_iris_wipe_overlay(_hall_wipe, seconds)
 	var tw := create_tween()
 	tw.tween_property(_hall_wipe, "modulate:a", 1.0, seconds)
 	await tw.finished
@@ -3503,6 +3504,7 @@ func _dissolve_to_black(seconds: float = 0.6) -> void:
 func _fade_from_black(seconds: float = 0.35) -> void:
 	if _hall_wipe == null:
 		return
+	_play_iris_wipe_overlay(_hall_wipe, seconds)
 	var tw := create_tween()
 	tw.tween_property(_hall_wipe, "modulate:a", 0.0, seconds)
 	await tw.finished
@@ -13238,6 +13240,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if await _lich_chip_defeat(facing_index):
 					await _begin_slay()
 				return
+			await _play_item_strike_fx(it)
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -13409,6 +13412,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				if sfx:
 					sfx.play("error", -10.0)
 				return
+			await _play_item_strike_fx(it)
 			it["spent"] = true
 			await _count_item_use()
 			_log("on_item_use", str(it["name"]))
@@ -13418,6 +13422,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			return
 		"napalm":
 			_log("on_item_use", str(it["name"]))
+			await _play_item_strike_fx(it)
 			if await _apply_napalm():
 				it["spent"] = true
 				await _count_item_use()
@@ -14349,6 +14354,7 @@ func _use_orb(it: Dictionary) -> void:
 			_gain_orb_marble(atk_n, mid)
 			await _begin_slay()
 		return
+	await _play_item_strike_fx(it)
 	it["spent"] = true
 	await _count_item_use()
 	_log("on_item_use", str(it["name"]))
@@ -14821,6 +14827,7 @@ func _apply_love_potion_mark(index: int) -> void:
 	var from_pos: Vector2 = _slice_from(die_i)
 	pending_mark.clear()
 	await _announce_item_use(it, _slice_from(b) if b >= 0 else _hub_hp_pos(), true)
+	await _play_item_strike_fx(it)
 	var token: int = _undo_gen
 	_bleed_begin()
 	_log("on_item_use", str(it.get("name", "Love Potion")))
@@ -17781,6 +17788,9 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF, release_early
 				break
 	var iid: String = str(it.get("card_id", ""))
 	_sfx_item_use(iid)
+	## Batch B utility moments / projectiles — visual only, ≤0.45s, never blocks rules.
+	_play_item_utility_fx(it, to)
+	await _play_item_projectile_fx(it, to)
 	if ability_slash:
 		var tex: Texture2D = _item_icon_tex(it)
 		var ticket_i: int = -1
@@ -18379,6 +18389,7 @@ func _apply_polymorph(index: int, it: Dictionary) -> void:
 		copy["trapper_growth"] = int(src.get("trapper_growth", 0))
 		copy["trapper_laid"] = bool(src.get("trapper_laid", false))
 	wheel[facing_index] = copy
+	await _play_item_strike_fx(it)
 	it["spent"] = true
 	await _count_item_use()
 	_toss_item(int(it["uid"]), false)
@@ -18957,6 +18968,7 @@ func _use_tesla_coil(it: Dictionary) -> void:
 		if await _lich_chip_defeat(across):
 			await _maybe_slay_down(across)
 		return
+	await _play_item_strike_fx(it)
 	it["spent"] = true
 	await _count_item_use()
 	_log("on_item_use", str(it["name"]))
@@ -19012,6 +19024,7 @@ func _step_hexs() -> bool:
 		var hex: Dictionary = _find_item(int(uid))
 		if hex.is_empty():
 			continue
+		await _play_item_strike_fx(hex)
 		hex["spent"] = true
 		_toss_item(int(uid), false)
 	_log("on_resolve", "defeat")
@@ -20285,6 +20298,7 @@ func _heal(n: int) -> int:
 	_flash_screen(Color("8fd18f"), 0.28, 0.32 / HEAL_RESOLVE_RATE)
 	if sfx:
 		sfx.play_event(&"heal.gain", {"n": gained})
+	_play_heal_sparkle()
 	_glow_hearts_heal(HEAL_RESOLVE_RATE)
 	_sync_dire_wolves()
 	if wheel_view and wheel_view.has_method("wait_hero_done") and not _qa_instant():
@@ -23337,6 +23351,10 @@ func _play_item_strike_fx(it: Dictionary) -> void:
 	var fps: float = 14.0
 	if cid == "throwing_knife" or cid == "spinning_top":
 		fps = 18.0
+	elif cid == "last_match":
+		fps = 8.0
+	elif cid in ["tesla_coil", "napalm", "catapult", "measuring_tape", "love_potion", "orb", "polymorph", "hex"]:
+		fps = 12.0
 	var center: Vector2 = combat_stage.body_center_global()
 	if cid == "throwing_knife":
 		await _play_knife_strike_arc(it, frames, center, fps)
@@ -23383,6 +23401,127 @@ func _play_knife_strike_arc(it: Dictionary, frames: Array, dest: Vector2, fps: f
 	await tw.finished
 	if is_instance_valid(spr):
 		spr.queue_free()
+
+
+## Batch B #12 — fly projectile from card toward target. Chakram/axe rotate f0 in code.
+func _play_item_projectile_fx(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
+	if it.is_empty() or _qa_instant():
+		return
+	if OS.has_feature("editor") and logic_qa != null and bool(logic_qa.busy):
+		return
+	var cid: String = str(it.get("card_id", "")).strip_edges()
+	var frames: Array = []
+	if art != null and art.has_method("item_projectile_frames"):
+		frames = art.item_projectile_frames(cid)
+	else:
+		frames = DUNGEON_ART.new().item_projectile_frames(cid)
+	if frames.is_empty():
+		return
+	var dest: Vector2 = to
+	if dest == Vector2.INF or dest == Vector2.ZERO:
+		if combat_stage != null and combat_stage.visible:
+			dest = combat_stage.body_center_global()
+		else:
+			dest = _hub_hp_pos()
+	if dest == Vector2.ZERO:
+		return
+	var start: Vector2 = dest + Vector2(-140.0, 36.0)
+	var uid: int = int(it.get("uid", -1))
+	if hotbar_box != null:
+		for c in hotbar_box.get_children():
+			if _control_uid(c) == uid:
+				start = c.get_global_rect().get_center()
+				break
+	var rotate_node: bool = cid == "chakram" or cid == "double_axe"
+	var play_frames: Array = frames
+	if rotate_node and frames.size() > 0:
+		play_frames = [frames[0]]
+	var fps: float = 12.0
+	var loop: bool = rotate_node or cid == "shuriken"
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, play_frames, start, 4.0, fps, loop, 46)
+	if spr == null:
+		return
+	var ang: float = (dest - start).angle()
+	## Arrow art points right (+X).
+	spr.rotation = ang
+	var tw := spr.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(spr, "global_position", dest, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	if rotate_node:
+		tw.tween_property(spr, "rotation", ang + TAU * 2.0, 0.32)
+	var t0: float = Time.get_ticks_msec() / 1000.0
+	while tw.is_running():
+		if (Time.get_ticks_msec() / 1000.0) - t0 > 0.45:
+			break
+		await get_tree().process_frame
+	if is_instance_valid(spr):
+		spr.queue_free()
+
+
+## Batch B #19 — utility moment at card / target. Fire-and-forget.
+func _play_item_utility_fx(it: Dictionary, to: Vector2 = Vector2.INF) -> void:
+	if it.is_empty():
+		return
+	var cid: String = str(it.get("card_id", "")).strip_edges()
+	var frames: Array = []
+	if art != null and art.has_method("item_utility_frames"):
+		frames = art.item_utility_frames(cid)
+	else:
+		frames = DUNGEON_ART.new().item_utility_frames(cid)
+	if frames.is_empty():
+		return
+	var at: Vector2 = to
+	if at == Vector2.INF or at == Vector2.ZERO:
+		at = _item_card_global(int(it.get("uid", -1)))
+	if at == Vector2.ZERO:
+		at = _hub_hp_pos()
+	FX_ONESHOT.play(self, frames, at, 4.0, 12.0, false, 45)
+
+
+## Batch B #16 — heal sparkle over hub hearts. Non-blocking.
+func _play_heal_sparkle() -> void:
+	var frames: Array = []
+	if art != null and art.has_method("fx_frames"):
+		frames = art.fx_frames("heal_sparkle")
+	else:
+		frames = DUNGEON_ART.new().fx_frames("heal_sparkle")
+	if frames.is_empty():
+		return
+	var at: Vector2 = _hub_hp_pos()
+	if at == Vector2.ZERO and hearts_box != null:
+		at = hearts_box.get_global_rect().get_center()
+	if at == Vector2.ZERO:
+		return
+	FX_ONESHOT.play(self, frames, at, 4.0, 14.0, false, 47)
+
+
+## Batch B #20 — optional iris ring overlay on an existing fade ColorRect. Keeps timings.
+func _play_iris_wipe_overlay(host: CanvasItem, seconds: float) -> void:
+	if host == null or seconds <= 0.0:
+		return
+	var frames: Array = DUNGEON_ART.new().fx_frames("iris_ring")
+	if frames.is_empty() or frames.size() < 4:
+		return
+	## Loop f0–f3 while the fade runs; do not use red f4.
+	var loop_frames: Array = frames.slice(0, mini(4, frames.size()))
+	var parent: Node = host.get_parent()
+	if parent == null:
+		parent = self
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(
+		parent, loop_frames, host.get_global_rect().get_center() if host is Control else Vector2(840, 520),
+		6.0, 10.0, true, 71
+	)
+	if spr == null:
+		return
+	spr.modulate = Color(1, 1, 1, 0.85)
+	## Scale iris with fade progress (open → closed feel).
+	spr.scale = Vector2(8.0, 8.0)
+	var tw := spr.create_tween()
+	tw.tween_property(spr, "scale", Vector2(1.2, 1.2), seconds)
+	tw.tween_callback(func() -> void:
+		if is_instance_valid(spr):
+			spr.queue_free()
+	)
 
 
 func _neighbors_of(index: int) -> Array[int]:
@@ -23946,6 +24085,7 @@ func _apply_scythe(index: int, it: Dictionary, token: int) -> void:
 		_undo_finish_item()
 		call_deferred("_refresh")
 		return
+	await _play_item_strike_fx(it)
 	it["spent"] = true
 	await _count_item_use()
 	_log("on_item_use", str(it["name"]))

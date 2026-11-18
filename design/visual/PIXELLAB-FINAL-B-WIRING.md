@@ -1,0 +1,29 @@
+# Batch B wiring (#12–#26 + free cue leaf)
+
+Line numbers are from `playtest/latest` @ `c2d8ff92`. All PNGs are transparent and nearest-neighbor only.
+- Item and VFX strips are **32x32 native**. Scale them in code at 4x for item-scale effects, or 2x on the wheel (`WHEEL_SPRITE_SCALE`).
+- In every animation, `f0` is the source pose (the item icon or emblem at rest). Loops can start at f1.
+
+Suggested target root for item effects: `res://assets/dungeon/fx/items/<item>/` (same convention as batch A).
+
+| # | Folder | Asset | Frames | Target path | Hook |
+|---|---|---|---|---|---|
+| 0 | 00-cue-leaf | cue_leaf.png 12x12 | 1 | `res://assets/ui/biome_splash/cue_leaf.png` | No code needed: `biome_splash.gd` L25 `LEAF_FINAL` is already preferred over `cue_leaf_placeholder.png` (~L569). |
+| 12 | 12-projectiles | arrow_flight, shuriken_spin (4f), chakram_spin, double_axe_spin | 4–5 @12fps | `fx/items/<item>/` | Projectile tween in `_announce_item_use` (main.gd L17740) and `_use_item` L12347. **Chakram and axe barely rotate:** use f0 and rotate the node in code. Arrow: rotate the node to the flight angle (art points right). |
+| 13 | 13-spin-landing-burst | land_burst (gold ring + glints) | 5 @14fps, one-shot | `res://assets/ui/wheel/fx/land_burst_f*.png` | `boss_wheel.gd` `pulse_arrive` L1162 (called after `spin_to` L1284). Center on the landed segment and draw at 2x. |
+| 14 | 14-tutorial-pointer | tut_glove_bob (5f loop), tut_arrowhead (still, points up-right) | 5 @6fps | `res://assets/ui/tutorial/` | Replace the vector arrows: `tutorial_guide.gd` L1643–1644 and `cabin/nib_pointer.gd` L173–182 (`draw_line`). Rotate the glove and arrowhead to the target direction; draw at 2–3x. |
+| 15 | 15-defeat-signatures-1 | tesla_coil_zap 7f, napalm_burst 7f (reroll), catapult_fling 7f, last_match_flame 3f | 12fps (match flame loops @8fps) | `fx/items/<item>/` | main.gd defeat_atk branch L13339 (kinds table ~L146), plus `_deal_atk_at` L21836 for the hit moment. Last Match is a 0-gen composite: the icon plus the existing `home/overlays/torch_flame_f0..2`. |
+| 16 | 16-heal-sparkle | heal_sparkle | 7 @14fps | `res://assets/dungeon/fx/heal_sparkle_f*.png` | `_heal` main.gd L20243 / `_fly_heal_to_hub` L20203. Play at the hub hearts on arrive, 4x. |
+| 17 | 17-endless-hud | endless_plaque 96x48 still (blank, no text); skull_coin_flip 5f; gold_ring_pulse 7f | coin 10fps loop, ring 12fps | `res://assets/ui/endless/` | `ui/endless_hud.gd`: put the plaque behind `_n` (L26) and the coin next to `_best` (L39). Gold ring behind `_plus` in `ui/endless_clear_menu.gd` (var L23). Text stays as Labels. |
+| 18 | 18-defeat-signatures-2 | measuring_tape_snap, love_potion_hearts (reroll), orb_pulse, polymorph_poof (weak), hex_flare (weak-ok) | 5 @12fps | `fx/items/<item>/` | Same as #15. |
+| 19 | 19-utility-moments | net_throw (reroll, still weak), smoke_bomb_puff 7f, bag_of_holding_gulp, flying_saucer_zoom | 5–7 @12fps | `fx/items/<item>/` | `_use_item` L12347 → `_announce_item_use` L17740 (play at the card or target before `_toss_item` L14075). |
+| 20 | 20-torch-iris-wipe | iris_ring 128x128 | 5; loop f0–f3 (f4 goes red) @10fps | `res://assets/ui/transitions/iris_ring_f*.png` | Draw black outside the circle and scale the ring with the radius. Hooks: `home_cabin.gd` `_fade_to_interior` L2307 / `_wipe_pan` L2640, main.gd `_fade_from_black` L3502. |
+| 21 | 21-crystal-cavern-stamp | stamp_crystal_cavern_{idle,hover,press}.png 112x112 (reroll; hover/press = brightness ×1.256/×0.798) | — | `res://assets/ui/map/stamps/` | `cabin/held_map.gd` L57: change `"b2": "sunken_mire"` to `"crystal_cavern"`. Loader is at L1460 (`stamp_%s_%s.png`). The `room_mudroom.gd` mentioned in the audit doesn't exist on this tip. |
+| 22 | 22-card-crumble | crumble_dust (weak; the pile barely moves) | 5 @12fps | `res://assets/dungeon/fx/card_crumble_f*.png` | `item_card.gd` `toss()` L2332. **Recommended instead:** reuse batch A defeat_poof tinted tan. |
+| 23 | — | map hero hop / route dot pop | — | — | **Nothing shipped.** Both hop gens warped the token. Use a code tween on the existing `overlays/map_hero_f0/f1` (`held_map.gd` L1518, `map_overlay.gd` L77). The route dot is 2px native: do a procedural scale pop. |
+| 24 | 24-cabin-ambience | candle_glint 32x32 | 5 @8fps loop | `res://assets/dungeon/home/overlays/candle_glint_f*.png` | Place it as an overlay in the cabin room build (`home_cabin.gd`, next to the torch overlays). Dust motes failed both times, so use procedural CPUParticles2D. |
+| 25 | 25-nib-emotes | nib_cheer (reroll), nib_shrug, 96x128 (24x32 native ×4, snapped to the Nib palette) | 5 @10fps one-shot | `res://assets/dungeon/home/nib/nib_cheer_f*.png`, `nib_shrug_f*.png` | `cabin/room_main.gd` L39: `_add_anim(sf, "cheer", [...], 10.0, false)` (same for shrug), then `nib_host.gd` `play(cabin, "cheer")` L89. Add them to the anim lists in `dev/nib_*_selftest.gd` if those check every anim. The eyes drift a little between frames. |
+| 26 | 26-title-emblems | emblem_{ashen,cinder,crystal,shadow,verdant}_idle (48x48, emblem centered at 1x); 12 alternate idle loops; `stills/` holds all 20 alternate stills (36x36) | 5 @6fps loop | `res://assets/ui/title/emblem/` | **No code currently references `ui/title/emblem/`** (checked scripts/ and scenes/). These are ready-to-use art but unhooked; the likely home is `title_screen.gd` near the board windows (~L265–278). Strongest alternates: skull_13 (crowned), skull_14 (candle), flame_10 (campfire), flame_12 (brazier), moon_20/22/24 (violet). |
+
+Pass picks (at most 1 reroll each): napalm→2, love_potion→2, net→2, crystal_stamp→2, nib_cheer→2. Last Match: both rerolls failed (no flame), so it's a composite.
+Weak, shipped for completeness: chakram_spin, double_axe_spin, polymorph_poof, hex_flare, net_throw, crumble_dust, alt_skull_11. alt_flame_11 (anvil) was dropped because its flame goes out.

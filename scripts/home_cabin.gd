@@ -37,6 +37,8 @@ const ROOM_ORDER: Array[String] = ["loft", "workshop", "study", "main", "hall"]
 const CAMPAIGN_SHELL := preload("res://scripts/campaign_shell.gd")
 const HOMECOMING_SCR := preload("res://scripts/cabin/homecoming.gd")
 const NIB_HOST := preload("res://scripts/cabin/nib_host.gd")
+const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const STATION_BEDS := ["cabin", "station_inn", "station_rag", "station_harp"]
 ## SCREEN §9 — hall idle x (native) after relocation.
 const NIB_HALL_IDLE_X := 386.0
@@ -2311,6 +2313,7 @@ func _fade_to_interior(target: String = "main") -> void:
 	_set_idle_hero_visible(false)
 	_fade.visible = true
 	_fade.color = Color(0, 0, 0, 0)
+	_play_iris_wipe_overlay(0.2)
 	var tw := create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_fade, "color:a", 1.0, 0.2)
@@ -2326,11 +2329,35 @@ func _fade_to_interior(target: String = "main") -> void:
 		var main_room = _rooms.get("main", null)
 		if main_room:
 			_host_hero(main_room)
+	_play_iris_wipe_overlay(0.2)
 	tw = create_tween()
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(_fade, "color:a", 0.0, 0.2)
 	await tw.finished
 	_fade.visible = false
+
+
+## Batch B #20 — optional iris ring over cabin fades. Timings unchanged.
+func _play_iris_wipe_overlay(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+	var frames: Array = DUNGEON_ART.new().fx_frames("iris_ring")
+	if frames.is_empty() or frames.size() < 4:
+		return
+	var loop_frames: Array = frames.slice(0, mini(4, frames.size()))
+	var at: Vector2 = Vector2(ROOM_W * 0.5, ROOM_H * 0.5)
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, loop_frames, at, 6.0, 10.0, true, 71)
+	if spr == null:
+		return
+	spr.modulate = Color(1, 1, 1, 0.85)
+	spr.scale = Vector2(8.0, 8.0)
+	var tw := spr.create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(spr, "scale", Vector2(1.2, 1.2), seconds)
+	tw.tween_callback(func() -> void:
+		if is_instance_valid(spr):
+			spr.queue_free()
+	)
 
 func _start_interior_loops() -> void:
 	if _fire.sprite_frames:

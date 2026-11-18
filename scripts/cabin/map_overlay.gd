@@ -82,6 +82,12 @@ func setup(p_cabin, p_extra: Dictionary) -> void:
 	add_child(_hero)
 	if _hero.sprite_frames:
 		_hero.play("h")
+	## Batch B #23 — small code hop on the existing 2 hero frames.
+	var hero_base_y: float = _hero.position.y
+	var hop := create_tween()
+	hop.set_loops()
+	hop.tween_property(_hero, "position:y", hero_base_y - 10.0, 0.45)
+	hop.tween_property(_hero, "position:y", hero_base_y, 0.45)
 	_build_panel()
 	_build_title()
 	_build_close()
@@ -202,7 +208,13 @@ func _build_route(el_id: String, route: String) -> void:
 		d.size = Vector2(8, 8)
 		d.position = pt - Vector2(4, 4)
 		d.z_index = 56
+		d.pivot_offset = Vector2(4, 4)
+		d.scale = Vector2(0.6, 0.6)
 		host.add_child(d)
+		## Batch B #23 — procedural scale pop on route dots.
+		var pop := d.create_tween()
+		pop.tween_property(d, "scale", Vector2(1.2, 1.2), 0.14)
+		pop.tween_property(d, "scale", Vector2.ONE, 0.12)
 		dots.append(d)
 		var hit := Control.new()
 		hit.position = pt - Vector2(TRAIL_HIT, TRAIL_HIT)

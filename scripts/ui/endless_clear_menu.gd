@@ -7,6 +7,7 @@ signal tally_finished
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KIT := preload("res://scripts/cabin/cabin_kit.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const GOLD := Color("e8c36a")
 const CREAM := Color("f0e6d8")
 const INK := Color("100e0c")
@@ -283,6 +284,25 @@ func _pulse_ring_and_hearts() -> void:
 		drove = true
 	if not drove:
 		_pulse_fallback_ring()
+	_play_gold_ring_pulse()
+
+
+func _play_gold_ring_pulse() -> void:
+	## One-shot gold ring behind +1; keeps Label `_plus` and timings intact.
+	var frames: Array = []
+	for i in 7:
+		var path := "res://assets/ui/endless/gold_ring_pulse_f%d.png" % i
+		if not ResourceLoader.exists(path):
+			break
+		var tex: Texture2D = load(path) as Texture2D
+		if tex:
+			frames.append(tex)
+	if frames.is_empty() or _shake_host == null:
+		return
+	var center: Vector2 = _hero_global()
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(_shake_host, frames, center, 3.0, 12.0, false, 6)
+	if spr:
+		spr.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 
 func _pulse_fallback_ring() -> void:

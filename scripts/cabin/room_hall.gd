@@ -43,6 +43,7 @@ func _build_special() -> void:
 	_fit_hall_light()
 	_ensure_board_dais()
 	_ensure_depth_layers()
+	_add_cabin_dust()
 	## Placeholder host name Package A looks for; B attaches the real board.
 	if get_node_or_null("TrophyBoard") == null:
 		var marker := Label.new()
@@ -99,6 +100,31 @@ func _ensure_board_dais() -> void:
 		board_dais.add_child(lip)
 
 
+func _add_cabin_dust() -> void:
+	if get_node_or_null("CabinDust") != null:
+		return
+	var dust := CPUParticles2D.new()
+	dust.name = "CabinDust"
+	dust.emitting = true
+	dust.amount = 8
+	dust.lifetime = 3.0
+	dust.local_coords = true
+	dust.position = Vector2(KIT.ROOM_W * 0.5, KIT.ROOM_H * 0.5)
+	dust.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	dust.emission_rect_extents = Vector2(KIT.ROOM_W * 0.48, KIT.ROOM_H * 0.48)
+	dust.direction = Vector2(0, -1)
+	dust.spread = 28.0
+	dust.initial_velocity_min = 6.0
+	dust.initial_velocity_max = 16.0
+	dust.gravity = Vector2(0, -3.0)
+	dust.scale_amount_min = 1.0
+	dust.scale_amount_max = 2.2
+	dust.color = Color("f0e6d8")
+	dust.modulate = Color(1.0, 1.0, 1.0, 0.35)
+	dust.z_index = 2
+	add_child(dust)
+
+
 func _build_hall_nib() -> void:
 	## Package E: Nib lives here after the first successful return.
 	var idle: Vector2 = NIB_HOST.hall_idle_top_left()
@@ -117,6 +143,8 @@ func _build_hall_nib() -> void:
 	_add_nib_anim(sf, "gasp", ["nib/nib_gasp.png"], 1.0, false)
 	_add_nib_anim(sf, "walk", ["nib/nib_walk_f0.png", "nib/nib_walk_f1.png", "nib/nib_walk_f2.png", "nib/nib_walk_f3.png"], 8.0, true)
 	_add_nib_anim(sf, "react", ["nib/nib_react_f0.png", "nib/nib_react_f1.png", "nib/nib_react_f2.png", "nib/nib_react_f3.png"], 10.0, false)
+	_add_nib_anim(sf, "cheer", ["nib/nib_cheer_f0.png", "nib/nib_cheer_f1.png", "nib/nib_cheer_f2.png", "nib/nib_cheer_f3.png", "nib/nib_cheer_f4.png"], 10.0, false)
+	_add_nib_anim(sf, "shrug", ["nib/nib_shrug_f0.png", "nib/nib_shrug_f1.png", "nib/nib_shrug_f2.png", "nib/nib_shrug_f3.png", "nib/nib_shrug_f4.png"], 10.0, false)
 	nib.sprite_frames = sf
 	add_child(nib)
 	nib.play("idle")

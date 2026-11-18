@@ -87,10 +87,12 @@ func _run() -> void:
 
 	for cid in DUNGEON_ART.ITEM_STRIKE.keys():
 		var strike: Array = art.item_strike_frames(str(cid))
+		## Batch B last_match is a 3-frame flame loop; everything else stays ≥5.
+		var want_min: int = 3 if str(cid) == "last_match" else 5
 		failed = _check(
 			failed,
 			"ITEM_STRIKE %s frames" % cid,
-			strike.size() >= 5
+			strike.size() >= want_min
 		) or failed
 
 	## Helper spawn + free after layout.

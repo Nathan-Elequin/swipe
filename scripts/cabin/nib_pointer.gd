@@ -9,6 +9,10 @@ const PULSE_RING_PATH := "res://assets/ui/trophy/pulse_ring.png"
 const PULSE_RING_SHEET_PATH := "res://assets/ui/trophy/pulse_ring_sheet.png"
 const PULSE_FRAME := 160
 const PULSE_FPS := 8.0
+const GLOVE_PATH := "res://assets/ui/tutorial/tut_glove_bob_f%d.png"
+const ARROWHEAD_PATH := "res://assets/ui/tutorial/tut_arrowhead_f0.png"
+## Glove art points right; arrowhead points up-right (~-PI/4 from +X).
+const ARROW_ART_ANGLE := -PI / 4.0
 
 var _ink: Control = null
 var _ring: Control = null
@@ -18,6 +22,9 @@ var _to: Vector2 = Vector2.ZERO
 var _active: bool = false
 var _pulse_tw: Tween = null
 var _ring_px: float = PULSE_FRAME
+var _glove: AnimatedSprite2D = null
+var _arrowhead: Sprite2D = null
+var _sprite_pointer: bool = false
 
 
 func _ready() -> void:
@@ -31,8 +38,53 @@ func _ready() -> void:
 	_ink.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_ink.draw.connect(_draw_pointer)
 	add_child(_ink)
+	_ensure_pointer_sprites()
 	_ensure_pulse_ring()
 	visible = false
+
+
+func _ensure_pointer_sprites() -> void:
+	if _glove != null and is_instance_valid(_glove):
+		return
+	var sf := SpriteFrames.new()
+	sf.add_animation("bob")
+	sf.set_animation_speed("bob", 6.0)
+	sf.set_animation_loop("bob", true)
+	var glove_ok := false
+	for i in 5:
+		var path := GLOVE_PATH % i
+		if not ResourceLoader.exists(path):
+			continue
+		var tex: Texture2D = load(path) as Texture2D
+		if tex:
+			sf.add_frame("bob", tex)
+			glove_ok = true
+	var ah_tex: Texture2D = null
+	if ResourceLoader.exists(ARROWHEAD_PATH):
+		ah_tex = load(ARROWHEAD_PATH) as Texture2D
+	if not glove_ok or ah_tex == null:
+		_sprite_pointer = false
+		return
+	_sprite_pointer = true
+	_glove = AnimatedSprite2D.new()
+	_glove.name = "TutGlove"
+	_glove.sprite_frames = sf
+	_glove.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_glove.centered = true
+	_glove.scale = Vector2(2.5, 2.5)
+	_glove.z_index = 2
+	_glove.visible = false
+	add_child(_glove)
+	_glove.play("bob")
+	_arrowhead = Sprite2D.new()
+	_arrowhead.name = "TutArrowhead"
+	_arrowhead.texture = ah_tex
+	_arrowhead.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_arrowhead.centered = true
+	_arrowhead.scale = Vector2(2.5, 2.5)
+	_arrowhead.z_index = 2
+	_arrowhead.visible = false
+	add_child(_arrowhead)
 
 
 func _ensure_pulse_ring() -> void:
@@ -137,6 +189,11 @@ func clear() -> void:
 		_ring.visible = false
 	if _ring_art is AnimatedSprite2D:
 		(_ring_art as AnimatedSprite2D).stop()
+	if _glove != null:
+		_glove.visible = false
+		_glove.stop()
+	if _arrowhead != null:
+		_arrowhead.visible = false
 	if _pulse_tw != null and is_instance_valid(_pulse_tw):
 		_pulse_tw.kill()
 		_pulse_tw = null
@@ -160,15 +217,43 @@ func _start_pulse() -> void:
 	_pulse_tw.tween_property(_ring, "modulate:a", 0.95, 0.45)
 
 
+func _place_sprite_pointer() -> void:
+	_ensure_pointer_sprites()
+	if not _sprite_pointer or _glove == null or _arrowhead == null:
+		if _glove != null:
+			_glove.visible = false
+		if _arrowhead != null:
+			_arrowhead.visible = false
+		return
+	var dir: Vector2 = _to - _from
+	if dir.length() < 12.0:
+		_glove.visible = false
+		_arrowhead.visible = false
+		return
+	dir = dir.normalized()
+	var ang: float = dir.angle()
+	_glove.global_position = _from
+	_glove.rotation = ang
+	_glove.visible = true
+	if not _glove.is_playing():
+		_glove.play("bob")
+	_arrowhead.global_position = _to
+	_arrowhead.rotation = ang - ARROW_ART_ANGLE
+	_arrowhead.visible = true
+
+
 func _draw_pointer() -> void:
 	if not _active or _ink == null:
+		return
+	_place_sprite_pointer()
+	if _sprite_pointer:
 		return
 	var origin: Vector2 = _ink.global_position
 	var a: Vector2 = _from - origin
 	var b: Vector2 = _to - origin
 	if a.distance_to(b) < 12.0:
 		return
-	## Same gold tutorial stroke as TutorialGuide.SpotInk.
+	## Fallback vector stroke when glove/arrowhead textures are missing.
 	var gold := Color("e8c36a")
 	_ink.draw_line(a, b, Color("100e0c"), 9.0, true)
 	_ink.draw_line(a, b, gold, 5.0, true)
