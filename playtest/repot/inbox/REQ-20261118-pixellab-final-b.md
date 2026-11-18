@@ -2,7 +2,7 @@
 id: REQ-20261118-pixellab-final-b
 status: open
 priority: high
-pr: 0
+pr: 558
 tip_sha: 557c2f73
 branch: art/pixellab-final-b
 created: 2026-11-18T22:40:00Z
