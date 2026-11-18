@@ -20,6 +20,7 @@ const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const KEYWORD_TIP := preload("res://scripts/keyword_tip.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const INK_ON_DARK := Color("f0e6d8")
 const TAG_GOLD := Color("FFD84A")
 const SHADOW_COL := Color(0.039, 0.024, 0.016, 0.47)
@@ -169,6 +170,12 @@ var _shot_polys: Array = []
 var _shot_burst: Vector2 = Vector2.ZERO
 var _shot_u: float = 0.0
 var tex_name_tag: Texture2D
+var tex_pointer: Texture2D
+var _seat_mark_frames: Dictionary = {} ## "slay"|"block"|"escape" → Array[Texture2D]
+var _heart_break_frames: Array = []
+var _heart_refill_frames: Array = []
+var _heart_slot_fx: Dictionary = {} ## slot int → {kind, t, life}
+var _pointer_tick_spr: AnimatedSprite2D
 var _art = null
 var tex_medals: Dictionary = {}
 var _used_cache: Dictionary = {}
@@ -771,7 +778,7 @@ func _draw_hub_heart_arc(dim: float) -> void:
 		var pop: float = 1.0
 		if i < _tally_heart_scales.size():
 			pop = float(_tally_heart_scales[i])
-		_draw_hub_pip(pts[i], sz * pop, live, soon, tint)
+		_draw_hub_pip(pts[i], sz * pop, live, soon, tint, i)
 
 
 func _ready() -> void:
@@ -921,6 +928,7 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 		htw.tween_property(self, "_hub_hp_old_t", 0.0, 0.28)
 		var htw2 := create_tween()
 		htw2.tween_property(self, "hub_hp_flash", 0.0, 0.34)
+		_start_heart_slot_fx(hub_hp, hp_n)
 	hub_hp = hp_n
 	hub_hp_max = maxi(1, hp_max)
 	hub_hp_ghost = hp_ghost
@@ -937,6 +945,88 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 	hub_ghost = blk_ghost
 	hub_on = true
 	queue_redraw()
+
+
+func _start_heart_slot_fx(old_hp: int, new_hp: int) -> void:
+	_ensure_hub_fx_frames()
+	var life: float = 5.0 / 12.0
+	if new_hp < old_hp:
+		for i in range(new_hp, old_hp):
+			_heart_slot_fx[i] = {"kind": "break", "t": 0.0, "life": life}
+	elif new_hp > old_hp:
+		for i in range(old_hp, new_hp):
+			_heart_slot_fx[i] = {"kind": "refill", "t": 0.0, "life": life}
+
+
+func _ensure_hub_fx_frames() -> void:
+	if _heart_break_frames.is_empty() or _heart_refill_frames.is_empty():
+		var art_loader = DUNGEON_ART.new()
+		if _heart_break_frames.is_empty():
+			_heart_break_frames = art_loader.fx_frames("heart_break")
+		if _heart_refill_frames.is_empty():
+			_heart_refill_frames = art_loader.fx_frames("heart_refill")
+	if _seat_mark_frames.is_empty():
+		var art_loader2 = DUNGEON_ART.new()
+		_seat_mark_frames["slay"] = art_loader2.fx_frames("seat_slain")
+		_seat_mark_frames["block"] = art_loader2.fx_frames("seat_blocked")
+		_seat_mark_frames["escape"] = art_loader2.fx_frames("seat_escaped")
+
+
+## Claw / bite / thud overlay centered on the hub hero.
+func play_take_overlay(variant: String = "thud") -> void:
+	var stem: String = "take_thud"
+	match str(variant):
+		"bite":
+			stem = "take_bite"
+		"claw":
+			stem = "take_claw"
+		_:
+			stem = "take_thud"
+	var frames: Array = DUNGEON_ART.new().fx_frames(stem)
+	if frames.is_empty():
+		return
+	var c: Vector2 = _center()
+	var top: Vector2 = _layout_xy("hero", "texture_top_left_from_c", Vector2(-48, -50))
+	var hero_rect := Rect2(c + top + hub_nudge, Vector2(96, 96))
+	var host: Node = get_tree().current_scene if get_tree() != null else self
+	FX_ONESHOT.play(host, frames, hero_rect.get_center(), 3.0, 14.0, false, 50)
+
+
+func play_pointer_tick() -> void:
+	if _pointer_tick_spr != null and is_instance_valid(_pointer_tick_spr) and _pointer_tick_spr.is_playing():
+		return
+	var frames: Array = DUNGEON_ART.new().fx_frames("wheel_pointer_tick")
+	if frames.is_empty():
+		return
+	# Tip is top-centre; center the sprite half a frame below the tip.
+	var tip: Vector2 = _pointer_tip_global()
+	var first: Texture2D = frames[0] as Texture2D
+	var half_h: float = 16.0 * WHEEL_SPRITE_SCALE
+	if first != null:
+		half_h = float(first.get_height()) * WHEEL_SPRITE_SCALE * 0.5
+	_pointer_tick_spr = FX_ONESHOT.play(self, frames, tip + Vector2(0.0, half_h), WHEEL_SPRITE_SCALE, 24.0, false, 35)
+
+
+func play_pointer_land() -> void:
+	var frames: Array = DUNGEON_ART.new().fx_frames("wheel_pointer_land")
+	if frames.is_empty():
+		return
+	var tip: Vector2 = _pointer_tip_global()
+	var first: Texture2D = frames[0] as Texture2D
+	var half_h: float = 16.0 * WHEEL_SPRITE_SCALE
+	if first != null:
+		half_h = float(first.get_height()) * WHEEL_SPRITE_SCALE * 0.5
+	FX_ONESHOT.play(self, frames, tip + Vector2(0.0, half_h), WHEEL_SPRITE_SCALE, 14.0, false, 36)
+
+
+func _pointer_tip_local() -> Vector2:
+	var c: Vector2 = _center()
+	var radius: float = _radius()
+	return Vector2(c.x, c.y + radius - 4.0)
+
+
+func _pointer_tip_global() -> Vector2:
+	return global_position + _pointer_tip_local()
 
 
 func clear_slay() -> void:
@@ -1301,6 +1391,7 @@ func spin_to(index: int) -> void:
 		spinning = false
 		FX_BUDGET.set_spinning(false)
 		facing_index = index
+		play_pointer_land()
 		queue_redraw()
 		return
 	var delta: float = fposmod(target - rot, TAU)
@@ -1320,6 +1411,7 @@ func spin_to(index: int) -> void:
 	spinning = false
 	FX_BUDGET.set_spinning(false)
 	facing_index = index
+	play_pointer_land()
 	_play_threat()
 	queue_redraw()
 
@@ -1364,6 +1456,15 @@ func _radius() -> float:
 
 func _process(delta: float) -> void:
 	_glow_t += delta
+	if not _heart_slot_fx.is_empty():
+		var keep_fx: Dictionary = {}
+		for k in _heart_slot_fx.keys():
+			var ent: Dictionary = _heart_slot_fx[k]
+			ent["t"] = float(ent.get("t", 0.0)) + delta
+			if float(ent["t"]) < float(ent.get("life", 0.4)):
+				keep_fx[k] = ent
+		_heart_slot_fx = keep_fx
+		queue_redraw()
 	if not _shot_polys.is_empty():
 		_shot_u = fposmod(_shot_u + delta / 1.15, 1.0)
 	# One angle for the whole wheel. Seats used to snap in 0.02 rad steps while the wedges eased, so the art looked like it was stuttering against the rim.
@@ -1392,6 +1493,7 @@ func _process(delta: float) -> void:
 		if seg != _tick_seg:
 			_tick_seg = seg
 			segment_passed.emit(seg, speed01)
+			play_pointer_tick()
 	for i in slices.size():
 		var want: float = 0.0
 		if not spinning:
@@ -2060,6 +2162,9 @@ func _load_wheel_ui() -> void:
 	_ensure_who_rings()
 	if ResourceLoader.exists("res://assets/ui/wheel/name_tag.png"):
 		tex_name_tag = load("res://assets/ui/wheel/name_tag.png") as Texture2D
+	if ResourceLoader.exists("res://assets/ui/wheel/wheel_pointer.png"):
+		tex_pointer = load("res://assets/ui/wheel/wheel_pointer.png") as Texture2D
+	_ensure_hub_fx_frames()
 	for key in MEDAL_OF.values():
 		var path := "res://assets/ui/wheel/medallion_%s.png" % str(key)
 		if ResourceLoader.exists(path):
@@ -2960,10 +3065,19 @@ func _draw_across_aim() -> void:
 func _draw_pointer(c: Vector2, radius: float) -> void:
 	var bob: float = 3.0 + absf(sin(_glow_t * 8.0)) * 6.0
 	var tip := Vector2(c.x, c.y + radius - 4.0)
-	var left := Vector2(c.x - 22.0, c.y + radius + 28.0 + bob)
-	var right := Vector2(c.x + 22.0, c.y + radius + 28.0 + bob)
 	var pulse: float = 0.45 + 0.55 * absf(sin(_glow_t * 7.0))
 	draw_arc(c, radius + 8.0, SIX - 0.18, SIX + 0.18, 12, Color(1.0, 0.85, 0.29, 0.35 + 0.4 * pulse), 7.0, true)
+	if tex_pointer != null:
+		# Tip is the top-centre pixel of the 24×32 native art; draw at 2× with tip on the rim.
+		var native := Vector2(float(tex_pointer.get_width()), float(tex_pointer.get_height()))
+		if native.x < 1.0 or native.y < 1.0:
+			native = Vector2(24, 32)
+		var sz: Vector2 = native * WHEEL_SPRITE_SCALE
+		var origin := Vector2(tip.x - sz.x * 0.5, tip.y + bob)
+		draw_texture_rect(tex_pointer, Rect2(origin, sz), false)
+		return
+	var left := Vector2(c.x - 22.0, c.y + radius + 28.0 + bob)
+	var right := Vector2(c.x + 22.0, c.y + radius + 28.0 + bob)
 	draw_colored_polygon(PackedVector2Array([tip, left, right]), Color("100e0c"))
 	draw_colored_polygon(PackedVector2Array([
 		tip + Vector2(0.0, 6.0),
@@ -4938,11 +5052,26 @@ func _draw_winged_foot(pos: Vector2, s: float, live: bool, dim: float) -> void:
 	draw_line(pos + Vector2(-s * 0.10, s * 0.16), pos + Vector2(s * 0.40, s * 0.10), cream, 1.2, false)
 
 
-func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Color = Color.WHITE) -> void:
+func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Color = Color.WHITE, slot: int = -1) -> void:
 	var pulse: float = 0.55 + 0.45 * sin(_glow_t * 14.0)
 	var draw_sz: Vector2 = sz
 	if soon:
 		draw_sz *= 1.0 + 0.16 * pulse
+	# Heart break/refill frames are 24 native (heart ~20). Offset −8 so they line up with 20px hearts at 4×.
+	if slot >= 0 and _heart_slot_fx.has(slot):
+		var fx: Dictionary = _heart_slot_fx[slot]
+		var kind: String = str(fx.get("kind", ""))
+		var frames: Array = _heart_break_frames if kind == "break" else _heart_refill_frames
+		if not frames.is_empty():
+			var life: float = maxf(0.001, float(fx.get("life", 0.4)))
+			var t: float = clampf(float(fx.get("t", 0.0)) / life, 0.0, 0.999)
+			var fi: int = clampi(int(floor(t * float(frames.size()))), 0, frames.size() - 1)
+			var ftex: Texture2D = frames[fi] as Texture2D
+			if ftex != null:
+				var fsz := Vector2(float(ftex.get_width()), float(ftex.get_height())) * 4.0
+				var origin: Vector2 = pos - fsz * 0.5 + Vector2(-8.0, -8.0)
+				draw_texture_rect(ftex, Rect2(origin, fsz), false, tint)
+				return
 	var tex: Texture2D = tex_heart_full if live else tex_heart_empty
 	if soon and pulse > 0.55:
 		tex = tex_heart_empty
@@ -5000,29 +5129,44 @@ func _draw_threat(c: Vector2, radius: float) -> void:
 func _draw_slay(font: Font, c: Vector2, radius: float) -> void:
 	if slay_index < 0 or slay_index >= slices.size():
 		return
+	_ensure_hub_fx_frames()
 	var dir: Vector2 = _dir_of(slay_index)
 	var pos: Vector2 = c + dir * radius * 0.52 + _slay_push(slay_index)
 	var a: float = clampf(slay_t * 1.4, 0.0, 1.0)
 	var blocked: bool = slay_kind == "block"
 	var escaped: bool = slay_kind == "escape"
 	var ink: Color = Color("5aa8e8") if blocked else (Color("e8c36a") if escaped else DOWN_COL)
-	var xcol := Color(ink.r, ink.g, ink.b, a)
-	var arm: float = lerpf(10.0, 54.0, a)
-	if blocked:
-		var burst: float = lerpf(18.0, 58.0, a)
-		draw_arc(pos, burst, 0.0, TAU, 28, xcol, 7.0, true)
-		draw_arc(pos, burst * 0.62, 0.2, TAU + 0.2, 22, Color(ink.r, ink.g, ink.b, a * 0.55), 4.0, true)
-		for i in 8:
-			var ang: float = float(i) * TAU / 8.0 + slay_t * 0.6
-			var inner: Vector2 = pos + Vector2.from_angle(ang) * burst * 0.18
-			var outer: Vector2 = pos + Vector2.from_angle(ang) * burst
-			draw_line(inner, outer, xcol, 5.0, true)
-	elif escaped:
-		var arc_r: float = lerpf(14.0, 42.0, a)
-		draw_arc(pos, arc_r, -0.6, 0.9, 18, xcol, 6.0, true)
+	var mark_key: String = "block" if blocked else ("escape" if escaped else "slay")
+	var frames: Array = _seat_mark_frames.get(mark_key, [])
+	if escaped:
+		pos.x += lerpf(0.0, -20.0, clampf(slay_t, 0.0, 1.0))
+		a = clampf(1.0 - slay_t * 0.9, 0.15, 1.0) * clampf(slay_t * 1.4, 0.0, 1.0)
+	if not frames.is_empty():
+		var fi: int = clampi(int(floor(clampf(slay_t, 0.0, 0.999) * float(frames.size()))), 0, frames.size() - 1)
+		var tex: Texture2D = frames[fi] as Texture2D
+		if tex != null:
+			var sc: float = 2.5
+			var sz: Vector2 = Vector2(float(tex.get_width()), float(tex.get_height())) * sc
+			var col := Color(1, 1, 1, a)
+			draw_texture_rect(tex, Rect2(pos - sz * 0.5, sz), false, col)
 	else:
-		draw_line(pos + Vector2(-arm, -arm), pos + Vector2(arm, arm), xcol, 8.0, true)
-		draw_line(pos + Vector2(arm, -arm), pos + Vector2(-arm, arm), xcol, 8.0, true)
+		var xcol := Color(ink.r, ink.g, ink.b, a)
+		var arm: float = lerpf(10.0, 54.0, a)
+		if blocked:
+			var burst: float = lerpf(18.0, 58.0, a)
+			draw_arc(pos, burst, 0.0, TAU, 28, xcol, 7.0, true)
+			draw_arc(pos, burst * 0.62, 0.2, TAU + 0.2, 22, Color(ink.r, ink.g, ink.b, a * 0.55), 4.0, true)
+			for i in 8:
+				var ang: float = float(i) * TAU / 8.0 + slay_t * 0.6
+				var inner: Vector2 = pos + Vector2.from_angle(ang) * burst * 0.18
+				var outer: Vector2 = pos + Vector2.from_angle(ang) * burst
+				draw_line(inner, outer, xcol, 5.0, true)
+		elif escaped:
+			var arc_r: float = lerpf(14.0, 42.0, a)
+			draw_arc(pos, arc_r, -0.6, 0.9, 18, xcol, 6.0, true)
+		else:
+			draw_line(pos + Vector2(-arm, -arm), pos + Vector2(arm, arm), xcol, 8.0, true)
+			draw_line(pos + Vector2(arm, -arm), pos + Vector2(-arm, arm), xcol, 8.0, true)
 	if slay_t > 0.18:
 		var word: String = COPY.text("combat.blocked", "BLOCKED") if blocked else (COPY.text("combat.escaped", "Escaped") if escaped else COPY.text("combat.slain", "SLAIN"))
 		var ta: float = clampf((slay_t - 0.18) / 0.45, 0.0, 1.0)

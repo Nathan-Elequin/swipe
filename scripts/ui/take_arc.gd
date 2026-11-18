@@ -51,6 +51,8 @@ const ICONS_UPRIGHT := true
 ## Same path as ItemFace.SHIELD — keep as a string so headless selftest can load
 ## this script without relying on global class_name registration.
 const SHIELD_PATH := "res://assets/ui/icons/pips/pip_block_s24_2x.png"
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
+const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 
 var guide_c: Vector2 = Vector2.ZERO
 var guide_r: float = 180.0
@@ -69,6 +71,7 @@ var _down: bool = false
 var _pop_tw: Tween
 ## Extra outer radius during the land pop. Layout/hit-test ignore this (inner rim stays put).
 var _pop_grow: float = 0.0
+var _crack_spr: AnimatedSprite2D
 
 
 func _ready() -> void:
@@ -569,6 +572,21 @@ func _draw_block_pip(press: Vector2) -> void:
 	if font == null:
 		return
 	_draw_pip_num(font, at, str(block_n))
+
+
+## Ice-blue crack when Block absorbs a hit and drops to 0.
+func play_shield_crack() -> void:
+	if _crack_spr != null and is_instance_valid(_crack_spr) and _crack_spr.is_playing():
+		return
+	var frames: Array = DUNGEON_ART.new().fx_frames("hub_shield_crack")
+	if frames.is_empty():
+		return
+	var at: Vector2 = block_pip_global()
+	# Crack canvas is 32 with 24px shield centred; draw at 2× with −4,−4 native offset.
+	var host: Node = get_tree().current_scene if get_tree() != null else self
+	_crack_spr = FX_ONESHOT.play(host, frames, at + Vector2(-8.0, -8.0), 2.0, 12.0, false, 55)
+	if _crack_spr != null:
+		_crack_spr.centered = true
 
 
 func _draw_take_side(press: Vector2) -> void:

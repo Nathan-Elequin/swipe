@@ -8,6 +8,7 @@ const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FRAME_METRICS := preload("res://scripts/frame_metrics.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
+const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 
 var art
 var card_id: String = ""
@@ -201,17 +202,44 @@ func hide_stage() -> void:
 	_strip_fit_size = Vector2.ZERO
 
 
-func take_hit() -> void:
+func take_hit(heavy: bool = false) -> void:
 	_flash = 1.0
-	_splatter(Color("8a1818"))
-	_burst("star", Color("f0e6d8"), 1.0)
-	_burst("spark", Color("e07a7a"), 0.85)
+	_spawn_hit_fx(heavy)
 	pivot_offset = size * 0.5
 	# Snappy punch — residual blood particles no longer stretch the feel hold.
 	var tw := create_tween()
 	tw.tween_property(self, "rotation", 0.08, 0.04)
 	tw.tween_property(self, "rotation", -0.05, 0.05)
 	tw.tween_property(self, "rotation", 0.0, 0.06)
+
+
+func _spawn_hit_fx(heavy: bool) -> void:
+	var host: Node = get_tree().current_scene if get_tree() != null else self
+	if host == null:
+		host = self
+	var center: Vector2 = body_center_global()
+	var jitter := Vector2(randf_range(-12.0, 12.0), randf_range(-8.0, 8.0))
+	var hit_stem: String = "hit_heavy" if heavy else "hit_light"
+	var hit_fps: float = 14.0 if heavy else 16.0
+	var hit_frames: Array = []
+	var blood_frames: Array = []
+	if art != null and art.has_method("fx_frames"):
+		hit_frames = art.fx_frames(hit_stem)
+		blood_frames = art.fx_frames("blood_splat")
+	else:
+		var loader = DUNGEON_ART.new()
+		hit_frames = loader.fx_frames(hit_stem)
+		blood_frames = loader.fx_frames("blood_splat")
+	if not hit_frames.is_empty():
+		FX_ONESHOT.play(host, hit_frames, center + jitter, 4.0, hit_fps, false, 42)
+	else:
+		_burst("star", Color("f0e6d8"), 1.0)
+		_burst("spark", Color("e07a7a"), 0.85)
+	if not blood_frames.is_empty():
+		var bj := Vector2(randf_range(-12.0, 12.0), randf_range(-8.0, 8.0))
+		FX_ONESHOT.play(host, blood_frames, center + bj, 4.0, 14.0, false, 41)
+	else:
+		_splatter(Color("8a1818"))
 
 
 func lunge(fast: bool = false) -> void:
@@ -284,9 +312,74 @@ func play_transform() -> void:
 
 func play_block() -> void:
 	_flash = 0.85
-	_burst("twirl", Color("5aa8e8"), 1.15)
-	_burst("magic", Color("8ec8f0"), 1.0)
-	_burst("star", Color("d8eefc"), 0.9)
+	var host: Node = get_tree().current_scene if get_tree() != null else self
+	if host == null:
+		host = self
+	var clang: Array = []
+	if art != null and art.has_method("fx_frames"):
+		clang = art.fx_frames("block_clang")
+	else:
+		clang = DUNGEON_ART.new().fx_frames("block_clang")
+	if not clang.is_empty():
+		FX_ONESHOT.play(host, clang, body_center_global(), 4.0, 16.0, false, 42)
+	else:
+		_burst("twirl", Color("5aa8e8"), 1.15)
+		_burst("magic", Color("8ec8f0"), 1.0)
+		_burst("star", Color("d8eefc"), 0.9)
+
+
+## Defeat poof + rising soul wisp; starts the body fade at poof f2.
+func play_defeat_fx() -> void:
+	var host: Node = get_tree().current_scene if get_tree() != null else self
+	if host == null:
+		host = self
+	var poof: Array = []
+	var wisp: Array = []
+	if art != null and art.has_method("fx_frames"):
+		poof = art.fx_frames("defeat_poof")
+		wisp = art.fx_frames("soul_wisp")
+	else:
+		var loader = DUNGEON_ART.new()
+		poof = loader.fx_frames("defeat_poof")
+		wisp = loader.fx_frames("soul_wisp")
+	var center: Vector2 = body_center_global()
+	if poof.is_empty():
+		await vanish()
+		return
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(host, poof, center, 4.0, 14.0, false, 44)
+	if spr == null:
+		await vanish()
+		return
+	var faded := false
+	var wisp_spawned := false
+	var on_frame := func() -> void:
+		if not is_instance_valid(spr):
+			return
+		var fi: int = spr.frame
+		if fi >= 2 and not faded:
+			faded = true
+			var tw := create_tween()
+			tw.tween_property(self, "modulate:a", 0.0, 0.2)
+		if fi >= 3 and not wisp_spawned and not wisp.is_empty():
+			wisp_spawned = true
+			var wspr: AnimatedSprite2D = FX_ONESHOT.play(host, wisp, center, 3.0, 12.0, false, 45)
+			if wspr != null:
+				var wtw := wspr.create_tween()
+				wtw.tween_property(wspr, "global_position:y", center.y - 70.0, 0.5)
+				wtw.parallel().tween_property(wspr, "modulate:a", 0.0, 0.5)
+	spr.frame_changed.connect(on_frame)
+	while is_instance_valid(spr) and spr.is_playing():
+		await get_tree().process_frame
+	if not faded:
+		await vanish()
+	else:
+		# Wait out any remaining fade, then hide.
+		if modulate.a > 0.01:
+			var tw2 := create_tween()
+			tw2.tween_property(self, "modulate:a", 0.0, 0.12)
+			await tw2.finished
+		hide_stage()
+		modulate.a = 1.0
 
 
 func play_bleed() -> void:
