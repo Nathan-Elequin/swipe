@@ -3,7 +3,7 @@ id: REQ-20261118-pixellab-final-a
 status: open
 priority: high
 pr: 557
-tip_sha: 00d8591d
+tip_sha: 09891f08
 branch: art/pixellab-final-a
 created: 2026-11-18T22:30:00Z
 created_by: cloud-agent
