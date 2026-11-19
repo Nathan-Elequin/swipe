@@ -126,14 +126,14 @@ const HP_FILL := Color("c4282a")
 const DOWN_COL := Color("c45c5c")
 const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("e8c36a")
-# Total spin_to tween length. Was 1.2 s; ~30% longer after #138 mid-spin feel.
-const SPIN_DURATION := 1.56
+# Feel pass A: kick instantly on click, ease-out into the land (~1.2s).
+const SPIN_DURATION := 1.2
 ## Wedge close after a kill. Was 0.48 s.
 const COLLAPSE_DURATION := 0.336
 ## Slay stamp. Was 0.55 s.
 const SLAY_DURATION := 0.38
-## Neighbor kills start the wedge close once the stamp is readable.
-const SLAY_RELEASE := 0.16
+## Neighbor kills / ended visuals continue once the stamp is readable (~0.2s).
+const SLAY_RELEASE := 0.2
 
 var slices: Array = []
 var facing_index: int = -1
@@ -988,8 +988,10 @@ func play_take_overlay(variant: String = "thud") -> void:
 	var c: Vector2 = _center()
 	var top: Vector2 = _layout_xy("hero", "texture_top_left_from_c", Vector2(-48, -50))
 	var hero_rect := Rect2(c + top + hub_nudge, Vector2(96, 96))
+	# Host is the scene root; convert the wheel-local hub point to global.
+	var at_global: Vector2 = get_global_transform() * hero_rect.get_center()
 	var host: Node = get_tree().current_scene if get_tree() != null else self
-	FX_ONESHOT.play(host, frames, hero_rect.get_center(), 3.0, 14.0, false, 50)
+	FX_ONESHOT.play(host, frames, at_global, 3.0, 14.0, false, 50)
 
 
 func play_pointer_tick() -> void:
@@ -1149,13 +1151,20 @@ func play_hub_sting(kind: String, amount: int = 0, release_early: bool = false) 
 
 
 func _await_bound_tween(tw: Tween) -> void:
-	## `await tw.finished` never resumes if the tween is killed mid-flight
-	## (a later create_tween / set_slices / recenter). That left Scythe's
-	## off-facing collapse with `_walker_busy` stuck on.
-	if tw == null:
+	## Prefer the finished signal. If a later create_tween kills this one mid-flight,
+	## finished never fires — fall back to a short poll so Scythe / collapse cannot stick.
+	if tw == null or not is_instance_valid(tw):
 		return
-	while is_instance_valid(tw) and tw.is_valid() and tw.is_running():
+	if not tw.is_valid() or not tw.is_running():
+		return
+	var done := {"v": false}
+	tw.finished.connect(func() -> void: done["v"] = true, CONNECT_ONE_SHOT)
+	var guard := 0
+	while is_instance_valid(tw) and tw.is_valid() and tw.is_running() and not bool(done["v"]):
 		await get_tree().process_frame
+		guard += 1
+		if guard > 600:
+			break
 
 
 func play_slay(index: int, release_early: bool = false) -> void:
@@ -1254,7 +1263,8 @@ func pulse_arrive(index: int) -> void:
 		return
 	_lift[index] = 1.25
 	queue_redraw()
-	_play_land_burst(index)
+	# Seat rings at dungeon setup: quieter variant. Full burst stays for spin land.
+	_play_land_burst(index, true)
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_BACK)
 	tw.set_ease(Tween.EASE_OUT)
@@ -1268,15 +1278,24 @@ func pulse_arrive(index: int) -> void:
 	)
 
 
-## Gold ring + glints at the landed seat (batch B #13). Non-blocking, ≤~0.36s.
-func _play_land_burst(index: int) -> void:
+## Gold ring at a seat. `quiet` ≈60% scale, lower alpha, no glints — for seating only.
+func _play_land_burst(index: int, quiet: bool = false) -> void:
 	if index < 0 or index >= slices.size():
 		return
 	var frames: Array = DUNGEON_ART.new().fx_frames("land_burst")
 	if frames.is_empty():
 		return
 	var at: Vector2 = slice_portrait_global(index)
-	FX_ONESHOT.play(self, frames, at, WHEEL_SPRITE_SCALE, 14.0, false, 34)
+	var draw_scale: float = WHEEL_SPRITE_SCALE * (0.6 if quiet else 1.0)
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, frames, at, draw_scale, 14.0, false, 34)
+	if spr != null and quiet:
+		spr.modulate = Color(1, 1, 1, 0.45)
+		# Drop glint-looking late frames so the seat ring stays a soft pulse.
+		var anim_name := &"fx"
+		if spr.sprite_frames != null and spr.sprite_frames.get_frame_count(anim_name) > 2:
+			var keep: int = mini(2, spr.sprite_frames.get_frame_count(anim_name))
+			while spr.sprite_frames.get_frame_count(anim_name) > keep:
+				spr.sprite_frames.remove_frame(anim_name, spr.sprite_frames.get_frame_count(anim_name) - 1)
 
 
 func hit_feedback(index: int, hp_lost: int, atk_delta: int = 0) -> void:
@@ -1414,7 +1433,7 @@ func spin_to(index: int) -> void:
 	_spin_tween = create_tween()
 	_spin_tween.set_ignore_time_scale(true)
 	_spin_tween.set_trans(Tween.TRANS_CUBIC)
-	_spin_tween.set_ease(Tween.EASE_IN_OUT)
+	_spin_tween.set_ease(Tween.EASE_OUT)
 	_tick_seg = -1
 	_tick_last_rot = rot
 	_peak_omega = 0.0
@@ -1986,12 +2005,14 @@ func punch_atk(index: int) -> void:
 	queue_redraw()
 
 
-func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
+func play_atk_ticks(index: int, from_n: int, to_n: int, step_s: float = -1.0) -> void:
 	if index < 0 or index >= slices.size() or from_n == to_n:
 		punch_atk(index)
 		return
 	var step: int = -1 if to_n < from_n else 1
 	var going_up: bool = step > 0
+	var steps: int = absi(to_n - from_n)
+	var wait: float = step_s if step_s >= 0.0 else minf(0.035, 0.5 / float(maxi(steps, 1)))
 	var n: int = from_n
 	_atk_disp[index] = n
 	punch_atk(index)
@@ -2000,17 +2021,19 @@ func play_atk_ticks(index: int, from_n: int, to_n: int) -> void:
 		_atk_disp[index] = n
 		punch_atk(index)
 		atk_ticked.emit(going_up)
-		if get_tree():
-			await get_tree().create_timer(0.035).timeout
+		if get_tree() and wait > 0.0:
+			await get_tree().create_timer(wait).timeout
 	_atk_disp.erase(index)
 	queue_redraw()
 
 
-func play_hp_ticks(index: int, from_n: int, to_n: int) -> void:
+func play_hp_ticks(index: int, from_n: int, to_n: int, step_s: float = -1.0) -> void:
 	if index < 0 or index >= slices.size() or from_n == to_n:
 		punch_hp(index)
 		return
 	var step: int = -1 if to_n < from_n else 1
+	var steps: int = absi(to_n - from_n)
+	var wait: float = step_s if step_s >= 0.0 else minf(0.035, 0.5 / float(maxi(steps, 1)))
 	var n: int = from_n
 	_hp_disp[index] = n
 	punch_hp(index)
@@ -2019,8 +2042,8 @@ func play_hp_ticks(index: int, from_n: int, to_n: int) -> void:
 		_hp_disp[index] = n
 		punch_hp(index)
 		hp_ticked.emit()
-		if get_tree():
-			await get_tree().create_timer(0.035).timeout
+		if get_tree() and wait > 0.0:
+			await get_tree().create_timer(wait).timeout
 	_hp_disp.erase(index)
 	queue_redraw()
 

@@ -34,8 +34,10 @@ static func play(
 	spr.z_index = z
 	spr.sprite_frames = sf
 	spr.scale = Vector2(draw_scale, draw_scale)
-	spr.global_position = global_pos
+	# Parent first so global_position is in the parent's space. Setting it before
+	# add_child treats the position as root-local, which offsets wheel-parented FX.
 	parent.add_child(spr)
+	spr.global_position = global_pos
 	spr.play(ANIM)
 	if not loop:
 		spr.animation_finished.connect(spr.queue_free, CONNECT_ONE_SHOT)
@@ -55,8 +57,7 @@ static func await_play(
 	var spr: AnimatedSprite2D = play(parent, frames, global_pos, draw_scale, fps, false, z, centered)
 	if spr == null:
 		return
-	if tree == null:
-		await spr.animation_finished
+	if not is_instance_valid(spr):
 		return
-	while is_instance_valid(spr) and spr.is_playing():
-		await tree.process_frame
+	if spr.is_playing():
+		await spr.animation_finished

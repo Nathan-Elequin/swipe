@@ -2349,6 +2349,21 @@
       "max_voices": 1,
       "priority": 0
     },
+    "wheel.num_tick_finish": {
+      "files": [
+        "ui_tick"
+      ],
+      "bus": "UI",
+      "db": -12,
+      "pitch": [
+        0.92,
+        0.98
+      ],
+      "cooldown_ms": 60,
+      "max_voices": 1,
+      "priority": 0,
+      "_note": "Feel pass A: one finish punch after a capped stat count-up."
+    },
     "wheel.detent": {
       "files": [
         "wheel_detent"

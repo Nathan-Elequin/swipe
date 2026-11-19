@@ -12,7 +12,8 @@ const VIEW_H := 1040.0
 const SNAP_MS := 120.0
 const FRAME_MS := 70.0
 const HOLD_MS := 120.0
-const FIRST_HOLD_BONUS_MS := 250.0
+## Dropped during combat (Feel pass A). Kept as 0 so first-cutin no longer pads.
+const FIRST_HOLD_BONUS_MS := 0.0
 const OUT_MS := 160.0
 const PORTRAIT_TRAIL_MS := 40.0
 ## Item gutter banner (seconds). Shorter than the old 0.12/0.38/0.16 chain so
@@ -24,6 +25,12 @@ const ITEM_FAST_IN_S := 0.05
 const ITEM_FAST_HOLD_S := 0.14
 const ITEM_FAST_OUT_S := 0.07
 const ITEM_CANT_FLEE_HOLD_S := 0.45
+## Compact queue (2+ tickets waiting): shorter hold / smaller band.
+const COMPACT_HOLD_MS := 70.0
+const COMPACT_ITEM_HOLD_S := 0.10
+const COMPACT_ITEM_IN_S := 0.05
+const COMPACT_ITEM_OUT_S := 0.06
+const COMPACT_BAND_SCALE := 0.82
 ## Extra cut-in line (Plague Doctor freeze tell): white on black, 1s dissolve.
 const LINE_DISSOLVE_MS := 1000.0
 ## Native canvases are 32/48/64/80. Show at 4x unless that exceeds 64px@4x (band fit).
@@ -34,9 +41,13 @@ var art
 var cascade_ticker
 ## Optional AudioFx from Main — ability activate SFX at cut-in snap-in.
 var sfx
+signal ticket_finished(ticket: Dictionary)
+
 var _q: Array = []
 var _draining: bool = false
 var _aborted: bool = false
+## Ticket currently in `_show`. Marked done on early release while hold/fade continues.
+var _active_ticket: Dictionary = {}
 var _tw: Tween
 var _life: float = 0.0:
 	set(v):
@@ -117,7 +128,21 @@ func mark_slash_seen(id: String) -> void:
 
 
 func is_busy() -> bool:
-	return _draining
+	## True until every ticket has released (done). Hold/fade may still be playing.
+	if not _active_ticket.is_empty() and not bool(_active_ticket.get("done", false)):
+		return true
+	for t in _q:
+		if typeof(t) == TYPE_DICTIONARY and not bool(t.get("done", false)):
+			return true
+	return false
+
+
+## Wait until queued tickets have released (done), without waiting for banner fade.
+func await_released() -> void:
+	var guard := 0
+	while is_busy() and not _aborted and guard < 90:
+		await ticket_finished
+		guard += 1
 
 
 func park_gutter(sz: Vector2, pos: Vector2) -> void:
@@ -156,6 +181,7 @@ func abort_all() -> void:
 	_drop_item_show = false
 	_q.clear()
 	_draining = false
+	_active_ticket = {}
 	if _tw != null and is_instance_valid(_tw):
 		_tw.kill()
 	_tw = null
@@ -182,6 +208,10 @@ func cancel_item_vfx() -> void:
 
 func play(payload: Dictionary) -> void:
 	_aborted = false
+	# Combat (and seating cut-ins): always allow early release so resolve can click through.
+	if not bool(payload.get("release_early", false)):
+		payload = payload.duplicate()
+		payload["release_early"] = true
 	var ticket := {"payload": payload, "done": false}
 	_q.append(ticket)
 	# Always wait on this ticket. Item banners may mark done after snap-in
@@ -190,19 +220,35 @@ func play(payload: Dictionary) -> void:
 	# damage overlaps hold/slash-out.
 	if not _draining:
 		_drain()
+	if bool(ticket.get("done", false)) or _aborted:
+		return
 	while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
-		await get_tree().process_frame
+		var got: Variant = await ticket_finished
+		if got == ticket or bool(ticket.get("done", false)):
+			break
 
 
 func _drain() -> void:
 	_draining = true
 	FX_BUDGET.begin_heavy()
 	while not _q.is_empty() and not _aborted:
+		# Compact when 2+ tickets are queued (this one + at least one waiting).
+		var compact: bool = _q.size() >= 2
 		var t: Dictionary = _q.pop_front()
+		var payload: Dictionary = t.get("payload", {})
+		if typeof(payload) == TYPE_DICTIONARY:
+			payload = (payload as Dictionary).duplicate()
+			if compact or bool(payload.get("compact", false)):
+				payload["compact"] = true
+			t["payload"] = payload
+		_active_ticket = t
 		await _show(t.get("payload", {}), t)
 		t["done"] = true
+		_active_ticket = {}
+		ticket_finished.emit(t)
 	FX_BUDGET.end_heavy()
 	_draining = false
+	_active_ticket = {}
 	if _aborted:
 		_q.clear()
 
@@ -243,11 +289,12 @@ func _show(payload: Dictionary, ticket: Dictionary = {}) -> void:
 	# time_scale already speeds the cascade; do not also divide holds by 3 while FF.
 	var fast: bool = bool(payload.get("fast", false)) and not _ff_holds
 	var release_early: bool = bool(payload.get("release_early", false))
+	var compact: bool = bool(payload.get("compact", false))
 	_mute_snap_sfx = bool(payload.get("mute_snap_sfx", false))
 	if _is_item:
-		await _show_item(fast, release_early, ticket)
+		await _show_item(fast, release_early, ticket, compact)
 	else:
-		await _show_cutin(fast, release_early, ticket)
+		await _show_cutin(fast, release_early, ticket, compact)
 	visible = false
 	_cutin_active = false
 	_set_cutin_visible(false)
@@ -270,38 +317,41 @@ func _ticker_stamp(ticket_i: int) -> void:
 		cascade_ticker.stamp(ticket_i)
 
 
-func _show_item(fast: bool, release_early: bool = false, ticket: Dictionary = {}) -> void:
+func _show_item(fast: bool, release_early: bool = false, ticket: Dictionary = {}, compact: bool = false) -> void:
 	_cutin_active = false
 	_set_cutin_visible(false)
 	size = _gutter_size if _gutter_size.x >= 32.0 else Vector2(252, 200)
+	if compact:
+		size = size * Vector2(COMPACT_BAND_SCALE, COMPACT_BAND_SCALE)
 	global_position = _gutter_pos
 	if size.x < 32.0 or size.y < 32.0:
 		size = Vector2(252, 200)
-	var snap: float = ITEM_FAST_IN_S if fast else ITEM_IN_S
-	var hold: float = ITEM_CANT_FLEE_HOLD_S if _call == "Can't Flee" else (ITEM_FAST_HOLD_S if fast else ITEM_HOLD_S)
-	var fade: float = ITEM_FAST_OUT_S if fast else ITEM_OUT_S
+	var snap: float = COMPACT_ITEM_IN_S if compact else (ITEM_FAST_IN_S if fast else ITEM_IN_S)
+	var hold: float = ITEM_CANT_FLEE_HOLD_S if _call == "Can't Flee" else (COMPACT_ITEM_HOLD_S if compact else (ITEM_FAST_HOLD_S if fast else ITEM_HOLD_S))
+	var fade: float = COMPACT_ITEM_OUT_S if compact else (ITEM_FAST_OUT_S if fast else ITEM_OUT_S)
 	# Snap in first so callers with release_early can apply the item effect
 	# while the banner still holds/fades (use→resolve wall-clock).
 	_tw = create_tween()
 	_tw.tween_property(self, "_life", 1.0, snap).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted and not _drop_item_show:
-		await get_tree().process_frame
+	if _tw.is_running():
+		await _tw.finished
 	if _aborted or _drop_item_show:
 		_drop_item_show = false
 		return
 	if release_early and not ticket.is_empty():
 		ticket["done"] = true
+		ticket_finished.emit(ticket)
 	_tw = create_tween()
 	_tw.tween_interval(hold)
 	_tw.tween_property(self, "_life", 0.0, fade).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	while _tw != null and _tw.is_valid() and _tw.is_running() and not _aborted and not _drop_item_show:
-		await get_tree().process_frame
+	if _tw.is_running():
+		await _tw.finished
 	if _drop_item_show:
 		_drop_item_show = false
 		return
 
 
-func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {}) -> void:
+func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {}, compact: bool = false) -> void:
 	_cutin_active = true
 	size = Vector2(VIEW_W, VIEW_H)
 	global_position = Vector2.ZERO
@@ -318,6 +368,7 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	var start_off: Vector2 = -axis * 1900.0
 	_band_host.position = start_off
 	_band_host.modulate = Color(1, 1, 1, 1)
+	_band_host.scale = Vector2(COMPACT_BAND_SCALE, COMPACT_BAND_SCALE) if compact else Vector2.ONE
 	_half_a.position = Vector2.ZERO
 	_half_b.position = Vector2.ZERO
 	_half_a.modulate.a = 1.0
@@ -396,7 +447,8 @@ func _show_cutin(fast: bool, release_early: bool = false, ticket: Dictionary = {
 	# (same wall-clock idea as item gutter release_early after snap-in).
 	if release_early and not ticket.is_empty():
 		ticket["done"] = true
-	var hold_ms: float = HOLD_MS + (FIRST_HOLD_BONUS_MS if first else 0.0)
+		ticket_finished.emit(ticket)
+	var hold_ms: float = (COMPACT_HOLD_MS if compact else HOLD_MS) + (FIRST_HOLD_BONUS_MS if first else 0.0)
 	if _line != "" and _line_host:
 		hold_ms = maxf(hold_ms, LINE_DISSOLVE_MS)
 		var line_tw := create_tween()

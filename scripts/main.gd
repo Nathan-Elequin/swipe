@@ -19,6 +19,7 @@ const PLAYER_COPY := preload("res://scripts/player_copy.gd")
 const PlaytestUx := preload("res://scripts/playtest_ux.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
 const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
+const POISON_BADGE_TEX := preload("res://assets/ui/anim/poison_badge_drip_f0.png")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
 const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
@@ -555,6 +556,8 @@ var beads_step: int = 1
 var _reroll_skip: int = -1
 var rng := RandomNumberGenerator.new()
 var _hotbar_sig: String = ""
+## -1 unknown, 0 tray, 1 seated seats — skip StyleBoxFlat rebuild when unchanged.
+var _hotbar_seated_theme: int = -1
 var _item_pulses: Array = []
 var _blk_shown: int = -1
 var _ghost_blk: int = -1
@@ -1020,6 +1023,7 @@ func _ready() -> void:
 	art = DUNGEON_ART.new()
 	add_child(art)
 	art.setup()
+	DUNGEON_ART.warm_fx_cache()
 	_prefer_pixel_art()
 	_build_ui()
 	_empty_wheel()
@@ -7185,6 +7189,7 @@ func _challenge_after_fight() -> void:
 		if _undo_stale(token):
 			return
 		_challenge_vacate(facing_index)
+	var multi_slay: Array[int] = []
 	for i in range(wheel.size()):
 		if _undo_stale(token):
 			return
@@ -7199,11 +7204,16 @@ func _challenge_after_fight() -> void:
 		await _wick_on_defeated(i)
 		if _undo_stale(token):
 			return
-		if wheel_view:
-			await wheel_view.play_slay(i)
-		if _undo_stale(token):
-			return
+		multi_slay.append(i)
 		_challenge_vacate(i)
+	# Parallel multi-kill slays (Feel pass A) — fire together, wait once.
+	if wheel_view and not multi_slay.is_empty():
+		for si in multi_slay:
+			if _undo_stale(token):
+				break
+			wheel_view.play_slay(si, true)
+		if get_tree() and not _undo_stale(token):
+			await get_tree().create_timer(0.2).timeout
 	if _undo_stale(token):
 		return
 	facing_index = -1
@@ -7955,44 +7965,20 @@ func _slice_outward(index: int, hp_stat: bool, dist: float = 84.0) -> Vector2:
 
 
 func _tick_stat_heard(index: int, hp_stat: bool, leaving: bool = false) -> void:
-	## One counted step. No flying heart. The number punches, a tick plays, and
-	## a +1 or -1 pops off the pip so the change is readable.
-	_show_sync_slice(index, hp_stat)
-	_play_stat_pulse(hp_stat, leaving)
-	_pop_stat_step(index, hp_stat, leaving)
-	if get_tree():
-		await get_tree().create_timer(0.18).timeout
-
-
-func _pop_stat_step(index: int, hp_stat: bool, leaving: bool) -> void:
-	var at: Vector2 = _stat_pip_pos(index, hp_stat)
-	if at == Vector2.ZERO:
+	## Legacy single-step entry. Prefer `_play_stat_count` for multi-step changes.
+	if index < 0 or index >= wheel.size():
 		return
-	var lab := Label.new()
-	lab.text = "-1" if leaving else "+1"
-	lab.add_theme_font_size_override("font_size", 22)
-	lab.add_theme_color_override("font_color", Color("e8a0a0") if hp_stat else Color("e07040"))
-	lab.add_theme_color_override("font_outline_color", Color("100e0c"))
-	lab.add_theme_constant_override("outline_size", 6)
-	lab.z_index = 48
-	lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(lab)
-	lab.global_position = at + Vector2(-14, -30)
-	var tw := create_tween()
-	tw.set_parallel(true)
-	tw.tween_property(lab, "global_position", at + Vector2(-14, -58), 0.2)
-	tw.tween_property(lab, "modulate:a", 0.0, 0.2).set_delay(0.06)
-	tw.finished.connect(lab.queue_free, CONNECT_ONE_SHOT)
+	var key: String = "hp" if hp_stat else "atk"
+	var to_n: int = int(wheel[index].get(key, 0))
+	var from_n: int = to_n + (1 if leaving else -1)
+	await _play_stat_count(index, hp_stat, from_n, to_n, _stat_pip_pos(index, hp_stat))
 
 
 func _play_stat_pulse(hp_stat: bool, leaving: bool = false) -> void:
 	if sfx == null:
 		return
-	# HP courier pulse stays on mon.leech_pulse (unchanged sample + pitches).
-	# Attack uses a different base sample so ATK up/down never match HP ticks.
 	if hp_stat:
-		var pitch: float = 0.88 if leaving else 1.08
-		sfx.play_event(&"mon.leech_pulse", {"pitch_mul": pitch})
+		sfx.play_event(&"wheel.num_tick_hp")
 		return
 	if leaving:
 		sfx.play_event(&"wheel.num_tick_atk_down")
@@ -8001,39 +7987,13 @@ func _play_stat_pulse(hp_stat: bool, leaving: bool = false) -> void:
 
 
 func _fly_stat_courier(from: Vector2, to: Vector2, hp_stat: bool, leaving: bool = false) -> void:
-	var tex: Texture2D = tex_heart if hp_stat else tex_sword
-	if _qa_instant() or tex == null or _courier == null:
-		_play_stat_pulse(hp_stat, leaving)
-		return
+	## Kept for rare one-off flights; multi-step callers use `_play_stat_count`.
 	if from == Vector2.ZERO:
 		from = to
 	if to == Vector2.ZERO:
 		to = from
-	_clear_courier_gear()
-	_courier.texture = tex
-	_courier.size = Vector2(96, 96)
-	_courier.pivot_offset = Vector2(48, 48)
-	_courier.scale = Vector2.ONE
-	_courier.modulate = Color(1, 1, 1, 1)
-	_courier.rotation = 0.0
-	_courier.global_position = from - _courier.pivot_offset
-	_courier.visible = true
-	if sfx:
-		sfx.play("whoosh", -10.0, 1.1)
-	var dur: float = 0.16
-	var tw := create_tween()
-	tw.set_trans(Tween.TRANS_CUBIC)
-	tw.set_ease(Tween.EASE_IN)
-	tw.tween_property(_courier, "global_position", to - _courier.pivot_offset, dur)
-	if leaving:
-		tw.parallel().tween_property(_courier, "modulate:a", 0.0, dur)
-		tw.parallel().tween_property(_courier, "scale", Vector2(0.55, 0.55), dur)
-	else:
-		tw.parallel().tween_property(_courier, "scale", Vector2(0.42, 0.42), dur)
-	await tw.finished
-	_courier.visible = false
-	_courier.scale = Vector2.ONE
-	_courier.modulate = Color.WHITE
+	if from != to:
+		await _radiate_line(from, to, _link_color("buff_hp" if hp_stat else "buff_atk"), 0.03, false)
 	_play_stat_pulse(hp_stat, leaving)
 
 
@@ -8053,19 +8013,52 @@ func _show_hp_loss_pips(index: int, before: int) -> void:
 	await _play_stat_delta(index, true, -lost, _slice_from(index))
 
 
+## Radiate from origin, then badge count-up/down capped at 0.5s, finish punch + land burst.
+func _play_stat_count(index: int, is_hp: bool, from_n: int, to_n: int, origin: Vector2 = Vector2.ZERO) -> void:
+	if index < 0 or index >= wheel.size() or from_n == to_n:
+		return
+	if _qa_instant():
+		_show_sync_slice(index, is_hp)
+		if wheel_view:
+			if is_hp:
+				wheel_view.punch_hp(index)
+			else:
+				wheel_view.punch_atk(index)
+		return
+	var dest: Vector2 = _stat_pip_pos(index, is_hp)
+	var from_pos: Vector2 = origin if origin != Vector2.ZERO else dest
+	if from_pos != dest:
+		await _radiate_line(from_pos, dest, _link_color("buff_hp" if is_hp else "buff_atk"), 0.03, true, false, 0)
+	var steps: int = absi(to_n - from_n)
+	var step_s: float = minf(0.035, 0.5 / float(maxi(steps, 1)))
+	if wheel_view:
+		if is_hp:
+			await wheel_view.play_hp_ticks(index, from_n, to_n, step_s)
+		else:
+			await wheel_view.play_atk_ticks(index, from_n, to_n, step_s)
+	_show_sync_slice(index, is_hp)
+	if wheel_view:
+		if is_hp:
+			wheel_view.punch_hp(index)
+		else:
+			wheel_view.punch_atk(index)
+		if wheel_view.has_method("_play_land_burst"):
+			wheel_view._play_land_burst(index, true)
+	if sfx:
+		sfx.play_event(&"wheel.num_tick_finish")
+
+
 func _play_stat_delta(index: int, hp_stat: bool, delta: int, from_pos: Vector2 = Vector2.ZERO) -> void:
+	## Assumes the wheel value is already at the post-change number.
 	if index < 0 or index >= wheel.size() or delta == 0:
 		return
-	if delta > 0:
-		var dest: Vector2 = _stat_pip_pos(index, hp_stat)
-		var origin: Vector2 = from_pos if from_pos != Vector2.ZERO else _slice_outward(index, hp_stat)
-		for _i in delta:
-			await _fly_stat_courier(origin, dest, hp_stat, false)
-			_show_sync_slice(index, hp_stat)
-		return
-	for _j in absi(delta):
-		await _fly_stat_courier(_stat_pip_pos(index, hp_stat), _slice_outward(index, hp_stat), hp_stat, true)
-		_show_sync_slice(index, hp_stat)
+	var key: String = "hp" if hp_stat else "atk"
+	var to_n: int = int(wheel[index].get(key, 0))
+	var from_n: int = to_n - delta
+	var origin: Vector2 = from_pos
+	if origin == Vector2.ZERO:
+		origin = _slice_outward(index, hp_stat) if delta > 0 else _stat_pip_pos(index, hp_stat)
+	await _play_stat_count(index, hp_stat, from_n, to_n, origin)
 
 
 func _skeleton_overwrite_hp(s: Dictionary) -> void:
@@ -10772,6 +10765,25 @@ func _toggle_keyword_defs_editor() -> void:
 		keyword_defs_ed.toggle()
 
 
+func _preload_spin_land(idx: int) -> void:
+	## Touch portrait / idle / run frames during the spin so land avoids disk work.
+	if idx < 0 or idx >= wheel.size() or art == null:
+		return
+	var mid: String = str(wheel[idx].get("card_id", "")).strip_edges()
+	if mid == "":
+		return
+	if art.has_method("monster_portrait_frames"):
+		art.monster_portrait_frames(mid)
+	if art.has_method("monster_facing_idle"):
+		art.monster_facing_idle(mid)
+	if art.has_method("monster_idle"):
+		art.monster_idle(mid)
+	if art.has_method("monster_run"):
+		art.monster_run(mid)
+	if art.has_method("monster_slash_frames"):
+		art.monster_slash_frames(mid)
+
+
 func _on_spin() -> void:
 	_notify_keyword_tip_action()
 	if _cap_discard_open():
@@ -10892,6 +10904,8 @@ func _on_spin() -> void:
 			sfx.forge_boss_spin()
 		sfx.play("door_open", -10.0)
 		sfx.play("whoosh", -12.0, 0.9)
+	# Warm landing portrait/art while the wheel spins so the land frame stays light.
+	_preload_spin_land(idx)
 	await wheel_view.spin_to(idx)
 	if phase != "spinning":
 		FRAME_METRICS.span_cancel("spin_to_callout")
@@ -10974,11 +10988,12 @@ func _on_spin() -> void:
 		combat_stage.show_monster(str(m.get("card_id", "")), int(m.get("tier", 1)))
 		_tune_combat_stage()
 	_refresh()
-	# Land callout: one sync place now so portrait + plate appear with the seat.
-	# Later refreshes still coalesce via dirty flush (#141) — this does not blank
-	# the gutter sig, so the deferred flush from `_refresh_face` early-outs.
+	# Land callout: portrait + plate + intent in one pass (no one-frame late pop).
 	if not _spin_holds_fight_art():
 		_place_fight_art(true)
+	_sync_intent_plate()
+	if intent_plate != null and intent_plate.has_method("reanchor"):
+		intent_plate.reanchor()
 	FRAME_METRICS.span_end("spin_to_callout")
 	_bleed_begin()
 	if cascade_ticker != null:
@@ -11124,14 +11139,9 @@ func _on_spin() -> void:
 	_undo_arm()
 	_spin_inflight = false
 	await _unlock_if_fighting()
-	# Layout is often deferred one frame after Spin lands; re-sync so the
-	# intent plate is not left at the pre-layout stage rect (missing on the
-	# first fight until a later refresh).
-	if phase == "fighting":
-		await get_tree().process_frame
-		_sync_intent_plate()
-		if intent_plate != null and intent_plate.has_method("reanchor"):
-			intent_plate.reanchor()
+	# Intent already placed on the land frame; only re-anchor if layout moved.
+	if phase == "fighting" and intent_plate != null and intent_plate.has_method("reanchor"):
+		intent_plate.reanchor()
 	if in_tutorial and phase == "fighting":
 		call_deferred("_tutorial_combat_started")
 
@@ -11376,9 +11386,12 @@ func _play_ended_visuals(banner: String = "slay") -> void:
 			combat_stage.play_defeat_fx()
 			started_defeat = true
 		if wheel_view and facing_index >= 0:
-			await wheel_view.play_slay(facing_index)
+			# Early release (~0.2s): continue while poof finishes over the result.
+			await wheel_view.play_slay(facing_index, true)
 		if started_defeat and is_instance_valid(combat_stage) and combat_stage.has_method("wait_defeat_fx"):
-			await combat_stage.wait_defeat_fx()
+			# Do not await the full poof — overlap with the next beat after ~0.2s.
+			if get_tree():
+				await get_tree().create_timer(0.2).timeout
 		elif combat_stage:
 			await combat_stage.vanish()
 	elif banner == "escape":
@@ -11870,11 +11883,9 @@ func _maybe_auto_spin() -> void:
 	if _qa_busy() and not _is_adventure_mode():
 		return
 	_trace_resolve("auto-spin after settle phase=%s" % phase)
-	if ability_slash != null:
-		var guard := 0
-		while ability_slash.visible and guard < 90:
-			await get_tree().process_frame
-			guard += 1
+	# Wait only for ticket release — Spin may start while the last banner fades.
+	if ability_slash != null and ability_slash.has_method("await_released"):
+		await ability_slash.await_released()
 	await _await_beggar_marks()
 	# One Spin at a time. Flee / a poison death can finish a fight while this
 	# lock is still held, so the inner auto-spin would skip and leave Ready
@@ -12750,7 +12761,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 	if str(it.get("card_id", "")) == "echo_bell":
 		# item.use.echo_bell already fired in _announce_item_use.
 		if get_tree():
-			await get_tree().create_timer(0.09).timeout
+			await get_tree().create_timer(0.045).timeout
 	match kind:
 		"shield_alt":
 			if _shield_face(it) == "atk":
@@ -14720,22 +14731,23 @@ func _clockwork_synchronize(index: int) -> void:
 
 func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 	var key: String = "hp" if hp_stat else "atk"
-	var guard: int = 0
-	while guard < 48:
-		guard += 1
-		if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
-			return
-		if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
-			return
-		var av: int = int(wheel[a].get(key, 0))
-		var bv: int = int(wheel[b].get(key, 0))
-		if av == bv:
-			return
-		var low: int = a if av < bv else b
-		if guard == 1:
-			await _radiate_line(_slice_from(src), _stat_pip_pos(low, hp_stat), _link_color("synchronize"))
-		_sync_grant_one(src, low, hp_stat)
-		await _tick_stat_heard(low, hp_stat, false)
+	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
+		return
+	if int(wheel[a].get("hp", 0)) <= 0 or int(wheel[b].get("hp", 0)) <= 0:
+		return
+	var av: int = int(wheel[a].get(key, 0))
+	var bv: int = int(wheel[b].get(key, 0))
+	if av == bv:
+		return
+	var low: int = a if av < bv else b
+	var goal: int = bv if av < bv else av
+	var before: int = av if av < bv else bv
+	await _radiate_line(_slice_from(src), _stat_pip_pos(low, hp_stat), _link_color("synchronize"))
+	var cur: int = before
+	while cur < goal and cur < before + 48:
+		_sync_grant_instant(low, hp_stat)
+		cur += 1
+	await _play_stat_count(low, hp_stat, before, goal, _slice_from(src))
 	if a < 0 or b < 0 or a >= wheel.size() or b >= wheel.size():
 		return
 	var av2: int = int(wheel[a].get(key, 0))
@@ -14743,12 +14755,13 @@ func _sync_pair_stat(src: int, a: int, b: int, hp_stat: bool) -> void:
 	if av2 == bv2:
 		return
 	var low2: int = a if av2 < bv2 else b
-	var goal: int = bv2 if av2 < bv2 else av2
-	var cur: int = av2 if av2 < bv2 else bv2
-	while cur < goal:
+	var goal2: int = bv2 if av2 < bv2 else av2
+	var before2: int = av2 if av2 < bv2 else bv2
+	var cur2: int = before2
+	while cur2 < goal2:
 		_sync_grant_instant(low2, hp_stat)
-		cur += 1
-	_show_sync_slice(low2, hp_stat)
+		cur2 += 1
+	await _play_stat_count(low2, hp_stat, before2, goal2, _slice_from(src))
 
 
 func _sync_grant_one(_src: int, low: int, hp_stat: bool) -> void:
@@ -15032,20 +15045,13 @@ func _love_gift_hp(live_uid: int, gift: int, from: Vector2) -> void:
 	var j := _index_of_seat(live_uid)
 	if j < 0 or int(wheel[j].get("hp", 0)) <= 0:
 		return
-	await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"))
-	for _pip in gift:
-		j = _index_of_seat(live_uid)
-		if j < 0 or int(wheel[j].get("hp", 0)) <= 0:
-			break
-		var n: Dictionary = wheel[j]
-		n["hp"] = int(n.get("hp", 0)) + 1
-		n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
-		n["hp_locked"] = true
-		wheel[j] = n
-		_show_sync_slice(j, true)
-		_play_stat_pulse(true, false)
-		if get_tree():
-			await get_tree().create_timer(0.08).timeout
+	var before: int = int(wheel[j].get("hp", 0))
+	var n: Dictionary = wheel[j]
+	n["hp"] = before + gift
+	n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
+	n["hp_locked"] = true
+	wheel[j] = n
+	await _play_stat_count(j, true, before, before + gift, from)
 	_sync_wheel_stats()
 	_log("on_resolve", "Love Potion gives %s HP" % gift)
 
@@ -15675,7 +15681,7 @@ func _tick_player_poison() -> bool:
 	if poison_pop != null and poison_pop.has_method("burst_hub"):
 		await poison_pop.burst_hub(n)
 	elif get_tree():
-		await get_tree().create_timer(0.22).timeout
+		await get_tree().create_timer(0.11).timeout
 	player_poison = 0
 	var before: int = hp
 	hp = maxi(0, hp - n)
@@ -17551,19 +17557,16 @@ func _grow_vampires() -> void:
 		any = true
 		await _announce_slice(i, _slice_hp_pos(i))
 		var hub: Vector2 = _hub_hp_pos()
-		await _fly_stat_courier(hub, _stat_pip_pos(i, true), true, false)
-		s = wheel[i]
+		var hp_before: int = int(s.get("hp", 0))
+		var atk_before: int = int(s.get("atk", 0))
 		s["bloodlust"] = int(s.get("bloodlust", 0)) + 1
-		s["hp"] = int(s.get("hp", 0)) + 1
+		s["hp"] = hp_before + 1
 		s["hp_max"] = int(s.get("hp_max", s["hp"])) + 1
 		s["hp_locked"] = true
+		s["atk"] = atk_before + 1
 		wheel[i] = s
-		_show_sync_slice(i, true)
-		await _fly_stat_courier(hub, _stat_pip_pos(i, false), false, false)
-		s = wheel[i]
-		s["atk"] = int(s.get("atk", 0)) + 1
-		wheel[i] = s
-		_show_sync_slice(i, false)
+		await _play_stat_count(i, true, hp_before, hp_before + 1, hub)
+		await _play_stat_count(i, false, atk_before, atk_before + 1, hub)
 		_log("var", "Vampire +1 HP +1 ATK  →  %s/%s  ATK %s" % [s["hp"], s["hp_max"], s["atk"]])
 	if any:
 		_refresh()
@@ -17818,37 +17821,29 @@ func _announce_item_use(it: Dictionary, to: Vector2 = Vector2.INF, release_early
 	_sfx_item_use(iid)
 	## Batch B utility moments / projectiles — visual only, ≤0.45s, never blocks rules.
 	_play_item_utility_fx(it, to)
-	await _play_item_projectile_fx(it, to)
+	# Projectile + banner together; return on arrival so damage applies then.
 	if ability_slash:
 		var tex: Texture2D = _item_icon_tex(it)
 		var ticket_i: int = -1
 		if cascade_ticker != null and cascade_ticker.active:
 			ticket_i = cascade_ticker.push(iid, tex)
-		await ability_slash.play({
+		ability_slash.play({
 			"title": title,
 			"call": "",
 			"tex": tex,
 			"is_item": true,
 			"card_id": iid,
 			"ticket": ticket_i,
-			# Default: release after gutter snap-in so ATK/BLK land during hold/fade.
-			# Signpost / Hypnotize must wait the full banner — overlapping it with
-			# an owner lunge freezes (item banner + run frames + hall redraw).
 			"release_early": release_early,
 		})
+	await _play_item_projectile_fx(it, to)
 	_log_begin_item(it)
 
 
 func _ticker_push_poison(id: String) -> void:
 	if cascade_ticker == null or not cascade_ticker.active:
 		return
-	var tex: Texture2D = null
-	if ResourceLoader.exists("res://assets/ui/anim/poison_badge_drip_f0.png"):
-		tex = load("res://assets/ui/anim/poison_badge_drip_f0.png") as Texture2D
-	elif ResourceLoader.exists("res://assets/ui/anim/intent_chip_drop.png"):
-		tex = load("res://assets/ui/anim/intent_chip_drop.png") as Texture2D
-	elif ResourceLoader.exists("res://assets/icons/droplet.svg"):
-		tex = load("res://assets/icons/droplet.svg") as Texture2D
+	var tex: Texture2D = POISON_BADGE_TEX
 	var ticket_i: int = cascade_ticker.push(id, tex)
 	if ticket_i >= 0:
 		cascade_ticker.light(ticket_i)
@@ -18720,15 +18715,18 @@ func _leech_pulse(index: int) -> void:
 		return
 	var target: int = cands[rng.randi_range(0, cands.size() - 1)]
 	await _radiate_line(_slice_from(index), _stat_pip_pos(target, true), _link_color("leech_lowest"))
+	var before: int = int(wheel[target].get("hp", 0))
 	var steps: int = 0
 	while steps < 48:
 		steps += 1
 		_grant_leech_hp(target)
-		await _tick_stat_heard(target, true, false)
-		_log("on_spin", "Leech +1 HP → %s" % str(wheel[target].get("name", "?")))
-		_refresh()
 		if _leech_hp_tied(target):
 			break
+	var after: int = int(wheel[target].get("hp", 0))
+	if after != before:
+		await _play_stat_count(target, true, before, after, _slice_from(index))
+		_log("on_spin", "Leech +%s HP → %s" % [after - before, str(wheel[target].get("name", "?"))])
+		_refresh()
 
 
 func _leech_hp_tied(index: int) -> bool:
@@ -18911,28 +18909,14 @@ func _step_berserkers() -> void:
 			_berserk_line = "I'm getting angry!"
 			_berserk_talk_index = i
 			_place_speech()
-		var outburst_now: int = int(s.get("outburst", 0))
-		if delta > 0:
-			for _step in delta:
-				await _fly_stat_courier(_slice_outward(i, false), _stat_pip_pos(i, false), false, false)
-				outburst_now += 1
-				s = wheel[i]
-				s["outburst"] = outburst_now
-				wheel[i] = s
-				_sync_wheel_stats()
-				_show_sync_slice(i, false)
-		elif delta < 0:
-			for _drop in absi(delta):
-				await _fly_stat_courier(_stat_pip_pos(i, false), _slice_outward(i, false), false, true)
-				outburst_now -= 1
-				s = wheel[i]
-				s["outburst"] = outburst_now
-				wheel[i] = s
-				_sync_wheel_stats()
-				_show_sync_slice(i, false)
-		else:
-			s["outburst"] = nxt - base_n
-			wheel[i] = s
+		var atk_before: int = int(s.get("atk", 0))
+		s["outburst"] = nxt - base_n
+		wheel[i] = s
+		_sync_wheel_stats()
+		var atk_after: int = int(wheel[i].get("atk", 0))
+		if atk_after != atk_before:
+			var origin: Vector2 = _slice_outward(i, false) if atk_after > atk_before else _stat_pip_pos(i, false)
+			await _play_stat_count(i, false, atk_before, atk_after, origin)
 		if _berserk_talk_index == i:
 			_berserk_line = ""
 			_berserk_talk_index = -1
@@ -19359,31 +19343,22 @@ func _apply_queen_eggs_on_spin() -> void:
 			if sfx:
 				sfx.play_event(&"egg.queen_eat")
 			var qi: int = facing_index
-			for egg_i in bonus:
-				var from: Vector2 = Vector2.ZERO
-				if egg_i < egg_from.size():
-					from = egg_from[egg_i]
-				if from == Vector2.ZERO and hotbar_box:
-					from = hotbar_box.global_position + hotbar_box.size * 0.5
-				for _hp_pip in 2:
-					if qi < 0 or qi >= wheel.size():
-						break
-					await _fly_stat_courier(from, _stat_pip_pos(qi, true), true, false)
-					var qh: Dictionary = wheel[qi]
-					qh["hp"] = int(qh.get("hp", 0)) + 1
-					qh["hp_max"] = int(qh.get("hp_max", qh["hp"])) + 1
-					qh["hp_locked"] = true
-					wheel[qi] = qh
-					_show_sync_slice(qi, true)
-				for _atk_pip in 2:
-					if qi < 0 or qi >= wheel.size():
-						break
-					await _fly_stat_courier(from, _stat_pip_pos(qi, false), false, false)
-					var qa: Dictionary = wheel[qi]
-					qa["egg_atk"] = int(qa.get("egg_atk", 0)) + 1
-					wheel[qi] = qa
-					_sync_wheel_stats()
-					_show_sync_slice(qi, false)
+			var from: Vector2 = egg_from[0] if not egg_from.is_empty() else Vector2.ZERO
+			if from == Vector2.ZERO and hotbar_box:
+				from = hotbar_box.global_position + hotbar_box.size * 0.5
+			if qi >= 0 and qi < wheel.size():
+				var qh: Dictionary = wheel[qi]
+				var hp0: int = int(qh.get("hp", 0))
+				var atk0: int = int(qh.get("atk", 0))
+				qh["hp"] = hp0 + bonus * 2
+				qh["hp_max"] = int(qh.get("hp_max", qh["hp"])) + bonus * 2
+				qh["hp_locked"] = true
+				qh["egg_atk"] = int(qh.get("egg_atk", 0)) + bonus * 2
+				wheel[qi] = qh
+				_sync_wheel_stats()
+				var atk1: int = int(wheel[qi].get("atk", 0))
+				await _play_stat_count(qi, true, hp0, hp0 + bonus * 2, from)
+				await _play_stat_count(qi, false, atk0, atk1, from)
 			_log("var", "Queen +%s HP +%s ATK" % [2 * bonus, 2 * bonus])
 			var bandit_from: Vector2 = egg_from[0] if not egg_from.is_empty() else Vector2.ZERO
 			await _echo_bandits(bandit_from)
@@ -19665,7 +19640,7 @@ func _apply_scorpion_on_spin() -> void:
 	if sfx:
 		sfx.play_event(&"mon.cleric_tax")
 	if get_tree():
-		await get_tree().create_timer(0.55).timeout
+		await get_tree().create_timer(0.275).timeout
 	if wheel_view:
 		wheel_view.aura_index = -1
 	if phase != "fighting":
@@ -19715,7 +19690,7 @@ func _apply_magicat_on_spin() -> void:
 	if sfx:
 		sfx.play_event(&"mon.cleric_tax")
 	if get_tree():
-		await get_tree().create_timer(0.55).timeout
+		await get_tree().create_timer(0.275).timeout
 	if wheel_view:
 		wheel_view.aura_index = -1
 	var from: Vector2 = Vector2.ZERO
@@ -20723,8 +20698,9 @@ func _radiate_line(from: Vector2, to: Vector2, col: Color, linger: float = 0.06,
 				_sfx_ability(sound_id)
 		var link := ABILITY_LINK.new()
 		add_child(link)
-		await link.play(from, to, col, (0.34 / 1.5) / pace)
-		var hold: float = linger / pace
+		# Feel pass A: halved travel + linger.
+		await link.play(from, to, col, (0.17 / 1.5) / pace)
+		var hold: float = (linger * 0.5) / pace
 		if hold > 0.0 and get_tree():
 			await get_tree().create_timer(hold).timeout
 		if is_instance_valid(link):
@@ -22076,8 +22052,11 @@ func _sandbag_after_spin() -> bool:
 	if sfx:
 		sfx.play_event(&"run.knight_off")
 	if facing_index >= 0:
-		await _play_stat_delta(facing_index, false, -2)
-	_sandbag_lose_atk()
+		var atk_before: int = int(wheel[facing_index].get("atk", 0))
+		_sandbag_lose_atk()
+		await _play_stat_count(facing_index, false, atk_before, int(wheel[facing_index].get("atk", 0)), _slice_atk_pos(facing_index))
+	else:
+		_sandbag_lose_atk()
 	_refresh()
 	if await _flee_spin():
 		_undo_arm()
@@ -22459,7 +22438,7 @@ func _quicksand_crab_on_spin() -> void:
 	if _is_silenced(wheel[seat]) or int(wheel[seat].get("hp", 0)) <= 0:
 		return
 	_sfx_ability("quicksand_crab")
-	await get_tree().create_timer(0.12).timeout
+	await get_tree().create_timer(0.06).timeout
 	var from: Vector2 = Vector2.ZERO
 	if wheel_view != null and wheel_view.has_method("slice_portrait_global"):
 		from = wheel_view.slice_portrait_global(seat)
@@ -23364,7 +23343,8 @@ func _play_shield_crack() -> void:
 		take_arc.play_shield_crack()
 
 
-## Play mapped item strike over the combat portrait. Returns after the beat (≤~0.45s).
+## Play mapped item strike over the combat portrait. Returns on the impact frame;
+## the rest of the anim finishes over the result without blocking resolve.
 func _play_item_strike_fx(it: Dictionary) -> void:
 	if it.is_empty() or combat_stage == null or not combat_stage.visible:
 		return
@@ -23396,6 +23376,7 @@ func _play_item_strike_fx(it: Dictionary) -> void:
 	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, play_frames, center, 4.0, fps, false, 46)
 	if spr == null:
 		return
+	var impact_frame: int = 4 if cid == "sledgehammer" else maxi(0, int(floor(float(play_frames.size()) * 0.45)))
 	if cid == "sledgehammer":
 		var hit_done := false
 		var on_frame := func() -> void:
@@ -23406,13 +23387,14 @@ func _play_item_strike_fx(it: Dictionary) -> void:
 				combat_stage.take_hit(true)
 				_shake_screen()
 		spr.frame_changed.connect(on_frame)
+	# Await only until impact; FxOneShot frees itself when the anim ends.
 	var t0: float = Time.get_ticks_msec() / 1000.0
 	while is_instance_valid(spr) and spr.is_playing():
+		if spr.frame >= impact_frame:
+			break
 		if (Time.get_ticks_msec() / 1000.0) - t0 > 0.45:
 			break
 		await get_tree().process_frame
-	if is_instance_valid(spr) and spr.is_playing():
-		spr.queue_free()
 
 
 func _play_knife_strike_arc(it: Dictionary, frames: Array, dest: Vector2, fps: float) -> void:
@@ -23479,11 +23461,8 @@ func _play_item_projectile_fx(it: Dictionary, to: Vector2 = Vector2.INF) -> void
 	tw.tween_property(spr, "global_position", dest, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	if rotate_node:
 		tw.tween_property(spr, "rotation", ang + TAU * 2.0, 0.32)
-	var t0: float = Time.get_ticks_msec() / 1000.0
-	while tw.is_running():
-		if (Time.get_ticks_msec() / 1000.0) - t0 > 0.45:
-			break
-		await get_tree().process_frame
+	if tw.is_running():
+		await tw.finished
 	if is_instance_valid(spr):
 		spr.queue_free()
 
@@ -24002,31 +23981,21 @@ func _heal_monster(index: int, n: int, grow_max: bool = false, from_pos: Vector2
 	var origin: Vector2 = from_pos
 	if origin == Vector2.ZERO:
 		origin = _slice_outward(index, true)
-	var gained: int = 0
-	for _pip in n:
-		m = wheel[index]
-		if str(m.get("kind", "")) != "monster":
-			break
-		var cur: int = int(m.get("hp", 0))
-		var nxt: int = cur + 1 if grow_max else mini(cap, cur + 1)
-		if nxt <= cur:
-			break
-		await _fly_stat_courier(origin, _stat_pip_pos(index, true), true, false)
-		m = wheel[index]
-		m["hp"] = nxt
-		if grow_max:
-			m["hp_max"] = maxi(int(m.get("hp_max", cap)), nxt)
-		m["hp_locked"] = true
-		if str(m.get("card_id", "")) == "slime_boss":
-			var atk_before: int = int(m.get("atk", 0))
-			m["atk"] = int(m["hp"])
-			wheel[index] = m
-			_show_sync_slice(index, true)
-			await _play_stat_delta(index, false, int(m["atk"]) - atk_before, _slice_from(index))
-		else:
-			wheel[index] = m
-			_show_sync_slice(index, true)
-		gained += 1
+	var target_hp: int = before + n if grow_max else mini(cap, before + n)
+	if target_hp <= before:
+		return
+	var gained: int = target_hp - before
+	m["hp"] = target_hp
+	if grow_max:
+		m["hp_max"] = maxi(int(m.get("hp_max", cap)), target_hp)
+	m["hp_locked"] = true
+	var slime_atk_before: int = int(m.get("atk", 0))
+	if str(m.get("card_id", "")) == "slime_boss":
+		m["atk"] = int(m["hp"])
+	wheel[index] = m
+	await _play_stat_count(index, true, before, target_hp, origin)
+	if str(m.get("card_id", "")) == "slime_boss":
+		await _play_stat_delta(index, false, int(m["atk"]) - slime_atk_before, _slice_from(index))
 	if gained > 0:
 		_log("hp", "heal +%s  →  %s HP %s" % [gained, wheel[index].get("name", "?"), wheel[index].get("hp", 0)])
 	_refresh_face()
@@ -25032,15 +25001,13 @@ func _martyr_gift_neighbors(index: int) -> int:
 			continue
 		await _radiate_line(from, _stat_pip_pos(j, true), _link_color("noble_death"), 0.06, false, false, gift_step)
 		gift_step += 1
-		for _pip in gift:
-			if j < 0 or j >= wheel.size() or int(wheel[j].get("hp", 0)) <= 0:
-				break
-			var n: Dictionary = wheel[j]
-			n["hp"] = int(n.get("hp", 0)) + 1
-			n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
-			n["hp_locked"] = true
-			wheel[j] = n
-			await _tick_stat_heard(j, true, false)
+		var before: int = int(wheel[j].get("hp", 0))
+		var n: Dictionary = wheel[j]
+		n["hp"] = before + gift
+		n["hp_max"] = maxi(int(n.get("hp_max", 0)), int(n["hp"]))
+		n["hp_locked"] = true
+		wheel[j] = n
+		await _play_stat_count(j, true, before, before + gift, from)
 	_log("on_resolve", "Martyr gives %s HP to its neighbors" % gift)
 	_refresh()
 	return gift
@@ -29614,7 +29581,7 @@ func _triclops_sorry(index: int) -> void:
 	if sfx:
 		sfx.play("bong", -8.0, 0.9)
 	if get_tree():
-		await get_tree().create_timer(0.7).timeout
+		await get_tree().create_timer(0.35).timeout
 
 
 func _refresh() -> void:
@@ -30975,19 +30942,22 @@ func _sync_hotbar() -> void:
 		hotbar_box.columns = 5 if seated_hand else 12
 	if hotbar_panel:
 		hotbar_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		if seated_hand:
-			var hsb := StyleBoxFlat.new()
-			hsb.bg_color = Color("14100ce8")
-			hsb.border_color = Color("c4a574")
-			hsb.set_border_width_all(2)
-			hsb.set_corner_radius_all(8)
-			hsb.content_margin_left = 4
-			hsb.content_margin_right = 4
-			hsb.content_margin_top = 4
-			hsb.content_margin_bottom = 4
-			hotbar_panel.add_theme_stylebox_override("panel", hsb)
-		else:
-			hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		var want_theme: int = 1 if seated_hand else 0
+		if want_theme != _hotbar_seated_theme:
+			_hotbar_seated_theme = want_theme
+			if seated_hand:
+				var hsb := StyleBoxFlat.new()
+				hsb.bg_color = Color("14100ce8")
+				hsb.border_color = Color("c4a574")
+				hsb.set_border_width_all(2)
+				hsb.set_corner_radius_all(8)
+				hsb.content_margin_left = 4
+				hsb.content_margin_right = 4
+				hsb.content_margin_top = 4
+				hsb.content_margin_bottom = 4
+				hotbar_panel.add_theme_stylebox_override("panel", hsb)
+			else:
+				hotbar_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	if hotbar_wrap:
 		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
