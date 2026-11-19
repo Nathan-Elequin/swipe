@@ -77,9 +77,17 @@ const ANIM_TIME_SCALE := 0.675
 ## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
 const HEAL_RESOLVE_RATE := 1.5
 ## Feel pass B: one constant btn_wrap height across ready / spinning / fighting /
-## slaying so the wheel never resizes when Take or Spin shows. Arc overhang padding
+## slaying so the wheel never resizes when Take shows. Arc overhang padding
 ## still comes from `_clear_undo_under_take_arc` and stays stable while the arc is up.
+## Hub Spin (Nov 19) lives on the wheel center — never in this row.
 const COMBAT_ACTION_SLOT_H := 64.0
+## Round hub Spin diameter (px). Centered on the wheel hub; covers Sprout at start.
+const HUB_SPIN_D := 104.0
+const HUB_SPIN_FONT := 22
+const HUB_SPIN_HOVER_DROP := 3.0
+const HUB_SPIN_CLICK_SQUASH_S := 0.045
+const HUB_SPIN_CLICK_PUNCH_S := 0.07
+const HUB_SPIN_HIDE_S := 0.12
 ## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
 const HOTBAR_CARD_W := 172.0
 const HOTBAR_CARD_H := 148.0
@@ -923,6 +931,13 @@ var _recycle_keep_uids: Dictionary = {}
 var _splash_busy: bool = false
 ## Wheel nest drop offset (px). `_layout_play_field` adds this to wheel_y; do not tween position directly.
 var _wheel_nest_offset: float = 0.0
+## Hard lock: after dungeon layout settles, wheel local rect stays fixed until
+## the viewport size changes (window resize). Nest offset temporarily unlocks.
+var _wheel_rect_locked: bool = false
+var _locked_wheel_local := Rect2()
+var _locked_wheel_vp := Vector2.ZERO
+var _hub_spin_busy: bool = false
+var _hub_spin_base_pos := Vector2.ZERO
 var _biome_wipe: ColorRect
 var endless_hud
 var endless_clear_menu
@@ -1604,12 +1619,8 @@ func _build_ui() -> void:
 	btn_start = _pill("New", Color("2a2622"), Color("6a5f52"), _on_new)
 	btn_place = _pill("Place", Color("1a2a1a"), Color("8dcb8d"), _on_place_mode)
 	btn_bribe = _pill("Bribe", Color("2a1c14"), Color("d19a66"), _on_bribe_mode)
-	btn_spin = _pill(PLAYER_COPY.text("combat.spin", "Spin"), Color("3a3220"), Color("e8c36a"), _on_spin)
-	btn_spin.custom_minimum_size = Vector2(228, 56)
-	btn_spin.add_theme_font_size_override("font_size", 28)
-	btn_spin.add_theme_constant_override("outline_size", 6)
-	if tex_rotate != null:
-		btn_spin.icon = tex_rotate
+	## Hub Spin: round initiate button on the wheel center (not the button row).
+	btn_spin = _make_hub_spin_button()
 	btn_challenge_begin = _pill(PLAYER_COPY.text("challenge.begin", "Begin"), Color("1a2a1a"), Color("8dcb8d"), _challenge_begin_play)
 	btn_challenge_begin.custom_minimum_size = Vector2(228, 56)
 	btn_challenge_begin.visible = false
@@ -1645,10 +1656,14 @@ func _build_ui() -> void:
 	mid_slot.add_child(btn_start)
 	mid_slot.add_child(btn_place)
 	mid_slot.add_child(btn_bribe)
-	mid_slot.add_child(btn_spin)
 	mid_slot.add_child(btn_challenge_begin)
 	mid_slot.add_child(btn_done)
 	right_slot.add_child(btn_redo)
+	## Hub Spin sits on the play field over the wheel hub (z above wheel).
+	if play_field != null:
+		play_field.add_child(btn_spin)
+	else:
+		add_child(btn_spin)
 	btn_spin.mouse_entered.connect(_on_spin_hover.bind(true))
 	btn_spin.mouse_exited.connect(_on_spin_hover.bind(false))
 	btn_place.mouse_entered.connect(_on_place_hover.bind(true))
@@ -2242,6 +2257,175 @@ func _pill(text: String, fill: Color, rim: Color, cb: Callable) -> Button:
 	b.add_theme_stylebox_override("disabled", dim)
 	b.pressed.connect(cb)
 	return b
+
+
+func _hub_spin_style(kind: String) -> StyleBoxFlat:
+	## kind: normal | hover | pressed | disabled
+	var s := StyleBoxFlat.new()
+	match kind:
+		"hover":
+			s.bg_color = Color("d4a84a")
+			s.shadow_size = 3
+			s.shadow_offset = Vector2(0, 1)
+			s.content_margin_top = 10
+			s.content_margin_bottom = 6
+		"pressed":
+			s.bg_color = Color("c49a3a")
+			s.shadow_size = 1
+			s.shadow_offset = Vector2(0, 0)
+			s.content_margin_top = 12
+			s.content_margin_bottom = 4
+		"disabled":
+			s.bg_color = Color("6a5f52")
+			s.shadow_size = 2
+			s.shadow_offset = Vector2(0, 1)
+			s.content_margin_top = 8
+			s.content_margin_bottom = 8
+		_:
+			s.bg_color = Color("e8c36a")
+			s.shadow_size = 8
+			s.shadow_offset = Vector2(0, 4)
+			s.content_margin_top = 8
+			s.content_margin_bottom = 8
+	s.border_color = Color("3a3220")
+	s.set_border_width_all(4)
+	s.set_corner_radius_all(int(HUB_SPIN_D))
+	s.shadow_color = Color(0.05, 0.03, 0.01, 0.5)
+	s.content_margin_left = 8
+	s.content_margin_right = 8
+	return s
+
+
+func _make_hub_spin_button() -> Button:
+	var b := Button.new()
+	b.name = "HubSpin"
+	b.text = PLAYER_COPY.text("combat.spin", "Spin")
+	b.custom_minimum_size = Vector2(HUB_SPIN_D, HUB_SPIN_D)
+	b.focus_mode = Control.FOCUS_ALL
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.mouse_filter = Control.MOUSE_FILTER_STOP
+	b.z_index = 28
+	b.z_as_relative = false
+	b.visible = false
+	b.add_theme_font_size_override("font_size", HUB_SPIN_FONT)
+	b.add_theme_constant_override("outline_size", 4)
+	b.add_theme_color_override("font_color", Color("1c120c"))
+	b.add_theme_color_override("font_hover_color", Color("100e0c"))
+	b.add_theme_color_override("font_pressed_color", Color("4a0808"))
+	b.add_theme_color_override("font_disabled_color", Color(0.2, 0.15, 0.1, 0.45))
+	b.add_theme_color_override("font_outline_color", Color("100e0c"))
+	b.add_theme_stylebox_override("normal", _hub_spin_style("normal"))
+	b.add_theme_stylebox_override("hover", _hub_spin_style("hover"))
+	b.add_theme_stylebox_override("focus", _hub_spin_style("hover"))
+	b.add_theme_stylebox_override("pressed", _hub_spin_style("pressed"))
+	b.add_theme_stylebox_override("disabled", _hub_spin_style("disabled"))
+	b.pressed.connect(_on_hub_spin_pressed)
+	return b
+
+
+func _dress_hub_spin() -> void:
+	if btn_spin == null:
+		return
+	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
+	btn_spin.icon = null
+	btn_spin.custom_minimum_size = Vector2(HUB_SPIN_D, HUB_SPIN_D)
+	btn_spin.add_theme_font_size_override("font_size", HUB_SPIN_FONT)
+	btn_spin.add_theme_constant_override("outline_size", 4)
+	btn_spin.add_theme_color_override("font_color", Color("1c120c"))
+	btn_spin.add_theme_color_override("font_hover_color", Color("100e0c"))
+	btn_spin.add_theme_color_override("font_pressed_color", Color("4a0808"))
+	btn_spin.add_theme_stylebox_override("normal", _hub_spin_style("normal"))
+	btn_spin.add_theme_stylebox_override("hover", _hub_spin_style("hover"))
+	btn_spin.add_theme_stylebox_override("focus", _hub_spin_style("hover"))
+	btn_spin.add_theme_stylebox_override("pressed", _hub_spin_style("pressed"))
+	btn_spin.add_theme_stylebox_override("disabled", _hub_spin_style("disabled"))
+	btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
+	btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+
+func _place_hub_spin() -> void:
+	if btn_spin == null or wheel_view == null or play_field == null:
+		return
+	var hub: Vector2 = _wheel_center_global()
+	var local: Vector2 = play_field.get_global_transform().affine_inverse() * hub
+	var half := HUB_SPIN_D * 0.5
+	btn_spin.size = Vector2(HUB_SPIN_D, HUB_SPIN_D)
+	btn_spin.pivot_offset = Vector2(half, half)
+	_hub_spin_base_pos = local - Vector2(half, half)
+	if not _hub_spin_busy:
+		btn_spin.position = _hub_spin_base_pos
+		btn_spin.scale = Vector2.ONE
+		if btn_spin.visible and btn_spin.modulate.a < 0.99 and not _clear_resolving:
+			var m: Color = btn_spin.modulate
+			m.a = 1.0
+			btn_spin.modulate = m
+
+
+func _on_hub_spin_pressed() -> void:
+	if _hub_spin_busy:
+		return
+	if btn_spin == null or btn_spin.disabled:
+		return
+	if phase != "ready":
+		return
+	_hub_spin_busy = true
+	await _play_hub_spin_impact()
+	_hub_spin_busy = false
+	await _on_spin()
+
+
+func _play_hub_spin_impact() -> void:
+	if btn_spin == null:
+		return
+	btn_spin.pivot_offset = btn_spin.size * 0.5
+	btn_spin.add_theme_stylebox_override("normal", _hub_spin_style("pressed"))
+	btn_spin.add_theme_stylebox_override("hover", _hub_spin_style("pressed"))
+	if sfx:
+		sfx.play("click", -6.0)
+	var frames: Array = []
+	if art != null and art.has_method("fx_frames"):
+		frames = art.fx_frames("land_burst")
+	if frames.is_empty():
+		frames = DUNGEON_ART.new().fx_frames("land_burst")
+	if not frames.is_empty():
+		FX_ONESHOT.play(self, frames, _wheel_center_global(), 2.4, 16.0, false, 52)
+	var tw := create_tween()
+	tw.set_parallel(false)
+	tw.tween_property(btn_spin, "scale", Vector2(1.16, 0.82), HUB_SPIN_CLICK_SQUASH_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(btn_spin, "scale", Vector2(1.08, 1.08), HUB_SPIN_CLICK_PUNCH_S).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var hide_tw := create_tween()
+	hide_tw.set_parallel(true)
+	hide_tw.tween_property(btn_spin, "modulate:a", 0.0, HUB_SPIN_HIDE_S).set_delay(HUB_SPIN_CLICK_SQUASH_S)
+	hide_tw.tween_property(btn_spin, "scale", Vector2(0.55, 0.55), HUB_SPIN_HIDE_S).set_delay(HUB_SPIN_CLICK_SQUASH_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tw.finished
+	if hide_tw.is_running():
+		await hide_tw.finished
+	if btn_spin != null:
+		btn_spin.visible = false
+		btn_spin.scale = Vector2.ONE
+		btn_spin.modulate = Color.WHITE
+		_dress_hub_spin()
+
+
+func _unlock_wheel_layout() -> void:
+	_wheel_rect_locked = false
+	_locked_wheel_local = Rect2()
+	_locked_wheel_vp = Vector2.ZERO
+
+
+func _capture_wheel_lock() -> void:
+	if wheel_view == null:
+		return
+	if _wheel_nest_offset != 0.0:
+		return
+	if not _combat_holds_action_slot():
+		return
+	var sz: Vector2 = wheel_view.size
+	if sz.x < 32.0 or sz.y < 32.0:
+		return
+	_locked_wheel_local = Rect2(wheel_view.position, sz)
+	_locked_wheel_vp = get_viewport_rect().size
+	_wheel_rect_locked = true
 
 
 func _sb(fill: Color, rim: Color, border: int) -> StyleBoxFlat:
@@ -3776,6 +3960,7 @@ func _biome_dissolve_reveal(seconds: float = 0.35) -> void:
 func _nest_wheel() -> void:
 	if wheel_view == null:
 		return
+	_unlock_wheel_layout()
 	_layout_play_field()
 	var side: float = maxf(120.0, wheel_view.size.y)
 	var lock := Control.new()
@@ -3793,12 +3978,15 @@ func _nest_wheel() -> void:
 	await tw.finished
 	_wheel_nest_offset = 0.0
 	_layout_play_field()
+	_capture_wheel_lock()
 	if is_instance_valid(lock):
 		lock.queue_free()
 
 
 func _set_wheel_nest_offset(v: float) -> void:
 	_wheel_nest_offset = v
+	## Nest tween must move the wheel; keep the hard lock off until settle.
+	_wheel_rect_locked = false
 	_layout_play_field()
 
 
@@ -26423,7 +26611,16 @@ func _cancel_spent_item_vfx() -> void:
 
 
 func _on_spin_hover(on: bool) -> void:
-	_punch_hero(btn_spin, on and phase == "ready")
+	## Hub Spin: hover presses the face down (shadow shrink + 2–3px drop).
+	if btn_spin != null and phase == "ready" and not _hub_spin_busy:
+		btn_spin.pivot_offset = btn_spin.size * 0.5
+		if on:
+			btn_spin.position = _hub_spin_base_pos + Vector2(0.0, HUB_SPIN_HOVER_DROP)
+			btn_spin.add_theme_stylebox_override("normal", _hub_spin_style("hover"))
+		else:
+			btn_spin.position = _hub_spin_base_pos
+			btn_spin.add_theme_stylebox_override("normal", _hub_spin_style("normal"))
+			btn_spin.scale = Vector2.ONE
 	if on and sfx:
 		sfx.play_event(&"wheel.spin_hover")
 	if not on or phase != "ready":
@@ -28787,8 +28984,7 @@ func _speech_gutter() -> Rect2:
 		right = minf(right, combat_stage.global_position.x - 8.0)
 	var top: float = wr.position.y
 	var bottom: float = wr.end.y - 8.0
-	if btn_spin != null and btn_spin.visible:
-		bottom = minf(bottom, btn_spin.global_position.y - 12.0)
+	## Hub Spin sits on the wheel center — do not shrink the speech gutter for it.
 	if hotbar_box != null and hotbar_box.visible:
 		bottom = minf(bottom, hotbar_box.global_position.y - 12.0)
 	if combat_stage != null and combat_stage.visible:
@@ -29215,9 +29411,10 @@ func _layout_play_field() -> void:
 	var sz: Vector2 = play_field.size
 	if sz.x < 8.0 or sz.y < 8.0:
 		return
+	var vp_now: Vector2 = get_viewport_rect().size
 	if biome_ambient != null:
 		## Full viewport field for haze/spores; FG bands follow width + avoid rects.
-		var vp: Vector2 = get_viewport_rect().size
+		var vp: Vector2 = vp_now
 		if vp.x < 8.0 or vp.y < 8.0:
 			vp = Vector2(1680, 1040)
 		biome_ambient.setup(vp)
@@ -29234,6 +29431,11 @@ func _layout_play_field() -> void:
 		var tmin: Vector2 = tray.get_combined_minimum_size()
 		tray.position = Vector2((sz.x - tmin.x) * 0.5, 6.0)
 		tray.size = tmin
+	## Window resize is the only unlock for a settled dungeon wheel rect.
+	if _wheel_rect_locked and not vp_now.is_equal_approx(_locked_wheel_vp):
+		_unlock_wheel_layout()
+	if not _combat_holds_action_slot():
+		_unlock_wheel_layout()
 	var extra: float = _wheel_side_gutter()
 	# Skull plaque sits in the empty corner of the square; it must not resize the wheel.
 	var top_need := 8.0
@@ -29242,7 +29444,7 @@ func _layout_play_field() -> void:
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
 	# Viewport center, not play-field center. A too-wide column used to shove
 	# the wheel right of the screen; background art is wallpaper only.
-	var view_cx: float = get_viewport_rect().size.x * 0.5
+	var view_cx: float = vp_now.x * 0.5
 	var x: float = view_cx - play_field.global_position.x - side * 0.5
 	if challenge_draft_ui != null and challenge_draft_ui.visible and extra > 1.0:
 		## Keep the wheel on viewport center. Nudge left only if the pick
@@ -29258,9 +29460,23 @@ func _layout_play_field() -> void:
 		wheel_y = maxf(wheel_y, tray.position.y + tray.size.y + 8.0)
 	# Biome-enter nest: offset is tweened; never tween wheel_view.position directly.
 	wheel_y += _wheel_nest_offset
+	var draft_open: bool = challenge_draft_ui != null and challenge_draft_ui.visible
+	var use_lock: bool = (
+		_wheel_rect_locked
+		and _wheel_nest_offset == 0.0
+		and not draft_open
+		and _locked_wheel_local.size.x >= 32.0
+		and vp_now.is_equal_approx(_locked_wheel_vp)
+	)
+	if use_lock:
+		x = _locked_wheel_local.position.x
+		wheel_y = _locked_wheel_local.position.y
+		side = _locked_wheel_local.size.x
 	wheel_view.custom_minimum_size = Vector2(side, side)
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
+	if not use_lock and _wheel_nest_offset == 0.0 and _combat_holds_action_slot():
+		_capture_wheel_lock()
 	if hotbar_wrap:
 		hotbar_wrap.add_theme_constant_override("margin_left", 0)
 		hotbar_wrap.add_theme_constant_override("margin_right", 0)
@@ -29279,6 +29495,12 @@ func _layout_play_field() -> void:
 		var placed: Dictionary = _place_challenge_draft(sz, wheel_y, x, side)
 		x = float(placed.get("x", x))
 		side = float(placed.get("side", side))
+		## Draft can nudge the wheel; re-lock once settled (nest not running).
+		if _wheel_nest_offset == 0.0:
+			wheel_view.custom_minimum_size = Vector2(side, side)
+			wheel_view.position = Vector2(x, wheel_y)
+			wheel_view.size = Vector2(side, side)
+			_capture_wheel_lock()
 	if cue_label:
 		cue_label.position = Vector2(12.0, minf(wheel_y + side + 4.0, sz.y - 36.0))
 		cue_label.size = Vector2(maxf(sz.x - 24.0, 180.0), 36.0)
@@ -29294,6 +29516,7 @@ func _layout_play_field() -> void:
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
 	_place_hub_cue()
+	_place_hub_spin()
 
 
 func _set_cue(_t: String) -> void:
@@ -29961,17 +30184,9 @@ func _sync_buttons() -> void:
 	btn_start.disabled = busy
 	btn_place.visible = false
 	btn_bribe.visible = false
-	btn_spin.visible = phase == "ready" and (not adventure or _await_first_spin)
+	btn_spin.visible = phase == "ready" and (not adventure or _await_first_spin) and not _hub_spin_busy
 	btn_done.visible = enemy_up
-	btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
-	btn_spin.icon = null
-	btn_spin.custom_minimum_size = Vector2(260, 64)
-	btn_spin.add_theme_font_size_override("font_size", 32)
-	btn_spin.add_theme_color_override("font_color", Color("1c120c"))
-	btn_spin.add_theme_color_override("font_hover_color", Color("100e0c"))
-	btn_spin.add_theme_color_override("font_pressed_color", Color("4a0808"))
-	btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
-	btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_dress_hub_spin()
 	if btn_challenge_begin:
 		btn_challenge_begin.visible = _is_long_drop() and phase == "draft" and draft_action == "challenge_begin"
 		btn_challenge_begin.disabled = busy
@@ -30001,10 +30216,7 @@ func _sync_buttons() -> void:
 		btn_start.disabled = true
 		var spin_ready: bool = tut != null and tut.wait == "spin" and phase == "ready" and not busy and facing_index < 0
 		btn_spin.disabled = not spin_ready
-		btn_spin.mouse_filter = Control.MOUSE_FILTER_STOP
-		btn_spin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_spin.text = PLAYER_COPY.text("combat.spin", "Spin")
-		btn_spin.icon = null
+		_dress_hub_spin()
 		btn_done.disabled = busy or not enemy_up or choice_lock or tut == null or (tut.wait != "done" and tut.wait != "choice")
 	_hide_take_burst()
 	if enemy_up:
@@ -30023,8 +30235,11 @@ func _sync_buttons() -> void:
 		_sync_take_arc_safe_idle()
 	else:
 		_hide_take_arc()
-	if btn_spin:
+	if btn_spin != null and not _hub_spin_busy:
 		btn_spin.scale = Vector2.ONE
+		if btn_spin.visible:
+			btn_spin.modulate = Color.WHITE
+	_place_hub_spin()
 	if feed_kind == "worm_hunger" or feed_kind == "hired_bribe":
 		btn_done.visible = false
 		_hide_take_burst()
