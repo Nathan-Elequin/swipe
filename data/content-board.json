@@ -482,8 +482,8 @@
 			"tier": 1.0
 		},
 		{
-			"ability": "Attack equal to 8 minus the Items still in your hand.",
-			"atk_base": null,
+			"ability": "This gains +1 Attack for each Item you discard.",
+			"atk_base": 0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
@@ -492,13 +492,13 @@
 				"knucklers"
 			],
 			"count": 2.0,
-			"explainer": "(8 − Items)",
-			"flow": "Also describes HP Delta (absolute difference of player vs enemy HP).",
+			"explainer": "(Discarded Items)",
+			"flow": "Base Attack 0. +1 Attack per Item discarded for any reason while Knucklers is already in your hand. Discards from before you gained it do not count. Still spent on use (not Keep).",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "knucklers",
 			"kind": "item",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -516,12 +516,12 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "Attack 8 minus your items",
+			"log_hint": "+1 Attack per discard while held",
 			"mode_pool": "all",
 			"name": "Knucklers",
-			"notes": "",
+			"notes": "Base 0. Counts every discard while you have Knucklers. Not retroactive. Paper Fight CURRENT.md 2026-11-19.",
 			"ops": {
-				"kind": "atk_7_items"
+				"kind": "atk_discard"
 			},
 			"pool": 4.0,
 			"priority": 3.0,
@@ -4591,20 +4591,21 @@
 			"tier": 3.0
 		},
 		{
-			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
-			"atk_base": 4.0,
+			"ability": "On Spin, raise the HP of the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
+			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Blood Rise",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1.0,
+			"count": 1,
 			"explainer": "When I spawn, I take over the weakest other Monster by tier. On Spin, Lowest HP Monster +1 until tied with another",
 			"flow": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
-			"hp_base": 2.0,
+			"hp_base": 2,
 			"hp_formula": "",
 			"id": "leech_league",
-			"locked_at": "2026-11-06",
+			"kind": "monster",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4630,14 +4631,14 @@
 			"name": "Leech League",
 			"notes": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"ops": {},
-			"pool": 3.0,
-			"priority": 2.0,
+			"pool": 3,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0
+			"tier": 3
 		},
 		{
 			"ability": "When I am Defeated, set your HP to my most recent HP.",
@@ -4888,16 +4889,16 @@
 		},
 		{
 			"ability": "I Attack you for 2 Damage each time I take Attack Damage.",
-			"atk_base": 4,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Spiky",
 			"card_color": "",
 			"contradiction_ids": [],
-			"count": 1,
+			"count": 1.0,
 			"explainer": "2 Thorns",
 			"flow": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
-			"hp_base": 4,
+			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "needleback",
 			"kind": "monster",
@@ -4928,14 +4929,14 @@
 			"notes": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"ops": {},
 			"pending_fields": {},
-			"pool": 1,
-			"priority": 3,
+			"pool": 1.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2
+			"tier": 2.0
 		},
 		{
 			"ability": "When you Spin me, feed me one of two items.",
@@ -7452,5 +7453,5 @@
 			"tier": 3.0
 		}
 	],
-	"updated": "2026-11-14"
+	"updated": "2026-11-19"
 }

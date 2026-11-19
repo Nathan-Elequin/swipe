@@ -353,7 +353,7 @@ def build():
                 )
             continue
 
-        if kind in ("atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_hp_loss", "atk_flee_keep", "atk_cleave", "atk_neighbor", "atk_opposite", "atk_empty"):
+        if kind in ("atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_discard", "atk_hp_loss", "atk_flee_keep", "atk_cleave", "atk_neighbor", "atk_opposite", "atk_empty"):
             extra = {}
             mons_for = [dummy]
             face = dummy

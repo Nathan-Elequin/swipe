@@ -788,7 +788,7 @@
 				"hp_formula",
 				"card_color"
 			],
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-19",
 			"name": "Knucklers"
 		},
 		"item:lantern": {
@@ -2587,7 +2587,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-19",
 			"name": "Leech League"
 		},
 		"monster:lich": {
@@ -3880,6 +3880,12 @@
 			"locked_at": "2026-11-05",
 			"text": "Inspect",
 			"where": "Idle inspect headline"
+		},
+		"intro.preview.caption": {
+			"cat": "Title",
+			"locked_at": "2026-11-17",
+			"text": "Your progress, right on the title screen.",
+			"where": "Intro preview still caption"
 		},
 		"keyword.swap": {
 			"cat": "Inspect",
@@ -5674,13 +5680,7 @@
 			"locked_at": "2026-11-05",
 			"text": "Already used until.",
 			"where": "Used item this fight"
-		},
-		"intro.preview.caption": {
-			"cat": "Title",
-			"locked_at": "2026-11-17",
-			"text": "Your progress, right on the title screen.",
-			"where": "Intro preview still caption"
 		}
 	},
-	"updated": "2026-11-17"
+	"updated": "2026-11-19"
 }

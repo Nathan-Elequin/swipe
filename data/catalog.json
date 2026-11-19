@@ -747,8 +747,8 @@
 			"type": "I"
 		},
 		{
-			"ability": "Attack equal to 8 minus the Items still in your hand.",
-			"atk_base": null,
+			"ability": "This gains +1 Attack for each Item you discard.",
+			"atk_base": 0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
@@ -757,19 +757,19 @@
 				"knucklers"
 			],
 			"count": 2.0,
-			"defined": "Also describes HP Delta (absolute difference of player vs enemy HP).",
+			"defined": "Base Attack 0. +1 Attack per Item discarded for any reason while Knucklers is already in your hand. Discards from before you gained it do not count. Still spent on use (not Keep).",
 			"exceptions": "",
-			"explainer": "(8 − Items)",
+			"explainer": "(Discarded Items)",
 			"flags": {
 				"art": true,
 				"dev": true,
 				"hide": false
 			},
-			"flow": "Also describes HP Delta (absolute difference of player vs enemy HP).",
+			"flow": "Base Attack 0. +1 Attack per Item discarded for any reason while Knucklers is already in your hand. Discards from before you gained it do not count. Still spent on use (not Keep).",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "knucklers",
-			"locked_at": "2026-10-11",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -787,12 +787,12 @@
 				"hp_formula",
 				"card_color"
 			],
-			"log_hint": "Attack 8 minus your items",
+			"log_hint": "+1 Attack per discard while held",
 			"mode_pool": "all",
 			"name": "Knucklers",
-			"notes": "",
+			"notes": "Base 0. Counts every discard while you have Knucklers. Not retroactive. Paper Fight CURRENT.md 2026-11-19.",
 			"ops": {
-				"kind": "atk_7_items"
+				"kind": "atk_discard"
 			},
 			"poc": false,
 			"pool": 4.0,
@@ -5324,16 +5324,16 @@
 			]
 		},
 		{
-			"ability": "On Spin, repeatedly Heals the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
+			"ability": "On Spin, raise the HP of the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
 			"atk": {
-				"base": 4.0
+				"base": 4
 			},
-			"atk_base": 4.0,
+			"atk_base": 4,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Blood Rise",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
 			"exceptions": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"explainer": "When I spawn, I take over the weakest other Monster by tier. On Spin, Lowest HP Monster +1 until tied with another",
@@ -5344,12 +5344,12 @@
 			},
 			"flow": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
 			"hp": {
-				"base": 2.0
+				"base": 2
 			},
-			"hp_base": 2.0,
+			"hp_base": 2,
 			"hp_formula": "",
 			"id": "leech_league",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -5376,14 +5376,14 @@
 			"notes": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"ops": {},
 			"poc": false,
-			"pool": 3.0,
-			"priority": 2.0,
+			"pool": 3,
+			"priority": 2,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M",
 			"updated": "2026-11-01",
 			"when_updated": [
@@ -5846,14 +5846,14 @@
 		{
 			"ability": "I Attack you for 2 Damage each time I take Attack Damage.",
 			"atk": {
-				"base": 4
+				"base": 4.0
 			},
-			"atk_base": 4,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Spiky",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
 			"exceptions": "Portrait is a 0x72 wogol stand-in until a porcupine/toad tile exists.",
 			"explainer": "2 Thorns",
@@ -5864,9 +5864,9 @@
 			},
 			"flow": "ATK 3, HP 5. Each time this owner receives ATK damage (including a killing blow), the player takes 2 ATK; block applies. Defeat and poison do not poke. Goblin-style immunity does not apply to this owner.",
 			"hp": {
-				"base": 4
+				"base": 4.0
 			},
-			"hp_base": 4,
+			"hp_base": 4.0,
 			"hp_formula": "",
 			"id": "needleback",
 			"locked_at": "2026-11-14",
@@ -5897,14 +5897,14 @@
 			"ops": {},
 			"pending_fields": {},
 			"poc": false,
-			"pool": 1,
-			"priority": 3,
+			"pool": 1.0,
+			"priority": 3.0,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "polish",
 			"review_note": "",
 			"status": "live",
-			"tier": 2,
+			"tier": 2.0,
 			"type": "M"
 		},
 		{
@@ -9139,7 +9139,7 @@
 		{
 			"chat": "2026-10-05",
 			"id": "knucklers_live_hand",
-			"rule": "Knucklers is 7 minus unspent items in hand, live on item use. Not locked at combat start."
+			"rule": "Knucklers starts at 0 Attack. +1 Attack per discarded hotbar card (items and tokens) while that Knucklers is in your hand this dungeon. Not retroactive. Punch uses the count so far; discarding Knucklers itself does not add to that punch. Resets on a new dungeon. Clickable at 0."
 		},
 		{
 			"chat": "2026-10-05",

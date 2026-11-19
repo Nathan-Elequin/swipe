@@ -36,7 +36,7 @@ const DEFAULT_EXPLAINER := {
 	"measuring_tape": "(ENEMY HP = YOUR HP)",
 	"bloody_gauntlets": "(1 + missing HP)",
 	"bracers": "(Right Neighbor ATK)",
-	"knucklers": "(8 − Items)",
+	"knucklers": "(Discarded Items)",
 	"spiked_flail": "(2 × Bleeds)",
 	"sledgehammer": "(ENEMY ATK ≥ 6)",
 	"grimoire": "(LAST SPUN ATK)",

@@ -160,7 +160,7 @@ const ITEM_OPS := {
 	"bloody_gauntlets": {"kind": "atk_7_hp"},
 	"bracers": {"kind": "blk_neighbor", "side": "right"},
 	"left_bracer": {"kind": "blk_neighbor", "side": "left"},
-	"knucklers": {"kind": "atk_7_items"},
+	"knucklers": {"kind": "atk_discard"},
 	"spiked_flail": {"kind": "atk_hp_loss"},
 	"sledgehammer": {"kind": "defeat_atk"},
 	"grimoire": {"kind": "atk_last"},
@@ -3311,6 +3311,15 @@ func _drop_dungeon_tokens() -> void:
 		kept.append(it)
 	if n <= 0:
 		return
+	var leaving_tok: Dictionary = {}
+	for it2 in hotbar:
+		if typeof(it2) != TYPE_DICTIONARY:
+			continue
+		var card2: Dictionary = items_by_id.get(str(it2.get("card_id", "")), {})
+		if BucketRules.is_token(card2) and not _recycle_keep_uids.has(int(it2.get("uid", -1))):
+			leaving_tok[int(it2.get("uid", -1))] = true
+	for leave_uid in leaving_tok.keys():
+		_note_discard_for_knucklers(int(leave_uid), leaving_tok)
 	hotbar = kept
 	_hotbar_sig = ""
 	_log("end", "drop %s tokens" % n)
@@ -5010,7 +5019,10 @@ func _prep_next_dungeon() -> void:
 			it["hex_n"] = 6
 		if str(it.get("card_id", "")) == "spinning_top":
 			it["spinning_top_n"] = 0
+		if str(it.get("card_id", "")) == "knucklers":
+			it["knucklers_n"] = 0
 	_drop_dungeon_tokens()
+	_reset_knucklers_discards()
 	## The returned card has now survived both drops. Later clears may drop it.
 	_recycle_keep_uids.clear()
 	if combat_stage:
@@ -8491,6 +8503,7 @@ func _make_item(id: String) -> Dictionary:
 		"bagged": {},
 		"bagged_hp": 0,
 		"bagged_name": "",
+		"knucklers_n": 0,
 	}
 
 
@@ -12162,6 +12175,11 @@ func _discard_spent_items() -> void:
 			it["keep_after"] = false
 			_log("keep", str(it["name"]))
 		kept.append(it)
+	var leaving: Dictionary = {}
+	for snap0 in recycled:
+		leaving[int((snap0 as Dictionary).get("uid", -1))] = true
+	for snap1 in recycled:
+		_note_discard_for_knucklers(int((snap1 as Dictionary).get("uid", -1)), leaving)
 	hotbar = kept
 	_hotbar_sig = ""
 	for snap in recycled:
@@ -13159,7 +13177,7 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 				_drink_hp_due = true
 			_refresh()
 			return
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_discard", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "atk_wheel", "atk_echo":
 			var n2: int = int(ops["n"]) if ops.has("n") else int(view.get("n", 0))
 			if kind == "atk_echo" and n2 <= 0:
 				_log_begin_item(it)
@@ -14472,6 +14490,8 @@ func _recycle_insert_copy(snap: Dictionary) -> void:
 	_recycle_keep_uids[uid_seq] = true
 	if str(copy.get("card_id", "")) == "recycler":
 		copy["recycle_n"] = 5
+	if str(copy.get("card_id", "")) == "knucklers":
+		copy["knucklers_n"] = 0
 	hotbar.append(copy)
 	_sort_hotbar()
 	_log("on_draft", "copy %s" % copy.get("name", "?"))
@@ -14568,12 +14588,37 @@ func _recycle_after_gone(snap: Dictionary) -> void:
 
 func _remove_item_now(uid: int) -> void:
 	_beggar_note_use(uid)
+	_note_discard_for_knucklers(uid)
 	var kept: Array = []
 	for it in hotbar:
 		if int(it.get("uid", -1)) != uid:
 			kept.append(it)
 	hotbar = kept
 	_hotbar_sig = ""
+
+
+func _knucklers_n(it: Dictionary) -> int:
+	return maxi(0, int(it.get("knucklers_n", 0)))
+
+
+func _reset_knucklers_discards() -> void:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) == "knucklers":
+			it["knucklers_n"] = 0
+
+
+func _note_discard_for_knucklers(leaving_uid: int, also_leaving: Dictionary = {}) -> void:
+	for it in hotbar:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		if str(it.get("card_id", "")) != "knucklers":
+			continue
+		var uid: int = int(it.get("uid", -1))
+		if uid == leaving_uid or also_leaving.has(uid):
+			continue
+		it["knucklers_n"] = _knucklers_n(it) + 1
 
 
 func _defeat_blocked(_m: Dictionary) -> bool:
@@ -20650,7 +20695,7 @@ func _item_snapshot(it: Dictionary) -> Dictionary:
 
 func _echo_flatten_kind(kind: String, shield_face: String) -> String:
 	match kind:
-		"atk_hp_loss", "atk_alt_24", "atk_echo":
+		"atk_hp_loss", "atk_alt_24", "atk_echo", "atk_discard", "atk_7_items":
 			return "atk"
 		"blk_siphon", "blk_from_hp", "blk_from_highest_atk", "blk_last_atk", "blk_from_atk", "blk_keep", "blk_even_keep", "blk_min_hp", "blk_neighbor", "shardplate":
 			return "blk"
@@ -25836,10 +25881,11 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["number"] = "—" if nb < 0 else str(nb)
 			out["note"] = ""
 			out["can_use"] = fighting and nb >= 0
-		"atk_7_items":
-			out["n"] = maxi(0, 8 - _live_item_count())
+		"atk_7_items", "atk_discard":
+			out["n"] = _knucklers_n(it)
 			out["number"] = str(out["n"])
 			out["note"] = ""
+			out["can_use"] = fighting
 		"atk_2_kills":
 			out["n"] = 2 + mobs_defeated
 			out["number"] = str(out["n"])
@@ -26874,7 +26920,7 @@ func _preview_from_item(it: Dictionary) -> Dictionary:
 				if int(wheel[facing_index].get("hp", 0)) - stotal <= 0:
 					if str(wheel[facing_index].get("card_id", "")) != "wick" or _is_silenced(wheel[facing_index]):
 						p[facing_index]["kill"] = true
-		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty":
+		"atk", "atk_alt_24", "atk_7_hp", "atk_7_items", "atk_discard", "atk_2_kills", "atk_hp_loss", "atk_last", "atk_strong_neighbor", "choose", "atk_wheel", "atk_echo", "atk_spend_blk", "atk_empty":
 			var drop_prev := false
 			var blk_only_prev := false
 			if kind == "choose":
@@ -27604,10 +27650,10 @@ func _item_rule(it: Dictionary) -> Dictionary:
 			out["body"] = "Block equal to the %s neighbor's Attack. Left is clockwise. Right is counter-clockwise." % side_word.to_lower()
 			if fighting and not bool(view.get("can_use", false)):
 				out["warn"] = PLAYER_COPY.text("warn.neighbor", "Can't — no neighboring enemy.")
-		"atk_7_items":
+		"atk_7_items", "atk_discard":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
-			out["equation"] = "(%s − %s)" % [_bb(cream, "8"), _bb(gold, "Items")]
-			out["body"] = "Attack equal to 8 minus the items still in your hand."
+			out["equation"] = "(%s)" % _bb(gold, "Discarded")
+			out["body"] = "This gains +1 Attack for each Item you discard."
 		"atk_2_kills":
 			out["value"] = _value_bb("Attack", str(live), atk_c)
 			out["equation"] = "(%s + %s)" % [_bb(cream, "2"), _bb(var_c, "Defeat")]
