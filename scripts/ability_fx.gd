@@ -45,17 +45,27 @@ func play(text: String, from: Vector2, to: Vector2 = Vector2.INF) -> void:
 	if not _draining:
 		await _drain()
 	else:
+		var guard := 0
 		while is_instance_valid(self) and not bool(ticket.get("done", false)):
+			if not _draining and not _q.is_empty():
+				_drain()
 			await get_tree().process_frame
+			guard += 1
+			if guard >= 180:
+				break
 
 
 func _drain() -> void:
+	if _draining:
+		return
 	_draining = true
 	while not _q.is_empty():
 		var t: Dictionary = _q.pop_front()
 		await _show(t)
 		t["done"] = true
 	_draining = false
+	if not _q.is_empty():
+		_drain()
 
 
 func _show(t: Dictionary) -> void:

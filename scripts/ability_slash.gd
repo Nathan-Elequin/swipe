@@ -223,17 +223,34 @@ func play(payload: Dictionary) -> void:
 	# (release_early) so resolve can overlap hold/fade. Monster cut-ins may
 	# also release_early after the portrait tell (punch/frames) so passive
 	# damage overlaps hold/slash-out.
-	if not _draining:
-		_drain()
+	_kick_drain()
 	if bool(ticket.get("done", false)) or _aborted:
 		return
+	# Wait on frames, not only ticket_finished: if drain raced empty and
+	# dropped `_draining` while this ticket sat in `_q`, the signal never
+	# fires and Spin stays locked (Oligarch Wealth Tax after Ball & Chain).
+	var guard := 0
 	while is_instance_valid(self) and not bool(ticket.get("done", false)) and not _aborted:
-		var got: Variant = await ticket_finished
-		if got == ticket or bool(ticket.get("done", false)):
+		_kick_drain()
+		if get_tree():
+			await get_tree().process_frame
+		else:
+			break
+		guard += 1
+		if guard >= 180:
+			ticket["done"] = true
 			break
 
 
+func _kick_drain() -> void:
+	if _draining or _aborted or _q.is_empty():
+		return
+	_drain()
+
+
 func _drain() -> void:
+	if _draining:
+		return
 	_draining = true
 	FX_BUDGET.begin_heavy()
 	while not _q.is_empty() and not _aborted:
@@ -256,6 +273,8 @@ func _drain() -> void:
 	_active_ticket = {}
 	if _aborted:
 		_q.clear()
+	elif not _q.is_empty():
+		_kick_drain()
 
 
 func _dur(ms: float, fast: bool) -> float:
@@ -517,7 +536,10 @@ func _play_snap_overlay(texs: Array, fast: bool) -> void:
 	add_child(spr)
 	spr.play("snap")
 	if spr.sprite_frames != null and spr.sprite_frames.get_frame_count("snap") > 0:
-		await spr.animation_finished
+		var snap_guard := 0
+		while is_instance_valid(spr) and spr.is_playing() and snap_guard < 90:
+			await get_tree().process_frame
+			snap_guard += 1
 	else:
 		await get_tree().create_timer(_dur(FRAME_MS * 4.0, fast), false).timeout
 	if is_instance_valid(spr):

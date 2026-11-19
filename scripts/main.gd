@@ -11297,6 +11297,7 @@ func _on_spin() -> void:
 			return
 		if await _step_hexs():
 			await _bleed_end()
+			await _unlock_if_fighting()
 			return
 	_refresh()
 	await _step_berserkers()
@@ -12641,7 +12642,9 @@ func _use_item(uid: int) -> void:
 		await _feed_cube(uid)
 		_undo_arm()
 		return
-	if _item_hold or _undo_busy:
+	if _undo_busy:
+		return
+	if _item_hold and not _oligarch_forcing:
 		return
 	if challenge_draft_ui != null and challenge_draft_ui.visible and pending_feed.is_empty():
 		return
@@ -16665,6 +16668,7 @@ func _apply_oligarch_on_spin() -> void:
 		if uids.is_empty():
 			continue
 		var pick: int = int(uids[rng.randi_range(0, uids.size() - 1)])
+		_release_item_hold()
 		_oligarch_forcing = true
 		await _announce_slice(int(_seat), _hub_hp_pos())
 		var grab: Vector2 = _hotbar_card_global(pick)
