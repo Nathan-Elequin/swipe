@@ -33377,6 +33377,9 @@ func _tut_refresh_focus() -> void:
 		if pin >= 0:
 			wheel_view._sync_ability_cards()
 	_tut_collect_spots(spots, arrows)
+	## Gold holes alone used to leave `_arrows` empty (B03 wheel, hearts, …), so
+	## SpotInk drew rings with no glove/arrowhead. Fill a pointer at the primary hole.
+	_tut_ensure_pointer_arrows(spots, arrows)
 	tut.set_spots(spots, arrows)
 	_tut_inspect_focused_item()
 
@@ -33479,6 +33482,46 @@ func _tut_add_rect(spots: Array, r: Rect2) -> void:
 	if r.size.x < 4.0 or r.size.y < 4.0:
 		return
 	spots.append(r.grow(6.0))
+
+
+## When a spotlight hole exists but no teach-arrow was wired, point glove→arrowhead
+## at the first readable hole (from Nib's talk box when it is open).
+func _tut_ensure_pointer_arrows(spots: Array, arrows: Array) -> void:
+	if not arrows.is_empty() or spots.is_empty():
+		return
+	var tip_rect := Rect2()
+	for s in spots:
+		if s is Rect2 and (s as Rect2).size.x >= 8.0 and (s as Rect2).size.y >= 8.0:
+			tip_rect = s as Rect2
+			break
+	if tip_rect.size.x < 8.0:
+		return
+	var tip: Vector2 = tip_rect.get_center()
+	var tail: Vector2 = tip + Vector2(0.0, -56.0)
+	if tut != null:
+		var talk: Control = tut.get("_talk") as Control
+		if talk != null and is_instance_valid(talk) and talk.visible:
+			var tr: Rect2 = talk.get_global_rect()
+			if tr.size.x > 8.0 and tr.size.y > 8.0:
+				if tip.x < tr.position.x - 12.0:
+					## Hole left of Nib (wheel / hub): leave the talk's left edge.
+					tail = Vector2(
+						tr.position.x,
+						clampf(tip.y, tr.position.y + 24.0, tr.end.y - 24.0)
+					)
+				elif tip.x > tr.end.x + 12.0:
+					tail = Vector2(
+						tr.end.x,
+						clampf(tip.y, tr.position.y + 24.0, tr.end.y - 24.0)
+					)
+				elif tr.end.y < tip.y - 20.0:
+					var x: float = clampf(tip.x, tr.position.x + 20.0, tr.end.x - 20.0)
+					tail = Vector2(x, tr.end.y)
+				else:
+					tail = Vector2(tr.position.x + 12.0, tip.y)
+	if tail.distance_to(tip) < 12.0:
+		tail = tip + Vector2(-48.0, -36.0)
+	arrows.append([tail, tip])
 
 
 ## Tip sits on the top rim of the card. The shaft stays above the art and the name.

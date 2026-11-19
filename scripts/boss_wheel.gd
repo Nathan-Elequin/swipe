@@ -949,13 +949,16 @@ func set_vitals(hp_n: int, hp_max: int, hp_ghost: int, blk_n: int, blk_ghost: in
 
 func _start_heart_slot_fx(old_hp: int, new_hp: int) -> void:
 	_ensure_hub_fx_frames()
-	var life: float = 5.0 / 12.0
+	## Break stays ~5 frames @12fps. Refill holds longer so the pink frames read
+	## over the dark hub (f0 is a near-black silhouette and was easy to miss).
+	var break_life: float = 5.0 / 12.0
+	var refill_life: float = 0.55
 	if new_hp < old_hp:
 		for i in range(new_hp, old_hp):
-			_heart_slot_fx[i] = {"kind": "break", "t": 0.0, "life": life}
+			_heart_slot_fx[i] = {"kind": "break", "t": 0.0, "life": break_life}
 	elif new_hp > old_hp:
 		for i in range(old_hp, new_hp):
-			_heart_slot_fx[i] = {"kind": "refill", "t": 0.0, "life": life}
+			_heart_slot_fx[i] = {"kind": "refill", "t": 0.0, "life": refill_life}
 
 
 func _ensure_hub_fx_frames() -> void:
@@ -973,7 +976,9 @@ func _ensure_hub_fx_frames() -> void:
 
 
 ## Claw / bite / thud overlay centered on the hub hero.
-func play_take_overlay(variant: String = "thud") -> void:
+## Parent on the wheel (not Main): AnimatedSprite2D under the scene root paints
+## behind Control siblings (play_field / hub), so the claw never showed over Take.
+func play_take_overlay(variant: String = "thud") -> AnimatedSprite2D:
 	var stem: String = "take_thud"
 	match str(variant):
 		"bite":
@@ -984,14 +989,19 @@ func play_take_overlay(variant: String = "thud") -> void:
 			stem = "take_thud"
 	var frames: Array = DUNGEON_ART.new().fx_frames(stem)
 	if frames.is_empty():
-		return
+		return null
 	var c: Vector2 = _center()
 	var top: Vector2 = _layout_xy("hero", "texture_top_left_from_c", Vector2(-48, -50))
 	var hero_rect := Rect2(c + top + hub_nudge, Vector2(96, 96))
-	# Host is the scene root; convert the wheel-local hub point to global.
 	var at_global: Vector2 = get_global_transform() * hero_rect.get_center()
-	var host: Node = get_tree().current_scene if get_tree() != null else self
-	FX_ONESHOT.play(host, frames, at_global, 3.0, 14.0, false, 50)
+	# Same parent path as land_burst / pointer tick. z above hub draw; top_level
+	# keeps it above nested Controls without leaving the wheel's canvas.
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(self, frames, at_global, 3.0, 14.0, false, 55)
+	if spr != null:
+		spr.top_level = true
+		spr.z_as_relative = false
+		spr.global_position = at_global
+	return spr
 
 
 func play_pointer_tick() -> void:
@@ -5094,7 +5104,8 @@ func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Colo
 	var draw_sz: Vector2 = sz
 	if soon:
 		draw_sz *= 1.0 + 0.16 * pulse
-	# Heart break/refill frames are 24 native (heart ~20). Offset −8 so they line up with 20px hearts at 4×.
+	# Heart break/refill frames are 24 native (heart ~20). Draw at 4× (96px) and
+	# center on the pip; −8/−8 lines the 24-canvas heart up with the 20px art.
 	if slot >= 0 and _heart_slot_fx.has(slot):
 		var fx: Dictionary = _heart_slot_fx[slot]
 		var kind: String = str(fx.get("kind", ""))
@@ -5102,12 +5113,24 @@ func _draw_hub_pip(pos: Vector2, sz: Vector2, live: bool, soon: bool, tint: Colo
 		if not frames.is_empty():
 			var life: float = maxf(0.001, float(fx.get("life", 0.4)))
 			var t: float = clampf(float(fx.get("t", 0.0)) / life, 0.0, 0.999)
+			## Refill: bias past the dark f0 silhouette so the pink frames dominate.
+			if kind == "refill":
+				t = clampf(0.22 + t * 0.78, 0.0, 0.999)
 			var fi: int = clampi(int(floor(t * float(frames.size()))), 0, frames.size() - 1)
 			var ftex: Texture2D = frames[fi] as Texture2D
 			if ftex != null:
 				var fsz := Vector2(float(ftex.get_width()), float(ftex.get_height())) * 4.0
+				## Keep at least ~1.8× the hub pip so refill stays readable even when
+				## hub hearts are drawn small (hs ~20–32).
+				var min_edge: float = maxf(sz.x, sz.y) * 1.8
+				if fsz.x < min_edge:
+					var grow: float = min_edge / maxf(fsz.x, 1.0)
+					fsz *= grow
 				var origin: Vector2 = pos - fsz * 0.5 + Vector2(-8.0, -8.0)
-				draw_texture_rect(ftex, Rect2(origin, fsz), false, tint)
+				var fx_tint: Color = tint
+				if kind == "refill":
+					fx_tint = Color(1.0, 0.92, 0.92, maxf(tint.a, 0.95))
+				draw_texture_rect(ftex, Rect2(origin, fsz), false, fx_tint)
 				return
 	var tex: Texture2D = tex_heart_full if live else tex_heart_empty
 	if soon and pulse > 0.55:
