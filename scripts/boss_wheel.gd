@@ -1393,8 +1393,10 @@ func recenter_on(index: int, dur: float = 0.28) -> void:
 	_recenter_tween.set_trans(Tween.TRANS_CUBIC)
 	_recenter_tween.set_ease(Tween.EASE_OUT)
 	_recenter_tween.tween_property(self, "rot", rot + delta, dur)
-	while _recenter_tween != null and _recenter_tween.is_valid() and _recenter_tween.is_running():
+	var guard := 0
+	while _recenter_tween != null and _recenter_tween.is_valid() and _recenter_tween.is_running() and guard < 90:
 		await get_tree().process_frame
+		guard += 1
 	if _recenter_tween != null and _recenter_tween.is_valid():
 		rot = fposmod(rot, TAU)
 	_recenter_tween = null

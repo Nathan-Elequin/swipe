@@ -582,12 +582,15 @@ func _wire_kw(rtl: RichTextLabel) -> void:
 	if rtl == null:
 		return
 	rtl.focus_mode = Control.FOCUS_NONE
-	if str(rtl.text).find("[url=") >= 0:
+	if str(rtl.text).find("[url=") >= 0 and accept_clicks:
 		rtl.mouse_filter = Control.MOUSE_FILTER_STOP
 		## Word hover only highlights the matching card in the autoshow stack.
 		UxStyle.wire_stack_highlight(rtl, _kw_stack)
 	else:
+		## Fly tips stay click-through so they cannot cover Take after a neighbor pick.
 		rtl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if str(rtl.text).find("[url=") >= 0:
+			UxStyle.wire_stack_highlight(rtl, _kw_stack)
 
 
 func pin_always_def() -> void:

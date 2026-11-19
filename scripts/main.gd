@@ -23803,6 +23803,9 @@ func _hook_fx_abort() -> void:
 
 
 func _apply_mark(index: int) -> void:
+	## Neighbor picks sit next to Take. Drop the hover plate so it cannot eat the click.
+	_hover_slice = -1
+	_idle_inspect()
 	_walker_busy = true
 	_sync_buttons()
 	_arm_item_hold()
@@ -24310,8 +24313,15 @@ func _apply_chain_flee(index: int, it: Dictionary) -> void:
 func _await_slash_idle() -> void:
 	if ability_slash == null or not ability_slash.is_busy():
 		return
-	while ability_slash != null and ability_slash.is_busy():
-		await get_tree().process_frame
+	if ability_slash.has_method("await_released"):
+		await ability_slash.await_released()
+	else:
+		var guard := 0
+		while ability_slash != null and ability_slash.is_busy() and guard < 90:
+			await get_tree().process_frame
+			guard += 1
+	if ability_slash != null and ability_slash.is_busy() and ability_slash.has_method("cancel_item_vfx"):
+		ability_slash.cancel_item_vfx()
 
 
 func _neighbor_full_attack(src: int) -> int:
@@ -28050,6 +28060,10 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 		candidates = [under, off_wheel, below, left]
 	var blocks: Array = [anchor]
 	blocks.append_array(_log_block_rects())
+	if take_arc != null and take_arc.visible and take_arc.has_method("arc_global_rect"):
+		var take_r: Rect2 = take_arc.arc_global_rect()
+		if take_r.size.x >= 8.0 and take_r.size.y >= 8.0:
+			blocks.append(take_r)
 	if unlock_tip:
 		if near != null and is_instance_valid(near):
 			var host_r: Control = near
