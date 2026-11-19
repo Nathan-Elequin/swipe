@@ -1,3 +1,12 @@
+---
+id: REQ-20261118-pixellab-final-a2
+status: done
+priority: high
+branch: playtest/latest
+viewport: 1680x1040
+entry: fresh save → Brand New / Middle Progress → real fight path
+---
+
 # REQ-20261118-pixellab-final-a2 — PixelLab final-A coverage re-drain
 
 Follow-up to REQ-20261118-pixellab-final-a (3/16 pass; 13 not reached or not readable). Re-check only these rows.
