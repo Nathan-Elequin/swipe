@@ -133,18 +133,61 @@ func _run() -> void:
 	var wheel = BOSS_WHEEL.new()
 	host.add_child(wheel)
 	wheel.size = Vector2(640, 640)
+	wheel.position = Vector2(520, 200)
 	wheel.set_atlas(null, null, null, {}, {})
+	await process_frame
 	if wheel.has_method("play_pointer_tick"):
 		wheel.play_pointer_tick()
 		wheel.play_pointer_land()
+	var take_spr: AnimatedSprite2D = null
 	if wheel.has_method("play_take_overlay"):
-		wheel.play_take_overlay("claw")
+		take_spr = wheel.play_take_overlay("claw")
 		wheel.play_take_overlay("bite")
 		wheel.play_take_overlay("thud")
-	wheel.set_vitals(3, 5, -1, 0, -1)
+	await process_frame
+	failed = _check(
+		failed,
+		"Take overlay node in tree after play",
+		take_spr != null and is_instance_valid(take_spr) and take_spr.is_inside_tree()
+	) or failed
+	if take_spr != null and is_instance_valid(take_spr):
+		failed = _check(failed, "Take overlay visible", take_spr.visible) or failed
+		var gp: Vector2 = take_spr.global_position
+		var vp := Rect2(Vector2.ZERO, Vector2(1680, 1040))
+		failed = _check(
+			failed,
+			"Take overlay within viewport",
+			vp.grow(64.0).has_point(gp)
+		) or failed
+		var hub_center: Vector2 = wheel.get_global_rect().get_center()
+		## Overlay sits on the hub hero (above hub center by a small margin).
+		failed = _check(
+			failed,
+			"Take overlay above hub (near wheel center)",
+			gp.distance_to(hub_center) < 220.0 and gp.y <= hub_center.y + 40.0
+		) or failed
+		failed = _check(
+			failed,
+			"Take overlay parented on wheel (not scene root)",
+			take_spr.get_parent() == wheel
+		) or failed
+	wheel.hub_on = true
+	wheel.hub_hp = 3
+	wheel.hub_hp_max = 5
 	wheel.set_vitals(2, 5, -1, 0, -1)
 	wheel.set_vitals(4, 5, -1, 0, -1)
 	await process_frame
+	var refill_life_ok := false
+	var any_refill := false
+	for k in wheel._heart_slot_fx.keys():
+		var ent: Dictionary = wheel._heart_slot_fx[k]
+		if str(ent.get("kind", "")) != "refill":
+			continue
+		any_refill = true
+		if float(ent.get("life", 0.0)) >= 0.35:
+			refill_life_ok = true
+	failed = _check(failed, "heal refill FX armed after set_vitals up", any_refill) or failed
+	failed = _check(failed, "heal refill slot life >= 0.35s", refill_life_ok) or failed
 	failed = _check(failed, "boss_wheel hub/pointer helpers callable", true) or failed
 
 	host.queue_free()

@@ -1630,6 +1630,7 @@ class SpotInk extends Control:
 	func _process(_delta: float) -> void:
 		if host == null or host._arrows.is_empty():
 			return
+		_ensure_tut_tex()
 		if host._tut_glove_tex.is_empty():
 			return
 		queue_redraw()
@@ -1678,6 +1679,9 @@ class SpotInk extends Control:
 				continue
 			var dir: Vector2 = (b - a).normalized()
 			var ang: float = dir.angle()
+			## Shaft always — glove/arrowhead alone were too sparse to read on the dim.
+			draw_line(a, b, Color("100e0c"), 9.0, true)
+			draw_line(a, b, gold, 5.0, true)
 			if use_sprites:
 				var glove: Texture2D = gloves[bob_i]
 				draw_set_transform(a, ang, Vector2(2.5, 2.5))
@@ -1686,8 +1690,6 @@ class SpotInk extends Control:
 				draw_texture(ah, -ah.get_size() * 0.5)
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			else:
-				draw_line(a, b, Color("100e0c"), 9.0, true)
-				draw_line(a, b, gold, 5.0, true)
 				var side: Vector2 = Vector2(-dir.y, dir.x)
 				var tip := PackedVector2Array([
 					b,

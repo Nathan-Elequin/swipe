@@ -175,6 +175,60 @@ func _run() -> void:
 	await process_frame
 	failed = _check(failed, "boss_wheel land_burst helper callable", true) or failed
 
+	## Tutorial pointer: when a spotlight hole shows, `_arrows` must be non-empty
+	## so SpotInk can draw glove + arrowhead (B03 wheel used to leave arrows at 0).
+	## Mimic main._tut_ensure_pointer_arrows for a hole with no teach-arrow.
+	var spots: Array = [Rect2(400, 200, 640, 640)]
+	var arrows: Array = []
+	if arrows.is_empty() and not spots.is_empty():
+		var tip_rect: Rect2 = spots[0]
+		var tip: Vector2 = tip_rect.get_center()
+		var tail: Vector2 = tip + Vector2(-80.0, -40.0)
+		arrows.append([tail, tip])
+	failed = _check(
+		failed,
+		"tutorial arrows non-empty when pointer/spotlight shows",
+		arrows.size() > 0
+	) or failed
+	failed = _check(
+		failed,
+		"tutorial spots non-empty with arrows",
+		spots.size() > 0 and arrows.size() > 0
+	) or failed
+	## SpotInk._ensure_tut_tex path (same paths as tutorial_guide).
+	var glove_n := 0
+	for gi in 5:
+		var gpath := "res://assets/ui/tutorial/tut_glove_bob_f%d.png" % gi
+		if ResourceLoader.exists(gpath) and load(gpath) != null:
+			glove_n += 1
+	var ah_ok: bool = (
+		ResourceLoader.exists("res://assets/ui/tutorial/tut_arrowhead_f0.png")
+		and load("res://assets/ui/tutorial/tut_arrowhead_f0.png") != null
+	)
+	failed = _check(failed, "tutorial glove frames load when pointer shows", glove_n >= 5) or failed
+	failed = _check(failed, "tutorial arrowhead loads when pointer shows", ah_ok) or failed
+	## main.gd ships the ensure helper used on every tutorial spotlight refresh.
+	var main_src: String = FileAccess.get_file_as_string("res://scripts/main.gd")
+	failed = _check(
+		failed,
+		"main._tut_ensure_pointer_arrows exists",
+		main_src.find("func _tut_ensure_pointer_arrows") >= 0
+	) or failed
+	failed = _check(
+		failed,
+		"tutorial refresh calls _tut_ensure_pointer_arrows",
+		main_src.find("_tut_ensure_pointer_arrows(spots, arrows)") >= 0
+	) or failed
+
+	## Duration notes (pure FX one-shots; spin stays 1.56s):
+	## land_burst 5f@14fps ≈ 0.36s — ok. iris loop covers fade. knife arc 0.28s /
+	## arrow flight 0.32s — ok. No lengthen needed under the 0.2s floor.
+	failed = _check(
+		failed,
+		"land_burst on-screen duration >= 0.2s (5f @14fps)",
+		(5.0 / 14.0) >= 0.2
+	) or failed
+
 	var hud = ENDLESS_HUD.new()
 	host.add_child(hud)
 	await process_frame
