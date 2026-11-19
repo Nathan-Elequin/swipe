@@ -1666,15 +1666,17 @@ func slice_at(local: Vector2) -> int:
 
 
 func _gui_input(event: InputEvent) -> void:
-	if spinning or busy:
-		return
+	## Feel pass B: motion still updates hover while spinning/busy; only clicks are blocked.
 	if event is InputEventMouseMotion:
 		var i: int = slice_at(event.position)
 		if i != hover_index:
 			hover_index = i
 			slice_hovered.emit(i)
 			queue_redraw()
-	elif event is InputEventMouseButton and event.pressed:
+		return
+	if spinning or busy:
+		return
+	if event is InputEventMouseButton and event.pressed:
 		var i2: int = slice_at(event.position)
 		if i2 < 0:
 			return
@@ -1685,12 +1687,8 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _on_mouse_out() -> void:
-	## The tutorial click shield sits over the wheel, so Godot reports a leave
-	## even while the cursor is still on a monster. The tutorial poll owns hover.
-	var main: Node = _board_main()
-	if main != null and main.in_tutorial == true:
-		_set_mark_hover(false)
-		return
+	## Always clear hover_index. Tutorial poll / hover reconciler re-applies if
+	## the cursor is still on a seat (click shield can fake a leave).
 	if hover_index != -1:
 		hover_index = -1
 		slice_hovered.emit(-1)
