@@ -11,6 +11,10 @@ const FONT_TEXT_HOTBAR := 19
 const FONT_TEXT_OFFER := 18
 const OUTLINE := Color("100e0c")
 const OUTLINE_SIZE := 4
+## Idle glyph row: 2px between pip icons. A word next to Draw (Move + bag) needs
+## about one space so the letters do not sit on the icon.
+const GAP_ICON := 2
+const GAP_TEXT_ICON := 8
 const TINT_BLUE := Color("6bb3d9")
 ## Positive / reclaim mint — matches Hex@1 / Recycler armed (item_card COL_HEX_GOOD).
 const TINT_MINT := Color("5FD3A0")
@@ -167,7 +171,7 @@ func set_rows(rows: Array) -> void:
 		var row: Array = row_v
 		var h := HBoxContainer.new()
 		h.alignment = BoxContainer.ALIGNMENT_CENTER
-		h.add_theme_constant_override("separation", 2)
+		h.add_theme_constant_override("separation", _row_gap(row))
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		for cell_v in row:
@@ -178,6 +182,21 @@ func set_rows(rows: Array) -> void:
 				h.add_child(cell)
 		if h.get_child_count() > 0:
 			_col.add_child(h)
+
+
+func _row_gap(row: Array) -> int:
+	var has_text := false
+	var has_other := false
+	for cell_v in row:
+		if typeof(cell_v) != TYPE_DICTIONARY:
+			continue
+		if str((cell_v as Dictionary).get("k", "")) == "text":
+			has_text = true
+		else:
+			has_other = true
+	if has_text and has_other:
+		return GAP_TEXT_ICON
+	return GAP_ICON
 
 
 func _make_cell(g: Dictionary, offer: bool) -> Control:
@@ -209,8 +228,14 @@ func _make_cell(g: Dictionary, offer: bool) -> Control:
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lab.add_theme_color_override("font_outline_color", OUTLINE)
 		lab.add_theme_constant_override("outline_size", OUTLINE_SIZE)
-		lab.add_theme_font_size_override("font_size", FONT_TEXT_OFFER if offer else FONT_TEXT_HOTBAR)
-		lab.custom_minimum_size = Vector2(maxi(px, t.length() * (10 if offer else 9)), px)
+		var fs: int = FONT_TEXT_OFFER if offer else FONT_TEXT_HOTBAR
+		lab.add_theme_font_size_override("font_size", fs)
+		## length * 9 was narrower than "Move" / "Eject" plus outline, so the
+		## word drew on top of the Draw bag. Size from the live font instead.
+		var tw: int = int(ceil(ThemeDB.fallback_font.get_string_size(
+			t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs
+		).x))
+		lab.custom_minimum_size = Vector2(maxi(px, tw + OUTLINE_SIZE), px)
 		if tint == "blue":
 			lab.add_theme_color_override("font_color", TINT_BLUE)
 		elif tint == "mint" or tint == "green":
