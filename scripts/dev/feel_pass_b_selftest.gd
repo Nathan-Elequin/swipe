@@ -1,9 +1,9 @@
 extends SceneTree
-## Feel pass B — layout invariants (no timing / FX / spin tween).
+## Feel pass B layout + Inspect v2 monster plate invariants.
 ## Asserts after controls are in the tree and have processed resize frames:
 ## 1) wheel + Take arc global rects identical across ready / spinning / fighting
 ## 2) cascade rail does not intersect hotbar or wheel
-## 3) compact monster inspect is smaller than the legacy tall plate
+## 3) Inspect v2 monster plate: dark, no portrait/rank/stats, smaller than #559 parchment
 ## Run: godot --headless --path . --script res://scripts/dev/feel_pass_b_selftest.gd
 
 const TAKE := preload("res://scripts/ui/take_arc.gd")
@@ -61,9 +61,14 @@ func _run() -> void:
 		"compact monster fill",
 		FileAccess.get_file_as_string("res://scripts/hover_panel.gd").find("_fill_compact_monster") >= 0
 	) or failed
+	failed = _check(
+		failed,
+		"inspect v2 ability helper",
+		FileAccess.get_file_as_string("res://scripts/hover_panel.gd").find("_inspect_v2_ability") >= 0
+	) or failed
 	var compact_src := FileAccess.get_file_as_string("res://scripts/hover_panel.gd")
 	var compact_i: int = compact_src.find("func _fill_compact_monster")
-	var compact_fn: String = compact_src.substr(compact_i, 2200) if compact_i >= 0 else ""
+	var compact_fn: String = compact_src.substr(compact_i, 3200) if compact_i >= 0 else ""
 	failed = _check(
 		failed,
 		"compact has no player Tier/ATK words",
@@ -71,6 +76,12 @@ func _run() -> void:
 		and compact_fn.find('"ATK"') < 0
 		and compact_fn.find("text = \"ATK\"") < 0
 		and compact_fn.find("text = \"Tier\"") < 0
+	) or failed
+	failed = _check(
+		failed,
+		"inspect v2 uses dark look",
+		compact_fn.find("_apply_look(look)") >= 0
+		and compact_fn.find("_apply_parchment_skin") < 0
 	) or failed
 
 	if failed:
@@ -236,11 +247,17 @@ func _case_compact_inspect() -> bool:
 	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.4, 0.7, 0.3, 1))
 	var tex := ImageTexture.create_from_image(img)
+	## Dark facing-callout look keys (same as main._monster_look).
 	var look := {
+		"fill": Color("2a1610"),
+		"metal": Color("c08050"),
+		"tier": 1,
+		"scary": true,
 		"rank": COPY.monster_rank_name(1),
 		"hp_n": "4",
 		"atk_n": "3",
 		"call_chip": "TestCall",
+		"call_color": Color("e8c36a"),
 		"stat_style": 0,
 	}
 	tip.show_rule("Goblin", "", "", "Hits the seat across for 1.", "", tex, "monster", "goblin", look)
@@ -250,11 +267,25 @@ func _case_compact_inspect() -> bool:
 		sz = tip.size
 	var failed := false
 	failed = _check(failed, "compact_flag", bool(tip.get("_compact_monster"))) or failed
-	failed = _check(failed, "compact_w_296", is_equal_approx(sz.x, 296.0) or sz.x <= 296.0) or failed
-	## Must be clearly smaller than the old tall centered column (~280+ tall).
-	failed = _check(failed, "compact_h_lt_legacy", sz.y < HOVER.LEGACY_MONSTER_TYPICAL_H) or failed
-	failed = _check(failed, "compact_area_lt_legacy", sz.x * sz.y < HOVER.LEGACY_MONSTER_MIN_W * HOVER.LEGACY_MONSTER_TYPICAL_H) or failed
-	## No flavor/hint child when hint was in look — compact drops it.
+	failed = _check(failed, "inspect_v2_on_dark", bool(tip.get("_on_dark"))) or failed
+	failed = _check(failed, "inspect_v2_w_le_280", sz.x <= HOVER.MONSTER_CARD_MAX_W + 0.5) or failed
+	failed = _check(failed, "inspect_v2_w_lt_feel_b", sz.x < HOVER.FEEL_PASS_B_MONSTER_W) or failed
+	## Must be clearly smaller than Feel pass B (#559) parchment card.
+	failed = _check(failed, "inspect_v2_h_lt_feel_b", sz.y < HOVER.FEEL_PASS_B_MONSTER_TYPICAL_H) or failed
+	failed = _check(
+		failed,
+		"inspect_v2_area_lt_feel_b",
+		sz.x * sz.y < HOVER.FEEL_PASS_B_MONSTER_W * HOVER.FEEL_PASS_B_MONSTER_TYPICAL_H
+	) or failed
+	failed = _check(failed, "inspect_v2_h_lt_legacy", sz.y < HOVER.LEGACY_MONSTER_TYPICAL_H) or failed
+	## No portrait / rank / HP-ATK badge children on the plate.
+	failed = _check(failed, "no_portrait_visible", not _has_named_or_tex(tip, "portrait")) or failed
+	failed = _check(failed, "no_rank_visible", not _has_rank_label(tip, str(look.get("rank", "")))) or failed
+	failed = _check(failed, "no_stat_badges", not _has_stat_badge(tip)) or failed
+	failed = _check(failed, "has_name", _has_named(tip, "InspectName")) or failed
+	failed = _check(failed, "has_ability_pill", _has_named(tip, "InspectAbility")) or failed
+	failed = _check(failed, "has_body", _has_named(tip, "InspectBody")) or failed
+	## No flavor/hint child when hint was in look — Inspect v2 drops it.
 	look["hint"] = "A leftover flavor line that must not show."
 	tip.show_rule("Goblin", "", "", "Hits the seat across for 1.", "", tex, "monster", "goblin", look)
 	await _settle()
@@ -266,9 +297,69 @@ func _case_compact_inspect() -> bool:
 			if c is RichTextLabel and str((c as RichTextLabel).text).find("leftover flavor") >= 0:
 				found_hint = true
 	failed = _check(failed, "no_flavor_line", not found_hint) or failed
+	## Item path still works and is not forced onto the dark compact plate.
+	tip.show_rule("Boot", "2", "", "Kick them.", "", null, "item", "boot", {})
+	await _settle()
+	failed = _check(failed, "item_not_compact", not bool(tip.get("_compact_monster"))) or failed
+	print("INSPECT_V2_SIZE %.1fx%.1f (Feel B was %.0fx%.0f)" % [
+		sz.x, sz.y, HOVER.FEEL_PASS_B_MONSTER_W, HOVER.FEEL_PASS_B_MONSTER_TYPICAL_H,
+	])
 	root_c.queue_free()
 	await _settle()
 	return failed
+
+
+func _has_named(root: Node, want: String) -> bool:
+	if root.name == want:
+		return true
+	for c in root.get_children():
+		if c == root.get("_kw_stack"):
+			continue
+		if _has_named(c, want):
+			return true
+	return false
+
+
+func _has_named_or_tex(root: Node, _tag: String) -> bool:
+	## Portrait would be a TextureRect under the old head row; Inspect v2 has only AbilityIcon.
+	for c in root.get_children():
+		if c == root.get("_kw_stack"):
+			continue
+		if c is TextureRect and str(c.name) != "AbilityIcon":
+			if (c as TextureRect).visible and (c as TextureRect).texture != null:
+				return true
+		if _has_named_or_tex(c, _tag):
+			return true
+	return false
+
+
+func _has_rank_label(root: Node, rank: String) -> bool:
+	if rank.strip_edges() == "":
+		return false
+	if root is Label and str((root as Label).text).strip_edges() == rank.strip_edges():
+		## Name label must not equal rank; InspectName holds the monster name.
+		if str(root.name) == "InspectName":
+			return false
+		return (root as Label).visible
+	for c in root.get_children():
+		if c == root.get("_kw_stack"):
+			continue
+		if _has_rank_label(c, rank):
+			return true
+	return false
+
+
+func _has_stat_badge(root: Node) -> bool:
+	## WheelStatBadge is an inner class on hover_panel — detect via is_heart + num_text + style.
+	for c in root.get_children():
+		if c == root.get("_kw_stack"):
+			continue
+		if c is Control and c.get("is_heart") != null and c.get("num_text") != null and c.get("style") != null:
+			if c.get_script() != null:
+				return true
+		if _has_stat_badge(c):
+			return true
+	return false
 
 
 func _settle() -> void:

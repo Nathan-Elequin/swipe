@@ -27950,9 +27950,11 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	_raise_tutorial_hover_plate()
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
-	## Compact monster plate is fixed 296; items still get the wider floor.
+	## Inspect v2 monster plate fits content (max ~280); items still get the wider floor.
 	if fly_tip.edit_kind == "monster" and bool(fly_tip.get("_compact_monster")):
-		sz.x = maxf(sz.x, 296.0)
+		sz.x = clampf(sz.x, 160.0, 280.0)
+		if fly_tip.size.x > 1.0:
+			sz.x = maxf(sz.x, minf(fly_tip.size.x, 280.0))
 	else:
 		sz.x = maxf(sz.x, 280.0)
 	if bool(fly_tip.get("_pin_always")):

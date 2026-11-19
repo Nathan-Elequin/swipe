@@ -1,18 +1,22 @@
 extends PanelContainer
 ## Punchy inspect plate. Item equations and monster copy share this language.
 ## Hover inspects show keyword capsules after a short delay, hugging this plate's top-right.
-## Feel pass B: monster fly tips use the keyword-card parchment frame (compact).
+## Inspect v2: monster fly tips match the right-side facing callout (dark, minimal).
 
 const COPY := preload("res://scripts/player_copy.gd")
 const KEYWORD_STACK := preload("res://scripts/keyword_stack.gd")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
 
-const MONSTER_CARD_W := 296.0
-const MONSTER_PORT_PX := 56.0
-const PARCHMENT := "res://assets/ui/trophy/parchment_tag.png"
+## Feel pass B (#559) parchment card — Inspect v2 must measure smaller than this.
+const FEEL_PASS_B_MONSTER_W := 296.0
+const FEEL_PASS_B_MONSTER_TYPICAL_H := 200.0
+## Inspect v2 content max width (padding sits outside via StyleBox margins).
+const MONSTER_CARD_MAX_W := 280.0
+const MONSTER_CARD_MIN_W := 160.0
+const MONSTER_PAD := 11.0
 const FONT_SEMI := "res://assets/ui/fonts/open_sans/OpenSans-SemiBold.ttf"
 
-## Pre-Feel-pass-B tall monster plate (centered column + flavor). Compact must beat this.
+## Pre-Feel-pass-B tall monster plate (centered column + flavor). Still a size floor.
 const LEGACY_MONSTER_MIN_W := 280.0
 const LEGACY_MONSTER_TYPICAL_H := 320.0
 
@@ -166,7 +170,7 @@ func show_rule(
 	}
 	_wipe()
 	mouse_filter = Control.MOUSE_FILTER_STOP if accept_clicks and p_id != "" else Control.MOUSE_FILTER_IGNORE
-	## Feel pass B: compact parchment monster fly tip (not the fight stage card).
+	## Inspect v2: dark minimal monster fly tip (not the fight stage card).
 	if p_kind == "monster" and not bool(look.get("stage_card", false)):
 		_compact_monster = true
 		_fill_compact_monster(title, body, warn, portrait, look)
@@ -603,174 +607,159 @@ func hide_plate() -> void:
 	_apply_look({})
 
 
-## Compact parchment monster inspect (keyword_tip frame). No flavor/hint line.
-func _fill_compact_monster(title: String, body: String, warn: String, portrait: Texture2D, look: Dictionary) -> void:
-	_on_dark = false
-	_apply_parchment_skin()
-	custom_minimum_size = Vector2(MONSTER_CARD_W, 0)
-	var ink := Color("4A2F1F")
+## Inspect v2 — dark minimal monster fly tip (facing-callout StyleBox + colors).
+## Only: name, ability pill (icon + call name), ability sentence with keyword colors.
+## No portrait, rank word, HP/attack pips, flavor, or warn line (seat already has stats).
+func _fill_compact_monster(title: String, body: String, _warn: String, _portrait: Texture2D, look: Dictionary) -> void:
+	## Reuse the facing callout's dark plum StyleBox via the same look keys (fill/metal/scary).
+	_apply_look(look)
+	var panel_sb: StyleBox = get_theme_stylebox("panel")
+	if panel_sb is StyleBoxFlat:
+		var flat: StyleBoxFlat = (panel_sb as StyleBoxFlat).duplicate() as StyleBoxFlat
+		flat.content_margin_left = MONSTER_PAD
+		flat.content_margin_right = MONSTER_PAD
+		flat.content_margin_top = MONSTER_PAD
+		flat.content_margin_bottom = MONSTER_PAD
+		## Hover plate: thin light border (facing callout metal), no big scary shadow.
+		flat.shadow_size = 4
+		flat.shadow_color = Color(0.05, 0.02, 0.06, 0.45)
+		flat.set_border_width_all(2)
+		flat.set_corner_radius_all(8)
+		add_theme_stylebox_override("panel", flat)
+	custom_minimum_size = Vector2(MONSTER_CARD_MIN_W, 0)
+	var ink := Color("f0e6d8")
+	var ink_out := Color("1c120c")
+	var body_col := Color("e8dcc8")
 	var font: Font = null
 	if ResourceLoader.exists(FONT_SEMI):
 		font = load(FONT_SEMI) as Font
 	if font == null:
 		font = ThemeDB.fallback_font
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 10)
-	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	add_child(col)
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 10)
-	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(head)
-	## Portrait 48–64px on the left.
-	var port_slot := Control.new()
-	port_slot.custom_minimum_size = Vector2(MONSTER_PORT_PX, MONSTER_PORT_PX)
-	port_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.add_child(port_slot)
-	if portrait != null:
-		var pic := TextureRect.new()
-		pic.texture = portrait
-		pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		pic.texture_filter = TEXTURE_FILTER_NEAREST
-		pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var tw: int = maxi(1, portrait.get_width())
-		var th: int = maxi(1, portrait.get_height())
-		var scale := 1
-		for step in [4, 3, 2, 1]:
-			if tw * step <= int(MONSTER_PORT_PX) and th * step <= int(MONSTER_PORT_PX):
-				scale = step
-				break
-		var disp := Vector2(tw * scale, th * scale)
-		pic.custom_minimum_size = disp
-		pic.size = disp
-		pic.position = Vector2((MONSTER_PORT_PX - disp.x) * 0.5, (MONSTER_PORT_PX - disp.y) * 0.5)
-		port_slot.add_child(pic)
-	var meta := VBoxContainer.new()
-	meta.add_theme_constant_override("separation", 2)
-	meta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	meta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.add_child(meta)
+	var call_chip: String = str(look.get("call_chip", "")).strip_edges()
+	var call_col := Color("e8c36a")
+	var raw_col: Variant = look.get("call_color", call_col)
+	if raw_col is Color:
+		call_col = raw_col
+	var medal: Texture2D = null
+	var raw_medal: Variant = look.get("medal", null)
+	if raw_medal is Texture2D:
+		medal = raw_medal
 	var name_lab := Label.new()
+	name_lab.name = "InspectName"
 	name_lab.text = title
-	name_lab.add_theme_font_size_override("font_size", 20)
+	name_lab.add_theme_font_size_override("font_size", 18)
 	name_lab.add_theme_color_override("font_color", ink)
+	name_lab.add_theme_color_override("font_outline_color", ink_out)
+	name_lab.add_theme_constant_override("outline_size", 3)
 	if font:
 		name_lab.add_theme_font_override("font", font)
 	name_lab.autowrap_mode = TextServer.AUTOWRAP_OFF
 	name_lab.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	meta.add_child(name_lab)
-	var rank: String = str(look.get("rank", "")).strip_edges()
-	if rank != "":
-		var rk := Label.new()
-		rk.text = rank
-		rk.add_theme_font_size_override("font_size", 13)
-		rk.add_theme_color_override("font_color", Color("6a5a48"))
-		rk.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		meta.add_child(rk)
-	var badge_hp: String = str(look.get("hp_n", "")).strip_edges()
-	var badge_atk: String = str(look.get("atk_n", "")).strip_edges()
-	if badge_hp != "" and badge_atk != "":
-		meta.add_child(_compact_stat_row(badge_hp, badge_atk, int(look.get("stat_style", 0))))
-	var rule := ColorRect.new()
-	rule.custom_minimum_size = Vector2(0, 2)
-	rule.color = Color("C9B183")
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(rule)
-	var call_chip: String = str(look.get("call_chip", "")).strip_edges()
+	name_lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var title_w: float = 80.0
+	if font != null and title != "":
+		title_w = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
+	var pill: Control = null
+	var pill_w: float = 0.0
 	if call_chip != "":
-		var call_col := Color("e8c36a")
-		var raw_col: Variant = look.get("call_color", call_col)
-		if raw_col is Color:
-			call_col = raw_col
-		var medal: Texture2D = null
-		var raw_medal: Variant = look.get("medal", null)
-		if raw_medal is Texture2D:
-			medal = raw_medal
-		col.add_child(_call_chip_left(call_chip, call_col, medal))
+		pill = _inspect_v2_ability(call_chip, call_col, medal)
+		pill_w = pill.get_combined_minimum_size().x
+		if pill_w < 8.0:
+			pill_w = pill.custom_minimum_size.x
+	var inner_max: float = MONSTER_CARD_MAX_W - MONSTER_PAD * 2.0
+	var row_gap := 8.0
+	var fit_row: bool = call_chip == "" or (title_w + row_gap + pill_w) <= inner_max
+	var col := VBoxContainer.new()
+	col.name = "InspectV2Col"
+	col.add_theme_constant_override("separation", 6 if fit_row else 4)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_child(col)
+	if fit_row:
+		var head := HBoxContainer.new()
+		head.name = "InspectHead"
+		head.add_theme_constant_override("separation", int(row_gap))
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.add_child(head)
+		name_lab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head.add_child(name_lab)
+		if pill != null:
+			pill.size_flags_horizontal = Control.SIZE_SHRINK_END
+			head.add_child(pill)
+	else:
+		name_lab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.add_child(name_lab)
+		if pill != null:
+			pill.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+			col.add_child(pill)
 	if body != "":
 		var b := RichTextLabel.new()
+		b.name = "InspectBody"
 		b.bbcode_enabled = true
 		b.fit_content = true
 		b.scroll_active = false
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.meta_underlined = false
 		b.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_font_size_override("normal_font_size", 17)
-		b.add_theme_font_size_override("bold_font_size", 17)
-		b.add_theme_color_override("default_color", ink)
+		b.add_theme_font_size_override("normal_font_size", 15)
+		b.add_theme_font_size_override("bold_font_size", 15)
+		b.add_theme_color_override("default_color", body_col)
 		if font:
 			b.add_theme_font_override("normal_font", font)
 			b.add_theme_font_override("bold_font", font)
 		b.text = body
-		b.custom_minimum_size = Vector2(MONSTER_CARD_W - 40.0, 0)
+		b.custom_minimum_size = Vector2(inner_max, 0)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_wire_kw(b)
 		col.add_child(b)
-	if warn != "":
-		var w := Label.new()
-		w.text = warn
-		w.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		w.add_theme_font_size_override("font_size", 14)
-		var flee_def: bool = warn.strip_edges().to_lower().begins_with("flee")
-		w.add_theme_color_override("font_color", Color("6A3C00") if flee_def else Color("8b1e1e"))
-		w.custom_minimum_size = Vector2(MONSTER_CARD_W - 40.0, 0)
-		w.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		col.add_child(w)
-	## No description / flavor (hint) line on the compact plate.
+	## No rank / portrait / HP-ATK / flavor / warn on Inspect v2.
 	_pin_always = false
 	reset_size()
-	size.x = MONSTER_CARD_W
+	var want_w: float = get_combined_minimum_size().x
+	want_w = clampf(want_w, MONSTER_CARD_MIN_W, MONSTER_CARD_MAX_W)
+	custom_minimum_size = Vector2(want_w, 0)
+	size.x = want_w
+	reset_size()
 
 
-func _apply_parchment_skin() -> void:
-	_skinned = true
-	_on_dark = false
-	var parch: Texture2D = null
-	if ResourceLoader.exists(PARCHMENT):
-		parch = load(PARCHMENT) as Texture2D
-	var sb := StyleBoxTexture.new()
-	if parch:
-		sb.texture = parch
-		sb.texture_margin_left = 24
-		sb.texture_margin_right = 24
-		sb.texture_margin_top = 24
-		sb.texture_margin_bottom = 24
-		sb.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
-		sb.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
-	sb.content_margin_left = 20
-	sb.content_margin_right = 20
-	sb.content_margin_top = 16
-	sb.content_margin_bottom = 18
-	add_theme_stylebox_override("panel", sb)
-
-
-func _compact_stat_row(hp: String, atk: String, style: int) -> Control:
+## Compact ability pill matching the facing callout (_stage_ability), scaled for the hover plate.
+func _inspect_v2_ability(text: String, col: Color, medal: Texture2D) -> Control:
 	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_BEGIN
-	row.add_theme_constant_override("separation", 16)
+	row.name = "InspectAbility"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var heart := WheelStatBadge.new()
-	heart.is_heart = true
-	heart.num_text = hp
-	heart.style = style
-	var sword := WheelStatBadge.new()
-	sword.is_heart = false
-	sword.num_text = atk
-	sword.style = style
-	row.add_child(heart)
-	row.add_child(sword)
+	row.size_flags_horizontal = Control.SIZE_SHRINK_END
+	var pic := TextureRect.new()
+	pic.name = "AbilityIcon"
+	pic.custom_minimum_size = Vector2(28, 28)
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_SCALE
+	pic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	pic.texture = medal
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(pic)
+	var font: Font = ThemeDB.fallback_font
+	var fs := 15
+	var text_w := 80.0
+	if font != null:
+		text_w = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		while fs > 12 and text_w > 140.0:
+			fs -= 1
+			text_w = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var chip := Control.new()
+	chip.name = "AbilityCapsule"
+	chip.custom_minimum_size = Vector2(text_w + 20.0, 28.0)
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.set_meta("call_text", text)
+	chip.set_meta("call_color", col)
+	chip.set_meta("call_fs", fs)
+	chip.draw.connect(_paint_stage_capsule.bind(chip))
+	row.add_child(chip)
+	row.custom_minimum_size = Vector2(28.0 + 6.0 + text_w + 20.0, 28.0)
 	return row
-
-
-func _call_chip_left(text: String, col: Color, medal: Texture2D) -> Control:
-	## Reuse the existing call pill; shrink-begin so it sits under the header text.
-	var chip: Control = _call_chip(text, col, medal)
-	chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	return chip
 
 
 ## Lifelink, on the Kiss inspect, in the same call pill and sentence size as a monster plate.

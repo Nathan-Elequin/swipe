@@ -1,11 +1,11 @@
-# SCREEN — Feel pass B (layout / UI)
+# SCREEN — Feel pass B (layout / UI) + Inspect v2
 
-Owner: Cursor cloud · Locked numbers from Nathan (Nov 18) · Viewport: **1680×1040**
+Owner: Cursor cloud · Locked numbers from Nathan (Nov 18–19) · Viewport: **1680×1040**
 
-Scope (this PR only — lane A owns timing / FX / spin tween / stat anim):
+Scope:
 1. Nothing moves during a spin (Take stays, constant `btn_wrap` height, constant move-arrow radius).
 2. Combo tracker as a vertical left-gutter rail.
-3. Compact monster inspect on the keyword-card parchment frame.
+3. **Inspect v2** monster hover plate (dark minimal — replaces Feel pass B parchment card).
 4. Stuck hover clear.
 
 Never show `Tier` or `ATK` to players. No new player-facing words.
@@ -58,29 +58,36 @@ Never show `Tier` or `ATK` to players. No new player-facing words.
 
 ---
 
-## 3. Compact monster inspect (`hover_panel.gd` fly tip)
+## 3. Inspect v2 — dark minimal monster plate (`hover_panel.gd` fly tip)
 
-Same visual frame as `keyword_tip.gd`:
+Locked **2026-11-19** (Nathan). Replaces the Feel pass B (#559) 296 px light parchment card.
+
+Matches the **right-side facing callout** (`face_box` / `stage_card`): dark plum / near-black panel from `_monster_look` → `_apply_look` (same `fill` / `metal` / `scary` StyleBoxFlat), thin light border, white bold name, ability pill with icon, white body text with existing keyword color highlights.
 
 | Token | Value |
 |---|---|
-| Width | 296 (`MONSTER_CARD_W`) |
-| Parchment | `assets/ui/trophy/parchment_tag.png`, margins 24, content L20 T16 R20 B18 |
-| Header icon | 56×56 portrait slot (48–64 crisp integer scale) |
-| Name | 20 pt, ink `#4A2F1F` |
-| Rank | Existing Minion / Elite / Boss string (13 pt) |
-| Stats | Heart + attack pip badges (existing `WheelStatBadge`, no "ATK" / "Tier" labels) |
-| Rule | 2 px `#C9B183` |
-| Body | 17 pt ability sentence + existing call pill |
-| Dropped | Centered tall column; description / flavor (`hint`) line |
+| Contents only | Monster **name**, **ability pill** (existing medal icon + call name), **ability sentence** (keyword BBCode) |
+| Removed | Rank word (Minion/Elite/Boss), portrait/sprite, HP and attack icons/numbers (already on the wheel seat), flavor/hint, warn line |
+| Panel | Reuse `_apply_look(look)` StyleBoxFlat from facing callout; pad ~11 px; border 2; corner 8; light shadow |
+| Name | 18 pt, `#f0e6d8` fill, `#1c120c` outline 3 (same ink as stage name) |
+| Ability pill | Compact `_stage_ability` cousin: 28 px medal + dark capsule + gold rim (`_paint_stage_capsule`) |
+| Body | 15 pt, `#e8dcc8`, existing keyword highlights |
+| Layout | Title left + pill right on one row when they fit; else stacked with ~4 px gap; body wraps below |
+| Width | Fit content; min 160, max **280** (`MONSTER_CARD_MAX_W`) — clearly under #559's 296 |
+| Padding | `MONSTER_PAD` 11 |
 
 **Placement (`_place_fly`)**
 - Prefer beside the hovered seat (right if seat is right of wheel center, else left).
 - Avoid covering the wheel hub (±48 px vertical pad from wheel top/bottom).
-- Keyword capsules still attach via the existing stack.
+- Keyword capsules still attach via the existing stack. Capsules may still use the light parchment keyword-card skin (leave unless trivial); note in PR.
 
-**Legacy compare (selftest)**
-- Old typical height ~280; compact must measure clearly smaller in area and height.
+**Size compare (selftest)**
+- Feel pass B (#559): 296 × ~200 typical.
+- Inspect v2 must measure smaller in width, height, and area.
+
+**Out of scope**
+- Item hovers and other `hover_panel` uses (unless they share this exact non-`stage_card` monster path).
+- Facing callout / `stage_card` layout itself.
 
 ---
 
@@ -100,7 +107,7 @@ Same visual frame as `keyword_tip.gd`:
 
 - `scripts/main.gd` — Take Safe idle, constant slot, move arrows, dock ticker, hover reconciler, fly place
 - `scripts/cascade_ticker.gd` — vertical left rail
-- `scripts/hover_panel.gd` — compact parchment monster
+- `scripts/hover_panel.gd` — Inspect v2 dark minimal monster
 - `scripts/boss_wheel.gd` — motion while busy
 - `scripts/dev/feel_pass_b_selftest.gd`
 - `design/visual/SCREEN-feel-pass-b.md` (this file)
