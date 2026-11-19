@@ -748,7 +748,7 @@
 		},
 		{
 			"ability": "This gains +1 Attack for each Item you discard.",
-			"atk_base": 0,
+			"atk_base": 0.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
@@ -5326,14 +5326,14 @@
 		{
 			"ability": "On Spin, raise the HP of the Lowest HP Monster until it equals the HP of another Monster. When I spawn, I take over another Monster.",
 			"atk": {
-				"base": 4
+				"base": 4.0
 			},
-			"atk_base": 4,
+			"atk_base": 4.0,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Blood Rise",
 			"card_color": "",
-			"count": 1,
+			"count": 1.0,
 			"defined": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
 			"exceptions": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"explainer": "When I spawn, I take over the weakest other Monster by tier. On Spin, Lowest HP Monster +1 until tied with another",
@@ -5344,9 +5344,9 @@
 			},
 			"flow": "When the dungeon is set up (Adventure mill finished, Challenge Begin, Dev Test Play) and before Spin, one real Leech League takes over. Slash, then a line to the weakest other monster by catalog tier (random among ties). Skip other Leech Leagues. Skip the monster you are fighting. Silent replace: no Defeat, Flee, Hatch, gift, Devour, enter gains. Copy is a fresh printed 2 HP / 4 Attack and does not spawn-takeover. Quiet Bell on the spawner blocks takeover. Later deck draws (including Catapult return) are a new spawn and can make a third. Fail if no legal victim.",
 			"hp": {
-				"base": 2
+				"base": 2.0
 			},
-			"hp_base": 2,
+			"hp_base": 2.0,
 			"hp_formula": "",
 			"id": "leech_league",
 			"locked_at": "2026-11-19",
@@ -5376,14 +5376,14 @@
 			"notes": "Paper Fight 2026-11-01: dungeon-ready slash + beam; skip face; skip other Leech; random tier ties; fresh 2/4 copy; Quiet Bell blocks; copy does not retrigger.",
 			"ops": {},
 			"poc": false,
-			"pool": 3,
-			"priority": 2,
+			"pool": 3.0,
+			"priority": 2.0,
 			"rarity": "uncommon",
 			"reminder": "Lowest HP Monster = 2nd Lowest HP Monster",
 			"review": "refined",
 			"review_note": "",
 			"status": "live",
-			"tier": 3,
+			"tier": 3.0,
 			"type": "M",
 			"updated": "2026-11-01",
 			"when_updated": [
@@ -7716,14 +7716,14 @@
 		{
 			"ability": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
 			"atk": {
-				"base": 8.0
+				"base": 8
 			},
-			"atk_base": 8.0,
+			"atk_base": 8,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "Death Knell",
 			"card_color": "",
-			"count": 1.0,
+			"count": 1,
 			"defined": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Revival Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
 			"exceptions": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"explainer": "When I Spawn, Gain 1 Toll. On Spin, I lose 2 HP. When I am Defeated, Discard 1 Item.",
@@ -7734,12 +7734,12 @@
 			},
 			"flow": "When this slice is added to the wheel (Place, Challenge fill, Clockwork heir, Developer Test), Gain 1 Toll at 6 even if Zombie would block Gain. If the hand is full, the player clicks one item to throw away, then Toll lands. A second Death Bell grants a second Toll at 6. On Spin of this monster, if it is not silenced, it loses 2 HP (Anvil still max 1). Quiet Bell: skip the -2 HP and skip the Defeat discard; Tolls already in hand still tick. Item uses that already increment Beads (including Bushido's dummy throw) tick every Toll by 1. Potion auto, Buckler auto, and Cube/Worm/overlay picks do not tick. At Toll 1 the card pulses. At 0 they Die; Revival Potion can save. If the killing item ticks Toll from 1 to 0 while this Bell is the one being Defeated, the Defeat discard overlay happens first so they can throw Toll away and live. Defeat overlay: must click one item (Ability as the line), then the Bell rings and leaves with loot. Empty hand: skip discard, still ring. Toll is T0, black like Egg, Unplayable, not drafted.",
 			"hp": {
-				"base": 12.0
+				"base": 12
 			},
-			"hp_base": 12.0,
+			"hp_base": 12,
 			"hp_formula": "",
 			"id": "death_bell",
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -7765,15 +7765,16 @@
 			"name": "Death Bell",
 			"notes": "Bucket 9. Giant evil church bell. 12 HP 8 ATK.",
 			"ops": {},
+			"pending_fields": {},
 			"poc": false,
-			"pool": 3.0,
-			"priority": 3.0,
+			"pool": 3,
+			"priority": 3,
 			"rarity": "uncommon",
 			"reminder": "",
 			"review": "rough",
 			"review_note": "",
 			"status": "live",
-			"tier": 3.0,
+			"tier": 3,
 			"type": "M"
 		},
 		{
@@ -8605,7 +8606,7 @@
 			"type": "M"
 		},
 		{
-			"ability": "On Spin, I Gain 2 Poison. When I lose HP, I gain equal Attack.",
+			"ability": "When you Spin me, you Gain 4 Poison. When I lose HP, you lose Equal Poison",
 			"atk": {
 				"base": 2.0
 			},
@@ -8615,22 +8616,22 @@
 			"call_name": "Bitter Blood",
 			"card_color": "",
 			"count": 1.0,
-			"defined": "While I am alive and not silenced: on every dungeon Spin I gain 2 Poison. It stacks. It ticks only when I am the monster you are facing, then that stack clears, the same as other monster Poison. When I lose HP, including that Poison tick, I gain Attack equal to the HP that actually left the bar. A hit bigger than my remaining HP adds only the HP I had left. That Attack stays if I am healed. One slash per HP loss, then the Attack number. Gaining Poison does not slash. Quiet Bell turns this off.",
-			"exceptions": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-12: 12 HP, +2 Poison each Spin, ticks only while facing, Attack gain equals HP actually lost, Ogre slash on that gain. Spin-me HP set removed.",
-			"explainer": "On Spin: +2 Poison. It ticks when you face me. When I lose HP, I gain that much Attack.",
+			"defined": "On a real Spin onto me, if I am alive and not silenced: you Gain 4 player Poison after this Spin's Poison already paid, so those 4 wait for a later Spin. Grappling Hook and Damsel neighbors do not pay this. Whenever I actually lose HP from any seat, that many Poison leave your droplet without paying them as HP. A hit bigger than my remaining HP strips only the HP that left the bar. Floor at 0. Quiet Bell turns both clauses off.",
+			"exceptions": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-19: 6 HP / 2 Attack. Spin me: +4 player Poison after this land's payment. Any HP I actually lose, any seat, strips that much Poison.",
+			"explainer": "Spin me: you Gain 4 Poison. When I lose HP, that much leaves your Poison.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "While I am alive and not silenced: on every dungeon Spin I gain 2 Poison. It stacks. It ticks only when I am the monster you are facing, then that stack clears, the same as other monster Poison. When I lose HP, including that Poison tick, I gain Attack equal to the HP that actually left the bar. A hit bigger than my remaining HP adds only the HP I had left. That Attack stays if I am healed. One slash per HP loss, then the Attack number. Gaining Poison does not slash. Quiet Bell turns this off.",
+			"flow": "On a real Spin onto me, if I am alive and not silenced: you Gain 4 player Poison after this Spin's Poison already paid, so those 4 wait for a later Spin. Grappling Hook and Damsel neighbors do not pay this. Whenever I actually lose HP from any seat, that many Poison leave your droplet without paying them as HP. A hit bigger than my remaining HP strips only the HP that left the bar. Floor at 0. Quiet Bell turns both clauses off.",
 			"hp": {
-				"base": 12.0
+				"base": 6.0
 			},
-			"hp_base": 12.0,
+			"hp_base": 6.0,
 			"hp_formula": "",
 			"id": "glass_asp",
-			"locked_at": "2026-11-12",
+			"locked_at": "2026-11-19",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -8652,10 +8653,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "Spin: +2 Poison. Lose HP: gain that Attack",
+			"log_hint": "Spin me: you Gain 4 Poison. Lose HP: that much leaves your Poison",
 			"mode_pool": "all",
 			"name": "Glass Asp",
-			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-12 rework: 12 HP / 2 Attack. Every Spin gain 2 Poison and leave it. Poison ticks only while facing. HP actually lost, including that tick, adds that much Attack and plays one Ogre-style slash. Healing does not remove the Attack. Spin-me HP set is gone.",
+			"notes": "Scale-four 2026-11-05 Pixel art (still B2 + facing A + idle). 2026-11-19 rework: 6 HP / 2 Attack. Spin me: +4 player Poison after this land's payment. Any HP I actually lose, any seat, strips that much Poison. Self-Poison and Attack gain are gone.",
 			"ops": {},
 			"pending_fields": {},
 			"poc": false,

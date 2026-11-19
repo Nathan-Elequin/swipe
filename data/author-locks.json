@@ -2108,7 +2108,7 @@
 				"card_color",
 				"log_hint"
 			],
-			"locked_at": "2026-11-06",
+			"locked_at": "2026-11-19",
 			"name": "Death Bell"
 		},
 		"monster:dire_wolf": {
@@ -2303,7 +2303,7 @@
 				"log_hint",
 				"pool"
 			],
-			"locked_at": "2026-11-12",
+			"locked_at": "2026-11-19",
 			"name": "Glass Asp"
 		},
 		"monster:goblin": {

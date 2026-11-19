@@ -388,37 +388,41 @@ func _init() -> void:
 		_source_func_calls("res://scripts/main.gd", "_recycle_insert_copy", "duplicate(true)")
 	) or failed
 
-	## 19) Glass Asp — Bitter Blood: +2 Poison each Spin, Attack equals HP actually lost.
+	## 19) Glass Asp — Bitter Blood: Spin me +4 player Poison; HP lost strips equal Poison.
 	failed = _check(failed, "runtime_has_glass_asp", _runtime_has_monster("glass_asp")) or failed
 	failed = _check(
 		failed,
-		"glass_asp_stats_12_2",
-		_catalog_monster_hp_atk("glass_asp", 12, 2)
+		"glass_asp_stats_6_2",
+		_catalog_monster_hp_atk("glass_asp", 6, 2)
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_ability_poison_and_atk",
-		_catalog_monster_ability_contains("glass_asp", "On Spin")
-		and _catalog_monster_ability_contains("glass_asp", "2 Poison")
+		"glass_asp_ability_player_poison",
+		_catalog_monster_ability_contains("glass_asp", "When you Spin me")
+		and _catalog_monster_ability_contains("glass_asp", "Gain 4 Poison")
 		and _catalog_monster_ability_contains("glass_asp", "When I lose HP")
-		and _catalog_monster_ability_contains("glass_asp", "equal Attack")
+		and _catalog_monster_ability_contains("glass_asp", "Equal Poison")
+		and not _catalog_monster_ability_contains("glass_asp", "equal Attack")
 		and not _catalog_monster_ability_contains("glass_asp", "set your HP")
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_spin_adds_two_no_slash",
+		"glass_asp_spin_gains_player_poison",
 		_source_has_func("res://scripts/main.gd", "_apply_glass_asp_on_spin")
-		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_add_monster_poison")
+		and _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_gain_player_poison")
+		and not _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_add_monster_poison")
 		and not _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_announce_slice")
 		and not _source_func_calls("res://scripts/main.gd", "_apply_glass_asp_on_spin", "_chip_hp")
 	) or failed
 	failed = _check(
 		failed,
-		"glass_asp_hp_loss_gains_atk",
+		"glass_asp_hp_loss_strips_poison",
 		_source_has_func("res://scripts/main.gd", "_glass_asp_after_hp_loss")
+		and _source_has_func("res://scripts/main.gd", "_lose_player_poison")
 		and _source_func_calls("res://scripts/main.gd", "_chip_hp", "_glass_asp_after_hp_loss")
 		and _source_func_calls("res://scripts/main.gd", "_deal_atk_at", "_glass_asp_after_hp_loss")
-		and _source_func_calls("res://scripts/main.gd", "_glass_asp_after_hp_loss", "_announce_slice")
+		and _source_func_calls("res://scripts/main.gd", "_glass_asp_after_hp_loss", "_lose_player_poison")
+		and not _source_func_calls("res://scripts/main.gd", "_glass_asp_after_hp_loss", "_announce_slice")
 	) or failed
 	failed = _check(
 		failed,

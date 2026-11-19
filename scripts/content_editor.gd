@@ -91,7 +91,7 @@ const DEFAULT_EXPLAINER := {
 	"venom_veins": "Empty seats become 3-Poison Flasks. 1 Poison per Flask. Used up.",
 	"kiss_of_death": "Neighbor: 4 Poison + Lifelink",
 	"tesla_coil": "Defeat Across if fully Blocking them",
-	"glass_asp": "On Spin: +2 Poison. It ticks when you face me. When I lose HP, I gain that much Attack.",
+	"glass_asp": "Spin me: you Gain 4 Poison. When I lose HP, that much leaves your Poison.",
 	"imp": "Spin me: Move to the highest Attack enemy",
 	"huntsman": "Across Attacks you: I also Attack (once after multiattacks)",
 	"quicksand_crab": "Move: I lose 2 HP per step after resolve. Spin me: Gain 1 Move.",
