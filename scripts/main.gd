@@ -11364,13 +11364,14 @@ func _play_ended_visuals(banner: String = "slay") -> void:
 			sfx.play_event(sfx.resolve(&"death", dctx), dctx)
 		if combat_stage:
 			combat_stage.take_hit(true)
-		var defeat_wait: Variant = null
+		var started_defeat := false
 		if combat_stage and combat_stage.has_method("play_defeat_fx"):
-			defeat_wait = combat_stage.play_defeat_fx()
+			combat_stage.play_defeat_fx()
+			started_defeat = true
 		if wheel_view and facing_index >= 0:
 			await wheel_view.play_slay(facing_index)
-		if defeat_wait != null:
-			await defeat_wait
+		if started_defeat and is_instance_valid(combat_stage) and combat_stage.has_method("wait_defeat_fx"):
+			await combat_stage.wait_defeat_fx()
 		elif combat_stage:
 			await combat_stage.vanish()
 	elif banner == "escape":

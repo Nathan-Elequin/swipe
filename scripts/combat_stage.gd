@@ -2,6 +2,7 @@ extends Control
 ## Fighting portrait: seat-matched idle, lunge on attack, hit flash, cartoon blood, impact stars.
 
 signal edit_wanted(card_id: String)
+signal defeat_fx_done
 
 const OUTLINE_SHADER := preload("res://shaders/tier_outline.gdshader")
 const PLAYTEST_FLAG := preload("res://scripts/playtest_flag.gd")
@@ -328,58 +329,99 @@ func play_block() -> void:
 		_burst("star", Color("d8eefc"), 0.9)
 
 
+var _defeat_fx_running := false
+var _defeat_fx_faded := false
+var _defeat_fx_wisp_spawned := false
+var _defeat_fx_wisp: Array = []
+var _defeat_fx_center: Vector2 = Vector2.ZERO
+
 ## Defeat poof + rising soul wisp; starts the body fade at poof f2.
+## Stays a normal function so Godot 4.7 can start it beside slay without `await`.
 func play_defeat_fx() -> void:
+	if _defeat_fx_running:
+		return
+	_defeat_fx_running = true
+	_defeat_fx_faded = false
+	_defeat_fx_wisp_spawned = false
 	var host: Node = get_tree().current_scene if get_tree() != null else self
 	if host == null:
 		host = self
 	var poof: Array = []
-	var wisp: Array = []
+	_defeat_fx_wisp = []
 	if art != null and art.has_method("fx_frames"):
 		poof = art.fx_frames("defeat_poof")
-		wisp = art.fx_frames("soul_wisp")
+		_defeat_fx_wisp = art.fx_frames("soul_wisp")
 	else:
 		var loader = DUNGEON_ART.new()
 		poof = loader.fx_frames("defeat_poof")
-		wisp = loader.fx_frames("soul_wisp")
-	var center: Vector2 = body_center_global()
+		_defeat_fx_wisp = loader.fx_frames("soul_wisp")
+	_defeat_fx_center = body_center_global()
+	var tree := get_tree()
+	if tree != null:
+		tree.create_timer(1.8, true).timeout.connect(_hide_then_finish)
 	if poof.is_empty():
-		await vanish()
+		_vanish_then_finish()
 		return
-	var spr: AnimatedSprite2D = FX_ONESHOT.play(host, poof, center, 4.0, 14.0, false, 44)
+	var spr: AnimatedSprite2D = FX_ONESHOT.play(host, poof, _defeat_fx_center, 4.0, 14.0, false, 44)
 	if spr == null:
-		await vanish()
+		_vanish_then_finish()
 		return
-	var faded := false
-	var wisp_spawned := false
-	var on_frame := func() -> void:
-		if not is_instance_valid(spr):
-			return
-		var fi: int = spr.frame
-		if fi >= 2 and not faded:
-			faded = true
-			var tw := create_tween()
-			tw.tween_property(self, "modulate:a", 0.0, 0.2)
-		if fi >= 3 and not wisp_spawned and not wisp.is_empty():
-			wisp_spawned = true
-			var wspr: AnimatedSprite2D = FX_ONESHOT.play(host, wisp, center, 3.0, 12.0, false, 45)
-			if wspr != null:
-				var wtw := wspr.create_tween()
-				wtw.tween_property(wspr, "global_position:y", center.y - 70.0, 0.5)
-				wtw.parallel().tween_property(wspr, "modulate:a", 0.0, 0.5)
-	spr.frame_changed.connect(on_frame)
-	while is_instance_valid(spr) and spr.is_playing():
-		await get_tree().process_frame
-	if not faded:
-		await vanish()
+	spr.frame_changed.connect(_on_defeat_poof_frame_from.bind(spr))
+	spr.animation_finished.connect(_on_defeat_poof_finished, CONNECT_ONE_SHOT)
+
+
+func wait_defeat_fx() -> void:
+	if _defeat_fx_running:
+		await defeat_fx_done
+
+
+func _finish_defeat_fx() -> void:
+	if not _defeat_fx_running:
+		return
+	_defeat_fx_running = false
+	defeat_fx_done.emit()
+
+
+func _vanish_then_finish() -> void:
+	var tw := create_tween()
+	tw.tween_property(self, "modulate:a", 0.0, 0.2)
+	tw.finished.connect(_hide_then_finish, CONNECT_ONE_SHOT)
+
+
+func _hide_then_finish() -> void:
+	hide_stage()
+	modulate.a = 1.0
+	_finish_defeat_fx()
+
+
+func _on_defeat_poof_frame_from(spr: AnimatedSprite2D) -> void:
+	if not is_instance_valid(spr):
+		return
+	var fi: int = spr.frame
+	if fi >= 2 and not _defeat_fx_faded:
+		_defeat_fx_faded = true
+		var tw := create_tween()
+		tw.tween_property(self, "modulate:a", 0.0, 0.2)
+	if fi >= 3 and not _defeat_fx_wisp_spawned and not _defeat_fx_wisp.is_empty():
+		_defeat_fx_wisp_spawned = true
+		var host: Node = get_tree().current_scene if get_tree() != null else self
+		var wspr: AnimatedSprite2D = FX_ONESHOT.play(host, _defeat_fx_wisp, _defeat_fx_center, 3.0, 12.0, false, 45)
+		if wspr != null:
+			var wtw := wspr.create_tween()
+			wtw.tween_property(wspr, "global_position:y", _defeat_fx_center.y - 70.0, 0.5)
+			wtw.parallel().tween_property(wspr, "modulate:a", 0.0, 0.5)
+
+
+func _on_defeat_poof_finished() -> void:
+	if not _defeat_fx_faded:
+		_vanish_then_finish()
+		return
+	if modulate.a > 0.01:
+		var tw2 := create_tween()
+		tw2.tween_property(self, "modulate:a", 0.0, 0.12)
+		tw2.finished.connect(_hide_then_finish, CONNECT_ONE_SHOT)
 	else:
-		# Wait out any remaining fade, then hide.
-		if modulate.a > 0.01:
-			var tw2 := create_tween()
-			tw2.tween_property(self, "modulate:a", 0.0, 0.12)
-			await tw2.finished
-		hide_stage()
-		modulate.a = 1.0
+		_hide_then_finish()
 
 
 func play_bleed() -> void:
