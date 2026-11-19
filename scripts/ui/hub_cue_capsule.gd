@@ -14,8 +14,8 @@ var _style: StyleBoxFlat
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 40
-	z_as_relative = true
+	z_index = 22
+	z_as_relative = false
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
 	modulate.a = 0.0
@@ -45,6 +45,10 @@ func _ready() -> void:
 	_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_label)
+
+
+func current_text() -> String:
+	return _text
 
 
 func brief_active() -> bool:
@@ -108,8 +112,8 @@ func hide_now() -> void:
 func apply_pill() -> void:
 	if _style == null:
 		return
-	var r: int = int(round(size.y * 0.5))
-	_style.set_corner_radius_all(maxi(r, 24))
+	var r: int = int(round(minf(size.x, size.y) * 0.5))
+	_style.set_corner_radius_all(maxi(r, 18))
 
 
 func _fade_out() -> void:

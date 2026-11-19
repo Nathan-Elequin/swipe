@@ -15,12 +15,12 @@ const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
-## H3-B2: bigger 2×5 hotbar (reclaims old standalone Take row).
-const CARD_W := 172.0
-const CARD_H := 148.0
+## Hotbar plate. Same 172:148 ratio, ~12% larger.
+const CARD_W := 192.0
+const CARD_H := 165.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
-## Idle stack retune (2026-11-02 Nathan F5 after #297). On the 172×148 plate:
+## Idle stack retune (2026-11-02 Nathan F5 after #297). On the hotbar plate:
 ## title ~+50% vs post-#297 idle (font 14→21, title_h 16→24), sprite stays 58
 ## but nudged lower (IDLE_SPRITE_NUDGE) to close the gap above effect icons,
 ## face glyphs ~+20% (36→43) still vertically centered in the leftover band.

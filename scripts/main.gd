@@ -76,11 +76,19 @@ const MARBLE_FILL := 10
 const ANIM_TIME_SCALE := 0.675
 ## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
 const HEAL_RESOLVE_RATE := 1.5
-## Feel pass B: one constant btn_wrap height across ready / spinning / fighting /
-## slaying so the wheel never resizes when Take shows. Arc overhang padding
-## still comes from `_clear_undo_under_take_arc` and stays stable while the arc is up.
+## Feel pass B: wheel size stays put across ready / spinning / fighting / slaying.
+## Undo/Redo float beside Take (same height as the cream arc). This row is 0
+## during those phases so the hotbar can sit up under the wheel. Draft still
+## needs the old pill row for Begin.
 ## Hub Spin (Nov 19) lives on the wheel center — never in this row.
 const COMBAT_ACTION_SLOT_H := 64.0
+## Compact cue under the gold rim. May cover Take / Undo; never the wheel.
+const HUB_CUE_H := 48.0
+const HUB_CUE_MIN_W := 200.0
+const HUB_CUE_MAX_W := 420.0
+const HUB_CUE_PAD_X := 48.0
+const HUB_CUE_BELOW_RIM := 8.0
+const COMBAT_PILL_GAP := 10.0
 ## Round hub Spin diameter (px). Centered on the wheel hub; covers Sprout at start.
 const HUB_SPIN_D := 104.0
 const HUB_SPIN_FONT := 22
@@ -88,9 +96,10 @@ const HUB_SPIN_HOVER_DROP := 3.0
 const HUB_SPIN_CLICK_SQUASH_S := 0.045
 const HUB_SPIN_CLICK_PUNCH_S := 0.07
 const HUB_SPIN_HIDE_S := 0.12
-## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
-const HOTBAR_CARD_W := 172.0
-const HOTBAR_CARD_H := 148.0
+## Bigger 2×5 hotbar — same 172:148 plate ratio, ~12% larger now that Undo
+## no longer owns a row under Take.
+const HOTBAR_CARD_W := 192.0
+const HOTBAR_CARD_H := 165.0
 ## Item-deal motion, ~30% faster than the first pass (0.46 / 0.32 / 0.34).
 const ITEM_OPEN_SHUFFLE_S := 0.32
 const ITEM_POOL_SHUFFLE_S := 0.22
@@ -718,6 +727,8 @@ var _take_style_ready: bool = false
 ## Keeps Undo/Redo out from under the Take arc when the mid Take pill is hidden.
 var _btn_mid_slot: HBoxContainer
 var _take_arc_mid_spacer: Control
+var _undo_home: HBoxContainer
+var _redo_home: HBoxContainer
 var btn_place: Button
 var btn_bribe: Button
 var _fly_card: Control
@@ -1608,6 +1619,7 @@ func _build_ui() -> void:
 
 	btn_wrap = MarginContainer.new()
 	btn_wrap.z_index = 16
+	btn_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	left.add_child(btn_wrap)
@@ -1652,6 +1664,8 @@ func _build_ui() -> void:
 	btns.add_child(left_slot)
 	btns.add_child(mid_slot)
 	btns.add_child(right_slot)
+	_undo_home = left_slot
+	_redo_home = right_slot
 	left_slot.add_child(btn_undo)
 	mid_slot.add_child(btn_start)
 	mid_slot.add_child(btn_place)
@@ -1749,7 +1763,7 @@ func _build_ui() -> void:
 
 	hub_cue = HUB_CUE_CAPSULE.new()
 	hub_cue.name = "HubCueCapsule"
-	btn_wrap.add_child(hub_cue)
+	play_field.add_child(hub_cue)
 	if hub_cue.has_signal("finished"):
 		hub_cue.finished.connect(_sync_hub_cue)
 	var right := VBoxContainer.new()
@@ -17877,19 +17891,21 @@ func _sync_hub_cue() -> void:
 
 
 func _place_hub_cue() -> void:
-	if hub_cue == null or btn_wrap == null:
+	if hub_cue == null or wheel_view == null:
 		return
-	var bar: Control = hotbar_panel if hotbar_panel != null else hotbar_wrap
-	var wr: Rect2 = btn_wrap.get_global_rect()
-	var br: Rect2 = wr
-	if bar != null:
-		br = bar.get_global_rect()
-	var h: float = maxf(wr.size.y, 56.0)
-	var w: float = maxf(br.size.x, 420.0)
-	var x: float = br.position.x - wr.position.x
-	if wr.size.x <= 1.0:
-		return
-	hub_cue.position = Vector2(x, (wr.size.y - h) * 0.5)
+	var line: String = ""
+	if hub_cue.has_method("current_text"):
+		line = str(hub_cue.call("current_text"))
+	var font: Font = ThemeDB.fallback_font
+	var tw: float = 180.0
+	if font != null and line != "":
+		tw = font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+	var w: float = clampf(tw + HUB_CUE_PAD_X, HUB_CUE_MIN_W, HUB_CUE_MAX_W)
+	var h: float = HUB_CUE_H
+	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
+	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
+	var tl := Vector2(c.x - w * 0.5, c.y + rad + HUB_CUE_BELOW_RIM)
+	hub_cue.global_position = tl
 	hub_cue.size = Vector2(w, h)
 	if hub_cue.has_method("apply_pill"):
 		hub_cue.apply_pill()
@@ -19710,8 +19726,8 @@ func _hotbar_deal_slot_global(slot_i: int) -> Vector2:
 	if hotbar_box == null:
 		return Vector2.ZERO
 	var cols: int = maxi(1, hotbar_box.columns)
-	var w := 172.0
-	var h := 148.0
+	var w := HOTBAR_CARD_W
+	var h := HOTBAR_CARD_H
 	var kids: Array = hotbar_box.get_children()
 	if not kids.is_empty() and kids[0] is Control:
 		var sample: Control = kids[0]
@@ -19729,7 +19745,7 @@ func _hotbar_deal_slot_size(slot_i: int) -> Vector2:
 	var seated: Control = _hotbar_deal_slot_control(slot_i)
 	if _hotbar_slot_placed(slot_i, seated):
 		return seated.size
-	return Vector2(172.0, 148.0)
+	return Vector2(HOTBAR_CARD_W, HOTBAR_CARD_H)
 
 
 func _juggernaut_hand_shield() -> void:
@@ -29398,10 +29414,23 @@ func _combat_holds_action_slot() -> bool:
 func _hold_combat_action_slot() -> void:
 	if btn_wrap == null:
 		return
+	var h := 0.0
 	if _combat_holds_action_slot():
-		btn_wrap.custom_minimum_size = Vector2(0.0, COMBAT_ACTION_SLOT_H)
-	else:
-		btn_wrap.custom_minimum_size = Vector2.ZERO
+		var need_row: bool = false
+		if btn_challenge_begin != null and btn_challenge_begin.visible:
+			need_row = true
+		if btn_done != null and btn_done.visible:
+			need_row = true
+		if btn_start != null and btn_start.visible:
+			need_row = true
+		if btn_place != null and btn_place.visible:
+			need_row = true
+		if btn_bribe != null and btn_bribe.visible:
+			need_row = true
+		if need_row:
+			h = COMBAT_ACTION_SLOT_H
+	btn_wrap.custom_minimum_size = Vector2(0.0, h)
+	btn_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _layout_play_field() -> void:
@@ -30251,6 +30280,8 @@ func _sync_buttons() -> void:
 		_restore_clear_resolve_chrome()
 	_stamp_atk_variants()
 	_hold_combat_action_slot()
+	_dock_combat_pills()
+	_place_hub_cue()
 
 
 func _build_move_ui() -> void:
@@ -30678,31 +30709,89 @@ func _hide_take_arc() -> void:
 
 
 func _clear_undo_under_take_arc() -> void:
-	## When the cream arc replaces the mid Take pill, Undo/Redo would otherwise
-	## drift under the arc (mid slot empty + arc overhangs into the button row).
-	## Keep them clear: spacer holds the mid width, row sits below the arc, z above.
-	var arc_on: bool = take_arc != null and is_instance_valid(take_arc) and take_arc.visible
+	## Undo/Redo sit beside Take at the same height. No extra row under the arc.
 	if _take_arc_mid_spacer != null:
-		if arc_on and take_arc.has_method("outer_chord_width"):
-			var w: float = maxf(160.0, take_arc.outer_chord_width() * 0.72)
-			_take_arc_mid_spacer.custom_minimum_size = Vector2(w, 1.0)
-			_take_arc_mid_spacer.visible = true
-		else:
-			_take_arc_mid_spacer.custom_minimum_size = Vector2.ZERO
-			_take_arc_mid_spacer.visible = false
-	var top_pad := 0
-	if arc_on and wheel_view != null and play_field != null and btn_wrap != null:
-		var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
-		var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
-		var arc_bottom: float = c.y + rad + TAKE_ARC.RIM_GAP_DEFAULT + TAKE_ARC.BODY_W
-		var field_bottom: float = play_field.global_position.y + play_field.size.y
-		top_pad = maxi(0, int(ceil(arc_bottom - field_bottom + 10.0)))
+		_take_arc_mid_spacer.custom_minimum_size = Vector2.ZERO
+		_take_arc_mid_spacer.visible = false
 	if btn_wrap != null:
-		btn_wrap.add_theme_constant_override("margin_top", top_pad)
+		btn_wrap.add_theme_constant_override("margin_top", 0)
+	_dock_combat_pills()
+
+
+func _combat_pill_size(btn: Button) -> Vector2:
+	if btn == null:
+		return Vector2(120.0, 44.0)
+	var want: Vector2 = btn.get_combined_minimum_size()
+	return Vector2(maxf(want.x, 110.0), maxf(want.y, 44.0))
+
+
+func _combat_pill_anchors() -> Dictionary:
+	var undo_sz: Vector2 = _combat_pill_size(btn_undo)
+	var redo_sz: Vector2 = _combat_pill_size(btn_redo)
+	var left_tl := Vector2.ZERO
+	var right_tl := Vector2.ZERO
+	if take_arc != null and is_instance_valid(take_arc) and take_arc.visible and take_arc.has_method("arc_global_rect"):
+		var arc: Rect2 = take_arc.arc_global_rect()
+		if arc.size.x >= 8.0:
+			left_tl = Vector2(arc.position.x - COMBAT_PILL_GAP - undo_sz.x, arc.position.y + (arc.size.y - undo_sz.y) * 0.5)
+			right_tl = Vector2(arc.position.x + arc.size.x + COMBAT_PILL_GAP, arc.position.y + (arc.size.y - redo_sz.y) * 0.5)
+			return {"left": left_tl, "right": right_tl, "undo": undo_sz, "redo": redo_sz}
+	if wheel_view == null:
+		return {}
+	var c: Vector2 = wheel_view.rim_global() if wheel_view.has_method("rim_global") else wheel_view.get_global_rect().get_center()
+	var rad: float = wheel_view.rim_radius() if wheel_view.has_method("rim_radius") else wheel_view.size.x * 0.4
+	var mid_y: float = c.y + rad + TAKE_ARC.RIM_GAP_DEFAULT + TAKE_ARC.BODY_W * 0.5
+	var chord: float = 2.0 * (rad + TAKE_ARC.RIM_GAP_DEFAULT + TAKE_ARC.BODY_W * 0.5) * sin(TAKE_ARC.SWEEP * 0.5)
+	var take_left: float = c.x - chord * 0.5
+	var take_right: float = c.x + chord * 0.5
+	left_tl = Vector2(take_left - COMBAT_PILL_GAP - undo_sz.x, mid_y - undo_sz.y * 0.5)
+	right_tl = Vector2(take_right + COMBAT_PILL_GAP, mid_y - redo_sz.y * 0.5)
+	return {"left": left_tl, "right": right_tl, "undo": undo_sz, "redo": redo_sz}
+
+
+func _set_combat_pill_parent(btn: Button, dest: Node) -> void:
+	if btn == null or dest == null:
+		return
+	if btn.get_parent() == dest:
+		return
+	var old: Node = btn.get_parent()
+	if old != null:
+		old.remove_child(btn)
+	dest.add_child(btn)
+
+
+func _restore_combat_pill(btn: Button, home: HBoxContainer) -> void:
+	if btn == null or home == null:
+		return
+	_set_combat_pill_parent(btn, home)
+	btn.z_index = 0
+	btn.z_as_relative = true
+
+
+func _float_combat_pill(btn: Button, tl: Vector2, sz: Vector2) -> void:
+	if btn == null or play_field == null:
+		return
+	_set_combat_pill_parent(btn, play_field)
+	btn.z_index = 25
+	btn.z_as_relative = false
+	btn.custom_minimum_size = sz
+	btn.size = sz
+	btn.global_position = tl
+
+
+func _dock_combat_pills() -> void:
+	var combat: bool = _combat_holds_action_slot() and phase != "draft"
+	var anchors: Dictionary = _combat_pill_anchors() if combat else {}
 	if btn_undo != null:
-		btn_undo.z_index = 25 if arc_on and btn_undo.visible else 0
+		if combat and btn_undo.visible and not anchors.is_empty():
+			_float_combat_pill(btn_undo, anchors["left"], anchors["undo"])
+		else:
+			_restore_combat_pill(btn_undo, _undo_home)
 	if btn_redo != null:
-		btn_redo.z_index = 25 if arc_on and btn_redo.visible else 0
+		if combat and btn_redo.visible and not anchors.is_empty():
+			_float_combat_pill(btn_redo, anchors["right"], anchors["redo"])
+		else:
+			_restore_combat_pill(btn_redo, _redo_home)
 
 
 func _place_move_arrows() -> void:
@@ -32089,7 +32178,7 @@ func _place_mode_choice_overlay() -> void:
 	if it.is_empty():
 		return
 	var starter: Control = _hotbar_card_by_uid(starter_uid)
-	var anchor := Rect2(Vector2(840.0, 860.0), Vector2(172.0, 148.0))
+	var anchor := Rect2(Vector2(840.0, 860.0), Vector2(HOTBAR_CARD_W, HOTBAR_CARD_H))
 	if starter != null:
 		anchor = starter.get_global_rect()
 	var rows: Array = _mode_choice_overlay_rows(it)
