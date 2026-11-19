@@ -6,7 +6,7 @@ Locked timing / feel changes from Nathan (Nov 18). Lane A only — Take button, 
 
 | Spot | Old | New |
 |------|-----|-----|
-| `boss_wheel.SPIN_DURATION` | 1.56s cubic in-out | **1.2s** cubic **ease-out** |
+| `boss_wheel.SPIN_DURATION` | 1.56s cubic in-out | reverted Nov 19 (Nathan): stays 1.56s cubic in-out, full lap is core feel |
 | `boss_wheel.SLAY_RELEASE` | 0.16s | **0.2s** |
 | `_play_ended_visuals` slay | await full `play_slay` + full defeat poof | `play_slay(..., true)` then continue at ~**0.2s** |
 | Challenge multi-kill slays | sequential `await play_slay` | **parallel** early-release, one 0.2s wait |

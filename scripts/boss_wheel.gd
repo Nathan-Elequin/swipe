@@ -126,8 +126,8 @@ const HP_FILL := Color("c4282a")
 const DOWN_COL := Color("c45c5c")
 const UP_COL := Color("7dba7d")
 const SPIN_COL := Color("e8c36a")
-# Feel pass A: kick instantly on click, ease-out into the land (~1.2s).
-const SPIN_DURATION := 1.2
+# Total spin_to tween length. Nathan 2026-11-19: keep the full 1.56s in-out spin (core feel, >=1 visible lap).
+const SPIN_DURATION := 1.56
 ## Wedge close after a kill. Was 0.48 s.
 const COLLAPSE_DURATION := 0.336
 ## Slay stamp. Was 0.55 s.
@@ -1433,7 +1433,7 @@ func spin_to(index: int) -> void:
 	_spin_tween = create_tween()
 	_spin_tween.set_ignore_time_scale(true)
 	_spin_tween.set_trans(Tween.TRANS_CUBIC)
-	_spin_tween.set_ease(Tween.EASE_OUT)
+	_spin_tween.set_ease(Tween.EASE_IN_OUT)
 	_tick_seg = -1
 	_tick_last_rot = rot
 	_peak_omega = 0.0

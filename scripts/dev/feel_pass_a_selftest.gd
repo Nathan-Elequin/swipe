@@ -75,11 +75,11 @@ func _check_fx_attach_order() -> bool:
 func _check_spin_constants() -> bool:
 	var failed := false
 	var src: String = FileAccess.get_file_as_string("res://scripts/boss_wheel.gd")
-	failed = _check(failed, "SPIN_DURATION is 1.2", src.find("const SPIN_DURATION := 1.2") >= 0) or failed
+	failed = _check(failed, "SPIN_DURATION is 1.56", src.find("const SPIN_DURATION := 1.56") >= 0) or failed
 	failed = _check(
 		failed,
-		"spin tween uses EASE_OUT",
-		src.find("_spin_tween.set_ease(Tween.EASE_OUT)") >= 0
+		"spin tween uses EASE_IN_OUT",
+		src.find("_spin_tween.set_ease(Tween.EASE_IN_OUT)") >= 0
 	) or failed
 	failed = _check(
 		failed,
@@ -88,7 +88,7 @@ func _check_spin_constants() -> bool:
 	) or failed
 	# Runtime constant on a live instance.
 	var wheel = BOSS_WHEEL.new()
-	failed = _check(failed, "BOSS_WHEEL.SPIN_DURATION == 1.2", is_equal_approx(float(wheel.SPIN_DURATION), 1.2)) or failed
+	failed = _check(failed, "BOSS_WHEEL.SPIN_DURATION == 1.56", is_equal_approx(float(wheel.SPIN_DURATION), 1.56)) or failed
 	wheel.free()
 	return failed
 
