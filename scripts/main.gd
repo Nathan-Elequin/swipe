@@ -13800,18 +13800,36 @@ func _apply_kiss_of_death_mark(index: int) -> void:
 	call_deferred("_refresh")
 
 
+func _venom_veins_empty_seats(it: Dictionary) -> int:
+	## Empty seats on the 10-card tray after this card leaves. Overflow does not count as empty.
+	var uid: int = int(it.get("uid", 0))
+	var others: int = 0
+	for card in hotbar:
+		if typeof(card) != TYPE_DICTIONARY:
+			continue
+		if int(card.get("uid", 0)) == uid:
+			continue
+		others += 1
+	return maxi(0, CHALLENGE_HAND - others)
+
+
 func _apply_venom_veins(it: Dictionary) -> void:
-	## Click: 1 Poison on you, one Mark-3 Poison Flask, then Keep. Not an HP-loss trigger.
+	## Click: fill empty 10-tray seats with Mark-3 Poison Flasks, 1 Poison per flask, then discard.
 	_log("on_item_use", str(it.get("name", "Venom Veins")))
-	_gain_player_poison(1)
-	await _gain_marked_poison_flask(3)
-	it["keep_after"] = true
-	_log("on_resolve", "Venom Veins → Poison 1 + Mark-3 Flask, Keep")
+	it["keep_after"] = false
+	var n: int = _venom_veins_empty_seats(it)
+	var gained: int = 0
+	for _i in range(n):
+		if _gain_marked_poison_flask(3, true):
+			gained += 1
+	if gained > 0:
+		_gain_player_poison(gained)
+	_log("on_resolve", "Venom Veins → %d Mark-3 Flasks, Poison %d, discard" % [gained, gained])
 
 
-func _gain_marked_poison_flask(dose: int) -> void:
+func _gain_marked_poison_flask(dose: int, ignore_cap: bool = false) -> bool:
 	if not items_by_id.has("poison_flask"):
-		return
+		return false
 	var n: int = maxi(0, dose)
 	var it: Dictionary = _make_item("poison_flask")
 	it["poison_n"] = n
@@ -13825,12 +13843,13 @@ func _gain_marked_poison_flask(dose: int) -> void:
 	it["ops"] = ops
 	it["ability"] = "Mark a Neighbor with %d Poison." % n
 	it["explainer"] = "Neighbor gets %d Poison" % n
-	if adventure and _hand_full():
-		_start_full_hand_replace(it)
-		return
-	if _hand_cannot_admit():
-		_abort_full_hand_gain(it)
-		return
+	if not ignore_cap:
+		if adventure and _hand_full():
+			_start_full_hand_replace(it)
+			return false
+		if _hand_cannot_admit():
+			_abort_full_hand_gain(it)
+			return false
 	hotbar.append(it)
 	_note_incoming_gain(it)
 	_sort_hotbar()
@@ -13839,6 +13858,7 @@ func _gain_marked_poison_flask(dose: int) -> void:
 		sfx.play("open", -10.0)
 	_hotbar_sig = ""
 	_refresh()
+	return true
 
 
 func _gain_token_item(id: String) -> void:
@@ -25327,8 +25347,8 @@ func _face_rows(it: Dictionary, view: Dictionary, depth: int = 0) -> Array:
 		"kiss_of_death":
 			return [[_fg("drop", "4"), _fg("heart")]]
 		"venom_veins":
-			## 1 Poison, the Poison Flask, then the Keep hand glyph.
-			return [[_fg("drop", "1"), _fg("icon", "", "", "", "", "flask"), _fg("icon", "", "", "", "", "hand")]]
+			## Poison equal to empty seats, then the flasks that fill them. Used up.
+			return [[_fg("drop", n), _fg("icon", "", "", "", "", "flask")]]
 		"tesla_coil":
 			return [[_fg("skull"), _fg("text", "Across")]]
 		"spinning_top":
@@ -25865,7 +25885,8 @@ func _item_view(it: Dictionary) -> Dictionary:
 			out["can_use"] = false
 		"venom_veins":
 			out["kind"] = "POISON"
-			out["number"] = "1"
+			out["n"] = _venom_veins_empty_seats(it)
+			out["number"] = str(out["n"])
 			out["note"] = ""
 			out["can_use"] = fighting and not bool(it.get("spent", false))
 		"kiss_of_death":

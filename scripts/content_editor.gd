@@ -88,7 +88,7 @@ const DEFAULT_EXPLAINER := {
 	"rust_bucket": "When I enter the Dungeon, Gain 1 Rust. When I am Defeated, lose all Rust.",
 	"rust": "Gain 2 Block, Lose 1 HP. Whenever you Gain Block, Gain 1 Rust.",
 	"poison_frog": "On Spin and when I take Attack damage: you Gain 2 Poison",
-	"venom_veins": "1 Poison and a 3-Poison Flask, then Keep",
+	"venom_veins": "Empty seats become 3-Poison Flasks. 1 Poison per Flask. Used up.",
 	"kiss_of_death": "Neighbor: 4 Poison + Lifelink",
 	"tesla_coil": "Defeat Across if fully Blocking them",
 	"glass_asp": "On Spin: +2 Poison. It ticks when you face me. When I lose HP, I gain that much Attack.",

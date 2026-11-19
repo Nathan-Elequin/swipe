@@ -4292,26 +4292,26 @@
 			"type": "I"
 		},
 		{
-			"ability": "Gain 1 Poison and a 3-Poison Flask, then Keep this.",
+			"ability": "Fill your hand with 3-Poison Flasks. Gain 1 Poison for each Flask you gain",
 			"atk_base": null,
 			"atk_formula": "",
 			"author_lock": true,
 			"call_name": "",
 			"card_color": "defeat",
 			"count": 1.0,
-			"defined": "Click during a fight. Gain 1 Poison on yourself. It pays when the wheel lands: enemy Poison first, then yours, before on-Spin effects. Also gain one Poison Flask already set to 3. Spent this fight, then Keep. HP loss does not trigger this.",
-			"exceptions": "2026-11-12: click to Gain 1 Poison and a 3-Poison Flask, then Keep. Not an HP-loss trigger.",
-			"explainer": "1 Poison and a 3-Poison Flask, then Keep",
+			"defined": "Click during a fight. Venom Veins is used up and leaves. Empty seats on the 10-seat tray become Poison Flasks already set to 3. Other cards stay. Gain 1 Poison on yourself for each flask that appears. It pays when the wheel lands: enemy Poison first, then yours, before on-Spin effects. HP loss does not trigger this.",
+			"exceptions": "2026-11-18: fill empty 10-tray seats with Mark-3 flasks; 1 Poison per flask; discard. Not Keep. Not an HP-loss trigger.",
+			"explainer": "Empty seats become 3-Poison Flasks. 1 Poison per Flask. Used up.",
 			"flags": {
 				"art": true,
 				"dev": false,
 				"hide": false
 			},
-			"flow": "Click during a fight. Gain 1 Poison on yourself. It pays when the wheel lands: enemy Poison first, then yours, before on-Spin effects. Also gain one Poison Flask already set to 3. Spent this fight, then Keep. HP loss does not trigger this.",
+			"flow": "Click during a fight. Venom Veins is used up and leaves. Empty seats on the 10-seat tray become Poison Flasks already set to 3. Other cards stay. Gain 1 Poison on yourself for each flask that appears. It pays when the wheel lands: enemy Poison first, then yours, before on-Spin effects. HP loss does not trigger this.",
 			"hp_base": null,
 			"hp_formula": "",
 			"id": "venom_veins",
-			"locked_at": "2026-11-08",
+			"locked_at": "2026-11-18",
 			"locked_fields": [
 				"name",
 				"ability",
@@ -4333,10 +4333,10 @@
 				"log_hint",
 				"pool"
 			],
-			"log_hint": "1 Poison, 3-Poison Flask, Keep",
+			"log_hint": "Fill empty seats with 3-Poison Flasks; 1 Poison each; discard",
 			"mode_pool": "all",
 			"name": "Venom Veins",
-			"notes": "2026-11-12: click, Gain 1 Poison and a Mark-3 Poison Flask, then Keep. Poison pays on the land (enemy, then you) before on-Spin. Not an HP-loss trigger.",
+			"notes": "2026-11-18: click, fill empty 10-tray seats with Mark-3 flasks, discard (not Keep). Poison equals flasks gained.",
 			"ops": {
 				"kind": "venom_veins"
 			},

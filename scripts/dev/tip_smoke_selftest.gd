@@ -223,7 +223,9 @@ func _init() -> void:
 		"venom_click_poison_and_flask",
 		_source_func_calls("res://scripts/main.gd", "_apply_venom_veins", "_gain_player_poison")
 		and _source_func_calls("res://scripts/main.gd", "_apply_venom_veins", "_gain_marked_poison_flask")
+		and _source_func_calls("res://scripts/main.gd", "_apply_venom_veins", "_venom_veins_empty_seats")
 		and not _source_contains("res://scripts/main.gd", "_venom_veins_on_hp_lost")
+		and _source_contains("res://scripts/main.gd", "Venom Veins → %d Mark-3 Flasks, Poison %d, discard")
 	) or failed
 	failed = _check(failed, "runtime_pruned_danger_magnet", not _runtime_has_item("danger_magnet")) or failed
 	failed = _check(failed, "runtime_pruned_basilisk", not _runtime_has_monster("basilisk")) or failed
