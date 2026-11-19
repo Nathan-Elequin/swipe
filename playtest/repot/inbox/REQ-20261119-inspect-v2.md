@@ -2,6 +2,8 @@
 id: REQ-20261119-inspect-v2
 status: open
 priority: high
+pr: 561
+tip_sha: a9a53c54
 branch: cursor/inspect-v2-dark-minimal-bdb3
 created: 2026-11-19T08:10:00Z
 created_by: cursor-cloud
