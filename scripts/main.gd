@@ -77,11 +77,13 @@ const ANIM_TIME_SCALE := 0.675
 ## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
 const HEAL_RESOLVE_RATE := 1.5
 ## Feel pass B: wheel size stays put across ready / spinning / fighting / slaying.
-## Undo/Redo float beside Take (same height as the cream arc). This row is 0
-## during those phases so the hotbar can sit up under the wheel. Draft still
-## needs the old pill row for Begin.
+## Undo/Redo float beside Take (same height as the cream arc). This band is the
+## gap under the wheel so Take never sits on the hotbar. Draft still uses the
+## pill row for Begin.
 ## Hub Spin (Nov 19) lives on the wheel center — never in this row.
 const COMBAT_ACTION_SLOT_H := 64.0
+## Room under the wheel for the cream Take band + Undo. BODY_W 60 + rim gap 10.
+const TAKE_UNDO_BAND_H := 80.0
 ## Compact cue under the gold rim. May cover Take / Undo; never the wheel.
 const HUB_CUE_H := 48.0
 const HUB_CUE_MIN_W := 200.0
@@ -96,10 +98,9 @@ const HUB_SPIN_HOVER_DROP := 3.0
 const HUB_SPIN_CLICK_SQUASH_S := 0.045
 const HUB_SPIN_CLICK_PUNCH_S := 0.07
 const HUB_SPIN_HIDE_S := 0.12
-## Bigger 2×5 hotbar — same 172:148 plate ratio, ~12% larger now that Undo
-## no longer owns a row under Take.
-const HOTBAR_CARD_W := 192.0
-const HOTBAR_CARD_H := 165.0
+## 2×5 hotbar plate. Keep Take/Undo in the band above this, not on the cards.
+const HOTBAR_CARD_W := 172.0
+const HOTBAR_CARD_H := 148.0
 ## Item-deal motion, ~30% faster than the first pass (0.46 / 0.32 / 0.34).
 const ITEM_OPEN_SHUFFLE_S := 0.32
 const ITEM_POOL_SHUFFLE_S := 0.22
@@ -29416,6 +29417,7 @@ func _hold_combat_action_slot() -> void:
 		return
 	var h := 0.0
 	if _combat_holds_action_slot():
+		h = TAKE_UNDO_BAND_H
 		var need_row: bool = false
 		if btn_challenge_begin != null and btn_challenge_begin.visible:
 			need_row = true
@@ -29428,7 +29430,7 @@ func _hold_combat_action_slot() -> void:
 		if btn_bribe != null and btn_bribe.visible:
 			need_row = true
 		if need_row:
-			h = COMBAT_ACTION_SLOT_H
+			h = maxf(h, COMBAT_ACTION_SLOT_H)
 	btn_wrap.custom_minimum_size = Vector2(0.0, h)
 	btn_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -29470,7 +29472,10 @@ func _layout_play_field() -> void:
 	var top_need := 8.0
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
-	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - 8.0))
+	var band: float = 8.0
+	if _combat_holds_action_slot() and phase != "draft":
+		band = TAKE_UNDO_BAND_H
+	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - band))
 	# Viewport center, not play-field center. A too-wide column used to shove
 	# the wheel right of the screen; background art is wallpaper only.
 	var view_cx: float = vp_now.x * 0.5
@@ -29498,9 +29503,15 @@ func _layout_play_field() -> void:
 		and vp_now.is_equal_approx(_locked_wheel_vp)
 	)
 	if use_lock:
-		x = _locked_wheel_local.position.x
-		wheel_y = _locked_wheel_local.position.y
-		side = _locked_wheel_local.size.x
+		var lock_side: float = _locked_wheel_local.size.x
+		## A lock from before the Take/Undo band would sit the cream arc on the cards.
+		if lock_side > side + 1.0:
+			use_lock = false
+			_unlock_wheel_layout()
+		else:
+			x = _locked_wheel_local.position.x
+			wheel_y = _locked_wheel_local.position.y
+			side = lock_side
 	wheel_view.custom_minimum_size = Vector2(side, side)
 	wheel_view.position = Vector2(x, wheel_y)
 	wheel_view.size = Vector2(side, side)
@@ -30772,7 +30783,8 @@ func _float_combat_pill(btn: Button, tl: Vector2, sz: Vector2) -> void:
 	if btn == null or play_field == null:
 		return
 	_set_combat_pill_parent(btn, play_field)
-	btn.z_index = 25
+	## Hotbar is absolute z 40. Undo has to sit above it or the cards hide it.
+	btn.z_index = 50
 	btn.z_as_relative = false
 	btn.custom_minimum_size = sz
 	btn.size = sz

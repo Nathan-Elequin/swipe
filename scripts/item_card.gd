@@ -15,9 +15,9 @@ const RANK_SHIMMER := preload("res://scripts/rank_shimmer.gd")
 const FX_BUDGET := preload("res://scripts/combat_fx_budget.gd")
 const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const DUNGEON_ART := preload("res://scripts/dungeon_art.gd")
-## Hotbar plate. Same 172:148 ratio, ~12% larger.
-const CARD_W := 192.0
-const CARD_H := 165.0
+## Hotbar plate.
+const CARD_W := 172.0
+const CARD_H := 148.0
 const SHOW_W := 236.0
 const SHOW_H := 340.0
 ## Idle stack retune (2026-11-02 Nathan F5 after #297). On the hotbar plate:
