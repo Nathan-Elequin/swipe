@@ -3,6 +3,8 @@ id: REQ-20261119-hub-spin
 status: open
 priority: high
 branch: cursor/hub-spin-center-29f8
+tip_sha: d3423242
+pr: 562
 created: 2026-11-19T08:20:00Z
 created_by: cursor-cloud
 viewport: 1680x1040
