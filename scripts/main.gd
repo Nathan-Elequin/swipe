@@ -7184,9 +7184,11 @@ func _challenge_after_fight() -> void:
 	if facing_index >= 0 and facing_index < wheel.size() and str(wheel[facing_index].get("kind", "")) == "monster":
 		await _on_owner_defeated(facing_index)
 		if _undo_stale(token) or hp <= 0:
+			_clear_fight_input_lock()
 			return
 		await _wick_on_defeated(facing_index)
 		if _undo_stale(token):
+			_clear_fight_input_lock()
 			return
 		_challenge_vacate(facing_index)
 	var multi_slay: Array[int] = []
@@ -7200,9 +7202,11 @@ func _challenge_after_fight() -> void:
 			continue
 		await _on_owner_defeated(i)
 		if _undo_stale(token) or hp <= 0:
+			_clear_fight_input_lock()
 			return
 		await _wick_on_defeated(i)
 		if _undo_stale(token):
+			_clear_fight_input_lock()
 			return
 		multi_slay.append(i)
 		_challenge_vacate(i)
@@ -7215,6 +7219,7 @@ func _challenge_after_fight() -> void:
 		if get_tree() and not _undo_stale(token):
 			await get_tree().create_timer(0.2).timeout
 	if _undo_stale(token):
+		_clear_fight_input_lock()
 		return
 	facing_index = -1
 	if wheel_view:
@@ -7227,6 +7232,7 @@ func _challenge_after_fight() -> void:
 	_log("var", "defeated %s" % mobs_defeated)
 	await _challenge_resolve_holes(start)
 	if _undo_stale(token):
+		_clear_fight_input_lock()
 		return
 	_sync_wheel_stats()
 	await _maybe_leech_takeovers()
@@ -11166,7 +11172,7 @@ func _grant_saucer_block() -> bool:
 
 
 func _clear_fight_input_lock() -> void:
-	if phase != "fighting" and phase != "ready":
+	if phase != "fighting" and phase != "ready" and phase != "slaying" and phase != "spinning":
 		return
 	_walker_busy = false
 	if wheel_view != null:
@@ -11759,6 +11765,7 @@ func _clear_after_fight(_clockwork_split: bool = false) -> void:
 	var token: int = _undo_gen
 	if adventure:
 		await _challenge_after_fight()
+		_clear_fight_input_lock()
 		return
 	if _undo_stale(token):
 		return
@@ -11891,9 +11898,13 @@ func _maybe_auto_spin() -> void:
 	# lock is still held, so the inner auto-spin would skip and leave Ready
 	# with monsters still on the wheel (no Spin button in Adventure).
 	if _auto_spin_lock:
-		_auto_spin_again = true
-		_trace_resolve("auto-spin queued (lock)")
-		return
+		if _spin_inflight or _walker_busy:
+			_auto_spin_again = true
+			_trace_resolve("auto-spin queued (lock)")
+			return
+		## Stale lock from a Spin that never finished — do not skip the dump fight.
+		_auto_spin_lock = false
+		_auto_spin_again = false
 	if phase == "ready" and not _wheel_busy() and not _beggar_mark_busy():
 		var spins: int = 0
 		while spins < 8:
@@ -13321,7 +13332,9 @@ func _apply_ops(it: Dictionary, ops: Dictionary, extra: Dictionary) -> void:
 			_toss_item(int(it["uid"]), false)
 			await _play_ended_visuals()
 			await _clear_after_fight(false)
-			_maybe_auto_spin()
+			## Must wait. A fire-and-forget Spin races the item unlock and can
+			## leave Take / the hotbar dead after a bag dump (Huntsman).
+			await _maybe_auto_spin()
 			return
 		"defeat_hp":
 			if _monster_shrouded(m) or _defeat_blocked(m):
@@ -14637,8 +14650,10 @@ func _try_release_bag() -> bool:
 	if player_stage:
 		player_stage.hide_stage()
 	if get_tree():
-		await get_tree().create_timer(0.42).timeout
+		## Ignore pause / time_scale so the dump cannot stall with the hand locked.
+		await get_tree().create_timer(0.42, true, false, true).timeout
 	if _undo_stale(token):
+		_clear_fight_input_lock()
 		return false
 	it["spent"] = true
 	it["keep_after"] = false
@@ -14653,6 +14668,7 @@ func _try_release_bag() -> bool:
 		wheel_view.pulse_arrive(seat)
 	if sfx:
 		sfx.set_combat_music(false)
+	_clear_fight_input_lock()
 	_refresh()
 	return true
 
@@ -14661,6 +14677,10 @@ func _seat_released_bag(snap: Dictionary) -> int:
 	var m: Dictionary = snap.duplicate(true)
 	m["kind"] = "monster"
 	m["slot"] = str(m.get("slot", ""))
+	m["spin_locked"] = false
+	m["challenge_hole"] = false
+	m["defeat_rewards_done"] = false
+	m.erase("crossbowed")
 	var hole: int = -1
 	for i in range(wheel.size()):
 		if str(wheel[i].get("kind", "")) == "empty":

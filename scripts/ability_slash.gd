@@ -138,10 +138,15 @@ func is_busy() -> bool:
 
 
 ## Wait until queued tickets have released (done), without waiting for banner fade.
+## Cap on process frames so a ticket that never emits ticket_finished cannot
+## freeze the next Spin (Bag of Holding dump → auto-spin).
 func await_released() -> void:
 	var guard := 0
 	while is_busy() and not _aborted and guard < 90:
-		await ticket_finished
+		if get_tree():
+			await get_tree().process_frame
+		else:
+			break
 		guard += 1
 
 
