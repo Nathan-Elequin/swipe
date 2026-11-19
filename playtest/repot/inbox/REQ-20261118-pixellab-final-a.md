@@ -1,6 +1,6 @@
 ---
 id: REQ-20261118-pixellab-final-a
-status: open
+status: done
 priority: high
 pr: 557
 tip_sha: 3d0eb148
