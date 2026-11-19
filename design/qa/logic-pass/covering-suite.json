@@ -2606,6 +2606,58 @@
 			]
 		},
 		{
+			"id": "pacemaker-block-no-retrigger",
+			"title": "Pacemaker does not Heal on a later blocked swing",
+			"family": "item",
+			"items": [
+				"pacemaker",
+				"shield"
+			],
+			"monsters": [
+				"golem"
+			],
+			"face": "golem",
+			"challenge": true,
+			"poison_before": 2,
+			"clicks": [
+				{
+					"op": "use",
+					"item": "shield",
+					"auto": true
+				},
+				{
+					"op": "done"
+				}
+			],
+			"expected_text": "Poison deals 2, Pacemaker Heals 1 (HP 5). Shield 4 Block. Golem 3 is fully blocked. Pacemaker does not Heal again. Stay at 5 HP.",
+			"expected": {
+				"hp": 5
+			},
+			"cards": [
+				{
+					"id": "pacemaker",
+					"kind": "item",
+					"name": "Pacemaker",
+					"ability": "Unplayable. When you lose exactly 2 HP, Heal 1.",
+					"sprite": "assets/dungeon/items/pacemaker.png"
+				},
+				{
+					"id": "shield",
+					"kind": "item",
+					"name": "Shield",
+					"ability": "Gain 4 Block.",
+					"sprite": "assets/dungeon/items/shield.png"
+				},
+				{
+					"id": "golem",
+					"kind": "monster",
+					"name": "Golem",
+					"ability": "",
+					"sprite": "assets/dungeon/extra/golem.png"
+				}
+			]
+		},
+		{
 			"id": "pacemaker-lethal-overkill",
 			"title": "Pacemaker does not save a 3-hit into 2 HP",
 			"family": "item",

@@ -11613,7 +11613,9 @@ func _owner_attack(m: Dictionary, hit_n: int = 1, _hit_total: int = 1, src: int 
 			_play_shield_crack()
 		await _play_attack_blocked(at)
 	# Pacemaker / potion / Druid land after the hit tell, as their own beat.
-	await _maybe_pacemaker_heal()
+	# Pass this swing's HP loss (0 when Block ate it). Do not reread last_hp_lost —
+	# that stays 2 after an earlier exact-2 event and would Heal on a later blocked hit.
+	await _maybe_pacemaker_heal(incoming if lost > 0 else 0)
 	if hp <= 0:
 		await _try_potion()
 		if incoming > 0:
@@ -11663,7 +11665,7 @@ func _apply_egg_hurt(n: int) -> void:
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
-		await _maybe_pacemaker_heal()
+		await _maybe_pacemaker_heal(incoming)
 	else:
 		_log("hp", "take 0")
 		_flash_screen(Color("5aa8e8"), 0.22)
@@ -15718,7 +15720,7 @@ func _tick_player_poison() -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
-	await _maybe_pacemaker_heal()
+	await _maybe_pacemaker_heal(n if hp < before else 0)
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
@@ -18144,7 +18146,7 @@ func _note_hp_lost(n: int) -> void:
 	_shake_screen()
 	_tut_note_hp_change()
 	_grief_jar_on_hp_lost()
-	# Pacemaker waits until the hit tell has finished (`_maybe_pacemaker_heal`).
+	# Pacemaker waits until the hit tell has finished (`_maybe_pacemaker_heal(n)`).
 
 
 func _bank_stone_wall() -> void:
@@ -20249,11 +20251,13 @@ func _lantern_set_n(it: Dictionary, n: int) -> void:
 	it["log_hint"] = "Heal %d, keep if still hurt" % shown
 
 
-func _maybe_pacemaker_heal() -> void:
+func _maybe_pacemaker_heal(event_hp_lost: int) -> void:
 	# Lethal is death. Pacemaker is not a save; only Revival Potion is.
+	# event_hp_lost is this event's incoming after Block (same number _note_hp_lost
+	# stores). A blocked swing is 0 even if last_hp_lost is still 2 from earlier.
 	if hp <= 0:
 		return
-	if last_hp_lost != 2:
+	if event_hp_lost != 2:
 		return
 	for it in hotbar:
 		if typeof(it) != TYPE_DICTIONARY:
@@ -20357,7 +20361,7 @@ func _bleed(n: int) -> bool:
 	if hp < before:
 		await _hurt_ogres(before - hp)
 		await _grow_vampires()
-	await _maybe_pacemaker_heal()
+	await _maybe_pacemaker_heal(n if hp < before else 0)
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
@@ -22206,7 +22210,7 @@ func _player_take_atk(n: int) -> bool:
 		await _grow_vampires()
 		if hp > 0:
 			await _sync_dire_wolves()
-	await _maybe_pacemaker_heal()
+	await _maybe_pacemaker_heal(incoming if lost > 0 else 0)
 	if hp <= 0 and not await _try_potion():
 		_player_down()
 		return true
