@@ -75,9 +75,9 @@ const MARBLE_FILL := 10
 const ANIM_TIME_SCALE := 0.675
 ## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
 const HEAL_RESOLVE_RATE := 1.5
-## Spin sits in this row on ready. H3-B2 moves Take onto the cream arc under the
-## wheel during fights, so fighting no longer reserves this height (hotbar grows).
-## Keep the slot on ready/spin so the wheel does not jump when Spin shows.
+## Feel pass B: one constant btn_wrap height across ready / spinning / fighting /
+## slaying so the wheel never resizes when Take or Spin shows. Arc overhang padding
+## still comes from `_clear_undo_under_take_arc` and stays stable while the arc is up.
 const COMBAT_ACTION_SLOT_H := 64.0
 ## Bigger 2×5 hotbar (H3-B2) — reclaim the old standalone Take row.
 const HOTBAR_CARD_W := 172.0
@@ -8762,6 +8762,9 @@ func _process(delta: float) -> void:
 	if in_tutorial:
 		_tutorial_try_shift_inspect()
 		_poll_tutorial_board_hover()
+	else:
+		## Feel pass B: clear stuck inspect the moment the cursor leaves its owner.
+		_reconcile_hover_inspect()
 	_sync_cascade_ff()
 	if phase == "fighting":
 		_sync_huntsman_threat_link()
@@ -10623,6 +10626,9 @@ func _on_slice_right_clicked(index: int) -> void:
 func _on_slice_hovered(index: int) -> void:
 	if _cabin_up():
 		return
+	## Freed item cards must not keep blocking slice hover.
+	if _fly_card != null and not is_instance_valid(_fly_card):
+		_fly_card = null
 	if _fly_card != null:
 		return
 	if _deck_hovering:
@@ -10976,6 +10982,7 @@ func _on_spin() -> void:
 	FRAME_METRICS.span_end("spin_to_callout")
 	_bleed_begin()
 	if cascade_ticker != null:
+		_dock_cascade_ticker()
 		cascade_ticker.begin()
 	# Player Poison, then this landing's Poison, then Outbreak +1s, then Hex
 	# and every other on-spin. Other seats keep their stacks.
@@ -27976,7 +27983,11 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	_raise_tutorial_hover_plate()
 	fly_tip.reset_size()
 	var sz: Vector2 = fly_tip.get_combined_minimum_size()
-	sz.x = maxf(sz.x, 280.0)
+	## Compact monster plate is fixed 296; items still get the wider floor.
+	if fly_tip.edit_kind == "monster" and bool(fly_tip.get("_compact_monster")):
+		sz.x = maxf(sz.x, 296.0)
+	else:
+		sz.x = maxf(sz.x, 280.0)
 	if bool(fly_tip.get("_pin_always")):
 		sz.x = maxf(sz.x, 250.0)
 	var anchor := Rect2()
@@ -28007,8 +28018,21 @@ func _place_fly(near: Control = null, at: Vector2 = Vector2.INF) -> void:
 	var above := Vector2(anchor.position.x + (anchor.size.x - sz.x) * 0.5, anchor.position.y - sz.y - gap)
 	var below := Vector2(anchor.position.x + (anchor.size.x - sz.x) * 0.5, anchor.end.y + gap)
 	var candidates: Array = [right, left, above, below] if prefer_right else [left, right, above, below]
+	## Feel pass B: sit beside the hovered seat; avoid covering the wheel center.
 	if fly_tip.edit_kind == "monster":
-		candidates = [above, below, right, left]
+		var wheel_cx: float = 840.0
+		var wheel_top: float = 0.0
+		var wheel_bot: float = 10000.0
+		if wheel_view != null:
+			var wr: Rect2 = wheel_view.get_global_rect()
+			wheel_cx = wr.get_center().x
+			wheel_top = wr.position.y + 48.0
+			wheel_bot = wr.end.y - sz.y - 48.0
+		var seat_cx: float = anchor.get_center().x
+		var beside_y: float = clampf(anchor.position.y - 8.0, wheel_top, maxf(wheel_top, wheel_bot))
+		right = Vector2(anchor.end.x + gap, beside_y)
+		left = Vector2(anchor.position.x - sz.x - gap, beside_y)
+		candidates = [right, left, above, below] if seat_cx >= wheel_cx else [left, right, above, below]
 	var unlock_tip: bool = _unlock_screen and _bucket_reveal != null and _bucket_reveal.visible
 	if unlock_tip:
 		var cursor: Vector2 = get_global_mouse_position()
@@ -29159,15 +29183,11 @@ func _wheel_side_gutter() -> float:
 
 
 func _combat_holds_action_slot() -> bool:
-	## Fighting / slaying: Take lives on the cream arc under the wheel (H3-B2).
-	## Do not reserve the old standalone Take row — hotbar reclaims that height.
+	## Feel pass B: same reserved height in ready / spinning / fighting / slaying
+	## so play_field (and the wheel) never change size when a spin starts or lands.
 	match phase:
-		"ready", "spinning", "draft", "devtest":
+		"ready", "spinning", "fighting", "slaying", "draft", "devtest":
 			return true
-		"fighting", "slaying":
-			## Special mid-fight Continue / Decline still use the pill button.
-			var feed_kind: String = str(pending_feed.get("kind", "")) if not pending_feed.is_empty() else ""
-			return feed_kind == "worm_hunger" or feed_kind == "hired_bribe"
 		_:
 			return false
 
@@ -29263,6 +29283,7 @@ func _layout_play_field() -> void:
 	# Structural layout. Mid-spin this only dirties — full place waits for land.
 	_place_fight_art(true)
 	_place_move_arrows()
+	_dock_cascade_ticker()
 	if wheel_view and wheel_view.has_method("set_ability_avoids"):
 		wheel_view.set_ability_avoids(_ability_avoid_rects())
 	_place_hub_cue()
@@ -29988,6 +30009,11 @@ func _sync_buttons() -> void:
 		var mystery_take: bool = facing_index >= 0 and facing_index < wheel.size() and _monster_shrouded(wheel[facing_index])
 		_sync_take_arc(hit, busy, sel_word, mystery_take)
 		_sync_intent_plate()
+	elif phase == "ready" or phase == "spinning" or phase == "fighting" or phase == "slaying":
+		## Feel pass B: Keep Take put through the spin as dimmed disabled Safe.
+		btn_done.visible = false
+		_hide_take_burst()
+		_sync_take_arc_safe_idle()
 	else:
 		_hide_take_arc()
 	if btn_spin:
@@ -30236,9 +30262,10 @@ func _can_move(dir: int) -> bool:
 func _sync_move_ui() -> void:
 	if move_box == null:
 		return
-	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready") and not _choice_covering()
-	## Take arc is a child of move_box — keep the box up during fights even without Moves.
-	var show_take: bool = phase == "fighting" and facing_index >= 0 and facing_index < wheel.size() and (int(wheel[facing_index].get("hp", 0)) > 0 or _wick_waiting(facing_index))
+	## Feel pass B: do not hide arrows purely because a spin started — keep radius constant.
+	var show_arrows: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready" or phase == "spinning") and not _choice_covering()
+	## Take arc stays up through ready / spinning / fighting / slaying (Safe when idle).
+	var show_take: bool = phase == "ready" or phase == "spinning" or phase == "fighting" or phase == "slaying"
 	move_box.visible = show_arrows or show_take
 	if btn_move_left:
 		btn_move_left.visible = show_arrows
@@ -30319,6 +30346,8 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: b
 	var fresh: bool = not take_arc.visible
 	take_arc.visible = true
 	take_arc.disabled = busy or (btn_done != null and btn_done.disabled)
+	## Live fight Take is full opacity; idle Safe uses the dim path instead.
+	take_arc.self_modulate = Color.WHITE
 	var word: String
 	var burst: Texture2D = null
 	var pip := ""
@@ -30347,12 +30376,44 @@ func _sync_take_arc(hit: int, busy: bool, word_override: String = "", mystery: b
 	## Item-card Block pip (ItemFace.SHIELD), not the arc-only variant.
 	take_arc.set_combat(blk, shown_n, word, burst, pip, tex_shield, font, mystery)
 	_place_take_arc()
+	## Skip the pop when the arc was already up (ready → spinning → land).
 	if fresh and take_arc.has_method("play_pop"):
 		take_arc.play_pop()
 	_sync_huntsman_threat_link()
 	## Re-place arrows after the arc is visible so pad snaps to the arc top.
 	if btn_move_left != null and btn_move_left.visible:
 		_place_move_arrows()
+
+
+## Dimmed, disabled Safe with no count — same seat through ready and spinning.
+func _sync_take_arc_safe_idle() -> void:
+	if take_arc == null:
+		return
+	if move_box != null:
+		move_box.visible = true
+	var fresh: bool = not take_arc.visible
+	take_arc.visible = true
+	take_arc.disabled = true
+	take_arc.self_modulate = Color(1, 1, 1, 0.55)
+	var word: String = PLAYER_COPY.text("combat.safe", "Safe")
+	var font: Font = btn_done.get_theme_font("font") if btn_done != null else null
+	if font == null:
+		font = ThemeDB.fallback_font
+	take_arc.set_combat(blk, 0, word, null, "", tex_shield, font, false)
+	_place_take_arc()
+	## Already-visible Safe must not pop when a spin starts.
+	if fresh and take_arc.has_method("play_pop"):
+		take_arc.play_pop()
+	_clear_huntsman_threat_link()
+	if btn_move_left != null and btn_move_left.visible:
+		_place_move_arrows()
+
+
+func _dock_cascade_ticker() -> void:
+	if cascade_ticker == null:
+		return
+	if cascade_ticker.has_method("dock_to_wheel") and wheel_view != null:
+		cascade_ticker.dock_to_wheel(wheel_view)
 
 
 func _place_take_arc() -> void:
@@ -30425,7 +30486,8 @@ func _clear_undo_under_take_arc() -> void:
 func _place_move_arrows() -> void:
 	if btn_move_left == null or btn_move_right == null or wheel_view == null:
 		return
-	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready") and not _choice_covering()
+	## Feel pass B: keep arrows through spinning so their radius never jumps.
+	var show: bool = (_is_adventure_mode() or _tut_moves_on) and (phase == "fighting" or phase == "ready" or phase == "spinning") and not _choice_covering()
 	btn_move_left.visible = show
 	btn_move_right.visible = show
 	if take_arc != null and take_arc.visible:
@@ -31573,7 +31635,9 @@ func _on_item_unhovered() -> void:
 		return
 	if _deck_hovering:
 		_fill_inspect_from_deck()
-	elif wheel_view != null and int(wheel_view.hover_index) >= 0:
+		return
+	## Only reopen a monster plate when the cursor is still on that seat.
+	if wheel_view != null and int(wheel_view.hover_index) >= 0 and _mouse_over_wheel_slice(int(wheel_view.hover_index)):
 		_fill_inspect_from_slice(int(wheel_view.hover_index))
 	else:
 		_idle_inspect()
@@ -33905,6 +33969,64 @@ func _tut_item_callout_showing(id: String) -> bool:
 	if id == "" or fly_tip == null or not fly_tip.visible:
 		return false
 	return str(fly_tip.edit_kind) == "item" and str(fly_tip.edit_id) == id
+
+
+func _mouse_over_wheel_slice(slice: int) -> bool:
+	if wheel_view == null or not wheel_view.visible or slice < 0:
+		return false
+	var mouse: Vector2 = get_global_mouse_position()
+	var local: Vector2 = wheel_view.get_global_transform().affine_inverse() * mouse
+	if not wheel_view.has_method("slice_at"):
+		return false
+	return int(wheel_view.slice_at(local)) == slice
+
+
+## Feel pass B: hide the inspect the moment the cursor leaves its owner.
+## Clears a freed `_fly_card`, and does not reopen a stale enemy plate after an item click.
+func _reconcile_hover_inspect() -> void:
+	if _cabin_up() or _unlock_screen:
+		return
+	if _fly_card != null and not is_instance_valid(_fly_card):
+		_fly_card = null
+	if fly_tip == null or not fly_tip.visible:
+		return
+	if _tut_hold_item_plate():
+		return
+	var mouse: Vector2 = get_global_mouse_position()
+	## Keyword capsules / plate itself still count as "over" the inspect.
+	if fly_tip.get_global_rect().grow(4.0).has_point(mouse):
+		return
+	if fly_tip.has_method("get") and fly_tip.get("_kw_stack") != null:
+		var stack: Control = fly_tip.get("_kw_stack") as Control
+		if stack != null and stack.visible and stack.get_global_rect().grow(4.0).has_point(mouse):
+			return
+	if _fly_card != null and is_instance_valid(_fly_card):
+		if not _fly_card.get_global_rect().has_point(mouse):
+			_on_item_unhovered()
+		return
+	if _deck_hovering:
+		if not _tutorial_mouse_on_deck(mouse):
+			_on_deck_unhovered()
+		return
+	if str(fly_tip.edit_kind) == "monster":
+		var slice: int = _hover_slice
+		if slice < 0 and wheel_view != null:
+			slice = int(wheel_view.hover_index)
+		if slice < 0 or not _mouse_over_wheel_slice(slice):
+			_hover_slice = -1
+			if wheel_view != null and int(wheel_view.hover_index) >= 0:
+				wheel_view.hover_index = -1
+			_idle_inspect()
+			_apply_preview({})
+		return
+	## Empty / other plate with no owner under the cursor.
+	if _fly_card == null and not _deck_hovering:
+		var over_slice: int = -1
+		if wheel_view != null and wheel_view.has_method("slice_at"):
+			var local: Vector2 = wheel_view.get_global_transform().affine_inverse() * mouse
+			over_slice = int(wheel_view.slice_at(local))
+		if over_slice < 0:
+			_idle_inspect()
 
 
 ## The tutorial click shield swallows mouse-enter on the hotbar, draft cards, and
