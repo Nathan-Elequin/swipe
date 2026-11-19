@@ -18514,7 +18514,9 @@ func _damsel_neighbors(index: int) -> Array[int]:
 	var n: int = wheel.size()
 	if n <= 0 or index < 0 or index >= n:
 		return out
-	for j in [(index - 1 + n) % n, (index + 1) % n]:
+	# Left = clockwise = next index. Right = counter-clockwise.
+	# Damsel Ability: neighbors attack Left, then Right.
+	for j in [(index + 1) % n, (index - 1 + n) % n]:
 		if j == index:
 			continue
 		if str(wheel[j].get("kind", "")) == "monster":
