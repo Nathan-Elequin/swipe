@@ -76,6 +76,7 @@ func _check_spin_constants() -> bool:
 	var failed := false
 	var src: String = FileAccess.get_file_as_string("res://scripts/boss_wheel.gd")
 	failed = _check(failed, "SPIN_DURATION is 1.56", src.find("const SPIN_DURATION := 1.56") >= 0) or failed
+	## Locked Feel pass A: cubic spin uses EASE_IN_OUT (not EASE_OUT-only).
 	failed = _check(
 		failed,
 		"spin tween uses EASE_IN_OUT",
@@ -83,8 +84,8 @@ func _check_spin_constants() -> bool:
 	) or failed
 	failed = _check(
 		failed,
-		"spin tween not EASE_IN_OUT",
-		src.find("_spin_tween.set_ease(Tween.EASE_IN_OUT)") < 0
+		"spin tween not EASE_OUT-only",
+		src.find("_spin_tween.set_ease(Tween.EASE_OUT)") < 0
 	) or failed
 	# Runtime constant on a live instance.
 	var wheel = BOSS_WHEEL.new()
