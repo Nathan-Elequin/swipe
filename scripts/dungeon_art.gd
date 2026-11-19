@@ -430,12 +430,36 @@ func _load_tex(path: String) -> Texture2D:
 	return tex
 
 
+## Static frame-list cache shared across DungeonArt instances (wheel / strike / utility).
+static var _fx_frames_cache: Dictionary = {}
+
+
+## Common stems warmed once at dungeon start so spin / seat / strike paths stay cheap.
+const FX_WARM_STEMS := [
+	"land_burst", "wheel_pointer_tick", "wheel_pointer_land",
+	"take_thud", "take_bite", "take_claw",
+	"heart_break", "heart_refill",
+	"seat_slain", "seat_blocked", "seat_escaped",
+	"block_clang", "heal_sparkle", "iris_ring", "defeat_poof", "soul_wisp",
+	"blood_splat", "hit_light", "hit_heavy",
+	"hub_shield_crack",
+]
+
+
+static func warm_fx_cache() -> void:
+	var loader = new()
+	for stem in FX_WARM_STEMS:
+		loader.fx_frames(str(stem))
+
+
 ## Load `<dir>/<stem>_f0.png`, `_f1`… until a frame is missing. Tries FX_FRAME_DIRS.
 func fx_frames(stem: String) -> Array:
 	var id: String = str(stem).strip_edges()
-	var out: Array = []
 	if id == "":
-		return out
+		return []
+	if _fx_frames_cache.has(id):
+		return (_fx_frames_cache[id] as Array).duplicate()
+	var out: Array = []
 	var base_dir := ""
 	for dir in FX_FRAME_DIRS:
 		var probe: Texture2D = _load_tex("%s/%s_f0.png" % [dir, id])
@@ -444,12 +468,14 @@ func fx_frames(stem: String) -> Array:
 			out.append(probe)
 			break
 	if base_dir == "":
+		_fx_frames_cache[id] = []
 		return out
 	for i in range(1, 24):
 		var t: Texture2D = _load_tex("%s/%s_f%d.png" % [base_dir, id, i])
 		if t == null:
 			break
 		out.append(t)
+	_fx_frames_cache[id] = out.duplicate()
 	return out
 
 
