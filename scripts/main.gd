@@ -77,13 +77,12 @@ const ANIM_TIME_SCALE := 0.675
 ## After the heal travel line, Sprout / hearts / SFX run this much faster (1.5 = 50% faster).
 const HEAL_RESOLVE_RATE := 1.5
 ## Feel pass B: wheel size stays put across ready / spinning / fighting / slaying.
-## Undo/Redo float beside Take (same height as the cream arc). This band is the
-## gap under the wheel so Take never sits on the hotbar. Draft still uses the
-## pill row for Begin.
+## Undo/Redo float beside Take. Slack under the wheel is only the cream arc so
+## the hotbar sits tight under Take. Draft still uses the pill row for Begin.
 ## Hub Spin (Nov 19) lives on the wheel center — never in this row.
 const COMBAT_ACTION_SLOT_H := 64.0
-## Room under the wheel for the cream Take band + Undo. BODY_W 60 + rim gap 10.
-const TAKE_UNDO_BAND_H := 80.0
+## Air between the bottom of Take and the top of the hotbar.
+const TAKE_HOTBAR_GAP := 8.0
 ## Compact cue under the gold rim. May cover Take / Undo; never the wheel.
 const HUB_CUE_H := 48.0
 const HUB_CUE_MIN_W := 200.0
@@ -29417,7 +29416,6 @@ func _hold_combat_action_slot() -> void:
 		return
 	var h := 0.0
 	if _combat_holds_action_slot():
-		h = TAKE_UNDO_BAND_H
 		var need_row: bool = false
 		if btn_challenge_begin != null and btn_challenge_begin.visible:
 			need_row = true
@@ -29430,7 +29428,7 @@ func _hold_combat_action_slot() -> void:
 		if btn_bribe != null and btn_bribe.visible:
 			need_row = true
 		if need_row:
-			h = maxf(h, COMBAT_ACTION_SLOT_H)
+			h = COMBAT_ACTION_SLOT_H
 	btn_wrap.custom_minimum_size = Vector2(0.0, h)
 	btn_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -29472,9 +29470,10 @@ func _layout_play_field() -> void:
 	var top_need := 8.0
 	if tray != null and tray.visible:
 		top_need = maxf(top_need, tray.position.y + tray.size.y + 8.0)
+	## Slack under the wheel is the cream Take band only — not an extra empty row.
 	var band: float = 8.0
 	if _combat_holds_action_slot() and phase != "draft":
-		band = TAKE_UNDO_BAND_H
+		band = TAKE_ARC.RIM_GAP_DEFAULT + TAKE_ARC.BODY_W + TAKE_HOTBAR_GAP
 	var side: float = minf(sz.x - extra, maxf(120.0, sz.y - top_need - band))
 	# Viewport center, not play-field center. A too-wide column used to shove
 	# the wheel right of the screen; background art is wallpaper only.
@@ -29504,8 +29503,8 @@ func _layout_play_field() -> void:
 	)
 	if use_lock:
 		var lock_side: float = _locked_wheel_local.size.x
-		## A lock from before the Take/Undo band would sit the cream arc on the cards.
-		if lock_side > side + 1.0:
+		## Drop a lock from the empty-gap pass or the overlap pass; recapture.
+		if absf(lock_side - side) > 2.0:
 			use_lock = false
 			_unlock_wheel_layout()
 		else:
@@ -30236,9 +30235,10 @@ func _sync_buttons() -> void:
 	if _clear_resolving or _dungeon_clear_pending or phase == "endless_clear":
 		_hide_clear_resolve_chrome()
 	if btn_undo:
-		var undo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and _undo_can_undo()
-		btn_undo.visible = undo_on
-		btn_undo.disabled = not undo_on
+		var undo_show: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying")
+		btn_undo.visible = undo_show
+		## Stay the blue pill even with an empty stack so it does not vanish into the dungeon.
+		btn_undo.disabled = false
 	if btn_redo:
 		var redo_on: bool = _undo_in_scope() and (phase == "fighting" or phase == "ready" or phase == "slaying") and not busy and _undo_can_redo()
 		btn_redo.visible = redo_on
@@ -30780,10 +30780,10 @@ func _restore_combat_pill(btn: Button, home: HBoxContainer) -> void:
 
 
 func _float_combat_pill(btn: Button, tl: Vector2, sz: Vector2) -> void:
-	if btn == null or play_field == null:
+	if btn == null:
 		return
-	_set_combat_pill_parent(btn, play_field)
-	## Hotbar is absolute z 40. Undo has to sit above it or the cards hide it.
+	## Parent on Main so z 50 beats the hotbar (absolute 40) and the wheel.
+	_set_combat_pill_parent(btn, self)
 	btn.z_index = 50
 	btn.z_as_relative = false
 	btn.custom_minimum_size = sz
