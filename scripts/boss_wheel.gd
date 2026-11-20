@@ -181,6 +181,11 @@ var tex_medals: Dictionary = {}
 var _used_cache: Dictionary = {}
 var _fit_cache: Dictionary = {}
 var _fit_sig: String = ""
+## Perf: solved seat layouts keyed by the full fit signature. set_slices() and
+## friends clear `_fit_sig` on every refresh; without this memo each refresh
+## re-ran the ~270k-sample search (150–350 ms frame on Take / item use / slay).
+var _fit_memo: Dictionary = {}
+const FIT_MEMO_MAX := 32
 var _fit_clearance: Array = []
 var _tag_fs: Dictionary = {}
 var _ability_cards: Array = []
@@ -2415,6 +2420,9 @@ func _fit_sig_of(n: int) -> String:
 	var bits: PackedStringArray = PackedStringArray()
 	bits.append(str(n))
 	bits.append(str(int(_radius())))
+	## Center and wedge count feed the search too (memo must not go stale).
+	bits.append(str(size))
+	bits.append(str(slices.size()))
 	for i in n:
 		var sz: Vector2 = _seat_sprite_size(i)
 		var name_s := ""
@@ -2432,6 +2440,13 @@ func _fit_table(n: int) -> Array:
 		return _fit_cache[n]
 	if collapse > 0.001 and _fit_cache.has(n) and (_fit_cache[n] as Array).size() == n:
 		# Never bake collapsing spans into the equal-n cache.
+		return _fit_cache[n]
+	if _fit_memo.has(sig):
+		var memo: Dictionary = _fit_memo[sig]
+		_fit_cache[n] = (memo["feet"] as Array).duplicate()
+		_fit_clearance = (memo["cl"] as Array).duplicate()
+		_tag_fs = (memo["fs"] as Dictionary).duplicate()
+		_fit_sig = sig
 		return _fit_cache[n]
 	var saved_collapse: float = collapse
 	var saved_slay: int = slay_index
@@ -2476,6 +2491,9 @@ func _fit_table(n: int) -> Array:
 		_fit_clearance.append(best_cl)
 	_fit_cache[n] = feet_out
 	_fit_sig = sig
+	if _fit_memo.size() >= FIT_MEMO_MAX:
+		_fit_memo.clear()
+	_fit_memo[sig] = {"feet": feet_out.duplicate(), "cl": _fit_clearance.duplicate(), "fs": _tag_fs.duplicate()}
 	collapse = saved_collapse
 	slay_index = saved_slay
 	if not spinning:
@@ -2534,11 +2552,16 @@ func _search_feet(c: Vector2, R: float, hub_r: float, dir: Vector2, a0: float, a
 	var r: float = R * 0.42
 	var r_hi: float = R * 0.96
 	var dy_span: float = 36.0 if sz.y >= 110.0 else 28.0
+	## Perf: tag size and wedge normals are constant for this seat's search.
+	var tag_w: float = _tag_width_px(i)
+	var tag_h: float = _tag_height_px(i)
+	var n0: Vector2 = Vector2.from_angle(a0).rotated(PI * 0.5)
+	var n1: Vector2 = Vector2.from_angle(a1).rotated(-PI * 0.5)
 	while r <= r_hi + 0.01:
 		var dy: float = -dy_span
 		while dy <= dy_span + 0.01:
 			var f: Vector2 = c + dir * r + Vector2(0, dy)
-			var cl: float = _block_clearance(f, c, R, hub_r, a0, a1, sz, i)
+			var cl: float = _block_clearance_pre(f, c, R, hub_r, n0, n1, sz, tag_w, tag_h)
 			var cl_cmp: float = snappedf(cl, 4.0)
 			var best_cmp: float = snappedf(best_cl, 4.0)
 			var better: bool = cl_cmp > best_cmp
@@ -2570,6 +2593,52 @@ func _block_clearance(f: Vector2, c: Vector2, R: float, hub_r: float, a0: float,
 	for rec in rects:
 		for p in _rect_samples(rec):
 			worst = minf(worst, _point_clearance(p, c, R, hub_r, a0, a1))
+	return worst
+
+
+## Same result as _block_clearance, with per-seat constants hoisted and no
+## per-sample Array allocation (this runs ~11k times per seat-layout solve).
+func _block_clearance_pre(f: Vector2, c: Vector2, R: float, hub_r: float, n0: Vector2, n1: Vector2, sz: Vector2, tag_w: float, tag_h: float) -> float:
+	var w: float = sz.x
+	var h: float = sz.y
+	var worst: float = 1.0e9
+	worst = minf(worst, _rect_clearance_pre(Vector2(f.x - w * 0.5, f.y - h), Vector2(w, h), c, R, hub_r, n0, n1))
+	worst = minf(worst, _rect_clearance_pre(Vector2(f.x - (w * 0.5 + 28.0), f.y - 32.0), Vector2(w + 56.0, 40.0), c, R, hub_r, n0, n1))
+	worst = minf(worst, _rect_clearance_pre(Vector2(f.x - tag_w * 0.5, f.y + 10.0), Vector2(tag_w, tag_h), c, R, hub_r, n0, n1))
+	return worst
+
+
+func _rect_clearance_pre(p: Vector2, s: Vector2, c: Vector2, R: float, hub_r: float, n0: Vector2, n1: Vector2) -> float:
+	## Unrolled _rect_samples + _point_clearance (same 8 points, same math).
+	var lo: float = hub_r + 6.0
+	var hi: float = R - 6.0
+	var worst: float = 1.0e9
+	var d: Vector2
+	var dist: float
+	d = p - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(s.x, 0) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(0, s.y) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + s - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(s.x * 0.5, 0) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(s.x * 0.5, s.y) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(0, s.y * 0.5) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
+	d = p + Vector2(s.x, s.y * 0.5) - c
+	dist = d.length()
+	worst = minf(worst, minf(minf(d.dot(n0), d.dot(n1)), minf(dist - lo, hi - dist)))
 	return worst
 
 

@@ -18,7 +18,17 @@ static func ids() -> PackedStringArray:
 	])
 
 
+static var _checked_ms: int = -100000
+## Perf: every def lookup used to stat the JSON (1–2 filesystem hits) to catch
+## edits. Hover/refresh paths do dozens of lookups; check mtime at most 1/sec.
+const RECHECK_MS := 1000
+
+
 static func reload(force: bool = false) -> void:
+	var now_ms: int = Time.get_ticks_msec()
+	if not force and not _cache.is_empty() and now_ms - _checked_ms < RECHECK_MS:
+		return
+	_checked_ms = now_ms
 	var abs_path: String = ProjectSettings.globalize_path(PATH)
 	var m: int = -1
 	if FileAccess.file_exists(PATH):

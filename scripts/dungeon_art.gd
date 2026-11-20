@@ -423,10 +423,19 @@ func _load_extras() -> void:
 		extra_monsters[str(id2)] = _load_tex(str(MONSTER_PNG[id2]))
 
 
+## Perf: path -> Texture2D (or null when missing), shared by every DungeonArt.
+## Frame-strip helpers probe `_f0.._fN` until a miss on every refresh; each
+## probe was a ResourceLoader.exists() filesystem hit (~270 per item use).
+static var _tex_cache: Dictionary = {}
+
+
 func _load_tex(path: String) -> Texture2D:
-	if not ResourceLoader.exists(path):
-		return null
-	var tex: Texture2D = load(path) as Texture2D
+	if _tex_cache.has(path):
+		return _tex_cache[path]
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path) as Texture2D
+	_tex_cache[path] = tex
 	return tex
 
 
