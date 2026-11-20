@@ -2,6 +2,10 @@ extends Control
 ## Full loop: title, mill gate draft, combat, victory/defeat.
 
 signal bled(n: int)
+## Carry-3 (slice 1): raised when the between-dungeon hand is over CARRY_MAX.
+## UI (later PR) should present a picker, then call `_finish_carry_limit_choice(kept_ids)`.
+## Until that UI exists, DEV_FALLBACK_KEEP_FIRST auto-keeps the first 3.
+signal carry_limit_choice_needed(items: Array)
 
 const CATALOG_PATH := "res://data/catalog.json"
 const RUNTIME_PATH := "res://data/runtime.json"
@@ -22,6 +26,7 @@ const FX_ONESHOT := preload("res://scripts/fx_oneshot.gd")
 const POISON_BADGE_TEX := preload("res://assets/ui/anim/poison_badge_drip_f0.png")
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
+const CARRY_LIMIT := preload("res://scripts/carry_limit.gd")
 const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 const BIOME_AMBIENT := preload("res://scripts/fx/biome_ambient.gd")
@@ -4896,6 +4901,8 @@ func _adventure_continue() -> void:
 	if seq != _mill_seq or not adventure:
 		_adventure_busy = false
 		return
+	## Carry-3: trim the hand before dungeon prep / starter grants / hand-cap tax.
+	await _apply_carry_limit_between_dungeons()
 	_prep_next_dungeon()
 	_log("on_draft", "Dungeon %s" % dungeon_index)
 	_telem("funnel", {"step": "dungeon_enter", "n": dungeon_index})
@@ -4916,6 +4923,42 @@ func _adventure_continue() -> void:
 		if not _campaign_on:
 			await _maybe_auto_spin()
 	_adventure_busy = false
+	_refresh()
+
+
+## Between-dungeon Carry-3. Pure model: scripts/carry_limit.gd.
+## Hook API for the future picker UI:
+##   1. Connect to `carry_limit_choice_needed(items)` (emitted when over cap).
+##   2. Call `_finish_carry_limit_choice(kept_uids)` with ≤3 uids from that list.
+## Until the UI lands, DEV_FALLBACK_KEEP_FIRST keeps the first 3 automatically.
+func _apply_carry_limit_between_dungeons() -> void:
+	if not CARRY_LIMIT.needs_choice(hotbar):
+		return
+	carry_limit_choice_needed.emit(hotbar.duplicate(true))
+	if CARRY_LIMIT.DEV_FALLBACK_KEEP_FIRST:
+		var ids: Array = CARRY_LIMIT.first_n_ids(hotbar, CARRY_LIMIT.CARRY_MAX)
+		_finish_carry_limit_choice(ids)
+		return
+	## Future UI: wait here for `_finish_carry_limit_choice`. Slice 1 stays playable
+	## via DEV_FALLBACK_KEEP_FIRST above.
+
+
+func _finish_carry_limit_choice(kept_ids: Array) -> void:
+	var applied: Dictionary = CARRY_LIMIT.apply_choice(hotbar, kept_ids)
+	if not bool(applied.get("ok", false)):
+		## Invalid picker payload — fall back so the run cannot soft-lock.
+		if CARRY_LIMIT.DEV_FALLBACK_KEEP_FIRST:
+			applied = CARRY_LIMIT.apply_choice(hotbar, CARRY_LIMIT.first_n_ids(hotbar, CARRY_LIMIT.CARRY_MAX))
+		if not bool(applied.get("ok", false)):
+			return
+	var removed: Array = applied.get("removed", [])
+	for it in removed:
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		_log("discard", "carry-limit %s" % str(it.get("name", "?")))
+	hotbar = (applied.get("kept", []) as Array).duplicate(true)
+	_hotbar_sig = ""
+	_sort_hotbar()
 	_refresh()
 
 
@@ -6265,6 +6308,9 @@ func _run_challenge_setup() -> void:
 		return
 	if _campaign_on:
 		await _campaign_grant_starter_six()
+		## Start-of-dungeon forced discard (hand cap 10). After Carry-3, arrivals
+		## with ≤3 kept items + starter six stay ≤9, so this does not open a toss.
+		## Still required when other gains push the hand over CHALLENGE_HAND.
 		await _enforce_hand_cap()
 		if challenge_draft_ui:
 			challenge_draft_ui.hide_draft()
