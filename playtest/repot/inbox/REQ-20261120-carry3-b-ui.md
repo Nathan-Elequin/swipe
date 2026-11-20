@@ -3,7 +3,7 @@ id: REQ-20261120-carry3-b-ui
 status: open
 priority: high
 pr: pending
-tip_sha: pending
+tip_sha: b1f31de435a40f954086a882d87cc1df59166265
 branch: cursor/carry-3-b-ui-622f
 created: 2026-11-20T00:50:00Z
 created_by: cursor-cloud
