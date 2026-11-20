@@ -8255,6 +8255,83 @@
 			"author_lock": true,
 			"locked_at": "2026-11-17",
 			"cat": "Title"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.title",
+			"text": "Pack for the next delve",
+			"where": "Carry-3 overlay headline"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.hint",
+			"text": "Click an item to put it in your bag. Click again to leave it behind. Take up to 3.",
+			"where": "Carry-3 overlay hint"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.keeping",
+			"text": "keeping · {n} of 3",
+			"where": "Carry-3 overlay keeping count"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.leave",
+			"text": "leave",
+			"where": "Carry-3 leave-pool chip"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.delve",
+			"text": "Delve",
+			"where": "Carry-3 overlay Delve button"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.ready",
+			"text": "{n} / 3 READY",
+			"where": "Carry-3 Delve ready caption"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.overlay.locked",
+			"text": "{n} / 3 — too many",
+			"where": "Carry-3 Delve locked caption"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.reminder.title",
+			"text": "Hang on — pack first?",
+			"where": "Carry-3 reminder title"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.reminder.body",
+			"text": "You can take up to 3 items into the next dungeon. Anything you leave behind is gone for this run.",
+			"where": "Carry-3 reminder body"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.reminder.okay",
+			"text": "Open bag",
+			"where": "Carry-3 reminder Okay"
+		},
+		{
+			"cat": "Carry3",
+			"draft": true,
+			"key": "carry3.reminder.continue",
+			"text": "No, continue",
+			"where": "Carry-3 reminder continue"
 		}
 	],
 	"updated": "2026-11-17"

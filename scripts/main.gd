@@ -2,9 +2,9 @@ extends Control
 ## Full loop: title, mill gate draft, combat, victory/defeat.
 
 signal bled(n: int)
-## Carry-3 (slice 1): raised when the between-dungeon hand is over CARRY_MAX.
-## UI fills the bag selection, then the portal calls `commit_carry_selection_from_portal()`.
-## Until that UI exists, DEV_FALLBACK_EMPTY_SELECTION commits an empty bag (carry nothing).
+## Carry-3: raised when the between-dungeon hand is over CARRY_MAX.
+## Layout B UI fills the bag selection; portal / Delve call `commit_carry_selection_from_portal()`.
+## DEV_FALLBACK_EMPTY_SELECTION still covers headless / no-UI paths (carry nothing).
 signal carry_limit_choice_needed(items: Array)
 
 const CATALOG_PATH := "res://data/catalog.json"
@@ -27,6 +27,8 @@ const POISON_BADGE_TEX := preload("res://assets/ui/anim/poison_badge_drip_f0.png
 const MONSTER_LINES := preload("res://scripts/monster_lines.gd")
 const P1 := preload("res://scripts/spinheritance_p1.gd")
 const CARRY_LIMIT := preload("res://scripts/carry_limit.gd")
+const CARRY3_UI_RULES := preload("res://scripts/carry3_ui_rules.gd")
+const CARRY3_UI_SCR := preload("res://scripts/cabin/carry3_ui.gd")
 const SP_DALLAS := preload("res://scripts/sp_dallas_pack.gd")
 const DUNGEON_BG := preload("res://scripts/dungeon_bg.gd")
 const BIOME_AMBIENT := preload("res://scripts/fx/biome_ambient.gd")
@@ -680,6 +682,7 @@ var lore: Dictionary = {}
 var cabin_layout: Dictionary = {}
 var rope_exit
 var sack_peek
+var carry3_ui
 var shot_harness
 var logic_qa
 var text_audit
@@ -2016,6 +2019,8 @@ func _build_ui() -> void:
 	rope_exit.climb.connect(_adventure_leave)
 	rope_exit.deeper.connect(_rope_deeper)
 	rope_exit.peek.connect(_open_sack_peek)
+	if rope_exit.has_signal("carry_bag_pressed"):
+		rope_exit.carry_bag_pressed.connect(_on_carry3_bag_pressed)
 	if rope_exit.has_signal("push_home"):
 		rope_exit.push_home.connect(_push_interrupt_home)
 	_campaign = CAMPAIGN_SHELL.new()
@@ -2033,6 +2038,11 @@ func _build_ui() -> void:
 	sack_peek = preload("res://scripts/cabin/sack_peek.gd").new()
 	add_child(sack_peek)
 	sack_peek.setup(home_cabin, cabin_layout.get("extra", {}), art, self)
+	carry3_ui = CARRY3_UI_SCR.new()
+	add_child(carry3_ui)
+	carry3_ui.setup(home_cabin, art, self)
+	carry3_ui.delve_requested.connect(_on_carry3_delve_requested)
+	carry3_ui.continue_without_packing.connect(_on_carry3_continue_without_packing)
 	_bucket_reveal = BUCKET_REVEAL.new()
 	_bucket_reveal.sfx = sfx
 	_bucket_reveal.card_hovered.connect(_on_unlock_card_hovered)
@@ -3472,6 +3482,8 @@ func _commit_dungeon_clear() -> void:
 			_campaign.write()
 	phase = "rest"
 	facing_index = -1
+	## Carry-3: bag starts empty each transition; room bag only if over cap.
+	_reset_carry3_for_rest()
 	## Instant Rope Exit under the black wipe (no 0.3s fade).
 	if rope_exit != null:
 		rope_exit.open_instant = true
@@ -4934,25 +4946,18 @@ func _adventure_continue() -> void:
 
 
 ## Between-dungeon Carry-3. Pure model: scripts/carry_limit.gd.
-## Hook API for the future bag / portal UI:
-##   1. Connect to `carry_limit_choice_needed(items)` (emitted when over cap).
-##   2. On bag open: `mark_bag_opened_this_transition()`.
-##   3. As the player fills the bag: `set_carry_bag_selection(kept_uids)` (≤3).
-##   4. Portal calls `commit_carry_selection_from_portal()` — empty bag over cap
-##      carries nothing. Until UI ships, DEV_FALLBACK_EMPTY_SELECTION does that.
+## Layout B commits at the portal / Delve button before this runs. If the hand
+## is still over cap (headless / no UI), DEV_FALLBACK_EMPTY_SELECTION carries 0.
 func _apply_carry_limit_between_dungeons() -> void:
-	bag_opened_this_transition = false
-	_carry_bag_selection.clear()
-	_carry_limit_awaiting_commit = false
 	if not CARRY_LIMIT.needs_choice(hotbar):
+		_carry_limit_awaiting_commit = false
 		return
 	_carry_limit_awaiting_commit = true
 	carry_limit_choice_needed.emit(hotbar.duplicate(true))
 	if CARRY_LIMIT.DEV_FALLBACK_EMPTY_SELECTION:
-		## No picker yet: portal commit with an empty bag (carry nothing).
+		## No in-room commit yet: empty bag (carry nothing).
 		commit_carry_selection_from_portal()
 		return
-	## Future UI: wait here for `commit_carry_selection_from_portal()`.
 
 
 ## UI: player opened the sack / bag this transition.
@@ -4960,12 +4965,18 @@ func mark_bag_opened_this_transition() -> void:
 	bag_opened_this_transition = true
 
 
-## UI: update which item uids are currently in the carry bag (≤ CARRY_MAX).
+## UI: update which item uids are currently in the carry bag.
 func set_carry_bag_selection(kept_ids: Array) -> void:
 	_carry_bag_selection = kept_ids.duplicate()
+	if rope_exit != null and rope_exit.has_method("set_carry_bag_badge"):
+		rope_exit.set_carry_bag_badge(_carry_bag_selection.size())
 
 
-## Portal: commit whatever is in the bag right now. Over cap + empty bag → carry 0.
+func get_carry_bag_selection() -> Array:
+	return _carry_bag_selection.duplicate()
+
+
+## Portal / Delve: commit whatever is in the bag right now. Over cap + empty → 0.
 func commit_carry_selection_from_portal() -> void:
 	var ids: Array = _carry_bag_selection.duplicate()
 	if CARRY_LIMIT.needs_choice(hotbar) and ids.is_empty() and CARRY_LIMIT.DEV_FALLBACK_EMPTY_SELECTION:
@@ -4992,6 +5003,61 @@ func _finish_carry_limit_choice(kept_ids: Array) -> void:
 	_carry_bag_selection.clear()
 	_sort_hotbar()
 	_refresh()
+
+
+## Rest enter: bag starts empty; spawn room bag only when over cap.
+func _reset_carry3_for_rest() -> void:
+	bag_opened_this_transition = false
+	_carry_bag_selection.clear()
+	_carry_limit_awaiting_commit = CARRY_LIMIT.needs_choice(hotbar)
+	if rope_exit != null and rope_exit.has_method("sync_carry_bag"):
+		rope_exit.sync_carry_bag(
+			CARRY3_UI_RULES.should_show_room_bag(hotbar),
+			_carry_bag_selection.size()
+		)
+
+
+## rope_exit portal click gate. Returns proceed | reminder | blocked | commit.
+func carry3_on_portal_click() -> String:
+	var needs: bool = CARRY_LIMIT.needs_choice(hotbar)
+	var action: String = CARRY3_UI_RULES.portal_action(
+		needs, bag_opened_this_transition, _carry_bag_selection.size()
+	)
+	if action == "reminder":
+		if carry3_ui != null:
+			carry3_ui.show_reminder()
+		return "reminder"
+	if action == "blocked":
+		return "blocked"
+	if action == "commit":
+		commit_carry_selection_from_portal()
+		return "proceed"
+	return "proceed"
+
+
+func _on_carry3_bag_pressed() -> void:
+	if carry3_ui == null:
+		return
+	carry3_ui.open_overlay(hotbar.duplicate(true), _carry_bag_selection.duplicate())
+
+
+func _on_carry3_delve_requested() -> void:
+	if CARRY3_UI_RULES.delve_locked(_carry_bag_selection.size()):
+		return
+	commit_carry_selection_from_portal()
+	if rope_exit != null and rope_exit.has_method("proceed_deeper_after_carry"):
+		rope_exit.proceed_deeper_after_carry()
+	else:
+		_rope_deeper()
+
+
+func _on_carry3_continue_without_packing() -> void:
+	## Reminder "No, continue" — current bag selection (often empty) is final.
+	commit_carry_selection_from_portal()
+	if rope_exit != null and rope_exit.has_method("proceed_deeper_after_carry"):
+		rope_exit.proceed_deeper_after_carry()
+	else:
+		_rope_deeper()
 
 
 func _prep_next_dungeon() -> void:
@@ -31245,6 +31311,12 @@ func _sync_overlay() -> void:
 				rope_exit.apply_exit_mode(_campaign_on, can_push, push_interrupt, chip, endless_run)
 				## First extract with NEW UNIQUE preview — Verdant/b1 wording only.
 				_maybe_queue_extract_haul_lesson(chip)
+			## Carry-3 room bag affordance (no-op when ≤3).
+			if rope_exit.has_method("sync_carry_bag"):
+				rope_exit.sync_carry_bag(
+					CARRY3_UI_RULES.should_show_room_bag(hotbar),
+					_carry_bag_selection.size()
+				)
 		return
 	if phase == "victory":
 		overlay.visible = false
