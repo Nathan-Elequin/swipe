@@ -3,8 +3,8 @@ extends Control
 
 signal bled(n: int)
 ## Carry-3 (slice 1): raised when the between-dungeon hand is over CARRY_MAX.
-## UI (later PR) should present a picker, then call `_finish_carry_limit_choice(kept_ids)`.
-## Until that UI exists, DEV_FALLBACK_KEEP_FIRST auto-keeps the first 3.
+## UI fills the bag selection, then the portal calls `commit_carry_selection_from_portal()`.
+## Until that UI exists, DEV_FALLBACK_EMPTY_SELECTION commits an empty bag (carry nothing).
 signal carry_limit_choice_needed(items: Array)
 
 const CATALOG_PATH := "res://data/catalog.json"
@@ -928,6 +928,13 @@ var btn_move_left: Button
 var btn_move_right: Button
 var adventure_seat_tiers: Array = [1, 1, 1, 1, 1, 1]
 var _adventure_busy: bool = false
+## Carry-3 / UI: true after the player opens the bag this between-dungeon transition.
+## Resets at the start of every new transition. Portal commit reads the bag selection.
+var bag_opened_this_transition: bool = false
+## Uids currently selected in the carry bag for this transition (≤ CARRY_MAX).
+var _carry_bag_selection: Array = []
+## True while `_adventure_continue` is waiting on a portal commit for an over-cap hand.
+var _carry_limit_awaiting_commit: bool = false
 ## Dungeon-clear resolve: re-entry + soft-lock guards (SCREEN-dungeon-clear-resolve).
 var _clear_resolving: bool = false
 var _clear_committed: bool = false
@@ -4927,28 +4934,52 @@ func _adventure_continue() -> void:
 
 
 ## Between-dungeon Carry-3. Pure model: scripts/carry_limit.gd.
-## Hook API for the future picker UI:
+## Hook API for the future bag / portal UI:
 ##   1. Connect to `carry_limit_choice_needed(items)` (emitted when over cap).
-##   2. Call `_finish_carry_limit_choice(kept_uids)` with ≤3 uids from that list.
-## Until the UI lands, DEV_FALLBACK_KEEP_FIRST keeps the first 3 automatically.
+##   2. On bag open: `mark_bag_opened_this_transition()`.
+##   3. As the player fills the bag: `set_carry_bag_selection(kept_uids)` (≤3).
+##   4. Portal calls `commit_carry_selection_from_portal()` — empty bag over cap
+##      carries nothing. Until UI ships, DEV_FALLBACK_EMPTY_SELECTION does that.
 func _apply_carry_limit_between_dungeons() -> void:
+	bag_opened_this_transition = false
+	_carry_bag_selection.clear()
+	_carry_limit_awaiting_commit = false
 	if not CARRY_LIMIT.needs_choice(hotbar):
 		return
+	_carry_limit_awaiting_commit = true
 	carry_limit_choice_needed.emit(hotbar.duplicate(true))
-	if CARRY_LIMIT.DEV_FALLBACK_KEEP_FIRST:
-		var ids: Array = CARRY_LIMIT.first_n_ids(hotbar, CARRY_LIMIT.CARRY_MAX)
-		_finish_carry_limit_choice(ids)
+	if CARRY_LIMIT.DEV_FALLBACK_EMPTY_SELECTION:
+		## No picker yet: portal commit with an empty bag (carry nothing).
+		commit_carry_selection_from_portal()
 		return
-	## Future UI: wait here for `_finish_carry_limit_choice`. Slice 1 stays playable
-	## via DEV_FALLBACK_KEEP_FIRST above.
+	## Future UI: wait here for `commit_carry_selection_from_portal()`.
+
+
+## UI: player opened the sack / bag this transition.
+func mark_bag_opened_this_transition() -> void:
+	bag_opened_this_transition = true
+
+
+## UI: update which item uids are currently in the carry bag (≤ CARRY_MAX).
+func set_carry_bag_selection(kept_ids: Array) -> void:
+	_carry_bag_selection = kept_ids.duplicate()
+
+
+## Portal: commit whatever is in the bag right now. Over cap + empty bag → carry 0.
+func commit_carry_selection_from_portal() -> void:
+	var ids: Array = _carry_bag_selection.duplicate()
+	if CARRY_LIMIT.needs_choice(hotbar) and ids.is_empty() and CARRY_LIMIT.DEV_FALLBACK_EMPTY_SELECTION:
+		ids = []
+	_finish_carry_limit_choice(ids)
+	_carry_limit_awaiting_commit = false
 
 
 func _finish_carry_limit_choice(kept_ids: Array) -> void:
 	var applied: Dictionary = CARRY_LIMIT.apply_choice(hotbar, kept_ids)
 	if not bool(applied.get("ok", false)):
-		## Invalid picker payload — fall back so the run cannot soft-lock.
-		if CARRY_LIMIT.DEV_FALLBACK_KEEP_FIRST:
-			applied = CARRY_LIMIT.apply_choice(hotbar, CARRY_LIMIT.first_n_ids(hotbar, CARRY_LIMIT.CARRY_MAX))
+		## Invalid bag payload — empty selection keeps the run moving (carry nothing).
+		if CARRY_LIMIT.DEV_FALLBACK_EMPTY_SELECTION:
+			applied = CARRY_LIMIT.apply_choice(hotbar, [])
 		if not bool(applied.get("ok", false)):
 			return
 	var removed: Array = applied.get("removed", [])
@@ -4958,6 +4989,7 @@ func _finish_carry_limit_choice(kept_ids: Array) -> void:
 		_log("discard", "carry-limit %s" % str(it.get("name", "?")))
 	hotbar = (applied.get("kept", []) as Array).duplicate(true)
 	_hotbar_sig = ""
+	_carry_bag_selection.clear()
 	_sort_hotbar()
 	_refresh()
 
