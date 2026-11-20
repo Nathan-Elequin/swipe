@@ -134,6 +134,10 @@ static func apply_names(t: String) -> String:
 	if t == "":
 		return t
 	t = fix_mojibake(t)
+	## Perf: only `{id}` / `{id|poss}` tokens are rewritten. Most strings carry
+	## none, so skip the per-call sort + 2 replaces per name (hot on refresh).
+	if t.find("{") < 0:
+		return t
 	if names_by_id.is_empty():
 		_load_names()
 	var out: String = t
