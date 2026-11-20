@@ -4,6 +4,8 @@ extends Control
 signal climb
 signal deeper
 signal peek
+## Carry-3: player clicked the room bag (only spawned when over cap).
+signal carry_bag_pressed
 ## Campaign: hover/focus Push while this biome's cabinet is under quota.
 signal push_blocked
 ## Campaign: player accepted Nib's "take me home" on the Push interrupt.
@@ -89,6 +91,11 @@ var _arch_lights_lit: int = 0
 var _arch_lights: Array = []
 var _floor_satchel: Control = null
 var _loot_grid: Control = null
+## Carry-3 B: closed pack bag in the transition room (only when over cap).
+var _carry_bag: Control = null
+var _carry_bag_tex: TextureRect = null
+var _carry_bag_badge: TextureRect = null
+var _carry_bag_packed: int = 0
 ## Imported for a follow-up socket-fill puzzle; not shown in v1.
 var _socket_filled_tex: Texture2D
 ## Dynamic wall tallies (TALLY-SPEC.md). Driven by lifetime clears, not per-run.
@@ -114,6 +121,9 @@ const GATE_APERTURE := Rect2(1244, 443, 256, 448)
 const GATE_FLOOR_SHADOW := Rect2(1252, 868, 240, 56)
 ## Open satchel by the dead portal (left of arch feet). Prefer satchel_open art (256×168).
 const SATCHEL_FLOOR := Rect2(980, 780, 256, 168)
+## Carry-3 closed bag (Pixel B pack). Measured from room_bag_idle_1680 mockup.
+const CARRY_BAG_FLOOR := Rect2(1144, 624, 192, 160)
+const CARRY_BADGE_SZ := Vector2(28, 28)
 ## Spill grid sits on the floor plane in front of the satchel (screen space).
 ## floor_grid_cell is 60×60 with 76 px pitch (gap 16).
 const SATCHEL_GRID_ORIGIN := Vector2(1108, 900) ## center of first row
@@ -659,6 +669,7 @@ func hide_exit() -> void:
 	visible = false
 	_hide_exit_tip()
 	_clear_loot()
+	_clear_carry_bag()
 	_hide_nib()
 	_kill_climb_hot_tw()
 	_reset_climb_wipe()
@@ -857,6 +868,106 @@ func _on_deeper() -> void:
 		return
 	if _campaign_mode and not _can_push:
 		## Dead portal: fizzle + shake. No dialogue, no progress block.
+		_fizzle_dead_portal()
+		return
+	## Carry-3: Main may show reminder / block over-packed / commit selection first.
+	var host = get_parent()
+	if host != null and host.has_method("carry3_on_portal_click"):
+		var action: String = str(host.carry3_on_portal_click())
+		if action == "reminder" or action == "blocked":
+			return
+	_do_deeper()
+
+
+## Carry-3 room bag: only when the hand is over cap for this transition.
+func sync_carry_bag(show_bag: bool, packed_n: int = 0) -> void:
+	_carry_bag_packed = maxi(0, packed_n)
+	if not show_bag:
+		_clear_carry_bag()
+		return
+	if _carry_bag == null or not is_instance_valid(_carry_bag):
+		_build_carry_bag()
+	if _carry_bag:
+		_carry_bag.visible = true
+	set_carry_bag_badge(_carry_bag_packed)
+
+
+func set_carry_bag_badge(packed_n: int) -> void:
+	_carry_bag_packed = maxi(0, packed_n)
+	if _carry_bag_badge == null:
+		return
+	var tex: Texture2D = null
+	if _carry_bag_packed >= 3:
+		tex = KIT.ui_tex("carry3/badge_3")
+	elif _carry_bag_packed == 2:
+		tex = KIT.ui_tex("carry3/badge_2")
+	elif _carry_bag_packed == 1:
+		tex = KIT.ui_tex("carry3/badge_1")
+	_carry_bag_badge.texture = tex
+	_carry_bag_badge.visible = tex != null
+
+
+func _build_carry_bag() -> void:
+	_clear_carry_bag()
+	_carry_bag = Control.new()
+	_carry_bag.name = "Carry3RoomBag"
+	_carry_bag.position = CARRY_BAG_FLOOR.position
+	_carry_bag.size = CARRY_BAG_FLOOR.size
+	_carry_bag.mouse_filter = Control.MOUSE_FILTER_STOP
+	_carry_bag.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_carry_bag.z_index = 18
+	_carry_bag_tex = TextureRect.new()
+	_carry_bag_tex.name = "BagTex"
+	_carry_bag_tex.texture = KIT.ui_tex("carry3/bag_idle")
+	_carry_bag_tex.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_carry_bag_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_carry_bag_tex.stretch_mode = TextureRect.STRETCH_SCALE
+	_carry_bag_tex.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_carry_bag_tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_carry_bag.add_child(_carry_bag_tex)
+	_carry_bag_badge = TextureRect.new()
+	_carry_bag_badge.name = "Badge"
+	_carry_bag_badge.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_carry_bag_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_carry_bag_badge.stretch_mode = TextureRect.STRETCH_SCALE
+	_carry_bag_badge.size = CARRY_BADGE_SZ
+	_carry_bag_badge.position = Vector2(CARRY_BAG_FLOOR.size.x - CARRY_BADGE_SZ.x + 4.0, -6.0)
+	_carry_bag_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_carry_bag_badge.visible = false
+	_carry_bag.add_child(_carry_bag_badge)
+	_carry_bag.mouse_entered.connect(_on_carry_bag_hover.bind(true))
+	_carry_bag.mouse_exited.connect(_on_carry_bag_hover.bind(false))
+	_carry_bag.gui_input.connect(_on_carry_bag_input)
+	add_child(_carry_bag)
+
+
+func _clear_carry_bag() -> void:
+	if _carry_bag != null and is_instance_valid(_carry_bag):
+		_carry_bag.queue_free()
+	_carry_bag = null
+	_carry_bag_tex = null
+	_carry_bag_badge = null
+
+
+func _on_carry_bag_hover(on: bool) -> void:
+	if _carry_bag_tex == null:
+		return
+	_carry_bag_tex.texture = KIT.ui_tex("carry3/bag_hover" if on else "carry3/bag_idle")
+
+
+func _on_carry_bag_input(ev: InputEvent) -> void:
+	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+		if _busy or _interrupt_open:
+			return
+		KIT.cue(cabin.sfx if cabin else null, &"cabin.click")
+		carry_bag_pressed.emit()
+
+
+## After Carry-3 commit (Delve / reminder continue), walk through the portal.
+func proceed_deeper_after_carry() -> void:
+	if _busy or _interrupt_open:
+		return
+	if _campaign_mode and not _can_push:
 		_fizzle_dead_portal()
 		return
 	_do_deeper()
